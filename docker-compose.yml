@@ -1,0 +1,7 @@
+services:
+  php:
+    build: .
+    volumes:
+      - .:/app #liveupdate
+    working_dir: /app
+    command: vendor/bin/phpunit
