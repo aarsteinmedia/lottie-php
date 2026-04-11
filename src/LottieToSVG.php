@@ -2,8 +2,10 @@
 
 namespace LottiePHP;
 
+use LottiePHP\Animation\AnimationManager;
+
 class LottieToSVG {
-  public function hello_world(array $data): array {
-    return array_map(fn($item) => strtoupper($item), $data);
+  public static function loadAnimation(array $params) {
+    return AnimationManager::loadAnimation($params);
   }
 }

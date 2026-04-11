@@ -6,18 +6,19 @@ use DOMDocument;
 use DOMElement;
 use LottiePHP\Animation\AnimationItem;
 
-class SVGRenderer
+class SVGRenderer extends SVGRendererBase
 {
-    private $_dom = new DOMDocument('1.0', 'UTF-8');
+    private DOMDocument $_dom;
 
     public AnimationItem $animationItem;
-    public DOMElement|false $svgElement;
     public DOMElement|false $layerElement;
     public array $renderConfig;
 
     public function __construct(AnimationItem $animationItem, array $config = [])
     {
         $this->animationItem = $animationItem;
+
+        $this->_dom = new DOMDocument('1.0', 'UTF-8');
         $this->svgElement = $this->_dom->createElementNS('http://www.w3.org/2000/svg', 'svg');
 
         $defs = $this->_dom->createElementNS('http://www.w3.org/2000/svg', 'defs');
@@ -46,8 +47,15 @@ class SVGRenderer
         ];
     }
 
-    public function appendElementInPos(array $element, int $pos)
-    {
-
+    public function createComp(array $data) {
+    if (!$this->globalData) {
+      throw new \Error(get_class($this) . ': Can\'t access globalData');
     }
+
+    return new SVGCompElement(
+      $data,
+      $this->globalData,
+      $this
+    );
+  }
 }

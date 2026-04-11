@@ -2,20 +2,23 @@
 
 namespace LottiePHP\Animation;
 
+use DOMElement;
+use LottiePHP\Renderer\SVGRenderer;
 use stdClass;
 use LottiePHP\Utils\DataManager;
 
 class AnimationItem
 {
-    public $animationData = new stdClass();
+    public \stdClass $animationData;
     public $assets = [];
-    public $renderer = null;
+    public SVGRenderer|null $renderer = null;
     public $assetsPath = '';
     public $path = '';
+    public null|DOMElement $wrapper = null;
 
     protected ?string $fileName = null;
 
-    public function configAnimation($animationData)
+    public function configAnimation(\stdClass $animationData)
     {
         try {
             $this->animationData = $animationData;
@@ -91,6 +94,11 @@ class AnimationItem
     public function setParams(array $params): void
     {
         try {
+            $this->renderer = new SVGRenderer(
+                $this,
+                $params['rendererSettings']
+            );
+
             if ($params['assetsPath']) {
                 $this->assetsPath = $params['assetsPath'];
             }

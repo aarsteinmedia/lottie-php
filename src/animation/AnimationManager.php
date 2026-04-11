@@ -18,6 +18,7 @@ class AnimationManager
     {
         try {
             $animItem = new AnimationItem();
+            self::setupAnimation($animItem);
             $animItem->setParams($params);
 
             return $animItem;

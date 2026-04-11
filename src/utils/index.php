@@ -22,3 +22,19 @@ function buildStyle(array $styles): string
     }
     return implode('; ', $parts);
 }
+
+function addClasses(DOMElement $el, array $classes) {
+    $existing = $el->getAttribute('class');
+    $new = implode(' ', $classes);
+    $el->setAttribute('class', $existing ? $existing . ' ' . $new : $new);
+}
+
+function createElementID(): string {
+    static $count = 0;
+    $count++;
+    return '__lottie_element_' . $count;
+}
+
+function createSizedArray(int $length) {
+  return array_fill(0, $length, null);
+}
