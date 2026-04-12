@@ -4,7 +4,7 @@ namespace LottiePHP\Elements\Helpers;
 
 use LottiePHP\Elements\ImageElement;
 
-abstract class RenderableElement
+abstract class RenderableElement extends FrameElement
 {
     public $hidden = false;
     public $isInRange = false;

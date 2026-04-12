@@ -13,6 +13,8 @@ class ImageElement extends SVGBaseElement
         array $globalData,
         array $comp
     ) {
+        parent::__construct();
+        
         if ($data['refId']) {
             $this->assetData = $globalData['getAssetData']($data['refId']);
         }
