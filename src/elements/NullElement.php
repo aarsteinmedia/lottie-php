@@ -2,29 +2,38 @@
 
 namespace LottiePHP\Elements;
 
-class NullElement /*extends FrameElement*/ {
-  public function __constructor(
-    array $data,
-    array $globalData,
-    array $comp
-  ) {
-    $this->initFrame();
-    $this->initBaseData(
-      $data, $globalData, $comp
-    );
-    $this->initTransform();
-    $this->initHierarchy();
-  }
+use DOMElement;
+use LottiePHP\Elements\Helpers\FrameElement;
 
-  public function getBaseElement() {
-    return null;
-  }
+class NullElement extends FrameElement
+{
+    public function __constructor(
+        array $data,
+        array $globalData,
+        array $comp
+    ) {
+        $this->initFrame();
+        $this->initBaseData(
+            $data,
+            $globalData,
+            $comp
+        );
+        $this->initTransform();
+        $this->initHierarchy();
+    }
 
-  public function prepareFrame(int $num) {
-    $this->prepareProperties($num, true);
-  }
+    public function getBaseElement(): DOMElement|null
+    {
+        return null;
+    }
 
-  public function renderFrame(?int $_frame) {
-    return null;
-  }
+    public function prepareFrame(int $num)
+    {
+        $this->prepareProperties($num, true);
+    }
+
+    public function renderFrame(?int $_frame)
+    {
+        return null;
+    }
 }

@@ -48,7 +48,7 @@ class MaskElement {
 
     for ($i = 0; $i < $length; $i++) {
       if (
-        $properties[$i]['mode'] !== 'a' && properties[$i]['mode'] !== 'n' ||
+        $properties[$i]['mode'] !== 'a' && $properties[$i]['mode'] !== 'n' ||
         $properties[$i]['inv'] ||
         $properties[$i]['o']['k'] !== 100 ||
         $properties[$i]['o']['x']
@@ -63,8 +63,8 @@ class MaskElement {
       ) {
         $rect = createNS('rect', $this->dom);
         $rect->setAttribute('fill', '#ffffff');
-        $rect->setAttribute('width', $this->element['comp']['data']['w']);
-        $rect->setAttribute('height', $this->element['comp']['data']['h']);
+        $rect->setAttribute('width', $this->element['comp']['data']['w'] ?? 0);
+        $rect->setAttribute('height', $this->element['comp']['data']['h'] ?? 0);
         array_push($currentMasks, $rect);
       } else {
         $rect = null;
@@ -101,13 +101,13 @@ class MaskElement {
       $path->setAttribute('clip-rule', 'nonzero');
       $filterID;
 
-      if ($properties[$i]['x']['k'] === 0) {
+      if (($properties[$i]['x']['k'] ?? null) === 0) {
         $feMorph = null;
         $x = null;
       } else {
         $maskType = 'mask';
         $maskRef = 'mask';
-        $x = PropertyFactory->getProp(
+        $x = PropertyFactory::getProp(
           $this->element,
           $properties[$i]['x'],
           0,
@@ -126,82 +126,83 @@ class MaskElement {
         $defs->appendChild($expansor);
         $path->setAttribute(
           'stroke',
-          $properties[$i]['mode'] === 's' ? '#000000' : '#ffffff'
+          ($properties[$i]['mode'] ?? '') === 's' ? '#000000' : '#ffffff'
         );
       }
 
       // TODO: move $this to a factory or to a constructor
-      $this->storedData[$i] = {
-        elem: path,
-        expan: feMorph,
-        filterId: filterID,
-        lastOperator: '',
-        lastPath: '',
-        lastRadius: 0,
-        x,
-      }
-      if (properties[$i]?.mode === 'i') {
-        $jLen = count(currentMasks);
-        $g = createNS<SVGGElement>('g');
+      $this->storedData[$i] = [
+        'elem' => $path,
+        'expan' => $eMorph,
+        'filterId' => $filterID,
+        'lastOperator' => '',
+        'lastPath' => '',
+        'lastRadius' => 0,
+        'x' => $x,
+      ];
+      if (($properties[$i]['mode'] ?? '') === 'i') {
+        $jLen = count($currentMasks);
+        $g = createNS('g', $this->dom);
 
         for ($j = 0; $j < $jLen; $j++) {
-          g.appendChild(currentMasks[$j]);
+          $g->appendChild($currentMasks[$j]);
         }
-        $mask = createNS<SVGMaskElement>('mask');
+        $mask = createNS('mask', $this->dom);
 
-        $mask->setAttribute('mask-type', 'alpha');
-        $mask.id = "${layerId}_${count}";
-        $mask.appendChild(path);
-        $defs.appendChild(mask);
-        $g->setAttribute('mask', "url(${getLocationHref()}#${layerId}_${count})");
+        $mask->setAttribute('mask-type', 'alpha');      
+        $mask->setAttribute('id', "{$layerId}_{$count}");
+        $mask->appendChild($path);
+        $defs->appendChild($mask);
+        $locationHref = getLocationHref();
+        $g->setAttribute('mask', "url({$locationHref}#{$layerId}_{$count})");
 
-        $currentMasks.length = 0;
-        $currentMasks.push($g);
+        $currentMasks = [];
+        array_push($currentMasks, $g);
       } else {
-        $currentMasks.push($path);
+        array_push($currentMasks, $path);
       }
       if ($properties[$i]['inv'] && !$this->solidPath) {
         $this->solidPath = $this->createLayerSolidPath();
       }
       // TODO: move $this to a factory or to a constructor
-      $this->viewData[$i] = {
-        elem: path,
-        invRect: rect,
-        lastPath: '',
-        op: PropertyFactory.getProp(
+      $this->viewData[$i] = [
+        'elem' => $path,
+        'invRect' => $rect,
+        'lastPath' => '',
+        'op' => PropertyFactory::getProp(
           $this->element,
-          properties[$i]?.o,
+          $properties[$i]['o'] ?? null,
           0,
           0.01,
           $this->element
-        ) as ValueProperty,
-        prop: ShapePropertyFactory.getShapeProp(
-          $this->element, properties[$i] as Shape, 3
         ),
-      }
-      $shapePath = $this->viewData[$i]?.prop?.v
+        'prop' => ShapePropertyFactory::getShapeProp(
+          $this->element, $properties[$i], 3
+        ),
+      ];
+      $shapePath = $this->viewData[$i]['prop']['v'] ?? null;
 
-      if (!$this->viewData[$i]?.prop?.k && shapePath) {
+      if (!$this->viewData[$i]['prop']['k'] ?? null && $shapePath) {
         $this->drawPath(
-          properties[$i] ?? null,
-          shapePath,
-          $this->viewData[$i] as ViewData
-        )
+          $properties[$i] ?? null,
+          $shapePath,
+          $this->viewData[$i]
+        );
       }
     }
 
-    $this->maskElement = createNS(maskType);
+    $this->maskElement = createNS($maskType, $this->dom);
 
     $cLen = count(currentMasks);
 
     for ($i = 0; $i < $cLen; $i++) {
-      $this->maskElement.appendChild(currentMasks[$i]);
+      $this->maskElement.appendChild($currentMasks[$i]);
     }
 
     if ($count > 0) {
       $this->maskElement->setAttribute('id', $layerId);
       $locationHref = getLocationHref();
-      $this->element->maskedElement?->setAttribute(maskRef,
+      $this->element->maskedElement?->setAttribute($maskRef,
         "url({$locationHref}#${layerId})");
       $defs->appendChild($this->maskElement);
     }
@@ -225,42 +226,43 @@ class MaskElement {
   }
 
   public function destroy() {
-    $this->element = null as unknown as ElementInterfaceIntersect
-    $this->globalData = null as unknown as GlobalData
-    $this->maskElement = null
-    $this->data = null as unknown as LottieLayer
-    $this->masksProperties = null as unknown as Shape[]
+    $this->element = null;
+    $this->globalData = null;
+    $this->maskElement = null;
+    $this->data = null;
+    $this->masksProperties = null;
   }
 
   public function drawPath(
-    pathData: null | Shape, pathNodes: ShapePath, viewData: ViewData
+    array|null $pathData, ShapePath $pathNodes, array $viewData
   ) {
-    $i,
-      pathString = " M${pathNodes.v[0]?.[0]},${pathNodes.v[0]?.[1]}"
-    $len = pathNodes._length || 0
+    $i;
+    $node1 = $pathNodes['v'][0][0] ?? 0;
+    $node2 = $pathNodes['v'][0][1] ?? 0;
+    $pathString = " M{$node1},{$node2}";
+    $len = $pathNodes['_length'] || 0;
 
     for ($i = 1; $i < $len; $i++) {
-      pathString += " C${pathNodes.o[i - 1]?.[0]},${pathNodes.o[i - 1]?.[1]} ${pathNodes.i[$i]?.[0]
-      },${pathNodes.i[$i]?.[1]} ${pathNodes.v[$i]?.[0]},${pathNodes.v[$i]?.[1]}"
+      $pathString .= " C${pathNodes.o[i - 1]?.[0]},${pathNodes.o[i - 1]?.[1]} ${pathNodes.i[$i]?.[0]
+      },${pathNodes.i[$i]?.[1]} ${pathNodes.v[$i]?.[0]},${pathNodes.v[$i]?.[1]}";
     }
     if (pathNodes.c && len > 1) {
-      pathString += " C${pathNodes.o[i - 1]?.[0]},${pathNodes.o[i - 1]?.[1]} ${pathNodes.i[0]?.[0]
-      },${pathNodes.i[0]?.[1]} ${pathNodes.v[0]?.[0]},${pathNodes.v[0]?.[1]}"
+      $pathString .= " C${pathNodes.o[i - 1]?.[0]},${pathNodes.o[i - 1]?.[1]} ${pathNodes.i[0]?.[0]
+      },${pathNodes.i[0]?.[1]} ${pathNodes.v[0]?.[0]},${pathNodes.v[0]?.[1]}";
     }
 
-    if (viewData.lastPath !== pathString) {
-      $pathShapeValue = ''
+    if (($viewData['lastPath'] ?? '') !== $pathString) {
+      $pathShapeValue = '';
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (viewData.elem) {
-        if (pathNodes.c) {
-          pathShapeValue = pathData?.inv
-            ? $this->solidPath + pathString
-            : pathString
+      if ($viewData['elem']) {
+        if ($pathNodes['c']) {
+          $pathShapeValue = ($pathData['inv'] ?? false)
+            ? $this->solidPath . $pathString
+            : $pathString;
         }
-        viewData.elem->setAttribute('d', pathShapeValue)
+        $viewData['elem']->setAttribute('d', $pathShapeValue);
       }
-      viewData.lastPath = pathString
+      $viewData['lastPath'] = $pathString;
     }
   }
 
@@ -272,7 +274,7 @@ class MaskElement {
     return $this->viewData[$pos]['prop'] ?? null;
   }
 
-  public function renderFrame(frame?: number | null) {
+  public function renderFrame(?int $frame) {
     $finalMat = $this->element.finalTransform['mat'];
     $length = count($this->masksProperties);
 
@@ -312,19 +314,20 @@ class MaskElement {
 
       if ($storedData.x.v < 0) {
         if ($storedData.lastOperator !== 'erode') {
-          $storedData->lastOperator = 'erode'
+          $storedData->lastOperator = 'erode';
+          $locationHref = getLocationHref();
           $storedData->elem->setAttribute('filter',
-            "url(${getLocationHref()}#${storedData.filterId})")
+            "url({$locationHref}\#{$storedData['filterId']})");
         }
-        feMorph?->setAttribute('radius', "${-storedData.x.v}")
-        continue
+        feMorph?->setAttribute('radius', "${-storedData.x.v}");
+        continue;
       }
       if (storedData->lastOperator !== 'dilate') {
-        $storedData->lastOperator = 'dilate'
-        $storedData->elem->removeAttribute('filter')
+        $storedData->lastOperator = 'dilate';
+        $storedData->elem->removeAttribute('filter');
       }
-      $storedData->elem->setAttribute('stroke-width',
-        "${storedData.x.v * 2}");
+      $storedData['elem']->setAttribute('stroke-width',
+        $storedData['x']['v'] * 2);
     }
   }
 }

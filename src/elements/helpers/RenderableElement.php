@@ -102,7 +102,7 @@ abstract class RenderableElement extends FrameElement
         $this->renderableComponents = [];
     }
 
-    public function prepareRenderableFrame(int $num, bool $_)
+    public function prepareRenderableFrame(int $num, $_ = false)
     {
         $this->checkLayerLimits($num);
     }
