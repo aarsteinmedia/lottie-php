@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Shapes;
 
 use function LottiePHP\Utils\createSizedArray;
+use function LottiePHP\Utils\Pooling\pointPool;
 
 class ShapePath
 {
@@ -15,6 +16,8 @@ class ShapePath
     public ?array $o;
     public ?array $s;
     public ?array $v;
+
+    private $_pointPool;
 
     public function __get(string $name)
     {
@@ -30,6 +33,8 @@ class ShapePath
         $this->v = createSizedArray($this->_maxLength);
         $this->o = createSizedArray($this->_maxLength);
         $this->i = createSizedArray($this->_maxLength);
+
+        $this->_pointPool = pointPool();
     }
 
     public function doubleArrayLength()
@@ -60,9 +65,9 @@ class ShapePath
         $i = 0;
 
         while ($i < $len) {
-            $this->v[$i] = $pointPool->newElement();
-            $this->o[$i] = $pointPool->newElement();
-            $this->i[$i] = $pointPool->newElement();
+            $this->v[$i] = $this->_pointPool->newElement();
+            $this->o[$i] = $this->_pointPool->newElement();
+            $this->i[$i] = $this->_pointPool->newElement();
             $i++;
         }
     }
@@ -132,7 +137,7 @@ class ShapePath
             }
         }
         if (!$arr[$pos] || !$replace) {
-            $arr[$pos] = $pointPool->newElement();
+            $arr[$pos] = $this->_pointPool->newElement();
         }
         $arr[$pos][0] = $x;
         $arr[$pos][1] = $y;

@@ -11,13 +11,13 @@ class PoolFactory
     private $_length = 0;
     private int $_maxLength;
     private array $pool;
-    private callable $_create;
-    private callable $_release;
+    private \Closure $_create;
+    private \Closure $_release;
 
     public function __construct(
         int $initialLength,
         callable $_create,
-        ?callable $_release
+        ?callable $_release = null
     ) {
         $this->_maxLength = $initialLength;
         $this->_create = $_create;

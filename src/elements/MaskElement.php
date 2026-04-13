@@ -5,7 +5,7 @@ namespace LottiePHP\Elements;
 use DOMDocument;
 use DOMElement;
 use LottiePHP\Utils\LocationHref;
-use LottiePHP\Utils\Matrix;
+use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\createElementID;
 use function LottiePHP\Utils\createNS;
