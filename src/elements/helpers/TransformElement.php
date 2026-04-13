@@ -2,12 +2,13 @@
 
 namespace LottiePHP\Elements\Helpers;
 
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\EffectTypes;
+use LottiePHP\Utils\Matrix;
 
 abstract class TransformElement extends BaseElement {
   public false|int  $_isFirstFrame= false;
   public $finalTransform;
-  // ElementInterfaceIntersect[]
   public $hierarchy = [];
   public $localTransforms = null;
   public Matrix $mHelper;
@@ -82,7 +83,7 @@ abstract class TransformElement extends BaseElement {
       return;
     }
     if (!$this->finalTransform) {
-      throw new \Error( get_class($this) . ": finalTransform is not initialized ");
+      throw new \Error(get_class($this) . ": finalTransform is not initialized ");
     }
     $i = 0;
     $length = count($this->localTransforms);

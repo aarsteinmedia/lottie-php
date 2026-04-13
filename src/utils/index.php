@@ -4,6 +4,7 @@ namespace LottiePHP\Utils;
 
 // declare(strict_types=1);
 
+use DOMDocument;
 use DOMElement;
 use LottiePHP\Utils\Enums\ArrayType;
 
@@ -65,4 +66,35 @@ function createRegularArray(ArrayType $type, int $length): array
 function createSizedArray(int $length): array
 {
     return array_fill(0, $length, null);
+}
+
+function createNS(string $type, ?DOMDocument $domFromProps) {
+    $dom = $domFromProps ?? new DOMDocument('1.0', 'UTF-8');
+
+    $dom->createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+    return $dom->createElementNS('http://www.w3.org/2000/svg', $type);
+}
+
+function getBlendMode($mode = 16) {
+    $blendModeEnums = [
+        0 => 'source-over',
+        1 => 'multiply',
+        10 => 'difference',
+        11 => 'exclusion',
+        12 => 'hue',
+        13 => 'saturation',
+        14 => 'color',
+        15 => 'luminosity',
+        2 => 'screen',
+        3 => 'overlay',
+        4 => 'darken',
+        5 => 'lighten',
+        6 => 'color-dodge',
+        7 => 'color-burn',
+        8 => 'hard-light',
+        9 => 'soft-light',
+    ];
+
+  return $blendModeEnums[$mode] || '';
 }

@@ -6,6 +6,8 @@ use DOMDocument;
 use DOMElement;
 use LottiePHP\Animation\AnimationItem;
 
+use function LottiePHP\Utils\createNS;
+
 class SVGRenderer extends SVGRendererBase
 {
     private DOMDocument $_dom;
@@ -19,12 +21,12 @@ class SVGRenderer extends SVGRendererBase
         $this->animationItem = $animationItem;
 
         $this->_dom = new DOMDocument('1.0', 'UTF-8');
-        $this->svgElement = $this->_dom->createElementNS('http://www.w3.org/2000/svg', 'svg');
+        $this->svgElement = createNS('svg', $this->_dom);
 
-        $defs = $this->_dom->createElementNS('http://www.w3.org/2000/svg', 'defs');
+        $defs = createNS('defs', $this->_dom);
         $this->svgElement->appendChild($defs);
 
-        $mask = $this->_dom->createElementNS('http://www.w3.org/2000/svg', 'g');
+        $mask = createNS('g', $this->_dom);
         $this->svgElement->appendChild($mask);
         $this->layerElement = $mask;
 
