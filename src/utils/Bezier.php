@@ -2,352 +2,356 @@
 
 namespace LottiePHP\Utils;
 
+use LottiePHP\Utils\Shapes\ShapePath;
+
 class Bezier {
 
-private _bezierSegmentPoints = createTypedArray(ArrayType.Float32, 8);
+  private static $_bezierSegmentPoints = createTypedArray(ArrayType.Float32, 8);
 
-public function buildBezierData(
-  array $pt1,
-  array $pt2,
-  array $pt3,
-  array $pt4
-) {
-  $storedData = [];
-  $bezierName = `${pt1[0]}_${pt1[1]}_${pt2[0]}_${pt2[1]}_${pt3[0]}_${pt3[1]
-    }_${pt4[0]}_${pt4[1]}`.replaceAll('.', 'p');
+  public static function buildBezierData(
+    array $pt1,
+    array $pt2,
+    array $pt3,
+    array $pt4
+  ) {
+    $storedData = [];
+    $bezierName = str_repeat('.', 'p', "{$pt1[0]}_{$pt1[1]}_{$pt2[0]}_{$pt2[1]}_{$pt3[0]}_{$pt3[1]}_{$pt4[0]}_{$pt4[1]}");
 
-  if (!$storedData[$bezierName]) {
+    if (!$storedData[$bezierName]) {
+      $curveSegments = getDefaultCurveSegments();
+      $ptCoord;
+      $perc = 0;
+      $addedLength = 0;
+      $ptDistance;
+      $point;
+      $lastPoint = null;
+
+      if (
+        count($pt1) === 2 &&
+        ($pt1[0] !== $pt2[0] || $pt1[1] !== $pt2[1]) &&
+        self::pointOnLine2D(
+          $pt1[0],
+          $pt1[1],
+          $pt2[0],
+          $pt2[1],
+          $pt1[0] + $pt3[0],
+          $pt1[1] + $pt3[1]
+        ) &&
+        pointOnLine2D(
+          $pt1[0],
+          $pt1[1],
+          $pt2[0],
+          $pt2[1],
+          $pt2[0] + $pt4[0],
+          $pt2[1] + $pt4[1]
+        )
+      ) {
+        $curveSegments = 2;
+      }
+      $bezierData = new BezierData($curveSegments);
+      $length = count($pt3);
+
+      for ($k = 0; $k < $curveSegments; $k++) {
+        $point = createSizedArray($length);
+        $perc = $k / ($curveSegments - 1);
+        $ptDistance = 0;
+        for ($i = 0; $i < $length; $i++) {
+          $ptCoord =
+            pow(1 - $perc, 3) * ($pt1[$i] ?? 0) +
+            3 * pow(1 - $perc, 2) * $perc * (($pt1[$i] ?? 0) + ($pt3[$i] ?? 0)) +
+            3 * (1 - $perc) * pow($perc, 2) * (($pt2[$i] ?? 0) + ($pt4[$i] ?? 0)) +
+            pow($perc, 3) * ($pt2[$i] ?? 0);
+          $point[$i] = $ptCoord;
+          if ($lastPoint !== null) {
+            $ptDistance += pow((int)($point[$i]) - (int)($lastPoint[$i]), 2);
+          }
+        }
+        $ptDistance = sqrt($ptDistance);
+        $addedLength += $ptDistance;
+        $bezierData->points[$k] = new PointData($ptDistance, $point);
+        $lastPoint = $point;
+      }
+      $bezierData->segmentLength = $addedLength;
+      $storedData[$bezierName] = $bezierData;
+    }
+
+    return $storedData[$bezierName];
+  }
+
+  public static function getNewSegment(
+    array $pt1,
+    array $pt2,
+    array $pt3,
+    array $pt4,
+    int $startPercFromProps,
+    int $endPercFromProps,
+    array $bezierData
+  ) {
+    $startPerc = $startPercFromProps;
+    $endPerc = $endPercFromProps;
+
+    if ($startPerc < 0) {
+      $startPerc = 0;
+    } else if ($startPerc > 1) {
+      $startPerc = 1;
+    }
+    $t0 = getDistancePerc($startPerc, $bezierData) ?? 0;
+
+    $endPerc = $endPerc > 1 ? 1 : $endPerc;
+    $t1 = getDistancePerc($endPerc, $bezierData) ?? 0;
+    $u0 = 1 - $t0;
+    $u1 = 1 - $t1;
+    $u0u0u0 = $u0 * $u0 * $u0;
+    $t0u0u0_3 = $t0 * $u0 * $u0 * 3;
+    $t0t0u0_3 = $t0 * $t0 * $u0 * 3;
+    $t0t0t0 = $t0 * $t0 * $t0;
+    /**
+     *
+     */
+    $u0u0u1 = $u0 * $u0 * $u1;
+    $t0u0u1_3 = $t0 * $u0 * $u1 + $u0 * $t0 * $u1 + $u0 * $u0 * $t1;
+    $t0t0u1_3 = $t0 * $t0 * $u1 + $u0 * $t0 * $t1 + $t0 * $u0 * $t1;
+    $t0t0t1 = $t0 * $t0 * $t1;
+    /**
+     *
+     */
+    $u0u1u1 = $u0 * $u1 * $u1;
+    $t0u1u1_3 = $t0 * $u1 * $u1 + $u0 * $t1 * $u1 + $u0 * $u1 * $t1;
+    $t0t1u1_3 = $t0 * $t1 * $u1 + $u0 * $t1 * $t1 + $t0 * $u1 * $t1;
+    $t0t1t1 = $t0 * $t1 * $t1;
+    /**
+     *
+     */
+    $u1u1u1 = $u1 * $u1 * $u1;
+    $t1u1u1_3 = $t1 * $u1 * $u1 + $u1 * $t1 * $u1 + $u1 * $u1 * $t1;
+    $t1t1u1_3 = $t1 * $t1 * $u1 + $u1 * $t1 * $t1 + $t1 * $u1 * $t1;
+    $t1t1t1 = $t1 * $t1 * $t1;
+    $length = count($pt1);
+
+    for ($i = 0; $i < $length; $i++) {
+      self::$_bezierSegmentPoints[$i * 4] =
+        round(($u0u0u0 * ($pt1[$i] ?? 0) +
+          $t0u0u0_3 * ($pt3[$i] ?? 0) +
+          $t0t0u0_3 * ($pt4[$i] ?? 0) +
+          $t0t0t0 * ($pt2[$i] ?? 0)) *
+          1000) / 1000;
+      self::$_bezierSegmentPoints[$i * 4 + 1] =
+        round(($u0u0u1 * ($pt1[$i] ?? 0) +
+          $t0u0u1_3 * ($pt3[$i] ?? 0) +
+          $t0t0u1_3 * ($pt4[$i] ?? 0) +
+          $t0t0t1 * ($pt2[$i] ?? 0)) *
+          1000) / 1000;
+      self::$_bezierSegmentPoints[$i * 4 + 2] =
+        round(($u0u1u1 * ($pt1[$i] ?? 0) +
+          $t0u1u1_3 * ($pt3[$i] ?? 0) +
+          $t0t1u1_3 * ($pt4[$i] ?? 0) +
+          $t0t1t1 * ($pt2[$i] ?? 0)) *
+          1000) / 1000;
+      self::$_bezierSegmentPoints[$i * 4 + 3] =
+        round(($u1u1u1 * ($pt1[$i] ?? 0) +
+          $t1u1u1_3 * ($pt3[$i] ?? 0) +
+          $t1t1u1_3 * ($pt4[$i] ?? 0) +
+          $t1t1t1 * ($pt2[$i] ?? 0)) *
+          1000) / 1000;
+    }
+
+    return self::$_bezierSegmentPoints;
+  }
+
+  public function getPointInSegment(
+    array $pt1,
+    array $pt2,
+    array $pt3,
+    array $pt4,
+    int $percent,
+    array $bezierData
+  ) {
+    $t1 = getDistancePerc($percent, $bezierData) ?? 0;
+    $u1 = 1 - $t1;
+      $ptX =
+        round(($u1 * $u1 * $u1 * $pt1[0] +
+          ($t1 * $u1 * $u1 + $u1 * $t1 * $u1 + $u1 * $u1 * $t1) * $pt3[0] +
+          ($t1 * $t1 * $u1 + $u1 * $t1 * $t1 + $t1 * $u1 * $t1) * $pt4[0] +
+          $t1 * $t1 * $t1 * $pt2[0]) *
+          1000) / 1000;
+      $ptY =
+        round(($u1 * $u1 * $u1 * $pt1[1] +
+          ($t1 * $u1 * $u1 + $u1 * $t1 * $u1 + $u1 * $u1 * $t1) * $pt3[1] +
+          ($t1 * $t1 * $u1 + $u1 * $t1 * $t1 + $t1 * $u1 * $t1) * $pt4[1] +
+          $t1 * $t1 * $t1 * $pt2[1]) *
+          1000) / 1000;
+
+    return [$ptX, $ptY];
+  }
+
+  public function getSegmentsLength(ShapePath $shapeData): SegmentLength {
+    $segmentsLength = $segmentsLengthPool->newElement();
+    $isClosed = $shapeData->c;
+    $pathV = $shapeData->v;
+    $pathO = $shapeData->o;
+    $pathI = $shapeData->i;
+    $i = 0;
+    $len = $shapeData->_length || 0;
+    [ 'lengths' => $lengths ] = $segmentsLength;
+    $totalLength = 0;
+
+    for ($i = 0; $i < $len - 1; $i++) {
+      $lengths[$i] = getBezierLength(
+        pathV[$i],
+        pathV[$i + 1],
+        pathO[$i],
+        pathI[$i + 1]
+      );
+      $totalLength += $lengths[$i]['addedLength'] ?? 0;
+    }
+    if ($isClosed && $len) {
+      $lengths[$i] = getBezierLength(
+        pathV[$i],
+        pathV[0],
+        pathO[$i],
+        pathI[0]
+      );
+      $totalLength += $lengths[$i]['addedLength'] ?? 0;
+    }
+    $segmentsLength['totalLength'] = $totalLength;
+
+    return $segmentsLength;
+  }
+
+  public static function pointOnLine2D(
+    int $x1,
+    int $y1,
+    int $x2,
+    int $y2,
+    int $x3,
+    int $y3
+  ) {
+    $det1 = $x1 * $y2 + $y1 * $x3 + $x2 * $y3 - $x3 * $y2 - $y3 * $x1 - $x2 * $y1;
+
+    return $det1 > -0.001 && $det1 < 0.001;
+  }
+
+  public function pointOnLine3D(
+    int $x1,
+    int $y1,
+    int $z1,
+    int $x2,
+    int $y2,
+    int $z2,
+    int $x3,
+    int $y3,
+    int $z3
+  ) {
+    if ($z1 === 0 && $z2 === 0 && $z3 === 0) {
+      return pointOnLine2D(
+        $x1, $y1, $x2, $y2, $x3, $y3
+      );
+    }
+    $dist1 = sqrt(pow($x2 - $x1, 2) + pow($y2 - $y1, 2) + pow($z2 - $z1, 2));
+    $dist2 = sqrt(pow($x3 - $x1, 2) + pow($y3 - $y1, 2) + pow($z3 - $z1, 2));
+    $dist3 = sqrt(pow($x3 - $x2, 2) + pow($y3 - $y2, 2) + pow($z3 - $z2, 2));
+    $diffDist = 0;
+
+    if ($dist1 > $dist2) {
+      if ($dist1 > $dist3) {
+        $diffDist = $dist1 - $dist2 - $dist3;
+      } else {
+        $diffDist = $dist3 - $dist2 - $dist1;
+      }
+    } else if ($dist3 > $dist2) {
+      $diffDist = $dist3 - $dist2 - $dist1;
+    } else {
+      $diffDist = $dist2 - $dist1 - $dist3;
+    }
+
+    return $diffDist > -0.0001 && $diffDist < 0.0001;
+  }
+
+  function getBezierLength(
+    array $pt1,
+    array $pt2,
+    array $pt3,
+    array $pt4
+  ): BezierLength {
     $curveSegments = getDefaultCurveSegments();
     $ptCoord;
-    $perc;
+    $perc = 0;
     $addedLength = 0;
     $ptDistance;
-    $point;
-    $lastPoint = null;
-
-    if (
-      count($pt1) === 2 &&
-      ($pt1[0] !== $pt2[0] || $pt1[1] !== $pt2[1]) &&
-      pointOnLine2D(
-        $pt1[0],
-        $pt1[1],
-        $pt2[0],
-        $pt2[1],
-        $pt1[0] + $pt3[0],
-        $pt1[1] + $pt3[1]
-      ) &&
-      pointOnLine2D(
-        $pt1[0],
-        $pt1[1],
-        $pt2[0],
-        $pt2[1],
-        $pt2[0] + $pt4[0],
-        $pt2[1] + $pt4[1]
-      )
-    ) {
-      $curveSegments = 2;
-    }
-    $bezierData = new BezierData($curveSegments);
-    $length = count(pt3);
+    $point = [];
+    $lastPoint = [];
+    $lengthData = $bezierLengthPool->newElement();
+    $len = count($pt3);
 
     for ($k = 0; $k < $curveSegments; $k++) {
-      $point = createSizedArray(length);
       $perc = $k / ($curveSegments - 1);
       $ptDistance = 0;
-      for ($i = 0; $i < length; $i++) {
+      for ($i = 0; $i < $len; $i++) {
         $ptCoord =
           pow(1 - $perc, 3) * ($pt1[$i] ?? 0) +
-          3 * pow(1 - $perc, 2) * $perc * (($pt1[$i] ?? 0) + ($pt3[$i] ?? 0)) +
-          3 * (1 - $perc) * pow($perc, 2) * (($pt2[$i] ?? 0) + ($pt4[$i] ?? 0)) +
+          3 * pow(1 - $perc, 2) * $perc * ($pt3[$i] ?? 0) +
+          3 * (1 - $perc) * pow($perc, 2) * ($pt4[$i] ?? 0) +
           pow($perc, 3) * ($pt2[$i] ?? 0);
         $point[$i] = $ptCoord;
-        if ($lastPoint !== null) {
-          $ptDistance += Math.pow((int)(point[$i]) - (int)(lastPoint[$i]), 2);
+        if (gettype($lastPoint[$i]) === 'number') {
+          $ptDistance += pow(($point[$i] ?? 0) - ($lastPoint[$i] ?? 0), 2);
         }
+        $lastPoint[$i] = $point[$i] ?? 0;
       }
-      $ptDistance = sqrt($ptDistance);
-      $addedLength += $ptDistance;
-      $bezierData->points[$k] = new PointData($ptDistance, $point);
-      $lastPoint = $point;
-    }
-    $bezierData->segmentLength = $addedLength;
-    $storedData[bezierName] = $bezierData;
-  }
-
-  return storedData[bezierName]
-}
-
-public function getNewSegment(
-  array $pt1,
-  array $pt2,
-  array $pt3,
-  array $pt4,
-  int $startPercFromProps,
-  int $endPercFromProps,
-  array $bezierData
-) {
-  $startPerc = $startPercFromProps;
-  $endPerc = $endPercFromProps;
-
-  if ($startPerc < 0) {
-    $startPerc = 0;
-  } else if ($startPerc > 1) {
-    $startPerc = 1;
-  }
-  $t0 = getDistancePerc(startPerc, bezierData) ?? 0;
-
-  $endPerc = $endPerc > 1 ? 1 : $endPerc;
-  $t1 = getDistancePerc($endPerc, $bezierData) ?? 0;
-  $u0 = 1 - $t0;
-  $u1 = 1 - $t1;
-  $u0u0u0 = $u0 * $u0 * $u0;
-  $t0u0u0_3 = $t0 * $u0 * $u0 * 3;
-  $t0t0u0_3 = $t0 * $t0 * $u0 * 3;
-  $t0t0t0 = $t0 * $t0 * $t0;
-  /**
-   *
-   */
-  $u0u0u1 = $u0 * $u0 * $u1;
-  $t0u0u1_3 = t0 * u0 * u1 + u0 * t0 * u1 + u0 * u0 * t1;
-  $t0t0u1_3 = t0 * t0 * u1 + u0 * t0 * t1 + t0 * u0 * t1;
-  $t0t0t1 = t0 * t0 * t1;
-  /**
-   *
-   */
-  $u0u1u1 = u0 * u1 * u1;
-  $t0u1u1_3 = t0 * u1 * u1 + u0 * t1 * u1 + u0 * u1 * t1;
-  $t0t1u1_3 = t0 * t1 * u1 + u0 * t1 * t1 + t0 * u1 * t1;
-  $t0t1t1 = t0 * t1 * t1;
-  /**
-   *
-   */
-  $u1u1u1 = u1 * u1 * u1;
-  $t1u1u1_3 = t1 * u1 * u1 + u1 * t1 * u1 + u1 * u1 * t1;
-  $t1t1u1_3 = t1 * t1 * u1 + u1 * t1 * t1 + t1 * u1 * t1;
-  $t1t1t1 = t1 * t1 * t1;
-  $length = count(pt1);
-
-  for ($i = 0; $i < length; $i++) {
-    bezierSegmentPoints[i * 4] =
-      Math.round((u0u0u0 * (pt1[$i] ?? 0) +
-        t0u0u0_3 * (pt3[$i] ?? 0) +
-        t0t0u0_3 * (pt4[$i] ?? 0) +
-        t0t0t0 * (pt2[$i] ?? 0)) *
-        1000) / 1000
-    bezierSegmentPoints[i * 4 + 1] =
-      Math.round((u0u0u1 * (pt1[$i] ?? 0) +
-        t0u0u1_3 * (pt3[$i] ?? 0) +
-        t0t0u1_3 * (pt4[$i] ?? 0) +
-        t0t0t1 * (pt2[$i] ?? 0)) *
-        1000) / 1000
-    bezierSegmentPoints[i * 4 + 2] =
-      Math.round((u0u1u1 * (pt1[$i] ?? 0) +
-        t0u1u1_3 * (pt3[$i] ?? 0) +
-        t0t1u1_3 * (pt4[$i] ?? 0) +
-        t0t1t1 * (pt2[$i] ?? 0)) *
-        1000) / 1000
-    bezierSegmentPoints[i * 4 + 3] =
-      Math.round((u1u1u1 * (pt1[$i] ?? 0) +
-        t1u1u1_3 * (pt3[$i] ?? 0) +
-        t1t1u1_3 * (pt4[$i] ?? 0) +
-        t1t1t1 * (pt2[$i] ?? 0)) *
-        1000) / 1000
-  }
-
-  return bezierSegmentPoints
-}
-
-export function getPointInSegment(
-  pt1: Vector2,
-  pt2: Vector2,
-  pt3: Vector2,
-  pt4: Vector2,
-  percent: number,
-  bezierData: ReturnType<typeof getBezierLength>
-): Vector2 {
-  $t1 = getDistancePerc(percent, bezierData) ?? 0,
-    u1 = 1 - t1,
-    ptX =
-      Math.round((u1 * u1 * u1 * pt1[0] +
-        (t1 * u1 * u1 + u1 * t1 * u1 + u1 * u1 * t1) * pt3[0] +
-        (t1 * t1 * u1 + u1 * t1 * t1 + t1 * u1 * t1) * pt4[0] +
-        t1 * t1 * t1 * pt2[0]) *
-        1000) / 1000,
-    ptY =
-      Math.round((u1 * u1 * u1 * pt1[1] +
-        (t1 * u1 * u1 + u1 * t1 * u1 + u1 * u1 * t1) * pt3[1] +
-        (t1 * t1 * u1 + u1 * t1 * t1 + t1 * u1 * t1) * pt4[1] +
-        t1 * t1 * t1 * pt2[1]) *
-        1000) / 1000
-
-  return [ptX, ptY]
-}
-
-export function getSegmentsLength(shapeData: ShapePath): SegmentLength {
-  $segmentsLength = segmentsLengthPool.newElement() as SegmentLength,
-    isClosed = shapeData.c,
-    pathV = shapeData.v,
-    pathO = shapeData.o,
-    pathI = shapeData.i
-  $i
-  $len = shapeData._length || 0,
-    { lengths } = segmentsLength
-  $totalLength = 0
-
-  for (i = 0; $i < len - 1; $i++) {
-    lengths[$i] = getBezierLength(
-      pathV[$i] as Vector2,
-      pathV[i + 1] as Vector2,
-      pathO[$i] as Vector2,
-      pathI[i + 1] as Vector2
-    )
-    totalLength += lengths[$i]?.addedLength ?? 0
-  }
-  if (isClosed && len) {
-    lengths[$i] = getBezierLength(
-      pathV[$i] as Vector2,
-      pathV[0] as Vector2,
-      pathO[$i] as Vector2,
-      pathI[0] as Vector2
-    )
-    totalLength += lengths[$i]?.addedLength ?? 0
-  }
-  segmentsLength.totalLength = totalLength
-
-  return segmentsLength
-}
-
-export function pointOnLine2D(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  x3: number,
-  y3: number
-) {
-  $det1 = x1 * y2 + y1 * x3 + x2 * y3 - x3 * y2 - y3 * x1 - x2 * y1
-
-  return det1 > -0.001 && det1 < 0.001
-}
-
-export function pointOnLine3D(
-  x1: number,
-  y1: number,
-  z1: number,
-  x2: number,
-  y2: number,
-  z2: number,
-  x3: number,
-  y3: number,
-  z3: number
-) {
-  if (z1 === 0 && z2 === 0 && z3 === 0) {
-    return pointOnLine2D(
-      x1, y1, x2, y2, x3, y3
-    )
-  }
-  $dist1 = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2)),
-    dist2 = Math.sqrt(Math.pow(x3 - x1, 2) + Math.pow(y3 - y1, 2) + Math.pow(z3 - z1, 2)),
-    dist3 = Math.sqrt(Math.pow(x3 - x2, 2) + Math.pow(y3 - y2, 2) + Math.pow(z3 - z2, 2))
-  $diffDist: number
-
-  if (dist1 > dist2) {
-    if (dist1 > dist3) {
-      diffDist = dist1 - dist2 - dist3
-    } else {
-      diffDist = dist3 - dist2 - dist1
-    }
-  } else if (dist3 > dist2) {
-    diffDist = dist3 - dist2 - dist1
-  } else {
-    diffDist = dist2 - dist1 - dist3
-  }
-
-  return diffDist > -0.0001 && diffDist < 0.0001
-}
-
-function getBezierLength(
-  pt1: Vector2,
-  pt2: Vector2,
-  pt3: Vector2,
-  pt4: Vector2
-): BezierLength {
-  $curveSegments = getDefaultCurveSegments()
-  $ptCoord,
-    perc,
-    addedLength = 0,
-    ptDistance
-  $point = [],
-    lastPoint: number[] = [],
-    lengthData = bezierLengthPool.newElement() as BezierLength,
-    len = pt3.length
-
-  for ($k = 0; $k < $curveSegments; $k++) {
-    perc = $k / ($curveSegments - 1)
-    ptDistance = 0
-    for ($i = 0; $i < len; $i++) {
-      ptCoord =
-        Math.pow(1 - perc, 3) * (pt1[$i] ?? 0) +
-        3 * Math.pow(1 - perc, 2) * perc * (pt3[$i] ?? 0) +
-        3 * (1 - perc) * Math.pow(perc, 2) * (pt4[$i] ?? 0) +
-        Math.pow(perc, 3) * (pt2[$i] ?? 0)
-      point[$i] = ptCoord
-      if (typeof lastPoint[$i] === 'number') {
-        ptDistance += Math.pow((point[$i] ?? 0) - (lastPoint[$i] ?? 0), 2)
+      if ($ptDistance) {
+        $ptDistance = sqrt($ptDistance);
+        $addedLength += $ptDistance;
       }
-      lastPoint[$i] = point[$i] ?? 0
+      $lengthData['percents'][$k] = $perc;
+      $lengthData['lengths'][$k] = $addedLength;
     }
-    if (ptDistance) {
-      ptDistance = Math.sqrt(ptDistance)
-      addedLength += ptDistance
-    }
-    lengthData.percents[$k] = perc
-    lengthData.lengths[$k] = addedLength
+    $lengthData['addedLength'] = $addedLength;
+
+    return $lengthData;
   }
-  lengthData.addedLength = addedLength
 
-  return lengthData
-}
+  private function getDistancePerc(int $perc, $bezierLength) {
+    [
+      'addedLength' => $addedLength,
+      'lengths' => $lengths,
+      'percents' => $percents
+    ] = $bezierLength;
 
-function getDistancePerc(perc: number,
-  {
-    addedLength, lengths, percents
-  }: ReturnType<typeof getBezierLength>) {
-  ${ length } = percents
-  $initPos = Math.floor((length - 1) * perc)
-  $lengthPos = perc * addedLength
-  $lPerc = 0
+    $length = count($percents);
+    $initPos = floor(($length - 1) * $perc);
+    $lengthPos = $perc * $addedLength;
+    $lPerc = 0;
 
-  if (
-    initPos === length - 1 ||
-    initPos === 0 ||
-    lengthPos === lengths[initPos]
-  ) {
-    return percents[initPos]
-  }
-  $dir = (lengths[initPos] ?? 0) > lengthPos ? -1 : 1
-  $shouldIterate = true
-
-  while (shouldIterate) {
-    if ((lengths[initPos] ?? 0) <= lengthPos && (lengths[initPos + 1] ?? 0) > lengthPos) {
-      lPerc =
-        (lengthPos - (lengths[initPos] ?? 0)) /
-        ((lengths[initPos + 1] ?? 0) - (lengths[initPos] ?? 0))
-      shouldIterate = false
-    } else {
-      initPos += dir
+    if (
+      $initPos === $length - 1 ||
+      $initPos === 0 ||
+      $lengthPos === $lengths[$initPos]
+    ) {
+      return $percents[$initPos];
     }
-    if (initPos < 0 || initPos >= length - 1) {
-      // FIX for TypedArrays that don't store floating point values with enough accuracy
-      if (initPos === length - 1) {
-        return percents[initPos]
+    $dir = ($lengths[$initPos] ?? 0) > $lengthPos ? -1 : 1;
+    $shouldIterate = true;
+
+    while ($shouldIterate) {
+      if (($lengths[$initPos] ?? 0) <= $lengthPos && ($lengths[$initPos + 1] ?? 0) > $lengthPos) {
+        $lPerc =
+          ($lengthPos - ($lengths[$initPos] ?? 0)) /
+          (($lengths[$initPos + 1] ?? 0) - ($lengths[$initPos] ?? 0));
+        $shouldIterate = false;
+      } else {
+        $initPos += $dir;
       }
-      shouldIterate = false
+      if ($initPos < 0 || $initPos >= $length - 1) {
+        // FIX for TypedArrays that don't store floating point values with enough accuracy
+        if ($initPos === $length - 1) {
+          return $percents[$initPos];
+        }
+        $shouldIterate = false;
+      }
     }
-  }
 
-  return (percents[initPos] ?? 0) + ((percents[initPos + 1] ?? 0) - (percents[initPos] ?? 0)) * lPerc
-}
+    return ($percents[$initPos] ?? 0) + (($percents[$initPos + 1] ?? 0) - ($percents[$initPos] ?? 0)) * $lPerc;
+  }
 
 }
 
