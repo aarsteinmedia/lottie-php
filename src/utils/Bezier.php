@@ -2,11 +2,15 @@
 
 namespace LottiePHP\Utils;
 
+use LottiePHP\Utils\Enums\ArrayType;
+use LottiePHP\Utils\Helpers\Resolution;
 use LottiePHP\Utils\Shapes\ShapePath;
+
+use function LottiePHP\Utils\Pooling\bezierLengthPool;
 
 class Bezier {
 
-  private static $_bezierSegmentPoints = createTypedArray(ArrayType.Float32, 8);
+  private static $_bezierSegmentPoints = null;
 
   public static function buildBezierData(
     array $pt1,
@@ -18,7 +22,7 @@ class Bezier {
     $bezierName = str_repeat('.', 'p', "{$pt1[0]}_{$pt1[1]}_{$pt2[0]}_{$pt2[1]}_{$pt3[0]}_{$pt3[1]}_{$pt4[0]}_{$pt4[1]}");
 
     if (!$storedData[$bezierName]) {
-      $curveSegments = getDefaultCurveSegments();
+      $curveSegments = Resolution::getDefaultCurveSegments();
       $ptCoord = [];
       $perc = 0;
       $addedLength = 0;
@@ -87,6 +91,10 @@ class Bezier {
     int $endPercFromProps,
     array $bezierData
   ) {
+    if (self::$_bezierSegmentPoints === null) {
+      self::$_bezierSegmentPoints = createTypedArray(ArrayType::Float32, 8);
+    }
+
     $startPerc = $startPercFromProps;
     $endPerc = $endPercFromProps;
 
@@ -273,14 +281,14 @@ class Bezier {
     array $pt3,
     array $pt4
   ): array {
-    $curveSegments = getDefaultCurveSegments();
+    $curveSegments = Resolution::getDefaultCurveSegments();
     $ptCoord = null;
     $perc = 0;
     $addedLength = 0;
     $ptDistance = null;
     $point = [];
     $lastPoint = [];
-    $lengthData = $bezierLengthPool->newElement();
+    $lengthData = bezierLengthPool()->newElement();
     $len = count($pt3);
 
     for ($k = 0; $k < $curveSegments; $k++) {
