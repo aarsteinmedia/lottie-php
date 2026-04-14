@@ -5,6 +5,7 @@ namespace LottiePHP\Utils;
 use DOMDocument;
 use DOMElement;
 use LottiePHP\Utils\Enums\ArrayType;
+use LottiePHP\Utils\Helpers\Constants;
 
 function addStyles(DOMElement $el, array $styles)
 {
@@ -24,13 +25,21 @@ function buildStyle(array $styles): string
     return implode('; ', $parts);
 }
 
-function addClasses(DOMElement $el, array $classes) {
+
+function charCodeAt(string $str, int $index): int
+{
+    return ord(substr($str, $index, 1));
+}
+
+function addClasses(DOMElement $el, array $classes)
+{
     $existing = $el->getAttribute('class');
     $new = implode(' ', $classes);
     $el->setAttribute('class', $existing ? $existing . ' ' . $new : $new);
 }
 
-function createElementID(): string {
+function createElementID(): string
+{
     static $count = 0;
     $count++;
     return '__lottie_element_' . $count;
@@ -66,15 +75,15 @@ function createSizedArray(int $length): array
     return array_fill(0, $length, null);
 }
 
-function createNS(string $type, ?DOMDocument $domFromProps) {
+function createNS(string $type, ?DOMDocument $domFromProps)
+{
     $dom = $domFromProps ?? new DOMDocument('1.0', 'UTF-8');
 
-    $dom->createElementNS('http://www.w3.org/2000/svg', 'svg');
-
-    return $dom->createElementNS('http://www.w3.org/2000/svg', $type);
+    return $dom->createElementNS(Constants::$namespaceSVG, $type);
 }
 
-function getBlendMode($mode = 16) {
+function getBlendMode($mode = 16)
+{
     $blendModeEnums = [
         0 => 'source-over',
         1 => 'multiply',
@@ -94,5 +103,5 @@ function getBlendMode($mode = 16) {
         9 => 'soft-light',
     ];
 
-  return $blendModeEnums[$mode] || '';
+    return $blendModeEnums[$mode] || '';
 }

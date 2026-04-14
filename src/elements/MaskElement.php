@@ -260,26 +260,17 @@ class MaskElement
 
         for ($i = 1; $i < $len; $i++) {
             $oVector = implode(',', $pathNodes['o'][$i - 1] ?? []);
-            $iVector = implode(',', $pathNodes['v'][$i] ?? []);
+            $iVector = implode(',', $pathNodes['i'][$i] ?? []);
             $vVector = implode(',', $pathNodes['v'][$i] ?? []);
-
-            if (!$oVector || !$iVector) {
-                continue;
-            }
 
             $pathString += " C{$oVector} {$iVector} {$vVector}";
         }
 
-        $oVector = implode(',', $pathNodes['o'][$i - 1] ?? []);
-        $iVector = implode(',', $pathNodes['v'][$i] ?? []);
-        $vVector = implode(',', $pathNodes['v'][$i] ?? []);
+        if ($pathNodes['c'] && $len > 1) {
+            $oVector = implode(',', $pathNodes['o'][$i - 1] ?? []);
+            $iVector = implode(',', $pathNodes['v'][0] ?? []);
+            $vVector = implode(',', $pathNodes['v'][0] ?? []);
 
-        if (
-            $pathNodes['c'] &&
-            $len > 1 &&
-            $oVector &&
-            $iVector
-        ) {
             $pathString += " C{$oVector} {$iVector} {$vVector}";
         }
 

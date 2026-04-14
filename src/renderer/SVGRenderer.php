@@ -13,7 +13,7 @@ class SVGRenderer extends SVGRendererBase
     private DOMDocument $_dom;
 
     public AnimationItem $animationItem;
-    public DOMElement|false $layerElement;
+    public DOMElement|null $layerElement;
     public array $renderConfig;
 
     public function __construct(AnimationItem $animationItem, array $config = [])
@@ -49,15 +49,16 @@ class SVGRenderer extends SVGRendererBase
         ];
     }
 
-    public function createComp(array $data) {
-    if (!$this->globalData) {
-      throw new \Error(get_class($this) . ': Can\'t access globalData');
-    }
+    public function createComp(array $data): SVGCompElement
+    {
+        if (!$this->globalData) {
+            throw new \Error(get_class($this) . ': Can\'t access globalData');
+        }
 
-    return new SVGCompElement(
-      $data,
-      $this->globalData,
-      $this
-    );
-  }
+        return new SVGCompElement(
+            $data,
+            $this->globalData,
+            $this
+        );
+    }
 }
