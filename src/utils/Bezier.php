@@ -19,11 +19,11 @@ class Bezier {
 
     if (!$storedData[$bezierName]) {
       $curveSegments = getDefaultCurveSegments();
-      $ptCoord;
+      $ptCoord = [];
       $perc = 0;
       $addedLength = 0;
-      $ptDistance;
-      $point;
+      $ptDistance = 0;
+      $point = [];
       $lastPoint = null;
 
       if (
@@ -37,7 +37,7 @@ class Bezier {
           $pt1[0] + $pt3[0],
           $pt1[1] + $pt3[1]
         ) &&
-        pointOnLine2D(
+        self::pointOnLine2D(
           $pt1[0],
           $pt1[1],
           $pt2[0],
@@ -95,10 +95,10 @@ class Bezier {
     } else if ($startPerc > 1) {
       $startPerc = 1;
     }
-    $t0 = getDistancePerc($startPerc, $bezierData) ?? 0;
+    $t0 = self::getDistancePerc($startPerc, $bezierData) ?? 0;
 
     $endPerc = $endPerc > 1 ? 1 : $endPerc;
-    $t1 = getDistancePerc($endPerc, $bezierData) ?? 0;
+    $t1 = self::getDistancePerc($endPerc, $bezierData) ?? 0;
     $u0 = 1 - $t0;
     $u1 = 1 - $t1;
     $u0u0u0 = $u0 * $u0 * $u0;
@@ -158,7 +158,7 @@ class Bezier {
     return self::$_bezierSegmentPoints;
   }
 
-  public function getPointInSegment(
+  public static function getPointInSegment(
     array $pt1,
     array $pt2,
     array $pt3,
@@ -166,7 +166,7 @@ class Bezier {
     int $percent,
     array $bezierData
   ) {
-    $t1 = getDistancePerc($percent, $bezierData) ?? 0;
+    $t1 = self::getDistancePerc($percent, $bezierData) ?? 0;
     $u1 = 1 - $t1;
       $ptX =
         round(($u1 * $u1 * $u1 * $pt1[0] +
@@ -184,7 +184,7 @@ class Bezier {
     return [$ptX, $ptY];
   }
 
-  public function getSegmentsLength(ShapePath $shapeData): SegmentLength {
+  public static function getSegmentsLength(ShapePath $shapeData): array {
     $segmentsLength = $segmentsLengthPool->newElement();
     $isClosed = $shapeData->c;
     $pathV = $shapeData->v;
@@ -196,20 +196,20 @@ class Bezier {
     $totalLength = 0;
 
     for ($i = 0; $i < $len - 1; $i++) {
-      $lengths[$i] = getBezierLength(
-        pathV[$i],
-        pathV[$i + 1],
-        pathO[$i],
-        pathI[$i + 1]
+      $lengths[$i] = self::getBezierLength(
+        $pathV[$i],
+        $pathV[$i + 1],
+        $pathO[$i],
+        $pathI[$i + 1]
       );
       $totalLength += $lengths[$i]['addedLength'] ?? 0;
     }
     if ($isClosed && $len) {
-      $lengths[$i] = getBezierLength(
-        pathV[$i],
-        pathV[0],
-        pathO[$i],
-        pathI[0]
+      $lengths[$i] = self::getBezierLength(
+        $pathV[$i],
+        $pathV[0],
+        $pathO[$i],
+        $pathI[0]
       );
       $totalLength += $lengths[$i]['addedLength'] ?? 0;
     }
@@ -231,7 +231,7 @@ class Bezier {
     return $det1 > -0.001 && $det1 < 0.001;
   }
 
-  public function pointOnLine3D(
+  public static function pointOnLine3D(
     int $x1,
     int $y1,
     int $z1,
@@ -243,7 +243,7 @@ class Bezier {
     int $z3
   ) {
     if ($z1 === 0 && $z2 === 0 && $z3 === 0) {
-      return pointOnLine2D(
+      return self::pointOnLine2D(
         $x1, $y1, $x2, $y2, $x3, $y3
       );
     }
@@ -267,17 +267,17 @@ class Bezier {
     return $diffDist > -0.0001 && $diffDist < 0.0001;
   }
 
-  function getBezierLength(
+  private static function getBezierLength(
     array $pt1,
     array $pt2,
     array $pt3,
     array $pt4
-  ): BezierLength {
+  ): array {
     $curveSegments = getDefaultCurveSegments();
-    $ptCoord;
+    $ptCoord = null;
     $perc = 0;
     $addedLength = 0;
-    $ptDistance;
+    $ptDistance = null;
     $point = [];
     $lastPoint = [];
     $lengthData = $bezierLengthPool->newElement();
@@ -310,7 +310,7 @@ class Bezier {
     return $lengthData;
   }
 
-  private function getDistancePerc(int $perc, $bezierLength) {
+  private static function getDistancePerc(int $perc, $bezierLength) {
     [
       'addedLength' => $addedLength,
       'lengths' => $lengths,
