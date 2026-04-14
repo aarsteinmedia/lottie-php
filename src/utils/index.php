@@ -2,8 +2,6 @@
 
 namespace LottiePHP\Utils;
 
-// declare(strict_types=1);
-
 use DOMDocument;
 use DOMElement;
 use LottiePHP\Utils\Enums\ArrayType;

@@ -14,30 +14,16 @@ function segmentsLengthPool(): PoolFactory {
         'totalLength' => 0
       ],
       function (ShapePath $element) {
-        
+        $length = $element->lengths;
+
+        for ($i = 0; $i < $length; $i++) {
+          bezierLengthPool()->release($element->lengths[$i]);
+        }
+
+        $element->lengths = [];
       }
     );
   }
+  
   return $instance;
-
-
-  // new PoolFactory(
-  //   8,
-  //   () => ({
-  //     lengths: [],
-  //     totalLength: 0,
-  //   }),
-  //   (element: PoolElement) => {
-
-  //     if (!isShapePath(element)) {
-  //       return
-  //     }
-
-  //     const { length } = element.lengths
-
-  //     for (let i = 0; i < length; i++) {
-  //       bezierLengthPool.release(element.lengths[i] as PoolElement)
-  //     }
-  //     element.lengths.length = 0
-  //   }
 }

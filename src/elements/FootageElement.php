@@ -1,0 +1,60 @@
+<?php
+
+namespace LottiePHP\Elements;
+
+use DOMElement;
+use LottiePHP\Elements\Helpers\RenderableElement;
+
+class FootageElement extends RenderableElement {
+  public ?array $assetData = null;
+  public ? DOMElement $footageData;
+  
+  public function __construct(
+    array $data,
+    array $globalData,
+    array $comp
+  ) {
+    parent::__construct();
+
+    $this->initFrame();
+    $this->initRenderable();
+    if ($data['refId']) {
+      $this->assetData = $globalData['getAssetData']($data['refId']) ?? null;
+    }
+    if (!$globalData['imageLoader']) {
+      throw new \Error(get_class($this) . ": imageLoader is not implemented in globalData");
+    }
+    $this->footageData = $globalData['imageLoader']['getAsset']($this->assetData);
+    $this->initBaseData(
+      $data, $globalData, $comp
+    );
+  }
+
+  public function getBaseElement(): DOMElement|null {
+    return null;
+  }
+
+  public function getFootageData() {
+    return $this->footageData;
+  }
+
+  public function  initExpressions() {
+    // $expressionsInterfaces = getExpressionInterfaces();
+
+    // if (!$expressionsInterfaces) {
+    //   return;
+    // }
+
+    // $footageInterface = ($expressionsInterfaces)('footage');
+
+    // $this->layerInterface = new ($footageInterface)($this);
+  }
+
+  public function prepareFrame() {
+    /* Pass Through*/
+  }
+
+  public function renderFrame() {
+    /* Pass Through*/
+  }
+}

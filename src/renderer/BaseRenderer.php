@@ -4,9 +4,14 @@ namespace LottiePHP\Renderer;
 
 use DOMElement;
 use LottiePHP\Animation\AnimationItem;
+use LottiePHP\Elements\FootageElement;
+use LottiePHP\Elements\Helpers\FrameElement;
+use LottiePHP\Elements\ImageElement;
 use LottiePHP\Elements\NullElement;
 
-abstract class BaseRenderer /*extends FrameElement*/ {
+use function LottiePHP\Utils\slotFactory;
+
+abstract class BaseRenderer extends FrameElement {
   public AnimationItem $animationItem;
   public $completeLayers = false;
   public $currentFrame = 0;
@@ -73,7 +78,7 @@ abstract class BaseRenderer /*extends FrameElement*/ {
     throw new \Error(get_class($this) . ": Method buildItem not yet implemented");
   }
 
-  public function checkLayers(int $val) {
+  public function checkLayers(?int $val) {
     $this->completeLayers = true;
     $length = count($this->layers);
 
@@ -99,9 +104,9 @@ abstract class BaseRenderer /*extends FrameElement*/ {
 
   public function createComp(
     array $_data,
-    ?DOMElement $_container,
-    ?array $_comp,
-    $_
+    ?DOMElement $_container = null,
+    ?array $_comp = null,
+    $_ = null
   ): SVGCompElement {
     throw new \Error(get_class($this) . ": Method createComp not yet implemented");
   }
@@ -253,7 +258,7 @@ abstract class BaseRenderer /*extends FrameElement*/ {
     $this->globalData['projectInterface'] = $pInterface;
   }
 
-  public function setupGlobalData(AnimationData $animData,
+  public function setupGlobalData(array $animData,
     DOMElement $fontsContainer) {
     if (!$this->globalData) {
       throw new \Error(get_class($this) . ": globalData is not implemented");

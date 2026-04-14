@@ -7,6 +7,7 @@ use LottiePHP\Utils\Helpers\Resolution;
 use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\Pooling\bezierLengthPool;
+use function LottiePHP\Utils\Pooling\segmentsLengthPool;
 
 class Bezier {
 
@@ -193,7 +194,7 @@ class Bezier {
   }
 
   public static function getSegmentsLength(ShapePath $shapeData): array {
-    $segmentsLength = $segmentsLengthPool->newElement();
+    $segmentsLength = segmentsLengthPool()->newElement();
     $isClosed = $shapeData->c;
     $pathV = $shapeData->v;
     $pathO = $shapeData->o;

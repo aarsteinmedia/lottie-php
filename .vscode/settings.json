@@ -1,6 +1,6 @@
 {
 	"editor.formatOnSave": false,
-	"php-cs-fixer.executablePath": "${extensionPath}/php-cs-fixer.phar",
+	"php-cs-fixer.executablePath": "${workspaceFolder}/vendor/bin/php-cs-fixer",
 	"[php]": {
 		"editor.defaultFormatter": "junstyle.php-cs-fixer",
 		"editor.formatOnSave": true
