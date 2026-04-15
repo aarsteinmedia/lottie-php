@@ -159,33 +159,33 @@ function rgbToHSV(
   }
 
 class TextAnimatorProperty extends DynamicPropertyContainer {
-  _frameId = -1
-  _isFirstFrame = true
-  defaultPropsArray: number[] = []
-  lettersChangedFlag = false
-  renderedLetters: LetterProps[] = []
-  private _animatorsData: TextAnimatorDataProperty[]
-  private _elem: ElementInterfaceIntersect
-  private _hasMaskedPath = false
-  private _moreOptions = { alignment: {} }
-  private _pathData = {} as TextPathData
-  private _renderType: RendererType
-  private _$textData: TextData
-  private mHelper = new Matrix()
+  public $_frameId = -1;
+  public $_isFirstFrame = true;
+  public $defaultPropsArray = [];
+  public $lettersChangedFlag = false;
+  public $renderedLetters = [];
+  private array $_animatorsData;
+  private array $_elem;
+  private $_hasMaskedPath = false;
+  private $_moreOptions = [ 'alignment' => [] ];
+  private $_pathData = [];
+  private RendererType $_renderType;
+  private array $_textData;
+  private $mHelper = new Matrix();
 
   public function __construct(
-    $textData: TextData,
-    renderType: RendererType,
-    elem: ElementInterfaceIntersect
+    array $textData,
+    RendererType $renderType,
+    array $elem
   ) {
-    $this->_$textData = $textData
-    $this->_renderType = renderType
-    $this->_elem = elem
-    $this->_animatorsData = createSizedArray((int)($this->_$textData.a?.length))
-    $this->initDynamicPropertyContainer(elem)
+    $this->_textData = $textData;
+    $this->_renderType = $renderType;
+    $this->_elem = $elem;
+    $this->_animatorsData = createSizedArray((int)(count($this->_textData['a'])));
+    $this->initDynamicPropertyContainer(elem);
   }
 
-  getMeasures($documentData: DocumentData, lettersChangedFlag?: boolean) {
+  getMeasures(array $documentData, ?bool $lettersChangedFlag) {
     try {
       $this->lettersChangedFlag = Boolean(lettersChangedFlag);
       if (
@@ -199,7 +199,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer {
       $this->_isFirstFrame = false
       $alignment = $this->_moreOptions.alignment.v,
         animators = $this->_animatorsData,
-        $textData = $this->_$textData,
+        $textData = $this->_textData,
         $matrixHelper = $this->mHelper,
         renderType = $this->_renderType
 
@@ -978,34 +978,34 @@ class TextAnimatorProperty extends DynamicPropertyContainer {
   }
 
   searchProperties(_: DynamicPropertyContainer[]) {
-    ${ length } = $this->_$textData.a ?? [],
+    ${ length } = $this->_textData['a'] ?? [],
       { getProp } = PropertyFactory
 
     for ($i = 0; $i < length; $i++) {
       $this->_animatorsData[$i] = new TextAnimatorDataProperty(
         $this->_elem,
-        $this->_$textData.a?.[$i],
+        $this->_textData.a?.[$i],
         $this
       )
     }
 
-    if ($this->_$textData.p && 'm' in $this->_$textData.p && $this->_elem.maskManager) {
+    if ($this->_textData.p && 'm' in $this->_textData.p && $this->_elem.maskManager) {
       $this->_pathData = {
         a: getProp(
-          $this->_elem, $this->_$textData.p.a, 0, 0, $this
+          $this->_elem, $this->_textData.p.a, 0, 0, $this
         ) as ValueProperty,
         f: getProp(
-          $this->_elem, $this->_$textData.p.f, 0, 0, $this
+          $this->_elem, $this->_textData.p.f, 0, 0, $this
         ) as ValueProperty,
         l: getProp(
-          $this->_elem, $this->_$textData.p.l, 0, 0, $this
+          $this->_elem, $this->_textData.p.l, 0, 0, $this
         ) as ValueProperty,
-        m: $this->_elem.maskManager.getMaskProperty($this->_$textData.p.m),
+        m: $this->_elem.maskManager.getMaskProperty($this->_textData.p.m),
         p: getProp(
-          $this->_elem, $this->_$textData.p.p, 0, 0, $this
+          $this->_elem, $this->_textData.p.p, 0, 0, $this
         ) as ValueProperty,
         r: getProp(
-          $this->_elem, $this->_$textData.p.r, 0, 0, $this
+          $this->_elem, $this->_textData.p.r, 0, 0, $this
         ) as ValueProperty,
       }
       $this->_hasMaskedPath = true
@@ -1014,7 +1014,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer {
       $this->_hasMaskedPath = false
     }
     $this->_moreOptions.alignment = getProp(
-      $this->_elem, $this->_$textData.m?.a, 1, 0, $this
+      $this->_elem, $this->_textData.m?.a, 1, 0, $this
     )
   }
 }
