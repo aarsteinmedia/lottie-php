@@ -492,7 +492,7 @@ class Matrix {
   }
 
   public function translate(
-    int $tx, int $ty, ?int $tzFromProps
+    int $tx, int $ty, ?int $tzFromProps = null
   ) {
     // Reassign instead of default parameter, to normalize negative and catch NaN values
     $tz = $tzFromProps || 0;

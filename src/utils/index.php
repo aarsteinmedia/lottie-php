@@ -75,7 +75,7 @@ function createSizedArray(int $length): array
     return array_fill(0, $length, null);
 }
 
-function createNS(string $type, ?DOMDocument $domFromProps)
+function createNS(string $type, ?DOMDocument $domFromProps = null)
 {
     $dom = $domFromProps ?? new DOMDocument('1.0', 'UTF-8');
 

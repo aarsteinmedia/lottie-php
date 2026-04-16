@@ -4,6 +4,7 @@ namespace LottiePHP\Renderer;
 
 use DOMElement;
 use LottiePHP\Animation\AnimationItem;
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Elements\FootageElement;
 use LottiePHP\Elements\Helpers\FrameElement;
 use LottiePHP\Elements\ImageElement;
@@ -20,7 +21,7 @@ abstract class BaseRenderer extends FrameElement {
   public $pendingElements = [];
   public $renderedFrame = -1;
 
-  public function addPendingElement(array $element) {
+  public function addPendingElement(BaseElement $element) {
     array_push($this->pendingElements, $element);
   }
 

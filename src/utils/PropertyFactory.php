@@ -2,14 +2,23 @@
 
 namespace LottiePHP\Utils;
 
+use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
+use LottiePHP\Utils\Properties\BaseProperty;
+use LottiePHP\Utils\Properties\KeyframedMultidimensionalProperty;
+use LottiePHP\Utils\Properties\KeyframedValueProperty;
+use LottiePHP\Utils\Properties\MultiDimensionalProperty;
+use LottiePHP\Utils\Properties\NoProperty;
+use LottiePHP\Utils\Properties\ValueProperty;
+
 class PropertyFactory
 {
     public static function getProp(
-        array $elem,
+        BaseProperty|BaseElement $elem,
         ?array $dataFromProps,
         ?int $type,
         ?int $mult,
-        ?array $container
+        null|BaseProperty|BaseElement|DynamicPropertyContainer $container
     ) {
         $data = $dataFromProps;
 

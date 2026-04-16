@@ -11,7 +11,7 @@ class ImageElement extends SVGBaseElement
     public function __construct(
         array $data,
         array $globalData,
-        array $comp
+        BaseElement $comp
     ) {
         parent::__construct();
         

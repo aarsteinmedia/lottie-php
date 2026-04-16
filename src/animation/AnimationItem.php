@@ -9,7 +9,7 @@ use LottiePHP\Utils\DataManager;
 
 class AnimationItem
 {
-    public \stdClass $animationData;
+    public array $animationData;
     public $assets = [];
     public SVGRenderer|null $renderer = null;
     public $assetsPath = '';
@@ -18,13 +18,13 @@ class AnimationItem
 
     protected ?string $fileName = null;
 
-    public function configAnimation(\stdClass $animationData)
+    public function configAnimation(array $animationData)
     {
         try {
             $this->animationData = $animationData;
             $this->renderer->configAnimation($animationData);
-            $this->assets = $animationData->assets;
-            $this->renderer->searchExtraCompositions($animationData->assets);
+            $this->assets = $animationData['assets'];
+            $this->renderer->searchExtraCompositions($animationData['assets']);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }

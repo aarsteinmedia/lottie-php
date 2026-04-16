@@ -2,17 +2,21 @@
 
 namespace LottiePHP\Utils\Helpers;
 
+use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\Properties\BaseProperty;
+
 abstract class DynamicPropertyContainer
 {
     public ?bool $_isAnimated;
     public ?bool $_mdf;
-    public ?array $container;
+    public ?BaseElement $container;
     public ?array $data;
     public $dynamicProperties = [];
     public ?bool $hd;
     public ?array $keyframes;
     public ?int $propertyIndex;
-    public null|array|false $propType;
+    public null|PropType|false $propType;
 
     public function addDynamicProperty(DynamicPropertyContainer $prop)
     {
@@ -29,7 +33,7 @@ abstract class DynamicPropertyContainer
         throw new \Error(get_class($this) . ": Method getValue is not implemented");
     }
 
-    public function initDynamicPropertyContainer(array $container)
+    public function initDynamicPropertyContainer(BaseElement|BaseProperty $container)
     {
         $this->container = $container;
         $this->dynamicProperties = [];

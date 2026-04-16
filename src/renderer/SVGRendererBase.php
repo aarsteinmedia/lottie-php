@@ -2,6 +2,7 @@
 
 namespace LottiePHP\Renderer;
 
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Elements\ImageElement;
 use LottiePHP\Elements\NullElement;
 use LottiePHP\Utils\Helpers\Constants;
@@ -20,7 +21,7 @@ abstract class SVGRendererBase extends BaseRenderer
     public array $renderConfig = [];
     public \DOMElement $svgElement;
 
-    public function appendElementInPos(array $element, int $pos)
+    public function appendElementInPos(BaseElement $element, int $pos)
     {
         $newElement = $element['getBaseElement']();
 
@@ -70,7 +71,7 @@ abstract class SVGRendererBase extends BaseRenderer
         if ($this->layers[$pos]['tt']) {
             $elementIndex =
               array_key_exists('tp', $this->layers[$pos])
-                ? $this->findIndexByInd($layers[$pos]['tp'])
+                ? $this->findIndexByInd($this->layers[$pos]['tp'])
                 : $pos - 1;
 
             if ($elementIndex === -1) {
@@ -338,7 +339,7 @@ abstract class SVGRendererBase extends BaseRenderer
         addStyles($this->layerElement, ['display' => 'none']);
     }
 
-    public function renderFrame(?int $numFromProps)
+    public function renderFrame(?int $numFromProps = null)
     {
         try {
             if (

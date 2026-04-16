@@ -2,7 +2,9 @@
 
 namespace LottiePHP\Utils\Properties;
 
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Bezier;
+use LottiePHP\Utils\BezierFactory;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\PropType;
 use LottiePHP\Utils\Helpers\Constants;
@@ -121,7 +123,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?array $comp;
     public ValueProperty|array $e;
     public $effectsSequence = [];
-    public ?array $elem;
+    public null|BaseProperty|BaseElement $elem;
     public ?int $frameExpressionId;
     public ?int $frameId;
     public $g;
@@ -136,7 +138,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?int $numKeys;
     public $offsetTime = 0;
     public ?array $propertyGroup;
-    public ?ShapePath $pv;
+    public null|array|ShapePath|int $pv;
     public $s;
     public ?array $sh;
     public ?\Closure $smooth;
@@ -300,7 +302,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                 if ($__fnct) {
                     $fnc = $__fnct;
                 } else {
-                    $fnc = Bezier::getBezierEasing(
+                    $fnc = BezierFactory::getBezierEasing(
                         $keyData['o']['x'],
                         $keyData['o']['y'],
                         $keyData['i']['x'],
@@ -352,7 +354,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                         for ($k = 0; $k < $kLen; $k++) {
                             $newValue[$k] =
                               ($bezierData['points'][$j]['point'][$k] ?? 0) +
-                              (($bezierData['points'][j + 1]['point'][$k] ?? 0) -
+                              (($bezierData['points'][$j + 1]['point'][$k] ?? 0) -
                                 ($bezierData['points'][$j]['point'][$k] ?? 0)) *
                                 $segmentPerc;
                         }
@@ -423,7 +425,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                                       $keyData['i']['x'][$i] ?? $keyData['i']['x'][0];
                                     $inY =
                                       $keyData['i']['y'][$i] ?? $keyData['i']['y'][0];
-                                    $fnc = getBezierEasing(
+                                    $fnc = BezierFactory::getBezierEasing(
                                         $outX ?? 0,
                                         $outY ?? 0,
                                         $inX ?? 0,
@@ -438,7 +440,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                                 $outY = $keyData['o']['y'];
                                 $inX = $keyData['i']['x'];
                                 $inY = $keyData['i']['y'];
-                                $fnc = getBezierEasing(
+                                $fnc = BezierFactory::getBezierEasing(
                                     $outX,
                                     $outY,
                                     $inX,

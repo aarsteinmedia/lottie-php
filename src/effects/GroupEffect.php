@@ -2,7 +2,9 @@
 
 namespace LottiePHP\Effects;
 
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
+use LottiePHP\Utils\Properties\BaseProperty;
 
 class GroupEffect extends DynamicPropertyContainer
 {
@@ -13,7 +15,7 @@ class GroupEffect extends DynamicPropertyContainer
 
     public function __construct(
         array $data,
-        array $element,
+        BaseElement|BaseProperty $element,
         array $layer
     ) {
         $this->getValue = $this->iterateDynamicProperties(...);
@@ -26,7 +28,7 @@ class GroupEffect extends DynamicPropertyContainer
 
     public function init(
         array $data,
-        array $element,
+        BaseElement|BaseProperty $element,
         array $layer
     ) {
         $this->data = $data;

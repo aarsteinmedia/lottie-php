@@ -2,13 +2,16 @@
 
 namespace LottiePHP\Effects;
 
+use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Properties\BaseProperty;
+
 class EffectsManager
 {
     public ?bool $_mdf;
     public array $effectElements = [];
     public function __construct(
         array $data,
-        array $element,
+        BaseElement|BaseProperty $element,
         ?array $_dynamicProperties = null
     ) {
         $effects = $data['ef'] ?? [];

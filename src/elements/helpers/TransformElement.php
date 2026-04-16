@@ -3,6 +3,7 @@
 namespace LottiePHP\Elements\Helpers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\SVGEffects;
 use LottiePHP\Utils\Enums\EffectTypes;
 use LottiePHP\Utils\Matrix;
 

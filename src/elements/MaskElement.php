@@ -5,6 +5,7 @@ namespace LottiePHP\Elements;
 use DOMDocument;
 use DOMElement;
 use LottiePHP\Utils\LocationHref;
+use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\createElementID;
@@ -14,7 +15,7 @@ use function LottiePHP\Utils\createSizedArray;
 class MaskElement
 {
     public array|null $data;
-    public array|null $element;
+    public ?BaseElement $element;
     public array|null $globalData;
     public null|DOMElement $maskElement = null;
     public array|null $masksProperties = [];
@@ -26,7 +27,7 @@ class MaskElement
 
     public function __construct(
         array $data,
-        array $element,
+        BaseElement $element,
         array $globalData
     ) {
         $this->data = $data;

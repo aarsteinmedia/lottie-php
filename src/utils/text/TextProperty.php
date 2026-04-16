@@ -2,26 +2,30 @@
 
 namespace LottiePHP\Utils\Text;
 
+use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\FontManager;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Properties\BaseProperty;
+use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\charCodeAt;
+use function LottiePHP\Utils\getFontProperties;
 
 class TextProperty extends BaseProperty
 {
     public int $_frameId;
     public $canResize = false;
     public array $currentData;
-    public TextData $data;
+    public ?array $data;
     public $defaultBoxWidth = [0, 0];
     public $effectsSequence = [];
-    public array $elem;
+    public null|BaseProperty|BaseElement $elem;
     public $keysIndex = 0;
     public $minimumFontSize = 1;
-    public string|array $pv = '';
+    public $pv = '';
     public string|array $v = '';
 
-    public function __construct(array $elem, array $data)
+    public function __construct(BaseProperty $elem, array $data)
     {
         $this->_frameId = Constants::$initialDefaultFrame;
         $this->kf = false;
@@ -96,21 +100,21 @@ class TextProperty extends BaseProperty
             $shouldCombineNext = false;
             $charCode = charCodeAt($text, $i);
             $currentChars = $text[$i];
-            if (isCombinedCharacter($charCode)) {
+            if (FontManager::isCombinedCharacter($charCode)) {
                 $shouldCombine = true;
                 // It's a potential surrogate pair ($this is the High surrogate)
             } elseif ($charCode >= 0xd800 && $charCode <= 0xdbff) {
-                if (isRegionalFlag($text, $i)) {
+                if (FontManager::isRegionalFlag($text, $i)) {
                     $currentChars = substr($text, $i, 14);
                 } else {
                     $secondCharCode = charCodeAt($text, $i + 1);
                     // It's a surrogate pair ($this is the Low surrogate)
                     if ($secondCharCode >= 0xdc00 && $secondCharCode <= 0xdfff) {
 
-                        if (isModifier($charCode, $secondCharCode)) {
+                        if (FontManager::isModifier($charCode, $secondCharCode)) {
                             $currentChars = substr($text, $i, 2);
                             $shouldCombine = true;
-                        } elseif (isFlagEmoji(substr($text, $i, 4))) {
+                        } elseif (FontManager::isFlagEmoji(substr($text, $i, 4))) {
                             $currentChars = substr($text, $i, 4);
                         } else {
                             $currentChars = substr($text, $i, 2);
@@ -119,10 +123,10 @@ class TextProperty extends BaseProperty
                 }
             } elseif ($charCode > 0xdbff) {
                 // secondCharCode = text.charCodeAt(i + 1)
-                if (isVariationSelector($charCode)) {
+                if (FontManager::isVariationSelector($charCode)) {
                     $shouldCombine = true;
                 }
-            } elseif (isZeroWidthJoiner($charCode)) {
+            } elseif (FontManager::isZeroWidthJoiner($charCode)) {
                 $shouldCombine = true;
                 $shouldCombineNext = true;
             }
@@ -241,7 +245,8 @@ class TextProperty extends BaseProperty
                         }
                         $currentHeight +=
                           $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
-                        $finalText.splice(
+                        array_splice(
+                            $finalText,
                             $i,
                             $lastSpaceIndex === $i ? 1 : 0,
                             '\r'
@@ -601,7 +606,7 @@ class TextProperty extends BaseProperty
 
         $this->kf = count($this->data['d']['k']) > 1;
         if ($this->kf) {
-            $this->addEffect([$this, 'getKeyframeValue']);
+            $this->addEffect($this->getKeyframeValue(...));
         }
 
         return $this->kf;
@@ -642,7 +647,7 @@ class TextProperty extends BaseProperty
 
         $dData = $this->copyData($dData, $newData);
 
-        ($this->data['d']['k'][$index] ?? [ 's' => null ])['s'] = $dData;
+        $this->data['d']['k'][$index]['s'] = $dData;
         $this->recalculate($index);
         $this->setCurrentData($dData);
         $this->elem['addDynamicProperty']($this);

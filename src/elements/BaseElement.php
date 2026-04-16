@@ -11,7 +11,7 @@ use function LottiePHP\Utils\getBlendMode;
 abstract class BaseElement
 {
     public null|DOMElement $baseElement = null;
-    public ?array $comp;
+    public ?BaseElement $comp;
     public ?array $compInterface;
     public ?array $data;
     public ?array $dynamicProperties;
@@ -86,7 +86,7 @@ abstract class BaseElement
     public function initBaseData(
         array $data,
         array $globalData,
-        array $comp
+        BaseElement $comp
     ) {
         $this->globalData = $globalData;
         $this->comp = $comp;

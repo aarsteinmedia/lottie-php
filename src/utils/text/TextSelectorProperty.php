@@ -2,17 +2,20 @@
 
 namespace LottiePHP\Utils\Text;
 
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\BezierFactory;
 use LottiePHP\Utils\Properties\BaseProperty;
+use LottiePHP\Utils\Properties\ValueProperty;
+use LottiePHP\Utils\PropertyFactory;
 
 class TextSelectorProperty extends BaseProperty
 {
     public $_currentTextLength = -1;
     public ValueProperty $a;
     public ?ValueProperty $b;
-    public array $data;
+    public ?array $data;
     public ValueProperty|array $e;
-    public null|array $elem;
+    public null|BaseProperty|BaseElement $elem;
     public $finalE = 0;
     public $finalS = 0;
     public ValueProperty $ne;
@@ -22,7 +25,7 @@ class TextSelectorProperty extends BaseProperty
     public ?int $totalChars;
     public ValueProperty $xe;
 
-    public function __construct(array $elem, array $data)
+    public function __construct(BaseProperty|BaseElement $elem, array $data)
     {
         parent::__construct();
         $this->k = false;
