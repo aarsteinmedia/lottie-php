@@ -39,7 +39,7 @@ class PoolFactory
         return $element;
     }
 
-    public function release(ShapePath|BezierLength $element)
+    public function release(ShapePath|array $element)
     {
         if ($this->_length === $this->_maxLength) {
             $this->pool = double($this->pool);

@@ -25,7 +25,7 @@ class TextProperty extends BaseProperty
     public $pv = '';
     public string|array $v = '';
 
-    public function __construct(BaseProperty $elem, array $data)
+    public function __construct(BaseProperty|BaseElement $elem, array $data)
     {
         $this->_frameId = Constants::$initialDefaultFrame;
         $this->kf = false;
