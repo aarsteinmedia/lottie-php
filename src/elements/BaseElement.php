@@ -3,6 +3,7 @@
 namespace LottiePHP\Elements;
 
 use DOMElement;
+use LottiePHP\Effects\EffectsManager;
 
 use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\createElementID;
@@ -11,7 +12,7 @@ use function LottiePHP\Utils\getBlendMode;
 abstract class BaseElement
 {
     public null|DOMElement $baseElement = null;
-    public ?BaseElement $comp;
+    public ?CompElement $comp;
     public ?array $compInterface;
     public ?array $data;
     public ?array $dynamicProperties;

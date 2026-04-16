@@ -5,56 +5,64 @@ namespace LottiePHP\Elements;
 use DOMElement;
 use LottiePHP\Elements\Helpers\RenderableElement;
 
-class FootageElement extends RenderableElement {
-  public ?array $assetData = null;
-  public ? DOMElement $footageData;
-  
-  public function __construct(
-    array $data,
-    array $globalData,
-    array $comp
-  ) {
-    parent::__construct();
+class FootageElement extends RenderableElement
+{
+    public ?array $assetData = null;
+    public ?DOMElement $footageData;
 
-    $this->initFrame();
-    $this->initRenderable();
-    if ($data['refId']) {
-      $this->assetData = $globalData['getAssetData']($data['refId']) ?? null;
+    public function __construct(
+        array $data,
+        array $globalData,
+        BaseElement $comp
+    ) {
+        parent::__construct();
+
+        $this->initFrame();
+        $this->initRenderable();
+        if ($data['refId']) {
+            $this->assetData = $globalData['getAssetData']($data['refId']) ?? null;
+        }
+        if (!$globalData['imageLoader']) {
+            throw new \Error(get_class($this) . ": imageLoader is not implemented in globalData");
+        }
+        $this->footageData = $globalData['imageLoader']['getAsset']($this->assetData);
+        $this->initBaseData(
+            $data,
+            $globalData,
+            $comp
+        );
     }
-    if (!$globalData['imageLoader']) {
-      throw new \Error(get_class($this) . ": imageLoader is not implemented in globalData");
+
+    public function getBaseElement(): DOMElement|null
+    {
+        return null;
     }
-    $this->footageData = $globalData['imageLoader']['getAsset']($this->assetData);
-    $this->initBaseData(
-      $data, $globalData, $comp
-    );
-  }
 
-  public function getBaseElement(): DOMElement|null {
-    return null;
-  }
+    public function getFootageData()
+    {
+        return $this->footageData;
+    }
 
-  public function getFootageData() {
-    return $this->footageData;
-  }
+    public function initExpressions()
+    {
+        // $expressionsInterfaces = getExpressionInterfaces();
 
-  public function  initExpressions() {
-    // $expressionsInterfaces = getExpressionInterfaces();
+        // if (!$expressionsInterfaces) {
+        //   return;
+        // }
 
-    // if (!$expressionsInterfaces) {
-    //   return;
-    // }
+        // $footageInterface = ($expressionsInterfaces)('footage');
 
-    // $footageInterface = ($expressionsInterfaces)('footage');
+        // $this->layerInterface = new ($footageInterface)($this);
+    }
 
-    // $this->layerInterface = new ($footageInterface)($this);
-  }
+    public function prepareFrame()
+    {
+        /* Pass Through*/
+    }
 
-  public function prepareFrame() {
-    /* Pass Through*/
-  }
-
-  public function renderFrame() {
-    /* Pass Through*/
-  }
+    public function renderFrame()
+    {
+        /* Pass Through*/
+    }
 }

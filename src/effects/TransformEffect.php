@@ -5,6 +5,7 @@ namespace LottiePHP\Effects;
 use LottiePHP\Utils\Enums\EffectTypes;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Matrix;
+use LottiePHP\Utils\Properties\ValueProperty;
 
 abstract class TransformEffect
 {

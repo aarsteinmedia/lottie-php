@@ -10,7 +10,7 @@ class KeyframedValueProperty extends BaseProperty
     public ?string $selectorValue;
     public int $v;
     public function __construct(
-        BaseProperty $elem,
+        BaseElement|BaseProperty $elem,
         array $data,
         ?int $mult = null,
         ?BaseElement $container = null

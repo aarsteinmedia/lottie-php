@@ -6,6 +6,7 @@ use LottiePHP\Elements\BaseElement;
 use LottiePHP\Elements\SVGEffects;
 use LottiePHP\Utils\Enums\EffectTypes;
 use LottiePHP\Utils\Matrix;
+use LottiePHP\Utils\Properties\TransformPropertyFactory;
 
 abstract class TransformElement extends BaseElement
 {
@@ -71,7 +72,7 @@ abstract class TransformElement extends BaseElement
           'localOpacity' => 1,
           'mat' => $mat,
           'mProp' => $this->data['ks']
-            ? TransformPropertyFactory->getTransformProperty(
+            ? TransformPropertyFactory::getTransformProperty(
                 $this,
                 $this->data['ks'],
                 $this
