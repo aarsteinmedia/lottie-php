@@ -5,6 +5,7 @@ namespace LottiePHP\Renderer;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Elements\ImageElement;
 use LottiePHP\Elements\NullElement;
+use LottiePHP\Elements\SolidElement;
 use LottiePHP\Utils\Helpers\Constants;
 
 use function LottiePHP\Utils\addClasses;
@@ -13,17 +14,11 @@ use function LottiePHP\Utils\createElementID;
 use function LottiePHP\Utils\createNS;
 use function LottiePHP\Utils\createSizedArray;
 
-abstract class SVGRendererBase extends BaseRenderer
+trait SVGRendererTraits
 {
-    private \DOMDocument $_dom;
-
-    public $destroyed = false;
-    public array $renderConfig = [];
-    public \DOMElement $svgElement;
-
     public function appendElementInPos(BaseElement $element, int $pos)
     {
-        $newElement = $element['getBaseElement']();
+        $newElement = $element->getBaseElement();
 
         if (!$newElement) {
             return;
@@ -293,6 +288,15 @@ abstract class SVGRendererBase extends BaseRenderer
             $this
         );
     }
+}
+abstract class SVGRendererBase extends BaseRenderer
+{
+    use SVGRendererTraits;
+    private \DOMDocument $_dom;
+
+    public $destroyed = false;
+    public array $renderConfig = [];
+    public \DOMElement $svgElement;
 
     public function destroy()
     {

@@ -6,6 +6,7 @@ use DOMDocument;
 use DOMElement;
 use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\PropertyFactory;
+use LottiePHP\Utils\Shapes\Properties\ShapePropertyFactory;
 use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\createElementID;

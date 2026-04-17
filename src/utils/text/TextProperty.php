@@ -6,7 +6,6 @@ use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\FontManager;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Properties\BaseProperty;
-use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\charCodeAt;
 use function LottiePHP\Utils\getFontProperties;

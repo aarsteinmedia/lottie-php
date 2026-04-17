@@ -2,84 +2,100 @@
 
 namespace LottiePHP\Utils\Shapes\Properties;
 
-class DashProperty extends DynamicPropertyContainer {
-  dashArray: Float32Array;
-  dashoffset = createTypedArray(ArrayType.Float32, 1) as Float32Array;
-  dashStr = '';
-  dataProps: StrokeData[];
-  elem: ElementInterfaceIntersect;
-  frameId = -1;
-  k = false;
-  renderer: RendererType;
-  constructor(
-    elem: ElementInterfaceIntersect,
-    data: StrokeData[],
-    renderer: RendererType,
-    container: ElementInterfaceIntersect
-  ) {
-    super();
-    this.elem = elem;
-    this.dataProps = createSizedArray(data.length);
-    this.renderer = renderer;
-    this.dashArray = createTypedArray(ArrayType.Float32,
-      data.length > 0 ? data.length - 1 : 0) as Float32Array;
-    this.initDynamicPropertyContainer(container);
-    const len = data.length || 0;
-    let prop;
+use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Enums\ArrayType;
+use LottiePHP\Utils\Enums\RendererType;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
+use LottiePHP\Utils\Properties\BaseProperty;
+use LottiePHP\Utils\PropertyFactory;
 
-    for (let i = 0; i < len; i++) {
-      prop = PropertyFactory.getProp(
-        elem,
-        data[i]?.v,
-        0,
-        0,
-        this as unknown as ElementInterfaceIntersect
-      );
-      this.k = prop.k || this.k;
-      this.dataProps[i] = {
-        n: data[i]?.n ?? 'd', // TODO: Check what this is
-        p: prop
-      };
-    }
-    if (!this.k) {
-      this.getValue(true);
-    }
-    this._isAnimated = this.k;
-  }
+use function LottiePHP\Utils\createSizedArray;
+use function LottiePHP\Utils\createTypedArray;
 
-  override getValue(forceRender?: boolean) {
-    if (this.elem.globalData?.frameId === this.frameId && !forceRender) {
-      return 0;
-    }
-    if (this.elem.globalData?.frameId) {
-      this.frameId = this.elem.globalData.frameId;
-    }
+class DashProperty extends DynamicPropertyContainer
+{
+    public array $dashArray;
+    public array $dashoffset;
+    public $dashStr = '';
+    public array $dataProps;
+    public BaseElement|BaseProperty $elem;
+    public $frameId = -1;
+    public $k = false;
+    public RendererType $renderer;
+    public function __construct(
+        BaseElement|BaseProperty $elem,
+        array $data,
+        RendererType $renderer,
+        BaseElement|BaseProperty $container
+    ) {
+        $this->dashoffset = createTypedArray(ArrayType::Float32, 1);
+        $this->elem = $elem;
+        $dataLength = count($data);
+        $this->dataProps = createSizedArray($dataLength);
+        $this->renderer = $renderer;
+        $this->dashArray = createTypedArray(
+            ArrayType::Float32,
+            $dataLength > 0 ? $dataLength - 1 : 0
+        );
+        $this->initDynamicPropertyContainer($container);
+        $len = $dataLength || 0;
+        $prop = null;
 
-    this.iterateDynamicProperties();
-    this._mdf = this._mdf || Boolean(forceRender);
-    if (!this._mdf) {
-      return 0;
-    }
-    const len = this.dataProps.length;
-
-    if (this.renderer === RendererType.SVG) {
-      this.dashStr = '';
-    }
-    for (let i = 0; i < len; i++) {
-      if (this.dataProps[i]?.n === 'o') {
-
-        this.dashoffset[0] = this.dataProps[i]?.p.v as number;
-        continue;
-      }
-      if (this.renderer === RendererType.SVG) {
-
-        this.dashStr += ` ${this.dataProps[i]?.p.v as string}`;
-        continue;
-      }
-
-      this.dashArray[i] = this.dataProps[i]?.p.v as number;
+        for ($i = 0; $i < $len; $i++) {
+            $prop = PropertyFactory::getProp(
+                $elem,
+                $data[$i]['v'] ?? null,
+                0,
+                0,
+                $this
+            );
+            $this->k = $prop['k'] || $this->k;
+            $this->dataProps[$i] = [
+              'n' => $data[$i]['n'] ?? 'd',
+              'p' => $prop
+            ];
+        }
+        if (!$this->k) {
+            $this->getValue(true);
+        }
+        $this->_isAnimated = $this->k;
     }
 
-    return 0;
-  }
+    public function getValue(?bool $forceRender)
+    {
+        if ($this->elem->globalData['frameId'] === $this->frameId && !$forceRender) {
+            return 0;
+        }
+        if ($this->elem->globalData['frameId']) {
+            $this->frameId = $this->elem->globalData['frameId'];
+        }
+
+        $this->iterateDynamicProperties();
+        $this->_mdf = $this->_mdf || (bool)($forceRender);
+        if (!$this->_mdf) {
+            return 0;
+        }
+        $len = count($this->dataProps);
+
+        if ($this->renderer === RendererType::SVG) {
+            $this->dashStr = '';
+        }
+        for ($i = 0; $i < $len; $i++) {
+            if (($this->dataProps[$i]['n'] ?? '') === 'o') {
+
+                $this->dashoffset[0] = $this->dataProps[$i]['p']['v'] ?? 0;
+                continue;
+            }
+            if ($this->renderer === RendererType::SVG) {
+                $value = $this->dataProps[$i]['p']['v'] ?? '';
+
+                $this->dashStr .= " {$value}";
+                continue;
+            }
+
+            $this->dashArray[$i] = $this->dataProps[$i]['p']['v'] ?? null;
+        }
+
+        return 0;
+    }
 }

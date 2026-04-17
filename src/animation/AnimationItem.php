@@ -4,7 +4,6 @@ namespace LottiePHP\Animation;
 
 use DOMElement;
 use LottiePHP\Renderer\SVGRenderer;
-use stdClass;
 use LottiePHP\Utils\DataManager;
 
 class AnimationItem

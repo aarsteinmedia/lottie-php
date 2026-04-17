@@ -16,8 +16,8 @@ class PropertyFactory
     public static function getProp(
         BaseProperty|BaseElement $elem,
         ?array $dataFromProps,
-        ?int $type,
-        ?int $mult,
+        ?int $type = null,
+        ?int $mult = null,
         null|BaseProperty|BaseElement|DynamicPropertyContainer $container
     ) {
         $data = $dataFromProps;

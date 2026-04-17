@@ -28,7 +28,7 @@ abstract class DynamicPropertyContainer
         $this->_isAnimated = true;
     }
 
-    public function getValue($_flag)
+    public function getValue(?bool $_flag)
     {
         throw new \Error(get_class($this) . ": Method getValue is not implemented");
     }

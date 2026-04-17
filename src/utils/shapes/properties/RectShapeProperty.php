@@ -2,309 +2,322 @@
 
 namespace LottiePHP\Utils\Shapes\Properties;
 
+use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Helpers\Constants;
+use LottiePHP\Utils\Pooling\ShapeCollectionPool;
+use LottiePHP\Utils\Pooling\ShapePool;
+use LottiePHP\Utils\Properties\BaseProperty;
+use LottiePHP\Utils\Properties\MultiDimensionalProperty;
+use LottiePHP\Utils\Properties\ValueProperty;
+use LottiePHP\Utils\PropertyFactory;
 
-class RectShapeProperty extends ShapeBaseProperty {
-  d?: number;
-  ir?: ValueProperty;
-  is?: ValueProperty;
-  or?: ValueProperty;
-  os?: ValueProperty;
-  pt?: ValueProperty;
-  r: ValueProperty;
-  s: MultiDimensionalProperty;
+class RectShapeProperty extends ShapeBaseProperty
+{
+    public ?int $d;
+    public ?ValueProperty $ir;
+    public ?ValueProperty $is;
+    public ?ValueProperty $or;
+    public ?ValueProperty $os;
+    public ?ValueProperty $pt;
+    public ValueProperty $r;
+    public MultiDimensionalProperty $s;
 
-  constructor(elem: ElementInterfaceIntersect, data: Shape) {
-    super();
-    this.v = newElement() as ShapePath;
-    this.v.c = true;
-    this.localShapeCollection = newShapeCollection();
-    this.localShapeCollection.addShape(this.v);
-    this.paths = this.localShapeCollection;
-    this.elem = elem;
-    this.comp = elem.comp;
-    this.frameId = -1;
-    this.d = data.d as number;
-    this.initDynamicPropertyContainer(elem);
-    this.p = PropertyFactory.getProp(
-      elem,
-      data.p,
-      1,
-      0,
-      this as unknown as ElementInterfaceIntersect
-    ) as MultiDimensionalProperty;
-    this.s = PropertyFactory.getProp(
-      elem,
-      data.s,
-      1,
-      0,
-      this as unknown as ElementInterfaceIntersect
-    ) as MultiDimensionalProperty;
-    this.r = PropertyFactory.getProp(
-      elem,
-      data.r as unknown as VectorProperty<number[]>, // TODO: Find out if typing is wrong
-      0,
-      0,
-      this as unknown as ElementInterfaceIntersect
-    ) as ValueProperty;
-    if (this.dynamicProperties.length > 0) {
-      this.k = true;
-    } else {
-      this.k = false;
-      this.convertRectToPath();
-    }
-  }
-
-  convertRectToPath() {
-    if (!this.p) {
-      throw new Error(`${this.constructor.name}: p value is not implemented`);
-    }
-
-    const p0 = this.p.v[0];
-    const p1 = this.p.v[1];
-    const v0 = this.s.v[0] / 2;
-    const v1 = this.s.v[1] / 2;
-    const round = Math.min(
-      v0, v1, this.r.v
-    );
-    const cPoint = round * (1 - roundCorner);
-
-    if (this.v) {
-      this.v._length = 0;
+    public function __construct(BaseElement|BaseProperty $elem, array $data)
+    {
+        $this->v = ShapePool::newElement();
+        $this->v->c = true;
+        $this->localShapeCollection = ShapeCollectionPool::newShapeCollection();
+        $this->localShapeCollection->addShape($this->v);
+        $this->paths = $this->localShapeCollection;
+        $this->elem = $elem;
+        $this->comp = $elem->comp;
+        $this->frameId = -1;
+        $this->d = $data['d'];
+        $this->initDynamicPropertyContainer($elem);
+        $this->p = PropertyFactory::getProp(
+            $elem,
+            $data['p'],
+            1,
+            0,
+            $this
+        );
+        $this->s = PropertyFactory::getProp(
+            $elem,
+            $data['s'],
+            1,
+            0,
+            $this
+        );
+        $this->r = PropertyFactory::getProp(
+            $elem,
+            $data['r'],
+            0,
+            0,
+            $this
+        );
+        if (count($this->dynamicProperties) > 0) {
+            $this->k = true;
+        } else {
+            $this->k = false;
+            $this->convertRectToPath();
+        }
     }
 
+    public function convertRectToPath()
+    {
+        if (!$this->p) {
+            throw new \Error(get_class($this) . ": p value is not implemented");
+        }
 
-    if (this.d === 2 || this.d === 1) {
-      this.v?.setTripleAt(
-        p0 + v0,
-        p1 - v1 + round,
-        p0 + v0,
-        p1 - v1 + round,
-        p0 + v0,
-        p1 - v1 + cPoint,
-        0,
-        true
-      );
-      this.v?.setTripleAt(
-        p0 + v0,
-        p1 + v1 - round,
-        p0 + v0,
-        p1 + v1 - cPoint,
-        p0 + v0,
-        p1 + v1 - round,
-        1,
-        true
-      );
-      if (round === 0) {
-        this.v?.setTripleAt(
-          p0 - v0,
-          p1 + v1,
-          p0 - v0 + cPoint,
-          p1 + v1,
-          p0 - v0,
-          p1 + v1,
-          2
+        $p0 = $this->p->v[0];
+        $p1 = $this->p->v[1];
+        $v0 = $this->s->v[0] / 2;
+        $v1 = $this->s->v[1] / 2;
+        $round = min(
+            $v0,
+            $v1,
+            $this->r->v
         );
-        this.v?.setTripleAt(
-          p0 - v0,
-          p1 - v1,
-          p0 - v0,
-          p1 - v1 + cPoint,
-          p0 - v0,
-          p1 - v1,
-          3
-        );
-      } else {
-        this.v?.setTripleAt(
-          p0 + v0 - round,
-          p1 + v1,
-          p0 + v0 - round,
-          p1 + v1,
-          p0 + v0 - cPoint,
-          p1 + v1,
-          2,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0 + round,
-          p1 + v1,
-          p0 - v0 + cPoint,
-          p1 + v1,
-          p0 - v0 + round,
-          p1 + v1,
-          3,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0,
-          p1 + v1 - round,
-          p0 - v0,
-          p1 + v1 - round,
-          p0 - v0,
-          p1 + v1 - cPoint,
-          4,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0,
-          p1 - v1 + round,
-          p0 - v0,
-          p1 - v1 + cPoint,
-          p0 - v0,
-          p1 - v1 + round,
-          5,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0 + round,
-          p1 - v1,
-          p0 - v0 + round,
-          p1 - v1,
-          p0 - v0 + cPoint,
-          p1 - v1,
-          6,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 + v0 - round,
-          p1 - v1,
-          p0 + v0 - cPoint,
-          p1 - v1,
-          p0 + v0 - round,
-          p1 - v1,
-          7,
-          true
-        );
-      }
-    } else {
-      this.v?.setTripleAt(
-        p0 + v0,
-        p1 - v1 + round,
-        p0 + v0,
-        p1 - v1 + cPoint,
-        p0 + v0,
-        p1 - v1 + round,
-        0,
-        true
-      );
-      if (round === 0) {
-        this.v?.setTripleAt(
-          p0 - v0,
-          p1 - v1,
-          p0 - v0 + cPoint,
-          p1 - v1,
-          p0 - v0,
-          p1 - v1,
-          1,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0,
-          p1 + v1,
-          p0 - v0,
-          p1 + v1 - cPoint,
-          p0 - v0,
-          p1 + v1,
-          2,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 + v0,
-          p1 + v1,
-          p0 + v0 - cPoint,
-          p1 + v1,
-          p0 + v0,
-          p1 + v1,
-          3,
-          true
-        );
-      } else {
-        this.v?.setTripleAt(
-          p0 + v0 - round,
-          p1 - v1,
-          p0 + v0 - round,
-          p1 - v1,
-          p0 + v0 - cPoint,
-          p1 - v1,
-          1,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0 + round,
-          p1 - v1,
-          p0 - v0 + cPoint,
-          p1 - v1,
-          p0 - v0 + round,
-          p1 - v1,
-          2,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0,
-          p1 - v1 + round,
-          p0 - v0,
-          p1 - v1 + round,
-          p0 - v0,
-          p1 - v1 + cPoint,
-          3,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0,
-          p1 + v1 - round,
-          p0 - v0,
-          p1 + v1 - cPoint,
-          p0 - v0,
-          p1 + v1 - round,
-          4,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 - v0 + round,
-          p1 + v1,
-          p0 - v0 + round,
-          p1 + v1,
-          p0 - v0 + cPoint,
-          p1 + v1,
-          5,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 + v0 - round,
-          p1 + v1,
-          p0 + v0 - cPoint,
-          p1 + v1,
-          p0 + v0 - round,
-          p1 + v1,
-          6,
-          true
-        );
-        this.v?.setTripleAt(
-          p0 + v0,
-          p1 + v1 - round,
-          p0 + v0,
-          p1 + v1 - round,
-          p0 + v0,
-          p1 + v1 - cPoint,
-          7,
-          true
-        );
-      }
-    }
-  }
+        $cPoint = $round * (1 - Constants::$roundCorner);
 
-  override getValue() {
-    if (this.elem?.globalData?.frameId === this.frameId) {
-      return 0; // For type compability
-    }
-    if (this.elem?.globalData?.frameId) {
-      this.frameId = this.elem.globalData.frameId;
+        if ($this->v) {
+            $this->v->_length = 0;
+        }
+
+
+        if ($this->d === 2 || $this->d === 1) {
+            $this->v?->setTripleAt(
+                $p0 + $v0,
+                $p1 - $v1 + $round,
+                $p0 + $v0,
+                $p1 - $v1 + $round,
+                $p0 + $v0,
+                $p1 - $v1 + $cPoint,
+                0,
+                true
+            );
+            $this->v?->setTripleAt(
+                $p0 + $v0,
+                $p1 + $v1 - $round,
+                $p0 + $v0,
+                $p1 + $v1 - $cPoint,
+                $p0 + $v0,
+                $p1 + $v1 - $round,
+                1,
+                true
+            );
+            if ($round === 0) {
+                $this->v?->setTripleAt(
+                    $p0 - $v0,
+                    $p1 + $v1,
+                    $p0 - $v0 + $cPoint,
+                    $p1 + $v1,
+                    $p0 - $v0,
+                    $p1 + $v1,
+                    2
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0,
+                    $p1 - $v1,
+                    $p0 - $v0,
+                    $p1 - $v1 + $cPoint,
+                    $p0 - $v0,
+                    $p1 - $v1,
+                    3
+                );
+            } else {
+                $this->v?->setTripleAt(
+                    $p0 + $v0 - $round,
+                    $p1 + $v1,
+                    $p0 + $v0 - $round,
+                    $p1 + $v1,
+                    $p0 + $v0 - $cPoint,
+                    $p1 + $v1,
+                    2,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0 + $round,
+                    $p1 + $v1,
+                    $p0 - $v0 + $cPoint,
+                    $p1 + $v1,
+                    $p0 - $v0 + $round,
+                    $p1 + $v1,
+                    3,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0,
+                    $p1 + $v1 - $round,
+                    $p0 - $v0,
+                    $p1 + $v1 - $round,
+                    $p0 - $v0,
+                    $p1 + $v1 - $cPoint,
+                    4,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0,
+                    $p1 - $v1 + $round,
+                    $p0 - $v0,
+                    $p1 - $v1 + $cPoint,
+                    $p0 - $v0,
+                    $p1 - $v1 + $round,
+                    5,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0 + $round,
+                    $p1 - $v1,
+                    $p0 - $v0 + $round,
+                    $p1 - $v1,
+                    $p0 - $v0 + $cPoint,
+                    $p1 - $v1,
+                    6,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 + $v0 - $round,
+                    $p1 - $v1,
+                    $p0 + $v0 - $cPoint,
+                    $p1 - $v1,
+                    $p0 + $v0 - $round,
+                    $p1 - $v1,
+                    7,
+                    true
+                );
+            }
+        } else {
+            $this->v?->setTripleAt(
+                $p0 + $v0,
+                $p1 - $v1 + $round,
+                $p0 + $v0,
+                $p1 - $v1 + $cPoint,
+                $p0 + $v0,
+                $p1 - $v1 + $round,
+                0,
+                true
+            );
+            if ($round === 0) {
+                $this->v?->setTripleAt(
+                    $p0 - $v0,
+                    $p1 - $v1,
+                    $p0 - $v0 + $cPoint,
+                    $p1 - $v1,
+                    $p0 - $v0,
+                    $p1 - $v1,
+                    1,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0,
+                    $p1 + $v1,
+                    $p0 - $v0,
+                    $p1 + $v1 - $cPoint,
+                    $p0 - $v0,
+                    $p1 + $v1,
+                    2,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 + $v0,
+                    $p1 + $v1,
+                    $p0 + $v0 - $cPoint,
+                    $p1 + $v1,
+                    $p0 + $v0,
+                    $p1 + $v1,
+                    3,
+                    true
+                );
+            } else {
+                $this->v?->setTripleAt(
+                    $p0 + $v0 - $round,
+                    $p1 - $v1,
+                    $p0 + $v0 - $round,
+                    $p1 - $v1,
+                    $p0 + $v0 - $cPoint,
+                    $p1 - $v1,
+                    1,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0 + $round,
+                    $p1 - $v1,
+                    $p0 - $v0 + $cPoint,
+                    $p1 - $v1,
+                    $p0 - $v0 + $round,
+                    $p1 - $v1,
+                    2,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0,
+                    $p1 - $v1 + $round,
+                    $p0 - $v0,
+                    $p1 - $v1 + $round,
+                    $p0 - $v0,
+                    $p1 - $v1 + $cPoint,
+                    3,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0,
+                    $p1 + $v1 - $round,
+                    $p0 - $v0,
+                    $p1 + $v1 - $cPoint,
+                    $p0 - $v0,
+                    $p1 + $v1 - $round,
+                    4,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 - $v0 + $round,
+                    $p1 + $v1,
+                    $p0 - $v0 + $round,
+                    $p1 + $v1,
+                    $p0 - $v0 + $cPoint,
+                    $p1 + $v1,
+                    5,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 + $v0 - $round,
+                    $p1 + $v1,
+                    $p0 + $v0 - $cPoint,
+                    $p1 + $v1,
+                    $p0 + $v0 - $round,
+                    $p1 + $v1,
+                    6,
+                    true
+                );
+                $this->v?->setTripleAt(
+                    $p0 + $v0,
+                    $p1 + $v1 - $round,
+                    $p0 + $v0,
+                    $p1 + $v1 - $round,
+                    $p0 + $v0,
+                    $p1 + $v1 - $cPoint,
+                    7,
+                    true
+                );
+            }
+        }
     }
 
-    this.iterateDynamicProperties();
-    if (this._mdf) {
-      this.convertRectToPath();
-    }
+    public function getValue(?bool $_flag)
+    {
+        if (($this->elem?->globalData['frameId'] ?? null) === $this->frameId) {
+            return 0; // For type compability
+        }
+        if ($this->elem?->globalData['frameId'] ?? null) {
+            $this->frameId = $this->elem->globalData['frameId'];
+        }
 
-    return 0; // For type compability
-  }
+        $this->iterateDynamicProperties();
+        if ($this->_mdf) {
+            $this->convertRectToPath();
+        }
+
+        return 0; // For type compability
+    }
 }

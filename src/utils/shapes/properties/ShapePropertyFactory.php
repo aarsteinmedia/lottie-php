@@ -3,26 +3,27 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\ShapeElement;
 use LottiePHP\Utils\Properties\KeyframedValueProperty;
 
 class ShapePropertyFactory
 {
     public static function getConstructorFunction()
     {
-        return ShapeProperty;
+        return ShapeProperty::class;
     }
 
     public static function getKeyframedConstructorFunction()
     {
-        return KeyframedShapeProperty;
+        return KeyframedShapeProperty::class;
     }
 
     public static function getShapeProp(
-        BaseElement $elem,
+        ShapeElement $elem,
         array $data,
         int $type,
-        ?array $_arr,
-        ?array $_trims
+        ?array $_arr = null,
+        ?array $_trims = null
     ) {
         $prop = null;
 

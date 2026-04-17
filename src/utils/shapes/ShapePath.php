@@ -80,7 +80,7 @@ class ShapePath
         int $iX,
         int $iY,
         int $pos,
-        ?bool $replace
+        ?bool $replace = null
     ) {
         $this->setXYAt(
             $vX,

@@ -10,7 +10,7 @@ class NullElement extends FrameElement
     public function __constructor(
         array $data,
         array $globalData,
-        array $comp
+        BaseElement $comp
     ) {
         $this->initFrame();
         $this->initBaseData(
