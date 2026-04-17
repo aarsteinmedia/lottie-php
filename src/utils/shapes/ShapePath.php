@@ -110,7 +110,7 @@ class ShapePath
         int $y,
         string $type,
         int $pos,
-        ?bool $replace
+        ?bool $replace = false
     ) {
         $arr = [];
 

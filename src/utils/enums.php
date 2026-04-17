@@ -99,14 +99,27 @@ enum PropType: string
     case UniDimensional = 'unidimensional';
 }
 
-$lineCapEnum = (object) [
-  1 => 'butt',
-  2 => 'round',
-  3 => 'square'
-];
+function lineCapEnum(int $val)
+{
+    switch ($val) {
+        case 2:
+            return 'round';
+        case 3:
+            return 'square';
+        default:
+            return 'butt';
+    }
+}
 
-$lineJoinEnum = (object) [
-  1 => 'miter',
-  2 => 'round',
-  3 => 'bevel'
-];
+
+function lineJoinEnum(int $val)
+{
+    switch ($val) {
+        case 2:
+            return 'round';
+        case 3:
+            return 'bevel';
+        default:
+            return 'miter';
+    }
+}

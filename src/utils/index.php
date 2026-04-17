@@ -82,6 +82,21 @@ function createNS(string $type, ?DOMDocument $domFromProps = null)
     return $dom->createElementNS(Constants::$namespaceSVG, $type);
 }
 
+function floatEqual(int $a, int $b)
+{
+    return abs($a - $b) * 100000 <= min(abs($a), abs($b));
+}
+
+function floatZero(int $f)
+{
+    return abs($f) <= 0.00001;
+}
+
+function pointEqual(array $p1, array $p2)
+{
+    return floatEqual($p1[0], $p2[0]) && floatEqual($p1[1], $p2[1]);
+}
+
 function getBlendMode($mode = 16)
 {
     $blendModeEnums = [
