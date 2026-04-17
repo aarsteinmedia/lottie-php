@@ -2,8 +2,9 @@
 
 namespace LottiePHP\Elements;
 
-use LottiePHP\Elements\Helpers\ProcessedElement;
 use LottiePHP\Elements\Helpers\RenderableDOMElement;
+use LottiePHP\Elements\Helpers\Shapes\ProcessedElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 
 abstract class ShapeElement extends RenderableDOMElement
 {
@@ -29,7 +30,7 @@ abstract class ShapeElement extends RenderableDOMElement
         array_push($this->processedElements, new ProcessedElement($elem, $pos));
     }
 
-    public function addShapeToModifiers(array $data)
+    public function addShapeToModifiers(SVGShapeData $data)
     {
         $length = count($this->shapeModifiers);
 

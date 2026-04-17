@@ -3,6 +3,7 @@
 namespace LottiePHP\Elements\Helpers\Shapes;
 
 use DOMElement;
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Properties\MultiDimensionalProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
@@ -19,8 +20,8 @@ class SVGFillStyleData extends DynamicPropertyContainer
     public ?array $transform;
     public ?ValueProperty $w;
     public function __construct(
-        DynamicPropertyContainer $elem,
-        array $data,
+        BaseElement|DynamicPropertyContainer $elem,
+        SVGShapeData $data,
         SVGStyleData $styleObj
     ) {
         $this->initDynamicPropertyContainer($elem);

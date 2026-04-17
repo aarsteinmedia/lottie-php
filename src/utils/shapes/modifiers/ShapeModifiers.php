@@ -1,51 +1,29 @@
-import type { ElementInterfaceIntersect } from '@/types';
-import type { MouseModifier } from '@/utils/shapes/modifiers/MouseModifier';
-import type { OffsetPathModifier } from '@/utils/shapes/modifiers/OffsetPathModifier';
-import type { PuckerAndBloatModifier } from '@/utils/shapes/modifiers/PuckerAndBloatModifier';
-import type { RepeaterModifier } from '@/utils/shapes/modifiers/RepeaterModifier';
-import type { TrimModifier } from '@/utils/shapes/modifiers/TrimModifier';
-import type { ZigZagModifier } from '@/utils/shapes/modifiers/ZigZagModifier';
+<?php
 
-export type ShapeModifierInterface =
-  | TrimModifier
-  | PuckerAndBloatModifier
-  | RepeaterModifier
-  | ZigZagModifier
-  | OffsetPathModifier;
+namespace LottiePHP\Utils\Shapes\Modifiers;
 
-type Modifier =
-  | typeof TrimModifier
-  | typeof PuckerAndBloatModifier
-  | typeof RepeaterModifier
-  | typeof ZigZagModifier
-  | typeof OffsetPathModifier
-  | typeof MouseModifier;
+use LottiePHP\Elements\BaseElement;
 
-interface Modifiers {[key: string]: Modifier | undefined}
-
-const Modifiers: Modifiers = {};
+class ShapeModifiers
+{
+    private static $Modifiers = [];
 
 
-export function getModifier<T extends ShapeModifierInterface>(
-  nm: string,
-  _elem?: ElementInterfaceIntersect,
-  _data?: unknown
-) {
-  if (!Modifiers[nm]) {
-    throw new Error('Invalid modifier');
-  }
+    public static function getModifier(
+        string $nm,
+        ?BaseElement $_elem = null,
+        ?array $_data = null
+    ) {
+        if (!self::$Modifiers[$nm]) {
+            throw new \Error('Invalid modifier');
+        }
 
-  return new Modifiers[nm]() as T;
+        return new self::$Modifiers[$nm]();
+    }
+
+    public static function registerModifier(string $nm, array $factory)
+    {
+        self::$Modifiers[$nm] = self::$Modifiers[$nm] ?? $factory;
+    }
+
 }
-
-export function registerModifier(nm: string, factory: Modifier) {
-  Modifiers[nm] = Modifiers[nm] ?? factory;
-}
-
-const ShapeModifiers = {
-  getModifier,
-  registerModifier
-};
-
-// eslint-disable-next-line import/no-default-export
-export default ShapeModifiers;

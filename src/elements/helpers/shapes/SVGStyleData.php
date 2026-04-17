@@ -14,7 +14,7 @@ class SVGStyleData
     public bool $closed;
     public ?int $coOp;
     public $d = '';
-    public array $data;
+    public SVGShapeData $data;
     public ?array $finalTransform;
     public ?DOMElement $gr;
     public ?array $grd;
@@ -30,10 +30,10 @@ class SVGStyleData
     public ?array $transform;
     public ?ShapeType $ty;
     public ?ShapeType $type;
-    public function __construct(array $data, int $level)
+    public function __construct(SVGShapeData $data, int $level)
     {
         $this->data = $data;
-        $this->type = $data['ty'];
+        $this->type = $data->ty;
         $this->lvl = $level;
         $this->closed = $data['hd'] === true;
 

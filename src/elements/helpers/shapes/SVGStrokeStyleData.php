@@ -2,6 +2,7 @@
 
 namespace LottiePHP\Elements\Helpers\Shapes;
 
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\RendererType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\PropertyFactory;
@@ -11,8 +12,8 @@ class SVGStrokeStyleData extends SVGFillStyleData
 {
     public DashProperty $d;
     public function __construct(
-        DynamicPropertyContainer $elem,
-        array $data,
+        BaseElement|DynamicPropertyContainer $elem,
+        SVGShapeData $data,
         SVGStyleData $styleObj
     ) {
         parent::__construct(

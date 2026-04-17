@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Elements\ShapeElement;
 use LottiePHP\Utils\Properties\KeyframedValueProperty;
 
@@ -20,7 +21,7 @@ class ShapePropertyFactory
 
     public static function getShapeProp(
         ShapeElement $elem,
-        array $data,
+        SVGShapeData $data,
         int $type,
         ?array $_arr = null,
         ?array $_trims = null

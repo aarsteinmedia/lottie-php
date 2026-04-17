@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 use LottiePHP\Utils\Pooling\ShapePool;
@@ -22,7 +23,7 @@ class RectShapeProperty extends ShapeBaseProperty
     public ValueProperty $r;
     public MultiDimensionalProperty $s;
 
-    public function __construct(BaseElement|BaseProperty $elem, array $data)
+    public function __construct(BaseElement|BaseProperty $elem, SVGShapeData $data)
     {
         $this->v = ShapePool::newElement();
         $this->v->c = true;

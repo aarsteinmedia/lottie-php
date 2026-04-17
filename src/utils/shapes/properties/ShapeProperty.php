@@ -3,8 +3,10 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\PropType;
 use LottiePHP\Utils\Helpers\Constants;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 use LottiePHP\Utils\Pooling\ShapePool;
 
@@ -16,8 +18,8 @@ class ShapeProperty extends ShapeBaseProperty
     public ?int $totalShapeLength;
     public ?bool $x;
     public function __construct(
-        BaseElement $elem,
-        array $data,
+        BaseElement|DynamicPropertyContainer $elem,
+        SVGShapeData $data,
         int $type
     ) {
         $this->propType = PropType::Shape;
@@ -51,12 +53,11 @@ class KeyframedShapeProperty extends ShapeBaseProperty
 {
     public int $lastFrame;
     public function __construct(
-        BaseElement $elem,
-        array $data,
+        BaseElement|DynamicPropertyContainer $elem,
+        SVGShapeData $data,
         int $type
     ) {
-        $this->lastFrame =
-Constants::$initialDefaultFrame;
+        $this->lastFrame = Constants::$initialDefaultFrame;
 
         $this->data = $data;
         $this->propType = PropType::Shape;

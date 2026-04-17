@@ -3,16 +3,28 @@
 namespace LottiePHP\Elements;
 
 use DOMElement;
+use LottiePHP\Elements\Helpers\Shapes\ShapeGroupData;
+use LottiePHP\Elements\Helpers\Shapes\SVGElementsRenderer;
+use LottiePHP\Elements\Helpers\Shapes\SVGFillStyleData;
+use LottiePHP\Elements\Helpers\Shapes\SVGGradientFillStyleData;
+use LottiePHP\Elements\Helpers\Shapes\SVGGradientStrokeStyleData;
+use LottiePHP\Elements\Helpers\Shapes\SVGNoStyleData;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
+use LottiePHP\Elements\Helpers\Shapes\SVGStrokeStyleData;
+use LottiePHP\Elements\Helpers\Shapes\SVGStyleData;
+use LottiePHP\Elements\Helpers\Shapes\SVGTransformData;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\Properties\TransformPropertyFactory;
+use LottiePHP\Utils\Shapes\Modifiers\ShapeModifiers;
 use LottiePHP\Utils\Shapes\Properties\ShapePropertyFactory;
 
 use function LottiePHP\Utils\addClasses;
 use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\Enums\lineCapEnum;
 use function LottiePHP\Utils\Enums\lineJoinEnum;
+use function LottiePHP\Utils\getBlendMode;
 
 class SVGShapeElement extends ShapeElement
 {
@@ -31,7 +43,7 @@ class SVGShapeElement extends ShapeElement
     /**
      * List of elements that have been created.
      */
-    // prevViewData: SVGElementInterface[] = [];
+    public $prevViewData = [];
     // override renderElement = SVGBaseElement.prototype.renderElement;
     // setMatte = SVGBaseElement.prototype.setMatte;
     /**
@@ -67,7 +79,7 @@ class SVGShapeElement extends ShapeElement
         // Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
     }
 
-    public function addToAnimatedContents(array $data, BaseElement $element)
+    public function addToAnimatedContents(SVGShapeData $data, SVGShapeElement|SVGShapeData $element)
     {
         $i = 0;
         $length = count($this->animatedContents);
@@ -83,7 +95,7 @@ class SVGShapeElement extends ShapeElement
             [
             'data' => $data,
             'element' => $element,
-            'fn' => createRenderFunction($data)
+            'fn' => SVGElementsRenderer::createRenderFunction($data)
       ]
         );
     }
@@ -131,14 +143,13 @@ class SVGShapeElement extends ShapeElement
     }
 
     public function createShapeElement(
-        array $data,
+        SVGShapeData $data,
         array $ownTransformers,
         int $level
     ) {
         $ty = 4;
 
-        // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-        switch ($data['ty']) {
+        switch ($data->ty) {
             case ShapeType::Rectangle: {
                 $ty = 5;
                 break;
@@ -169,13 +180,13 @@ class SVGShapeElement extends ShapeElement
         return $elementData;
     }
 
-    public function createStyleElement(array $data, int $level)
+    public function createStyleElement(SVGShapeData $data, int $level)
     {
         $elementData = null;
         $styleOb = new SVGStyleData($data, $level);
         $pathElement = $styleOb->pElem;
 
-        switch ($data['ty']) {
+        switch ($data->ty) {
             case ShapeType::Stroke: {
                 $elementData = new SVGStrokeStyleData(
                     $this,
@@ -201,8 +212,8 @@ class SVGShapeElement extends ShapeElement
 
                 $elementData = new $GradientConstructor(
                     $this,
-                    data,
-                    styleOb
+                    $data,
+                    $styleOb
                 );
                 if ($elementData->gf) {
                     $this->globalData['defs']?->appendChild($elementData->gf);
@@ -267,7 +278,7 @@ class SVGShapeElement extends ShapeElement
     {
         $transformProperty = TransformPropertyFactory::getTransformProperty(
             $this,
-            data,
+            $data,
             $this
         );
 
@@ -532,7 +543,7 @@ class SVGShapeElement extends ShapeElement
                         $Modifier = $itemsData[$i];
                         $Modifier->closed = false;
                     } else {
-                        $Modifier = getModifier($arr[$i]['ty'] ?? ShapeType::Unknown);
+                        $Modifier = ShapeModifiers::getModifier($arr[$i]['ty'] ?? ShapeType::Unknown);
                         $Modifier->init($this, $arr[$i]);
                         $itemsData[$i] = $Modifier;
                         array_push($this->shapeModifiers, $Modifier);
@@ -547,13 +558,13 @@ class SVGShapeElement extends ShapeElement
                         array_push($ownModifiers, $Modifier);
                         break;
                     }
-                    $Modifier = getModifier($arr[$i]['ty'] ?? ShapeType::Unknown);
+                    $Modifier = ShapeModifiers::getModifier($arr[$i]['ty'] ?? ShapeType::Unknown);
                     $itemsData[$i] = $Modifier;
                     $Modifier->init(
                         $this,
                         $arr,
                         $i,
-                        $itemsDataGroupData
+                        $itemsData
                     );
                     array_push($this->shapeModifiers, $Modifier);
 

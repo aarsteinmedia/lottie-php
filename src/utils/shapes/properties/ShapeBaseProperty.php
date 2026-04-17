@@ -4,6 +4,7 @@ namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Elements\CompElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\BezierFactory;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Helpers\Constants;
@@ -17,7 +18,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public ?array $_caching;
     public ?array $_cachingAtTime;
     public ?CompElement $comp;
-    public ?array $data = null;
+    public ?SVGShapeData $data = null;
     public $effectsSequence = [];
     public BaseElement $elem;
     public ?int $frameId;

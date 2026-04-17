@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Helpers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\PropType;
 use LottiePHP\Utils\Properties\BaseProperty;
 
@@ -11,7 +12,7 @@ abstract class DynamicPropertyContainer
     public ?bool $_isAnimated;
     public ?bool $_mdf;
     public ?DynamicPropertyContainer $container;
-    public ?array $data;
+    public ?SVGShapeData $data;
     public $dynamicProperties = [];
     public ?bool $hd;
     public ?array $keyframes;

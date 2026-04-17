@@ -13,9 +13,9 @@ class SVGElementsRenderer
     private static ?Matrix $_matrixHelper;
 
 
-    public static function createRenderFunction(array $data)
+    public static function createRenderFunction(SVGShapeData $data)
     {
-        switch ($data['ty']) {
+        switch ($data->ty) {
             case ShapeType::Fill: {
                 return self::renderFill(...);
             }

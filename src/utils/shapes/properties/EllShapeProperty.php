@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 use LottiePHP\Utils\Pooling\ShapePool;
@@ -15,7 +16,7 @@ class EllShapeProperty extends ShapeBaseProperty
     public ?int $d;
     public BaseProperty $s;
 
-    public function __construct(BaseElement|BaseProperty $elem, array $data)
+    public function __construct(BaseElement|BaseProperty $elem, SVGShapeData $data)
     {
         $this->_cPoint = Constants::$roundCorner;
         $this->v = ShapePool::newElement();
