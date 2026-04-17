@@ -10,7 +10,7 @@ abstract class DynamicPropertyContainer
 {
     public ?bool $_isAnimated;
     public ?bool $_mdf;
-    public ?BaseElement $container;
+    public ?DynamicPropertyContainer $container;
     public ?array $data;
     public $dynamicProperties = [];
     public ?bool $hd;
@@ -33,7 +33,7 @@ abstract class DynamicPropertyContainer
         throw new \Error(get_class($this) . ": Method getValue is not implemented");
     }
 
-    public function initDynamicPropertyContainer(BaseElement|BaseProperty $container)
+    public function initDynamicPropertyContainer(DynamicPropertyContainer $container)
     {
         $this->container = $container;
         $this->dynamicProperties = [];

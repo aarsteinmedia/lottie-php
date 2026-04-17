@@ -4,6 +4,7 @@ namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Helpers\Constants;
+use LottiePHP\Utils\PolynomialBezier;
 use LottiePHP\Utils\Pooling\ShapePool;
 use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
@@ -186,29 +187,29 @@ class OffsetPathModifier extends ShapeModifier
         return $p0;
     }
 
-    private function offsetSegment(array $segment, int $amount)
+    private function offsetSegment(PolynomialBezier $segment, int $amount)
     {
         $e = null;
 
         $e = $this->linearOffset(
-            $segment['points'][0],
-            $segment['points'][1],
+            $segment->points[0],
+            $segment->points[1],
             $amount
         );
         $p0 = $e[0];
         $p1a = $e[1];
 
         $e = $this->linearOffset(
-            $segment['points'][1],
-            $segment['points'][2],
+            $segment->points[1],
+            $segment->points[2],
             $amount
         );
         $p1b = $e[0];
         $p2b = $e[1];
 
         $e = $this->linearOffset(
-            $segment['points'][2],
-            $segment['points'][3],
+            $segment->points[2],
+            $segment->points[3],
             $amount
         );
         $p2a = $e[0];
@@ -256,19 +257,20 @@ class OffsetPathModifier extends ShapeModifier
             return [$this->offsetSegment($segment, $amount)];
         }
 
-        if (count($flex) === 1 || $this->floatEqual($flex[1] ?? 0, 1)) {
-            $split = explode($flex[0] ?? 0, $segment);
+        if (count($flex) === 1 || floatEqual($flex[1] ?? 0, 1)) {
+            $split = $segment->split($flex[0] ?? 0);
+
             $left = $split[0];
             $right = $split[1];
 
             return [$this->offsetSegment($left, $amount), $this->offsetSegment($right, $amount)];
         }
 
-        $split = explode($flex[0] ?? 0, $segment);
+        $split = $segment->split($flex[0] ?? 0);
         $left = $split[0];
         $t = ($flex[1] ?? 0 - ($flex[0] ?? 0)) / (1 - ($flex[0] ?? 0));
 
-        $split = str_split($split[1], $t);
+        $split = $split[1]?->split($t);
         $mid = $split[0];
 
         $right = $split[1];
@@ -284,7 +286,7 @@ class OffsetPathModifier extends ShapeModifier
         $intersect = $a->intersections($b);
 
         if (count($intersect) > 0 && floatEqual($intersect[0][0] ?? 0, 1)) {
-            $intersect->shift();
+            array_shift($intersect);
         }
 
         if (count($intersect) > 0) {
@@ -382,13 +384,13 @@ class OffsetPathModifier extends ShapeModifier
         $multiSegments = [];
 
         for ($i = 0; $i < $count; $i++) {
-            $segment = $this->shapeSegment($inputBezier, $i);
+            $segment = PolynomialBezier::shapeSegment($inputBezier, $i);
             array_push($multiSegments, $this->offsetSegmentSplit($segment, $amount));
         }
 
         if (!$inputBezier->c) {
             for ($i = $count - 1; $i >= 0; $i--) {
-                $segment = $this->shapeSegmentInverted($inputBezier, $i);
+                $segment = PolynomialBezier::shapeSegmentInverted($inputBezier, $i);
                 array_push($multiSegments, $this->offsetSegmentSplit($segment, $amount));
             }
         }
@@ -421,36 +423,36 @@ class OffsetPathModifier extends ShapeModifier
             for ($j = 0; $j < $mLength; $j++) {
                 $segment = $multiSegment[$j];
 
-                if ($lastPoint && pointEqual($segment['points'][0], $lastPoint)) {
+                if ($lastPoint && pointEqual($segment->points[0], $lastPoint)) {
                     $outputBezier->setXYAt(
-                        $segment['points'][1][0],
-                        $segment['points'][1][1],
+                        $segment->points[1][0],
+                        $segment->points[1][1],
                         'o',
                         $outputBezier->length() - 1
                     );
                 } else {
                     $outputBezier->setTripleAt(
-                        $segment['points'][0][0],
-                        $segment['points'][0][1],
-                        $segment['points'][1][0],
-                        $segment['points'][1][1],
-                        $segment['points'][0][0],
-                        $segment['points'][0][1],
+                        $segment->points[0][0],
+                        $segment->points[0][1],
+                        $segment->points[1][0],
+                        $segment->points[1][1],
+                        $segment->points[0][0],
+                        $segment->points[0][1],
                         $outputBezier->length()
                     );
                 }
 
                 $outputBezier->setTripleAt(
-                    $segment['points'][3][0],
-                    $segment['points'][3][1],
-                    $segment['points'][3][0],
-                    $segment['points'][3][1],
-                    $segment['points'][2][0],
-                    $segment['points'][2][1],
+                    $segment->points[3][0],
+                    $segment->points[3][1],
+                    $segment->points[3][0],
+                    $segment->points[3][1],
+                    $segment->points[2][0],
+                    $segment->points[2][1],
                     $outputBezier->length()
                 );
 
-                $lastPoint = $segment['points'][3];
+                $lastPoint = $segment->points[3];
             }
         }
 

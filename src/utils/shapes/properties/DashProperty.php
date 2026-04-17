@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGStrokeStyleData;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\RendererType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
@@ -26,7 +27,7 @@ class DashProperty extends DynamicPropertyContainer
         BaseElement|BaseProperty $elem,
         array $data,
         RendererType $renderer,
-        BaseElement|BaseProperty $container
+        DynamicPropertyContainer $container
     ) {
         $this->dashoffset = createTypedArray(ArrayType::Float32, 1);
         $this->elem = $elem;

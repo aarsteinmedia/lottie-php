@@ -1,6 +1,6 @@
 <?php
 
-namespace LottiePHP\Elements\Helpers;
+namespace LottiePHP\Elements\Helpers\Shapes;
 
 use LottiePHP\Elements\BaseElement;
 

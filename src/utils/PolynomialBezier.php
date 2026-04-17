@@ -121,8 +121,8 @@ class PolynomialBezier
 
     public function intersections(
         PolynomialBezier $other,
-        ?int $toleranceFromProps,
-        ?int $maxRecursionFromProps
+        ?int $toleranceFromProps = null,
+        ?int $maxRecursionFromProps = null
     ) {
         $tolerance = $toleranceFromProps;
         $maxRecursion = $maxRecursionFromProps;
