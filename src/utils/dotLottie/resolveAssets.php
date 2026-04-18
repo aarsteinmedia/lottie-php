@@ -3,8 +3,8 @@
 namespace LottiePHP\Utils\DotLottie;
 
 /**
- * @param array<string, string>    $unzipped
- * @param array<string, mixed>     $lottie
+ * @param array<string, string> $unzipped
+ * @param array<string, mixed>  $lottie
  */
 function resolveAssets(array $unzipped, array &$lottie): void
 {
@@ -24,24 +24,24 @@ function resolveAssets(array $unzipped, array &$lottie): void
         $u = isset($asset['u']) ? preg_replace('/^\/+/', '', (string) $asset['u']) : '';
         $p = isset($asset['p']) ? (string) $asset['p'] : '';
         $raw = null;
-        if ($u !== '') {
-            $raw = $unzipped[$u . $p] ?? null;
+        if ('' !== $u) {
+            $raw = $unzipped[$u.$p] ?? null;
         } elseif ($isImage) {
-            $raw = $unzipped['i/' . $p] ?? null;
+            $raw = $unzipped['i/'.$p] ?? null;
         }
         $raw ??= $unzipped["{$type}/{$p}"] ?? null;
-        if ($raw === null || $raw === '') {
+        if (null === $raw || '' === $raw) {
             continue;
         }
         $b64 = base64_encode($raw);
         $currentP = $assets[$i]['p'] ?? '';
         if (!is_string($currentP)
-            || $currentP === ''
+            || '' === $currentP
             || str_starts_with($currentP, 'data:')
             || looksLikeBase64($currentP)) {
             // keep p
         } else {
-            $assets[$i]['p'] = 'data:' . getMimeFromExt(getExt($p)) . ';base64,' . $b64;
+            $assets[$i]['p'] = 'data:'.getMimeFromExt(getExt($p)).';base64,'.$b64;
         }
         $assets[$i]['e'] = 1;
         $assets[$i]['u'] = '';
@@ -70,18 +70,19 @@ function isImageAsset(array $asset): bool
 function parseBase64Payload(string $str): string
 {
     $comma = strpos($str, ',');
-    return $comma === false ? $str : substr($str, (int) $comma + 1);
-}
 
+    return false === $comma ? $str : substr($str, (int) $comma + 1);
+}
 
 function getExt(?string $path): ?string
 {
-    if ($path === null || $path === '') {
+    if (null === $path || '' === $path) {
         return null;
     }
     $base = basename($path);
     $dot = strrpos($base, '.');
-    return ($dot === false || $dot < 1) ? null : strtolower(substr($base, $dot + 1));
+
+    return (false === $dot || $dot < 1) ? null : strtolower(substr($base, $dot + 1));
 }
 
 function getMimeFromExt(?string $ext): string
