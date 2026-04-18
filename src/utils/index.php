@@ -120,3 +120,18 @@ function getBlendMode($mode = 16)
 
     return $blendModeEnums[$mode] || '';
 }
+
+function isLottie(array $json)
+{
+    $mandatory = [
+        'v',
+        'ip',
+        'op',
+        'layers',
+        'fr',
+        'w',
+        'h',
+    ];
+
+    return array_all($mandatory, fn (string $field) => array_key_exists($field, $json));
+}
