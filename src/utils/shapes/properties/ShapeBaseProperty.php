@@ -33,9 +33,10 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public ?ShapePath $pv;
     public ?ShapeType $ty;
     public ?ShapePath $v;
-    public function getValueAtTime(int $_frameNumFromProps, ?int $_num): ShapePath | null
+
+    public function getValueAtTime(int $_frameNumFromProps, ?int $_num): ?ShapePath
     {
-        throw new \Error(get_class($this) . ": Method getShapeValueAtTime is not implemented");
+        throw new \Error(get_class($this).': Method getShapeValueAtTime is not implemented');
     }
 
     public function initiateExpression(
@@ -43,7 +44,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
         array $_data,
         BaseProperty $_property
     ) {
-        throw new \Error(get_class($this) . ": Method initiateExpression is not implemented");
+        throw new \Error(get_class($this).': Method initiateExpression is not implemented');
     }
 
     public function interpolateShape(
@@ -87,17 +88,17 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                     break;
                 }
                 if ($i < $len - 1) {
-                    $i++;
+                    ++$i;
                 } else {
                     $shouldInterpolate = false;
                 }
             }
             if (!$keyData || !$nextKeyData) {
-                throw new \Error(get_class($this) . ": Could not set keyframe data");
+                throw new \Error(get_class($this).': Could not set keyframe data');
             }
             $keyframeMetadata = $this->keyframesMetadata[$i] ?? [];
 
-            $isHold = $keyData['h'] === 1;
+            $isHold = 1 === $keyData['h'];
             $iterationIndex = $i;
             if (!$isHold) {
                 if ($frameNum >= $nextKeyData['t'] - $this->offsetTime) {
@@ -110,10 +111,10 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                     if ($keyframeMetadata['__fnct']) {
                         $fnc = $keyframeMetadata['__fnct'];
                     } elseif (
-                        gettype($keyData['o']['x']) === 'number' &&
-                        gettype($keyData['o']['y']) === 'number' &&
-                        gettype($keyData['i']['x']) === 'number' &&
-                        gettype($keyData['i']['y']) === 'number'
+                        'number' === gettype($keyData['o']['x'])
+                        && 'number' === gettype($keyData['o']['y'])
+                        && 'number' === gettype($keyData['i']['x'])
+                        && 'number' === gettype($keyData['i']['y'])
                     ) {
                         $fnc = BezierFactory::getBezierEasing(
                             $keyData['o']['x'],
@@ -123,21 +124,20 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                         )->get;
                         $keyframeMetadata['__fnct'] = $fnc;
                     }
-                    $perc =
-                      ($fnc(($frameNum - ($keyData['t'] - $this->offsetTime)) /
-                        ($nextKeyData['t'] -
-                          $this->offsetTime -
-                          ($keyData['t'] - $this->offsetTime))) || 0);
+                    $perc
+                      = ($fnc(($frameNum - ($keyData['t'] - $this->offsetTime))
+                        / ($nextKeyData['t']
+                          - $this->offsetTime
+                          - ($keyData['t'] - $this->offsetTime))) || 0);
                 }
                 $keyPropE = $nextKeyData['s'] ? $nextKeyData['s'][0] : $keyData['e'][0];
             }
             $keyPropS = $keyData['s'][0] ?? null;
         }
         if (
-            !$keyPropS || gettype($keyPropS) === 'number' || is_array($keyPropS)
-            || gettype($keyPropE) === 'number'
+            !$keyPropS || 'number' === gettype($keyPropS) || is_array($keyPropS)
+            || 'number' === gettype($keyPropE)
         ) {
-
             return;
         }
 
@@ -146,8 +146,8 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
 
         $caching['lastIndex'] = $iterationIndex;
 
-        for ($j = 0; $j < $jLen; $j++) {
-            for ($k = 0; $k < $kLen; $k++) {
+        for ($j = 0; $j < $jLen; ++$j) {
+            for ($k = 0; $k < $kLen; ++$k) {
                 $vertexValue = ($isHold
                   ? $keyPropS['i'][$j][$k]
                   : ($keyPropS['i'][$j][$k] ?? 0) + (($keyPropE['i'][$j][$k] ?? 0) - ($keyPropS['i'][$j][$k] ?? 0)) * $perc) ?? 0;
@@ -167,7 +167,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public function interpolateShapeCurrentTime()
     {
         if (!$this->pv) {
-            throw new \Error(get_class($this) . ": Cannot parse ShapePath v value");
+            throw new \Error(get_class($this).': Cannot parse ShapePath v value');
         }
 
         if (!$this->keyframes) {
@@ -176,20 +176,20 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
 
         $this->_caching = $this->_caching ?? [];
 
-        $frameNum = (int)($this->comp?->renderedFrame) - $this->offsetTime;
+        $frameNum = (int) $this->comp?->renderedFrame - $this->offsetTime;
         $initTime = ($this->keyframes[0]['t'] ?? 0) - $this->offsetTime;
         $endTime = ($this->keyframes[count($this->keyframes) - 1]['t'] ?? 0) - $this->offsetTime;
-        [ 'lastFrame' => $lastFrame, 'lastIndex' => $lastIndex ] = $this->_caching;
+        ['lastFrame' => $lastFrame, 'lastIndex' => $lastIndex] = $this->_caching;
 
         if (
             !(
-                $lastFrame !== Constants::$initialDefaultFrame &&
-        ($lastFrame < $initTime && $frameNum < $initTime ||
-                $lastFrame > $endTime && $frameNum > $endTime)
+                $lastFrame !== Constants::$initialDefaultFrame
+        && ($lastFrame < $initTime && $frameNum < $initTime
+                || $lastFrame > $endTime && $frameNum > $endTime)
             )
         ) {
-            $this->_caching['lastIndex'] =
-              $lastFrame < $frameNum ? $lastIndex : 0;
+            $this->_caching['lastIndex']
+              = $lastFrame < $frameNum ? $lastIndex : 0;
             $this->interpolateShape(
                 $frameNum,
                 $this->pv,
@@ -204,13 +204,13 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public function processEffectsSequence($_val)
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (Shape) is not implemented");
+            throw new \Error(get_class($this).': data (Shape) is not implemented');
         }
 
         if (($this->elem?->globalData['frameId'] ?? null) === $this->frameId) {
             return 0;
         }
-        if (count($this->effectsSequence) === 0) {
+        if (0 === count($this->effectsSequence)) {
             $this->_mdf = false;
 
             return 0;
@@ -234,7 +234,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
         $i = 0;
         $len = count($this->effectsSequence);
 
-        for ($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; ++$i) {
             $finalValue = $this->effectsSequence[$i]($finalValue);
         }
         $this->setVValue($finalValue);
@@ -252,13 +252,13 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public function setVValue(?ShapePath $newPath)
     {
         if (!$this->v || !$newPath) {
-            throw new \Error(get_class($this) . ": ShapePath is not set");
+            throw new \Error(get_class($this).': ShapePath is not set');
         }
         if (!$this->localShapeCollection) {
-            throw new \Error(get_class($this) . ": localShapeCollection is not set");
+            throw new \Error(get_class($this).': localShapeCollection is not set');
         }
         if (!$this->shapesEqual($this->v, $newPath)) {
-            $this->v = clone($newPath);
+            $this->v = clone $newPath;
             $this->localShapeCollection->releaseShapes();
             $this->localShapeCollection->addShape($this->v);
             $this->_mdf = true;
@@ -273,14 +273,14 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
         }
         $len = $shape1->_length || 0;
 
-        for ($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; ++$i) {
             if (
-                $shape1->v[$i][0] !== $shape2->v[$i][0] ||
-                $shape1->v[$i][1] !== $shape2->v[$i][1] ||
-                $shape1->o[$i][0] !== $shape2->o[$i][0] ||
-                $shape1->o[$i][1] !== $shape2->o[$i][1] ||
-                $shape1->i[$i][0] !== $shape2->i[$i][0] ||
-                $shape1->i[$i][1] !== $shape2->i[$i][1]
+                $shape1->v[$i][0] !== $shape2->v[$i][0]
+                || $shape1->v[$i][1] !== $shape2->v[$i][1]
+                || $shape1->o[$i][0] !== $shape2->o[$i][0]
+                || $shape1->o[$i][1] !== $shape2->o[$i][1]
+                || $shape1->i[$i][0] !== $shape2->i[$i][0]
+                || $shape1->i[$i][1] !== $shape2->i[$i][1]
             ) {
                 return false;
             }

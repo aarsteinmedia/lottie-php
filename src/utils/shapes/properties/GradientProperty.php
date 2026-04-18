@@ -22,6 +22,7 @@ class GradientProperty extends DynamicPropertyContainer
     public ?bool $k;
     public array $o;
     public $prop;
+
     public function __construct(
         BaseElement|BaseProperty $elem,
         SVGShapeData $data,
@@ -61,7 +62,7 @@ class GradientProperty extends DynamicPropertyContainer
                 if (!$this->comparePoints($this->data['k']['k'][$i]['s'] ?? [], $this->data['p'])) {
                     return false;
                 }
-                $i++;
+                ++$i;
             }
         } elseif (
             !$this->comparePoints($this->data['k']['k'], $this->data['p'])
@@ -83,7 +84,7 @@ class GradientProperty extends DynamicPropertyContainer
             if ($diff > 0.01) {
                 return false;
             }
-            $i++;
+            ++$i;
         }
 
         return true;
@@ -102,8 +103,8 @@ class GradientProperty extends DynamicPropertyContainer
         $mult = 0;
         $val = null;
 
-        for ($i = 0; $i < $len; $i++) {
-            $mult = $i % 4 === 0 ? 100 : 255;
+        for ($i = 0; $i < $len; ++$i) {
+            $mult = 0 === $i % 4 ? 100 : 255;
             $val = round(($this->prop->v[$i] ?? 0) * $mult);
             if ($this->c[$i] !== $val) {
                 $this->c[$i] = $val;
@@ -113,9 +114,9 @@ class GradientProperty extends DynamicPropertyContainer
         if (count($this->o) > 0) {
             $length = count($this->prop->v);
 
-            for ($i = $this->data['p'] * 4; $i < $length; $i++) {
+            for ($i = $this->data['p'] * 4; $i < $length; ++$i) {
                 // mult = i % 2 === 0 ? 100 : 1
-                $val = ($i % 2 === 0 ? round(($this->prop->v[$i] ?? 0) * 100) : $this->prop->v[$i]) ?? 0;
+                $val = (0 === $i % 2 ? round(($this->prop->v[$i] ?? 0) * 100) : $this->prop->v[$i]) ?? 0;
                 if ($this->o[$i - $this->data['p'] * 4] !== $val) {
                     $this->o[$i - $this->data['p'] * 4] = $val;
                     $this->_omdf = !$forceRender;

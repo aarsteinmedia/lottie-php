@@ -10,6 +10,7 @@ class KeyframedValueProperty extends BaseProperty
 {
     public ?string $selectorValue;
     public int $v;
+
     public function __construct(
         BaseElement|BaseProperty $elem,
         SVGShapeData $data,
@@ -22,10 +23,10 @@ class KeyframedValueProperty extends BaseProperty
         $this->offsetTime = $elem['data']['st'];
         $this->frameId = -1;
         $this->_caching = [
-          '_lastKeyframeIndex' => -1,
-          'lastFrame' => $this->initFrame,
-          'lastIndex' => 0,
-          'value' => 0,
+            '_lastKeyframeIndex' => -1,
+            'lastFrame' => $this->initFrame,
+            'lastIndex' => 0,
+            'value' => 0,
         ];
         $this->k = true;
         $this->kf = true;

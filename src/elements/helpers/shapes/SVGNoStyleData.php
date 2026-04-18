@@ -2,17 +2,17 @@
 
 namespace LottiePHP\Elements\Helpers\Shapes;
 
-use DOMElement;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
 class SVGNoStyleData extends DynamicPropertyContainer
 {
-    public ?DOMElement $gr;
+    public ?\DOMElement $gr;
     public $it = [];
     public $prevViewData = [];
     public SVGStyleData $style;
     public ?array $transform;
+
     public function __construct(
         BaseElement|DynamicPropertyContainer $elem,
         SVGShapeData $_data,

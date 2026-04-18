@@ -1,163 +1,183 @@
-import type {
-  ElementInterfaceIntersect,
-  Shape,
-  Vector2,
-  VectorProperty,
-} from '@/types';
-import type { ValueProperty } from '@/utils/properties/ValueProperty';
-import type { ShapeProperty } from '@/utils/shapes/properties/ShapeProperty';
-import type { ShapePath } from '@/utils/shapes/ShapePath';
+<?php
 
-import { roundCorner } from '@/utils/helpers/constants';
-import { newElement } from '@/utils/pooling/ShapePool';
-import PropertyFactory from '@/utils/PropertyFactory';
-import { ShapeModifier } from '@/utils/shapes/modifiers/ShapeModifier';
+namespace LottiePHP\Utils\Shapes\Modifiers;
 
-export class RoundCornersModifier extends ShapeModifier {
-  rd?: ValueProperty;
-  override initModifierProperties(elem: ElementInterfaceIntersect,
-    data: Shape) {
-    this.getValue = this.processKeys;
-    this.rd = PropertyFactory.getProp(
-      elem,
-      data.r as unknown as VectorProperty, // TODO: Find out if typing is wrong
-      0,
-      null,
-      this as unknown as ElementInterfaceIntersect
-    ) as ValueProperty;
-    this._isAnimated = this.rd.effectsSequence.length > 0;
-  }
+use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Helpers\Constants;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
+use LottiePHP\Utils\Pooling\ShapePool;
+use LottiePHP\Utils\Properties\ValueProperty;
+use LottiePHP\Utils\PropertyFactory;
+use LottiePHP\Utils\Shapes\ShapePath;
 
-  processPath(path: ShapePath, round: number) {
-    const clonedPath = newElement() as ShapePath;
+class RoundCornersModifier extends ShapeModifier
+{
+    public ?ValueProperty $rd;
 
-    clonedPath.c = path.c;
-    const len = path._length;
-    let currentV;
-    let currentI: Vector2;
-    let currentO: Vector2;
-    let closerV: Vector2;
-    let distance;
-    let newPosPerc;
-    let index = 0;
-    let vX;
-    let vY;
-    let oX;
-    let oY;
-    let iX;
-    let iY;
-
-    for (let i = 0; i < len; i++) {
-      currentV = path.v[i];
-      currentO = path.o[i] as Vector2;
-      currentI = path.i[i] as Vector2;
-      if (
-        currentV?.[0] === currentO[0] &&
-        currentV[1] === currentO[1] &&
-        currentV[0] === currentI[0] &&
-        currentV[1] === currentI[1]
-      ) {
-        if ((i === 0 || i === len - 1) && !path.c) {
-          clonedPath.setTripleAt(
-            currentV[0],
-            currentV[1],
-            currentO[0],
-            currentO[1],
-            currentI[0],
-            currentI[1],
-            index
-          );
-          /* clonedPath.v[index] = currentV;
-                clonedPath.o[index] = currentO;
-                clonedPath.i[index] = currentI; */
-          index++;
-        } else {
-          if (i === 0) {
-            closerV = path.v[len - 1] as Vector2;
-          } else {
-            closerV = path.v[i - 1] as Vector2;
-          }
-          distance = Math.sqrt(Math.pow(currentV[0] - closerV[0], 2) +
-            Math.pow(currentV[1] - closerV[1], 2));
-          newPosPerc = distance ? Math.min(distance / 2, round) / distance : 0;
-          iX = currentV[0] + (closerV[0] - currentV[0]) * newPosPerc;
-          vX = iX;
-          iY = currentV[1] - (currentV[1] - closerV[1]) * newPosPerc;
-          vY = iY;
-          oX = vX - (vX - currentV[0]) * roundCorner;
-          oY = vY - (vY - currentV[1]) * roundCorner;
-          clonedPath.setTripleAt(
-            vX, vY, oX, oY, iX, iY, index
-          );
-          index++;
-
-          if (i === len - 1) {
-            closerV = path.v[0] as Vector2;
-          } else {
-            closerV = path.v[i + 1] as Vector2;
-          }
-          distance = Math.sqrt(Math.pow(currentV[0] - closerV[0], 2) +
-            Math.pow(currentV[1] - closerV[1], 2));
-          newPosPerc = distance ? Math.min(distance / 2, round) / distance : 0;
-          oX = currentV[0] + (closerV[0] - currentV[0]) * newPosPerc;
-          vX = oX;
-          oY = currentV[1] + (closerV[1] - currentV[1]) * newPosPerc;
-          vY = oY;
-          iX = vX - (vX - currentV[0]) * roundCorner;
-          iY = vY - (vY - currentV[1]) * roundCorner;
-          clonedPath.setTripleAt(
-            vX, vY, oX, oY, iX, iY, index
-          );
-          index++;
-        }
-      } else {
-        clonedPath.setTripleAt(
-          path.v[i]?.[0] ?? 0,
-          path.v[i]?.[1] ?? 0,
-          path.o[i]?.[0] ?? 0,
-          path.o[i]?.[1] ?? 0,
-          path.i[i]?.[0] ?? 0,
-          path.i[i]?.[1] ?? 0,
-          index
+    public function initModifierProperties(
+        BaseElement|DynamicPropertyContainer $elem,
+        array $data
+    ) {
+        $this->rd = PropertyFactory::getProp(
+            $elem,
+            $data['r'],
+            0,
+            null,
+            $this
         );
-        index++;
-      }
+        $this->_isAnimated = count($this->rd->effectsSequence) > 0;
     }
 
-    return clonedPath;
-  }
+    public function getValue(...$args)
+    {
+        return $this->processKeys(...$args);
+    }
 
-  processShapes(_isFirstFrame: boolean) {
-    const { length } = this.shapes;
-    const rd = this.rd?.v;
+    public function processPath(ShapePath $path, int $round)
+    {
+        $clonedPath = ShapePool::newElement();
 
-    if (rd !== 0) {
-      let shapeData; let shapePaths; let localShapeCollection;
+        $clonedPath->c = $path->c;
+        $len = $path->_length;
+        $currentV = null;
+        $currentI = null;
+        $currentO = null;
+        $closerV = null;
+        $distance = null;
+        $newPosPerc = null;
+        $index = 0;
+        $vX = null;
+        $vY = null;
+        $oX = null;
+        $oY = null;
+        $iX = null;
+        $iY = null;
 
-      for (let i = 0; i < length; i++) {
-        shapeData = this.shapes[i] as unknown as ShapeProperty;
-        localShapeCollection = shapeData.localShapeCollection;
-        if (!(!shapeData.shape?._mdf && !this._mdf && !_isFirstFrame)) {
-          localShapeCollection?.releaseShapes();
-          if (shapeData.shape) {
-            shapeData.shape._mdf = true;
-          }
+        for ($i = 0; $i < $len; ++$i) {
+            $currentV = $path->v[$i];
+            $currentO = $path->o[$i];
+            $currentI = $path->i[$i];
+            if (
+                ($currentV[0] ?? null) === $currentO[0]
+                && $currentV[1] === $currentO[1]
+                && $currentV[0] === $currentI[0]
+                && $currentV[1] === $currentI[1]
+            ) {
+                if ((0 === $i || $i === $len - 1) && !$path->c) {
+                    $clonedPath->setTripleAt(
+                        $currentV[0],
+                        $currentV[1],
+                        $currentO[0],
+                        $currentO[1],
+                        $currentI[0],
+                        $currentI[1],
+                        $index
+                    );
+                    /* clonedPath.v[index] = currentV;
+                          clonedPath.o[index] = currentO;
+                          clonedPath.i[index] = currentI; */
+                    ++$index;
+                } else {
+                    if (0 === $i) {
+                        $closerV = $path->v[$len - 1];
+                    } else {
+                        $closerV = $path->v[$i - 1];
+                    }
+                    $distance = sqrt(pow($currentV[0] - $closerV[0], 2)
+                      + pow($currentV[1] - $closerV[1], 2));
+                    $newPosPerc = $distance ? min($distance / 2, $round) / $distance : 0;
+                    $iX = $currentV[0] + ($closerV[0] - $currentV[0]) * $newPosPerc;
+                    $vX = $iX;
+                    $iY = $currentV[1] - ($currentV[1] - $closerV[1]) * $newPosPerc;
+                    $vY = $iY;
+                    $oX = $vX - ($vX - $currentV[0]) * Constants::$roundCorner;
+                    $oY = $vY - ($vY - $currentV[1]) * Constants::$roundCorner;
+                    $clonedPath->setTripleAt(
+                        $vX,
+                        $vY,
+                        $oX,
+                        $oY,
+                        $iX,
+                        $iY,
+                        $index
+                    );
+                    ++$index;
 
-          shapePaths = shapeData.shape?.paths?.shapes ?? [];
-          const jLen = shapeData.shape?.paths?._length || 0;
-
-          for (let j = 0; j < jLen; j++) {
-            localShapeCollection?.addShape(this.processPath(shapePaths[j] as ShapePath, rd as number));
-          }
+                    if ($i === $len - 1) {
+                        $closerV = $path->v[0];
+                    } else {
+                        $closerV = $path->v[$i + 1];
+                    }
+                    $distance = sqrt(pow($currentV[0] - $closerV[0], 2)
+                      + pow($currentV[1] - $closerV[1], 2));
+                    $newPosPerc = $distance ? min($distance / 2, $round) / $distance : 0;
+                    $oX = $currentV[0] + ($closerV[0] - $currentV[0]) * $newPosPerc;
+                    $vX = $oX;
+                    $oY = $currentV[1] + ($closerV[1] - $currentV[1]) * $newPosPerc;
+                    $vY = $oY;
+                    $iX = $vX - ($vX - $currentV[0]) * Constants::$roundCorner;
+                    $iY = $vY - ($vY - $currentV[1]) * Constants::$roundCorner;
+                    $clonedPath->setTripleAt(
+                        $vX,
+                        $vY,
+                        $oX,
+                        $oY,
+                        $iX,
+                        $iY,
+                        $index
+                    );
+                    ++$index;
+                }
+            } else {
+                $clonedPath->setTripleAt(
+                    $path->v[$i][0] ?? 0,
+                    $path->v[$i][1] ?? 0,
+                    $path->o[$i][0] ?? 0,
+                    $path->o[$i][1] ?? 0,
+                    $path->i[$i][0] ?? 0,
+                    $path->i[$i][1] ?? 0,
+                    $index
+                );
+                ++$index;
+            }
         }
-        if (shapeData.shape) {
-          shapeData.shape.paths = shapeData.localShapeCollection;
-        }
 
-      }
+        return $clonedPath;
     }
-    if (this.dynamicProperties.length === 0) {
-      this._mdf = false;
+
+    public function processShapes(bool $_isFirstFrame)
+    {
+        $length = count($this->shapes);
+        $rd = $this->rd?->v;
+
+        if (0 !== $rd) {
+            $shapeData = null;
+            $shapePaths = null;
+            $localShapeCollection = null;
+
+            for ($i = 0; $i < $length; ++$i) {
+                $shapeData = $this->shapes[$i];
+                $localShapeCollection = $shapeData->localShapeCollection;
+                if (!(!$shapeData->shape?->_mdf && !$this->_mdf && !$_isFirstFrame)) {
+                    $localShapeCollection?->releaseShapes();
+                    if ($shapeData->shape) {
+                        $shapeData->shape->_mdf = true;
+                    }
+
+                    $shapePaths = $shapeData->shape?->paths?->shapes ?? [];
+                    $jLen = $shapeData->shape?->paths?->_length || 0;
+
+                    for ($j = 0; $j < $jLen; ++$j) {
+                        $localShapeCollection?->addShape($this->processPath($shapePaths[$j], $rd));
+                    }
+                }
+                if ($shapeData->shape) {
+                    $shapeData->shape->paths = $shapeData->localShapeCollection;
+                }
+            }
+        }
+        if (0 === count($this->dynamicProperties)) {
+            $this->_mdf = false;
+        }
     }
-  }
 }

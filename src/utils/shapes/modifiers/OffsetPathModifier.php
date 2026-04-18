@@ -4,6 +4,7 @@ namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Helpers\Constants;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\PolynomialBezier;
 use LottiePHP\Utils\Pooling\ShapePool;
 use LottiePHP\Utils\Properties\ValueProperty;
@@ -16,12 +17,196 @@ use function LottiePHP\Utils\pointEqual;
 
 class OffsetPathModifier extends ShapeModifier
 {
+    public ?ValueProperty $amount;
+    public ?int $lineJoin;
+    public ?ValueProperty $miterLimit;
+
+    public function getValue(...$args)
+    {
+        return $this->processKeys(...$args);
+    }
+
+    public function initModifierProperties(
+        BaseElement|DynamicPropertyContainer $elem,
+        array $data
+    ) {
+        $this->amount = PropertyFactory::getProp(
+            $elem,
+            $data['a'],
+            0,
+            null,
+            $this
+        );
+        $this->miterLimit = PropertyFactory::getProp(
+            $elem,
+            $data['ml'],
+            0,
+            null,
+            $this
+        );
+        $this->lineJoin = $data['lj'];
+        $this->_isAnimated = count($this->amount['effectsSequence']) > 0;
+    }
+
+    public function processPath(
+        ShapePath $inputBezier,
+        int $amount,
+        int $lineJoin,
+        int $miterLimit
+    ) {
+        $outputBezier = ShapePool::newElement();
+
+        $outputBezier->c = $inputBezier->c;
+        $count = $inputBezier->length();
+
+        if (!$inputBezier->c) {
+            --$count;
+        }
+        $segment = null;
+        $multiSegments = [];
+
+        for ($i = 0; $i < $count; ++$i) {
+            $segment = PolynomialBezier::shapeSegment($inputBezier, $i);
+            array_push($multiSegments, $this->offsetSegmentSplit($segment, $amount));
+        }
+
+        if (!$inputBezier->c) {
+            for ($i = $count - 1; $i >= 0; --$i) {
+                $segment = PolynomialBezier::shapeSegmentInverted($inputBezier, $i);
+                array_push($multiSegments, $this->offsetSegmentSplit($segment, $amount));
+            }
+        }
+
+        $multiSegments = $this->pruneIntersections($multiSegments);
+
+        // Add bezier segments to the output and apply line joints
+        $lastPoint = null;
+        $lastSeg = null;
+
+        $length = count($multiSegments);
+
+        for ($i = 0; $i < $length; ++$i) {
+            $multiSegment = $multiSegments[$i];
+
+            if ($lastSeg) {
+                $lastPoint = $this->joinLines(
+                    $outputBezier,
+                    $lastSeg,
+                    $multiSegment[0],
+                    $lineJoin,
+                    $miterLimit
+                );
+            }
+
+            $lastSeg = $multiSegment[count($multiSegment) - 1];
+
+            $mLength = count($multiSegment);
+
+            for ($j = 0; $j < $mLength; ++$j) {
+                $segment = $multiSegment[$j];
+
+                if ($lastPoint && pointEqual($segment->points[0], $lastPoint)) {
+                    $outputBezier->setXYAt(
+                        $segment->points[1][0],
+                        $segment->points[1][1],
+                        'o',
+                        $outputBezier->length() - 1
+                    );
+                } else {
+                    $outputBezier->setTripleAt(
+                        $segment->points[0][0],
+                        $segment->points[0][1],
+                        $segment->points[1][0],
+                        $segment->points[1][1],
+                        $segment->points[0][0],
+                        $segment->points[0][1],
+                        $outputBezier->length()
+                    );
+                }
+
+                $outputBezier->setTripleAt(
+                    $segment->points[3][0],
+                    $segment->points[3][1],
+                    $segment->points[3][0],
+                    $segment->points[3][1],
+                    $segment->points[2][0],
+                    $segment->points[2][1],
+                    $outputBezier->length()
+                );
+
+                $lastPoint = $segment->points[3];
+            }
+        }
+
+        if ($length > 0 && $lastSeg) {
+            $this->joinLines(
+                $outputBezier,
+                $lastSeg,
+                $multiSegments[0][0] ?? null,
+                $lineJoin,
+                $miterLimit
+            );
+        }
+
+        return $outputBezier;
+    }
+
+    public function processShapes(bool $_isFirstFrame)
+    {
+        $length = count($this->shapes);
+        $amount = (int) $this->amount?->v;
+        $miterLimit = (int) $this->miterLimit?->v;
+        $lineJoin = (int) $this->lineJoin;
+
+        if (0 !== $amount) {
+            $shapePaths = null;
+            $shapeData = null;
+            $localShapeCollection = null;
+
+            for ($i = 0; $i < $length; ++$i) {
+                $shapeData = $this->shapes[$i];
+                $localShapeCollection = $shapeData->localShapeCollection;
+                if (!(!$shapeData->shape?->_mdf && !$this->_mdf && !$_isFirstFrame)) {
+                    $localShapeCollection?->releaseShapes();
+                    if ($shapeData->shape) {
+                        $shapeData->shape->_mdf = true;
+                    }
+
+                    $shapePaths = $shapeData->shape?->paths?->shapes;
+                    $jLen = $shapeData->shape?->paths?->_length || 0;
+
+                    for ($j = 0; $j < $jLen; ++$j) {
+                        $shapePath = $shapePaths[$j] ?? null;
+
+                        if (!$shapePath) {
+                            continue;
+                        }
+
+                        $localShapeCollection?->addShape($this->processPath(
+                            $shapePath,
+                            $amount,
+                            $lineJoin,
+                            $miterLimit
+                        ));
+                    }
+                }
+
+                if ($shapeData->shape) {
+                    $shapeData->shape->paths = $shapeData->localShapeCollection;
+                }
+            }
+        }
+        if (0 === count($this->dynamicProperties)) {
+            $this->_mdf = false;
+        }
+    }
+
     private function crossProduct(array $a, array $b)
     {
         return [
-          $a[1] ?? 0 * ($b[2] ?? 0) - ($a[2] ?? 0) * ($b[1] ?? 0),
-          $a[2] ?? 0 * ($b[0] ?? 0) - ($a[0] ?? 0) * ($b[2] ?? 0),
-          $a[0] ?? 0 * ($b[1] ?? 0) - ($a[1] ?? 0) * ($b[0] ?? 0),
+            $a[1] ?? 0 * ($b[2] ?? 0) - ($a[2] ?? 0) * ($b[1] ?? 0),
+            $a[2] ?? 0 * ($b[0] ?? 0) - ($a[0] ?? 0) * ($b[2] ?? 0),
+            $a[0] ?? 0 * ($b[1] ?? 0) - ($a[1] ?? 0) * ($b[0] ?? 0),
         ];
     }
 
@@ -31,7 +216,7 @@ class OffsetPathModifier extends ShapeModifier
         int $length
     ) {
         return [
-          $p[0] + cos($angle) * $length, $p[1] - sin($angle) * $length,
+            $p[0] + cos($angle) * $length, $p[1] - sin($angle) * $length,
         ];
     }
 
@@ -60,20 +245,17 @@ class OffsetPathModifier extends ShapeModifier
         array $end2
     ) {
         $v1 = [$start1[0],
-          $start1[1],
-          1];
+            $start1[1],
+            1];
         $v2 = [$end1[0],
-          $end1[1],
-          1];
+            $end1[1],
+            1];
         $v3 = [$start2[0],
-          $start2[1],
-          1];
+            $start2[1],
+            1];
         $v4 = [$end2[0],
-          $end2[1],
-          1];
-        /**
-             *
-             */
+            $end2[1],
+            1];
         $r = $this->crossProduct($this->crossProduct($v1, $v2), $this->crossProduct($v3, $v4));
 
         if (floatZero($r[2] ?? 0)) {
@@ -86,7 +268,6 @@ class OffsetPathModifier extends ShapeModifier
     private function pointDistance(array $p1, array $p2)
     {
         return hypot($p1[0] - $p2[0], $p1[1] - $p2[1]);
-
     }
 
     private function joinLines(
@@ -100,7 +281,7 @@ class OffsetPathModifier extends ShapeModifier
         $p1 = $seg2->points[0];
 
         // Bevel
-        if ($lineJoin === 3) {
+        if (3 === $lineJoin) {
             return $p0;
         }
 
@@ -110,7 +291,7 @@ class OffsetPathModifier extends ShapeModifier
         }
 
         // Round
-        if ($lineJoin === 2) {
+        if (2 === $lineJoin) {
             $angleOut = -$seg1->tangentAngle(1);
             $angleIn = -$seg2->tangentAngle(0) + M_PI;
             $center = $this->lineIntersection(
@@ -253,11 +434,11 @@ class OffsetPathModifier extends ShapeModifier
         $right = null;
         $split = null;
 
-        if (count($flex) === 0) {
+        if (0 === count($flex)) {
             return [$this->offsetSegment($segment, $amount)];
         }
 
-        if (count($flex) === 1 || floatEqual($flex[1] ?? 0, 1)) {
+        if (1 === count($flex) || floatEqual($flex[1] ?? 0, 1)) {
             $split = $segment->split($flex[0] ?? 0);
 
             $left = $split[0];
@@ -276,11 +457,12 @@ class OffsetPathModifier extends ShapeModifier
         $right = $split[1];
 
         return [
-          $this->offsetSegment($left, $amount),
-          $this->offsetSegment($mid, $amount),
-          $this->offsetSegment($right, $amount),
+            $this->offsetSegment($left, $amount),
+            $this->offsetSegment($mid, $amount),
+            $this->offsetSegment($right, $amount),
         ];
     }
+
     private function getIntersection(PolynomialBezier $a, PolynomialBezier $b)
     {
         $intersect = $a->intersections($b);
@@ -295,6 +477,7 @@ class OffsetPathModifier extends ShapeModifier
 
         return null;
     }
+
     private function pruneSegmentIntersection(array $a, array $b)
     {
         $outa = [...$a];
@@ -302,25 +485,26 @@ class OffsetPathModifier extends ShapeModifier
         $intersect = $this->getIntersection($a[count($a) - 1], $b[0]);
 
         if ($intersect) {
-            $outa[count($a) - 1] = explode($intersect[0] ?? 0, $a[count($a)  - 1])[0];
+            $outa[count($a) - 1] = explode($intersect[0] ?? 0, $a[count($a) - 1])[0];
             $outb[0] = explode($intersect[1] ?? 0, $b[0])[1];
         }
         if (count($a) > 1 && count($b) > 1) {
             $intersect = $this->getIntersection($a[0], $b[count($b) - 1]);
             if ($intersect) {
                 return [
-                  [explode($intersect[0] ?? 0, $a[0])[0]], [explode($intersect[1] ?? 0, $b[count($b) - 1])[1]],
+                    [explode($intersect[0] ?? 0, $a[0])[0]], [explode($intersect[1] ?? 0, $b[count($b) - 1])[1]],
                 ];
             }
         }
 
         return [$outa, $outb];
     }
+
     private function pruneIntersections(array $segments)
     {
         $e = null;
 
-        for ($i = 1; $i < count($segments); $i++) {
+        for ($i = 1; $i < count($segments); ++$i) {
             $e = $this->pruneSegmentIntersection($segments[$i - 1], $segments[$i]);
             $segments[$i - 1] = $e[0];
             $segments[$i] = $e[1];
@@ -333,191 +517,5 @@ class OffsetPathModifier extends ShapeModifier
         }
 
         return $segments;
-    }
-
-    public function getValue(...$args)
-    {
-        return $this->processKeys(...$args);
-    }
-
-    public ?ValueProperty $amount;
-    public ?int $lineJoin;
-    public ?ValueProperty $miterLimit;
-    public function initModifierProperties(
-        BaseElement $elem,
-        array $data
-    ) {
-
-        $this->amount = PropertyFactory::getProp(
-            $elem,
-            $data['a'],
-            0,
-            null,
-            $this
-        );
-        $this->miterLimit = PropertyFactory::getProp(
-            $elem,
-            $data['ml'],
-            0,
-            null,
-            $this
-        );
-        $this->lineJoin = $data['lj'];
-        $this->_isAnimated = count($this->amount['effectsSequence']) > 0;
-    }
-
-    public function processPath(
-        ShapePath $inputBezier,
-        int $amount,
-        int $lineJoin,
-        int $miterLimit
-    ) {
-        $outputBezier = ShapePool::newElement();
-
-        $outputBezier->c = $inputBezier->c;
-        $count = $inputBezier->length();
-
-        if (!$inputBezier->c) {
-            $count -= 1;
-        }
-        $segment = null;
-        $multiSegments = [];
-
-        for ($i = 0; $i < $count; $i++) {
-            $segment = PolynomialBezier::shapeSegment($inputBezier, $i);
-            array_push($multiSegments, $this->offsetSegmentSplit($segment, $amount));
-        }
-
-        if (!$inputBezier->c) {
-            for ($i = $count - 1; $i >= 0; $i--) {
-                $segment = PolynomialBezier::shapeSegmentInverted($inputBezier, $i);
-                array_push($multiSegments, $this->offsetSegmentSplit($segment, $amount));
-            }
-        }
-
-        $multiSegments = $this->pruneIntersections($multiSegments);
-
-        // Add bezier segments to the output and apply line joints
-        $lastPoint = null;
-        $lastSeg = null;
-
-        $length = count($multiSegments);
-
-        for ($i = 0; $i < $length; $i++) {
-            $multiSegment = $multiSegments[$i];
-
-            if ($lastSeg) {
-                $lastPoint = $this->joinLines(
-                    $outputBezier,
-                    $lastSeg,
-                    $multiSegment[0],
-                    $lineJoin,
-                    $miterLimit
-                );
-            }
-
-            $lastSeg = $multiSegment[count($multiSegment) - 1];
-
-            $mLength = count($multiSegment);
-
-            for ($j = 0; $j < $mLength; $j++) {
-                $segment = $multiSegment[$j];
-
-                if ($lastPoint && pointEqual($segment->points[0], $lastPoint)) {
-                    $outputBezier->setXYAt(
-                        $segment->points[1][0],
-                        $segment->points[1][1],
-                        'o',
-                        $outputBezier->length() - 1
-                    );
-                } else {
-                    $outputBezier->setTripleAt(
-                        $segment->points[0][0],
-                        $segment->points[0][1],
-                        $segment->points[1][0],
-                        $segment->points[1][1],
-                        $segment->points[0][0],
-                        $segment->points[0][1],
-                        $outputBezier->length()
-                    );
-                }
-
-                $outputBezier->setTripleAt(
-                    $segment->points[3][0],
-                    $segment->points[3][1],
-                    $segment->points[3][0],
-                    $segment->points[3][1],
-                    $segment->points[2][0],
-                    $segment->points[2][1],
-                    $outputBezier->length()
-                );
-
-                $lastPoint = $segment->points[3];
-            }
-        }
-
-        if ($length > 0 && $lastSeg) {
-            $this->joinLines(
-                $outputBezier,
-                $lastSeg,
-                $multiSegments[0][0] ?? null,
-                $lineJoin,
-                $miterLimit
-            );
-        }
-
-        return $outputBezier;
-    }
-
-    public function processShapes(bool $_isFirstFrame)
-    {
-        $length = count($this->shapes);
-        $amount = (int)$this->amount?->v;
-        $miterLimit = (int)$this->miterLimit?->v;
-        $lineJoin = (int)$this->lineJoin;
-
-        if ($amount !== 0) {
-            $shapePaths = null;
-            $shapeData = null;
-            $localShapeCollection = null;
-
-            for ($i = 0; $i < $length; $i++) {
-                $shapeData = $this->shapes[$i];
-                $localShapeCollection = $shapeData->localShapeCollection;
-                if (!(!$shapeData->shape?->_mdf && !$this->_mdf && !$_isFirstFrame)) {
-                    $localShapeCollection?->releaseShapes();
-                    if ($shapeData->shape) {
-                        $shapeData->shape->_mdf = true;
-                    }
-
-                    $shapePaths = $shapeData->shape?->paths?->shapes;
-                    $jLen = $shapeData->shape?->paths?->_length || 0;
-
-                    for ($j = 0; $j < $jLen; $j++) {
-                        $shapePath = $shapePaths[$j] ?? null;
-
-                        if (!$shapePath) {
-                            continue;
-                        }
-
-                        $localShapeCollection?->addShape($this->processPath(
-                            $shapePath,
-                            $amount,
-                            $lineJoin,
-                            $miterLimit
-                        ));
-                    }
-                }
-
-                if ($shapeData->shape) {
-                    $shapeData->shape->paths = $shapeData->localShapeCollection;
-                }
-
-
-            }
-        }
-        if (count($this->dynamicProperties) === 0) {
-            $this->_mdf = false;
-        }
     }
 }

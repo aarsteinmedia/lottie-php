@@ -9,6 +9,7 @@ class EffectsManager
 {
     public ?bool $_mdf;
     public array $effectElements = [];
+
     public function __construct(
         array $data,
         BaseElement|BaseProperty $element,
@@ -17,7 +18,7 @@ class EffectsManager
         $effects = $data['ef'] ?? [];
         $length = count($effects);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $effectItem = new GroupEffect(
                 $effects[$i],
                 $element,

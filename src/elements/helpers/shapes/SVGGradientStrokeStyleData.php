@@ -15,6 +15,7 @@ class SVGGradientStrokeStyleData extends SVGGradientFillStyleData
     public ?MultiDimensionalProperty $c;
     public DashProperty $d;
     public ?ValueProperty $w;
+
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,

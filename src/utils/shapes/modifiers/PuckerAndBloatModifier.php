@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Pooling\ShapePool;
 use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
@@ -11,8 +12,9 @@ use LottiePHP\Utils\Shapes\ShapePath;
 class PuckerAndBloatModifier extends ShapeModifier
 {
     public ?ValueProperty $amount;
+
     public function initModifierProperties(
-        BaseElement $elem,
+        BaseElement|DynamicPropertyContainer $elem,
         array $data
     ) {
         $this->amount = PropertyFactory::getProp(
@@ -37,7 +39,7 @@ class PuckerAndBloatModifier extends ShapeModifier
         $pathLength = $path->_length;
         $i = 0;
 
-        for ($i = 0; $i < $pathLength; $i++) {
+        for ($i = 0; $i < $pathLength; ++$i) {
             $centerPoint[0] += $path->v[$i][0] ?? 0;
             $centerPoint[1] += $path->v[$i][1] ?? 0;
         }
@@ -53,7 +55,7 @@ class PuckerAndBloatModifier extends ShapeModifier
         $iX = 0;
         $iY = 0;
 
-        for ($i = 0; $i < $pathLength; $i++) {
+        for ($i = 0; $i < $pathLength; ++$i) {
             $vX = $path->v[$i][0] ?? 0 + ($centerPoint[0] ?? 0 - ($path->v[$i][0] ?? 0)) * $percent;
             $vY = $path->v[$i][1] ?? 0 + ($centerPoint[1] ?? 0 - ($path->v[$i][1] ?? 0)) * $percent;
             $oX = $path->o[$i][0] ?? 0 + ($centerPoint[0] ?? 0 - ($path->o[$i][0] ?? 0)) * -$percent;
@@ -79,12 +81,12 @@ class PuckerAndBloatModifier extends ShapeModifier
         $length = count($this->shapes);
         $amount = $this->amount?->v;
 
-        if ($amount !== 0) {
+        if (0 !== $amount) {
             $shapePaths = null;
             $shapeData = null;
             $localShapeCollection = null;
 
-            for ($i = 0; $i < $length; $i++) {
+            for ($i = 0; $i < $length; ++$i) {
                 $shapeData = $this->shapes[$i];
                 $localShapeCollection = $shapeData->localShapeCollection;
                 if (!(!$shapeData->shape?->_mdf && !$this->_mdf && !$_isFirstFrame)) {
@@ -96,13 +98,12 @@ class PuckerAndBloatModifier extends ShapeModifier
                     $shapePaths = $shapeData->shape?->paths?->shapes;
                     $jLen = $shapeData->shape?->paths?->_length ?? 0;
 
-                    for ($j = 0; $j < $jLen; $j++) {
+                    for ($j = 0; $j < $jLen; ++$j) {
                         $shapePath = $shapePaths[$j] ?? null;
 
                         if ($shapePath) {
                             $localShapeCollection?->addShape($this->processPath($shapePath, $amount || 0));
                         }
-
                     }
                 }
                 if ($shapeData->localShapeCollection && $shapeData->shape) {
@@ -110,7 +111,7 @@ class PuckerAndBloatModifier extends ShapeModifier
                 }
             }
         }
-        if (count($this->dynamicProperties) === 0) {
+        if (0 === count($this->dynamicProperties)) {
             $this->_mdf = false;
         }
     }

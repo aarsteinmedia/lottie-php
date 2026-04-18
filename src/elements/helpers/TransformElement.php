@@ -10,10 +10,10 @@ use LottiePHP\Utils\Properties\TransformPropertyFactory;
 
 abstract class TransformElement extends BaseElement
 {
-    public false|int  $_isFirstFrame = false;
+    public false|int $_isFirstFrame = false;
     public $finalTransform;
     public $hierarchy = [];
-    public $localTransforms = null;
+    public $localTransforms;
     public Matrix $mHelper;
     public ?SVGEffects $renderableEffectsManager;
 
@@ -43,15 +43,15 @@ abstract class TransformElement extends BaseElement
         $length = count($transforms);
         $ptNew = [0, 0, 0];
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $ptNew = $transforms[$i]['mat']['applyToPointArray'](
                 0,
                 0,
                 0
             );
-            $pt = [$pt[0] - (int)$ptNew[0],
-              $pt[1] - (int)$ptNew[1],
-              0];
+            $pt = [$pt[0] - (int) $ptNew[0],
+                $pt[1] - (int) $ptNew[1],
+                0];
         }
 
         return $pt;
@@ -60,25 +60,25 @@ abstract class TransformElement extends BaseElement
     public function initTransform()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": LottiePlayer is not initialized ");
+            throw new \Error(get_class($this).': LottiePlayer is not initialized ');
         }
         $mat = new Matrix();
 
         $this->finalTransform = [
-          '_localMatMdf' => false,
-          '_matMdf' => false,
-          '_opMdf' => false,
-          'localMat' => $mat,
-          'localOpacity' => 1,
-          'mat' => $mat,
-          'mProp' => $this->data['ks']
-            ? TransformPropertyFactory::getTransformProperty(
-                $this,
-                $this->data['ks'],
-                $this
-            )
-            : [ 'o' => 0 ],
-            ];
+            '_localMatMdf' => false,
+            '_matMdf' => false,
+            '_opMdf' => false,
+            'localMat' => $mat,
+            'localOpacity' => 1,
+            'mat' => $mat,
+            'mProp' => $this->data['ks']
+              ? TransformPropertyFactory::getTransformProperty(
+                  $this,
+                  $this->data['ks'],
+                  $this
+              )
+              : ['o' => 0],
+        ];
 
         if ($this->data['ao']) {
             $this->finalTransform['mProp']['autoOriented'] = true;
@@ -91,7 +91,7 @@ abstract class TransformElement extends BaseElement
             return;
         }
         if (!$this->finalTransform) {
-            throw new \Error(get_class($this) . ": finalTransform is not initialized ");
+            throw new \Error(get_class($this).': finalTransform is not initialized ');
         }
         $i = 0;
         $length = count($this->localTransforms);
@@ -107,14 +107,14 @@ abstract class TransformElement extends BaseElement
                     $this->finalTransform['localOpacity'] = (int) $this->finalTransform['mProp']['o']['v'];
                     $this->finalTransform['_opMdf'] = true;
                 }
-                $i++;
+                ++$i;
             }
         }
         if ($this->finalTransform['_localMatMdf']) {
-            [ 'localMat' => $localMat, 'mat' => $mat ] = $this->finalTransform;
+            ['localMat' => $localMat, 'mat' => $mat] = $this->finalTransform;
 
             $this->localTransforms[0]['matrix']['clone']($localMat);
-            for ($i = 1; $i < $length; $i++) {
+            for ($i = 1; $i < $length; ++$i) {
                 $lmat = $this->localTransforms[$i]['matrix'];
 
                 if ($lmat) {
@@ -126,7 +126,7 @@ abstract class TransformElement extends BaseElement
         if ($this->finalTransform['_opMdf']) {
             $localOp = (int) $this->finalTransform['localOpacity'];
 
-            for ($i = 0; $i < $length; $i++) {
+            for ($i = 0; $i < $length; ++$i) {
                 $localOp *= (int) $this->localTransforms[$i]['opacity'] ?? 1 * 0.01;
             }
             $this->finalTransform['localOpacity'] = $localOp;
@@ -136,7 +136,7 @@ abstract class TransformElement extends BaseElement
     public function renderTransform()
     {
         if (!$this->finalTransform) {
-            throw new \Error(get_class($this) . ": finalTransform is not initialized ");
+            throw new \Error(get_class($this).': finalTransform is not initialized ');
         }
         $this->finalTransform['_opMdf'] = (bool) $this->finalTransform['mProp']['o']['_mdf'] || $this->_isFirstFrame;
         $this->finalTransform['_matMdf'] = (bool) $this->finalTransform['mProp']['_mdf'] || $this->_isFirstFrame;
@@ -151,9 +151,10 @@ abstract class TransformElement extends BaseElement
             while ($i < $length) {
                 if ($this->hierarchy[$i]->finalTransform['mProp']['_mdf']) {
                     $this->finalTransform['_matMdf'] = true;
+
                     break;
                 }
-                $i++;
+                ++$i;
             }
         }
 
@@ -161,14 +162,13 @@ abstract class TransformElement extends BaseElement
             $mat = $this->finalTransform['mProp']['v']['props'];
 
             $finalMat->cloneFromProps($mat);
-            for ($i = 0; $i < $length; $i++) {
+            for ($i = 0; $i < $length; ++$i) {
                 if ($this->hierarchy[$i]->finalTransform['mProp']['v']) {
-                    [ 'v' => $matrix ] = $this->hierarchy[$i]->finalTransform['mProp'] ?? [ 'v' => null ];
+                    ['v' => $matrix] = $this->hierarchy[$i]->finalTransform['mProp'] ?? ['v' => null];
 
                     if ($matrix) {
                         $finalMat->multiply($matrix);
                     }
-
                 }
             }
         }
@@ -187,7 +187,7 @@ abstract class TransformElement extends BaseElement
         }
         $transformEffects = $this->renderableEffectsManager->getEffects(EffectTypes::TransformEffect);
 
-        if (count($transformEffects) === 0) {
+        if (0 === count($transformEffects)) {
             return;
         }
         $this->localTransforms = [];
@@ -197,7 +197,7 @@ abstract class TransformElement extends BaseElement
 
         $length = count($transformEffects);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             array_push($this->localTransforms, $transformEffects[$i]);
         }
     }

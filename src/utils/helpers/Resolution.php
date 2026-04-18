@@ -6,16 +6,17 @@ class Resolution
 {
     private static $curveSegments = 150;
 
+    private static $shouldRoundValues = false;
+
     public static function setDefaultCurveSegments(int $value)
     {
         self::$curveSegments = $value;
     }
+
     public static function getDefaultCurveSegments()
     {
         return self::$curveSegments;
     }
-
-    private static $shouldRoundValues = false;
 
     public static function getShouldRoundValues()
     {
@@ -29,21 +30,23 @@ class Resolution
 
     public static function setQuality(int|string $value)
     {
-        if (gettype($value) === 'string') {
+        if ('string' === gettype($value)) {
             switch ($value) {
-                case 'high': {
+                case 'high':
                     self::setDefaultCurveSegments(200);
+
                     break;
-                }
+
                 default:
-                case 'medium': {
+                case 'medium':
                     self::setDefaultCurveSegments(50);
+
                     break;
-                }
-                case 'low': {
+
+                case 'low':
                     self::setDefaultCurveSegments(10);
+
                     break;
-                }
             }
         } elseif (!is_nan($value) && $value > 1) {
             self::setDefaultCurveSegments($value);
@@ -51,5 +54,4 @@ class Resolution
 
         self::setShouldRoundValues(self::getDefaultCurveSegments() < 50);
     }
-
 }

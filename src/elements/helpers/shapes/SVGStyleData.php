@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Elements\Helpers\Shapes;
 
-use DOMElement;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\ShapeType;
 
@@ -16,13 +15,13 @@ class SVGStyleData
     public $d = '';
     public SVGShapeData $data;
     public ?array $finalTransform;
-    public ?DOMElement $gr;
+    public ?\DOMElement $gr;
     public ?array $grd;
     public ?bool $hd;
     public ?array $it;
     public int $lvl;
-    public ?DOMElement $msElem;
-    public DOMElement $pElem;
+    public ?\DOMElement $msElem;
+    public \DOMElement $pElem;
     public ?BaseElement $prevViewData;
     public ?array $pt;
     public ?SVGStyleData $style;
@@ -30,12 +29,13 @@ class SVGStyleData
     public ?array $transform;
     public ?ShapeType $ty;
     public ?ShapeType $type;
+
     public function __construct(SVGShapeData $data, int $level)
     {
         $this->data = $data;
         $this->type = $data->ty;
         $this->lvl = $level;
-        $this->closed = $data['hd'] === true;
+        $this->closed = true === $data['hd'];
 
         $this->pElem = createNS('path');
     }

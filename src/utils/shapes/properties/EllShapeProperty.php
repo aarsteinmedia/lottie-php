@@ -61,11 +61,11 @@ class EllShapeProperty extends ShapeBaseProperty
         $p1 = $this->p->v[1];
         $s0 = $this->s->v[0] / 2;
         $s1 = $this->s->v[1] / 2;
-        $_cw = $this->d !== 3;
+        $_cw = 3 !== $this->d;
         $_v = $this->v;
 
         if (!$_v?->v[0] || !$_v->v[1] || !$_v->v[2] || !$_v->v[3] || !$_v->i[0] || !$_v->i[1] || !$_v->i[2] || !$_v->i[3] || !$_v->o[0] || !$_v->o[1] || !$_v->o[2] || !$_v->o[3]) {
-            throw new \Error(get_class($this) . ": Could not get value of ellipse");
+            throw new \Error(get_class($this).': Could not get value of ellipse');
         }
         $_v->v[0][0] = $p0;
         $_v->v[0][1] = $p1 - $s1;

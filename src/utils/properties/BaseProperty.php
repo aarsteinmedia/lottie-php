@@ -15,6 +15,447 @@ use function LottiePHP\Utils\createTypedArray;
 
 abstract class BaseProperty extends DynamicPropertyContainer
 {
+    public ?array $_caching;
+    public $_cachingAtTime;
+    public bool|int $_isFirstFrame = false;
+    public ?string $_name;
+    public ?bool $_placeholder;
+    public ?array $comp;
+    public array|ValueProperty $e;
+    public $effectsSequence = [];
+    public BaseElement|BaseProperty|null $elem;
+    public ?int $frameExpressionId;
+    public ?int $frameId;
+    public $g;
+    public ?int $initFrame = null;
+    public ?bool $k;
+    public $keyframesMetadata = [];
+    public ?bool $kf;
+    public ?bool $lock;
+    public ?\Closure $loopIn;
+    public ?\Closure $loopOut;
+    public ?int $mult;
+    public ?int $numKeys;
+    public $offsetTime = 0;
+    public ?array $propertyGroup;
+    public array|int|ShapePath|null $pv;
+    public $s;
+    public ?array $sh;
+    public ?\Closure $smooth;
+    public ?int $textIndex;
+    public ?int $textTotal;
+    public $v;
+    public array|int|null $value;
+    public array|int|null $vel;
+    public ?bool $x;
+
+    public function addEffect(\Closure $effectFunction)
+    {
+        array_push($this->effectsSequence, $effectFunction);
+        $this->container['addDynamicProperty']($this);
+    }
+
+    public function getSpeedAtTime(int $_frameNum)
+    {
+        throw new \Error(get_class($this).': Method getSpeedAtTime is not implemented');
+    }
+
+    public function getValueAtCurrentTime()
+    {
+        $this->_caching = $this->_caching ?? [];
+
+        if (null === $this->initFrame) {
+            $this->initFrame = Constants::$initialDefaultFrame;
+        }
+
+        if (!$this->keyframes) {
+            return;
+        }
+
+        [
+            '_caching' => $_caching,
+            'comp' => $comp,
+            'keyframes' => $keyframes,
+            'offsetTime' => $offsetTime,
+        ] = (array) $this;
+        $frameNum = (int) $comp?->renderedFrame - $offsetTime;
+        $initTime = ($keyframes[0]['t'] ?? 0) - $offsetTime;
+        $length = count($keyframes) - 1;
+        $endTime = ($keyframes[$length]['t'] ?? 0) - $offsetTime;
+        ['lastFrame' => $lastFrame] = $_caching;
+
+        if (
+            !(
+                $frameNum === $lastFrame
+        || $lastFrame !== $this->initFrame
+        && ($lastFrame >= $endTime && $frameNum >= $endTime
+                || $lastFrame < $initTime && $frameNum < $initTime)
+            )
+        ) {
+            if ($lastFrame >= $frameNum) {
+                $_caching['_lastKeyframeIndex'] = -1;
+                $_caching['lastIndex'] = 0;
+            }
+
+            $this->pv = $this->interpolateValue($frameNum, $_caching);
+        }
+        $_caching['lastFrame'] = $frameNum;
+
+        return $this->pv;
+    }
+
+    public function getValueAtTime($_val1, $_val2)
+    {
+        throw new \Error(get_class($this).': Method getValueAtTime is not implemented');
+    }
+
+    public function getVelocityAtTime(int $_frameNum): array|int
+    {
+        throw new \Error(get_class($this).': Method getVelocityAtTime is not implemented');
+    }
+
+    public function initiateExpression(
+        array $_elem,
+        $_data,
+        $_property
+    ) {
+        throw new \Error('Method not implemented');
+    }
+
+    public function interpolateValue(int $frameNum, $caching = [])
+    {
+        ['offsetTime' => $offsetTime, 'pv' => $pv] = (array) $this;
+        $newValue = [
+            0,
+            0,
+            0,
+        ];
+
+        if (PropType::MultiDimensional === $this->propType && $pv) {
+            $newValue = createTypedArray(ArrayType::Float32, count($pv));
+        }
+
+        [
+            'keyframes' => $keyframes,
+            'keyframesMetadata' => $keyframesMetadata,
+            'propType' => $propType,
+        ] = (array) $this;
+        $keyframes = $keyframes ?? [];
+        $iterationIndex = $caching['lastIndex'] || 0;
+        $i = $iterationIndex;
+        $len = count($keyframes) - 1;
+        $shouldInterpolate = true;
+        $keyData = $keyframes[0] ?? [];
+        $nextKeyData = $keyframes[1] ?? [];
+
+        while ($shouldInterpolate) {
+            $keyData = $keyframes[$i] ?? [];
+            $nextKeyData = $keyframes[$i + 1] ?? [];
+            if ($i === $len - 1 && $frameNum >= $nextKeyData['t'] - $offsetTime) {
+                if ($keyData['h']) {
+                    $keyData = $nextKeyData;
+                }
+                $iterationIndex = 0;
+
+                break;
+            }
+            if ($nextKeyData['t'] - $offsetTime > $frameNum) {
+                $iterationIndex = $i;
+
+                break;
+            }
+            if ($i < $len - 1) {
+                ++$i;
+            } else {
+                $iterationIndex = 0;
+                $shouldInterpolate = false;
+            }
+        }
+        $keyframeMetadata = $keyframesMetadata[$i] ?? [];
+
+        $kLen = 0;
+        $perc = 0;
+        $jLen = 0;
+        $j = 0;
+        $fnc = null;
+        $nextKeyTime = $nextKeyData['t'] - $offsetTime;
+        $keyTime = $keyData['t'] - $offsetTime;
+        $endValue = null;
+
+        if ($keyData['to'] && $keyData['s']) {
+            $keyframeMetadata['bezierData'] = $keyframeMetadata['bezierData'] ?? Bezier::buildBezierData(
+                $keyData['s'],
+                $nextKeyData['s'] ?? $keyData['e'],
+                $keyData['to'],
+                $keyData['ti']
+            );
+            ['__fnct' => $__fnct, 'bezierData' => $bezierData] = $keyframeMetadata;
+
+            if ($frameNum >= $nextKeyTime || $frameNum < $keyTime) {
+                $ind = $frameNum >= $nextKeyTime ? count($bezierData['points']) - 1 : 0;
+
+                $kLen = count($bezierData['points'][$ind]['point'] ?? []);
+                for ($k = 0; $k < $kLen; ++$k) {
+                    $newValue[$k] = $bezierData['points'][$ind]['point'][$k] ?? 0;
+                }
+            // $caching._lastKeyframeIndex = -1;
+            } else {
+                if ($__fnct) {
+                    $fnc = $__fnct;
+                } else {
+                    $fnc = BezierFactory::getBezierEasing(
+                        $keyData['o']['x'],
+                        $keyData['o']['y'],
+                        $keyData['i']['x'],
+                        $keyData['i']['y'],
+                        $keyData['n']
+                    )->get;
+                    $keyframeMetadata['__fnct'] = $fnc;
+                }
+                $perc = $fnc(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
+                $distanceInLine = $bezierData['segmentLength'] * $perc;
+
+                $segmentPerc = null;
+                $addedLength
+                    = $caching['lastFrame'] < $frameNum
+                    && $caching['_lastKeyframeIndex'] === $i
+                      ? $caching['_lastAddedLength']
+                      : 0;
+
+                $j
+                  = $caching['lastFrame'] < $frameNum
+                  && $caching['_lastKeyframeIndex'] === $i
+                    ? $caching['_lastPoint']
+                    : 0;
+                $shouldInterpolate = true;
+                $jLen = count($bezierData['points']);
+                while ($shouldInterpolate) {
+                    $addedLength += $bezierData['points'][$j]['partialLength'] ?? 0;
+                    if (
+                        0 === $distanceInLine
+                        || 0 === $perc
+                        || $j === count($bezierData['points']) - 1
+                    ) {
+                        $kLen = count($bezierData['points'][$j]['point'] ?? []);
+                        for ($k = 0; $k < $kLen; ++$k) {
+                            $newValue[$k] = $bezierData['points'][$j]['point'][$k] ?? 0;
+                        }
+
+                        break;
+                    }
+
+                    if (
+                        $distanceInLine >= $addedLength
+                        && $distanceInLine
+                          < $addedLength + ($bezierData['points'][$j + 1]['partialLength'] ?? 0)
+                    ) {
+                        $segmentPerc
+                          = ($distanceInLine - $addedLength)
+                          / ($bezierData['points'][$j + 1]['partialLength'] ?? 0);
+                        $kLen = count($bezierData['points'][$j]['point'] ?? []);
+                        for ($k = 0; $k < $kLen; ++$k) {
+                            $newValue[$k]
+                              = ($bezierData['points'][$j]['point'][$k] ?? 0)
+                              + (($bezierData['points'][$j + 1]['point'][$k] ?? 0)
+                                - ($bezierData['points'][$j]['point'][$k] ?? 0))
+                                * $segmentPerc;
+                        }
+
+                        break;
+                    }
+                    if ($j < $jLen - 1) {
+                        ++$j;
+                    } else {
+                        $shouldInterpolate = false;
+                    }
+                }
+                $caching['_lastPoint'] = $j;
+                $caching['_lastAddedLength']
+                  = $addedLength - ($bezierData['points'][$j]['partialLength'] ?? 0);
+                $caching['_lastKeyframeIndex'] = $i;
+            }
+        } else {
+            $outX = null;
+            $outY = null;
+            $inX = null;
+            $inY = null;
+            $keyValue = null;
+
+            $len = count($keyData['s'] ?? []);
+            $endValue = ($nextKeyData['s'] ?? $keyData['e']);
+            if ($this->sh && 1 !== $keyData['h']) {
+                if ($frameNum >= $nextKeyTime) {
+                    $newValue[0] = $endValue[0];
+                    $newValue[1] = $endValue[1];
+                    $newValue[2] = $endValue[2];
+                } elseif ($frameNum <= $keyTime && $keyData['s']) {
+                    $newValue[0] = $keyData['s'][0];
+                    $newValue[1] = $keyData['s'][1];
+                    $newValue[2] = $keyData['s'][2];
+                } else {
+                    $quatStart = self::createQuaternion($keyData['s']);
+                    $quatEnd = self::createQuaternion($endValue);
+                    $time = ($frameNum - $keyTime) / ($nextKeyTime - $keyTime);
+
+                    self::quaternionToEuler($newValue, self::slerp(
+                        $quatStart,
+                        $quatEnd,
+                        $time
+                    ));
+                }
+            } else {
+                for ($i = 0; $i < $len; ++$i) {
+                    if (1 !== $keyData['h']) {
+                        if ($frameNum >= $nextKeyTime) {
+                            $perc = 1;
+                        } elseif ($frameNum < $keyTime) {
+                            $perc = 0;
+                        } else {
+                            if ('array' === gettype($keyData['o']['x'])) {
+                                $keyframeMetadata['__fnct'] = $keyframeMetadata['__fnct'] ?? [];
+                                if ($keyframeMetadata['__fnct'][$i]) {
+                                    $fnc = $keyframeMetadata['__fnct'][$i];
+                                } elseif (
+                                    is_array($keyData['o']['y'])
+                                    && is_array($keyData['i']['y'])
+                                    && is_array($keyData['i']['x'])
+                                ) {
+                                    $outX
+                                      = $keyData['o']['x'][$i] ?? $keyData['o']['x'][0];
+                                    $outY
+                                      = $keyData['o']['y'][$i] ?? $keyData['o']['y'][0];
+                                    $inX
+                                      = $keyData['i']['x'][$i] ?? $keyData['i']['x'][0];
+                                    $inY
+                                      = $keyData['i']['y'][$i] ?? $keyData['i']['y'][0];
+                                    $fnc = BezierFactory::getBezierEasing(
+                                        $outX ?? 0,
+                                        $outY ?? 0,
+                                        $inX ?? 0,
+                                        $inY ?? 0
+                                    )->get;
+                                    $keyframeMetadata['__fnct'][$i] = $fnc;
+                                }
+                            } elseif ($keyframeMetadata['__fnct']) {
+                                $fnc = $keyframeMetadata['__fnct'];
+                            } else {
+                                $outX = $keyData['o']['x'];
+                                $outY = $keyData['o']['y'];
+                                $inX = $keyData['i']['x'];
+                                $inY = $keyData['i']['y'];
+                                $fnc = BezierFactory::getBezierEasing(
+                                    $outX,
+                                    $outY,
+                                    $inX,
+                                    $inY
+                                )->get;
+                                $keyData['keyframeMetadata'] = $fnc;
+                            }
+                            $perc = ($fnc)(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
+                        }
+                    }
+
+                    $endValue = $nextKeyData['s'] ?? $keyData['e'];
+                    $keyValue
+                      = 1 === $keyData['h']
+                        ? ($keyData['s'] ?? [])[$i]
+                        : (int) (($keyData['s'] ?? [])[$i]) + (($endValue[$i] ?? 0) - (int) ($keyData['s'] ?? [])[$i]) * (int) $perc;
+
+                    if (null !== $keyValue) {
+                        if (PropType::MultiDimensional === $propType) {
+                            $newValue[$i] = $keyValue;
+                        } else {
+                            $newValue = $keyValue;
+                        }
+                    }
+                }
+            }
+        }
+        $caching['lastIndex'] = $iterationIndex;
+
+        return $newValue;
+    }
+
+    public function processEffectsSequence()
+    {
+        if (!$this->data) {
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
+        }
+        if (!$this->elem) {
+            throw new \Error(get_class($this).': elem (ElementInterface) is not implemented');
+        }
+        if (($this->elem['globalData']['frameId'] ?? 0) === $this->frameId) {
+            return 0;
+        }
+        if (0 === count($this->effectsSequence)) {
+            $this->_mdf = false;
+
+            return 0;
+        }
+        if ($this->lock && $this->pv) {
+            $this->setVValue($this->pv);
+
+            return 0;
+        }
+        $this->lock = true;
+        $this->_mdf = (bool) $this->_isFirstFrame;
+        $len = count($this->effectsSequence);
+        $finalValue = $this->kf
+          ? $this->pv
+          : $this->data['k'];
+
+        for ($i = 0; $i < $len; ++$i) {
+            $finalValue = $this->effectsSequence[$i]($finalValue);
+        }
+        $this->setVValue($finalValue);
+        $this->_isFirstFrame = false;
+        $this->lock = false;
+        $this->frameId = $this->elem['globalData']['frameId'] ?? 0;
+
+        return 0;
+    }
+
+    public function setVValue($val)
+    {
+        $multipliedValue = 0;
+
+        if ('number' === gettype($val) && PropType::UniDimensional === $this->propType) {
+            $multipliedValue = $val * (int) $this->mult;
+            if (abs($this->v - $multipliedValue) > 0.00001) {
+                $this->v = $multipliedValue;
+                $this->_mdf = true;
+            }
+
+            return;
+        }
+        $i = 0;
+        $length = count($this->v);
+
+        while ($i < $length) {
+            $multipliedValue = ($val[$i] ?? 0) * (int) $this->mult;
+            if (abs(($this->v[$i] ?? 0) - $multipliedValue) > 0.00001) {
+                $this->v[$i] = $multipliedValue;
+                $this->_mdf = true;
+            }
+            ++$i;
+        }
+    }
+
+    public function speedAtTime(int $_frameNum)
+    {
+        throw new \Error('Method is not implemented');
+    }
+
+    public function valueAtTime(int $_a, $_b = 0)
+    {
+        throw new \Error(get_class($this).': Method valueAtTime is not implemented');
+    }
+
+    public function velocityAtTime(int $_frameNum)
+    {
+        throw new \Error('Method is not implemented');
+    }
+
     private static function quaternionToEuler(array $out, array $quat)
     {
         $qx = $quat[0];
@@ -53,12 +494,13 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $z = $c1 * $s2 * $c3 - $s1 * $c2 * $s3;
 
         return [
-          $x,
-          $y,
-          $z,
-          $w
+            $x,
+            $y,
+            $z,
+            $w,
         ];
     }
+
     /**
      * Based on Toji's https://github.com/toji/gl-matrix/.
      */
@@ -68,10 +510,10 @@ abstract class BaseProperty extends DynamicPropertyContainer
         int $t
     ): array {
         $out = [
-          0,
-          0,
-          0,
-          0
+            0,
+            0,
+            0,
+            0,
         ];
         $ax = $a[0];
         $ay = $a[1];
@@ -81,9 +523,6 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $by = $b[1];
         $bz = $b[2];
         $bw = $b[3];
-        /**
-         *
-         */
         $omega = 0;
         $cosom = 0;
         $sinom = 0;
@@ -113,444 +552,5 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $out[3] = $scale0 * $aw + $scale1 * $bw;
 
         return $out;
-    }
-
-    public ?array $_caching;
-    public $_cachingAtTime;
-    public int|bool $_isFirstFrame = false;
-    public ?string $_name;
-    public ?bool $_placeholder;
-    public ?array $comp;
-    public ValueProperty|array $e;
-    public $effectsSequence = [];
-    public null|BaseProperty|BaseElement $elem;
-    public ?int $frameExpressionId;
-    public ?int $frameId;
-    public $g;
-    public ?int $initFrame = null;
-    public ?bool $k;
-    public $keyframesMetadata = [];
-    public ?bool $kf;
-    public ?bool $lock;
-    public ?\Closure $loopIn;
-    public ?\Closure $loopOut;
-    public ?int $mult;
-    public ?int $numKeys;
-    public $offsetTime = 0;
-    public ?array $propertyGroup;
-    public null|array|ShapePath|int $pv;
-    public $s;
-    public ?array $sh;
-    public ?\Closure $smooth;
-    public ?int $textIndex;
-    public ?int $textTotal;
-    public $v;
-    public null|int|array $value;
-    public null|int|array $vel;
-    public ?bool $x;
-
-    public function addEffect(\Closure $effectFunction)
-    {
-        array_push($this->effectsSequence, $effectFunction);
-        $this->container['addDynamicProperty']($this);
-    }
-
-    public function getSpeedAtTime(int $_frameNum)
-    {
-        throw new \Error(get_class($this) . ": Method getSpeedAtTime is not implemented");
-    }
-
-    public function getValueAtCurrentTime()
-    {
-        $this->_caching = $this->_caching ?? [];
-
-        if ($this->initFrame === null) {
-            $this->initFrame = Constants::$initialDefaultFrame;
-        }
-
-        if (!$this->keyframes) {
-            return;
-        }
-
-        [
-            '_caching' => $_caching,
-            'comp' => $comp,
-            'keyframes' => $keyframes,
-            'offsetTime' => $offsetTime
-        ] = (array) $this;
-        $frameNum = (int)($comp?->renderedFrame) - $offsetTime;
-        $initTime = ($keyframes[0]['t'] ?? 0) - $offsetTime;
-        $length = count($keyframes) - 1;
-        $endTime = ($keyframes[$length]['t'] ?? 0) - $offsetTime;
-        [ 'lastFrame' => $lastFrame ] = $_caching;
-
-        if (
-            !(
-                $frameNum === $lastFrame ||
-        $lastFrame !== $this->initFrame &&
-        ($lastFrame >= $endTime && $frameNum >= $endTime ||
-                $lastFrame < $initTime && $frameNum < $initTime)
-            )
-        ) {
-            if ($lastFrame >= $frameNum) {
-                $_caching['_lastKeyframeIndex'] = -1;
-                $_caching['lastIndex'] = 0;
-            }
-
-            $this->pv = $this->interpolateValue($frameNum, $_caching);
-
-        }
-        $_caching['lastFrame'] = $frameNum;
-
-        return $this->pv;
-    }
-
-    public function getValueAtTime($_val1, $_val2)
-    {
-        throw new \Error(get_class($this) . ": Method getValueAtTime is not implemented");
-    }
-
-    public function getVelocityAtTime(int $_frameNum): int|array
-    {
-        throw new \Error(get_class($this) . ": Method getVelocityAtTime is not implemented");
-    }
-
-    public function initiateExpression(
-        array $_elem,
-        $_data,
-        $_property
-    ) {
-        throw new \Error('Method not implemented');
-    }
-
-    public function interpolateValue(int $frameNum, $caching = [])
-    {
-        [ 'offsetTime' => $offsetTime, 'pv' => $pv ] = (array) $this;
-        $newValue = [
-          0,
-          0,
-          0
-        ];
-
-        if ($this->propType === PropType::MultiDimensional && $pv) {
-            $newValue = createTypedArray(ArrayType::Float32, count($pv));
-        }
-
-        [
-            'keyframes' => $keyframes,
-            'keyframesMetadata' => $keyframesMetadata,
-            'propType' => $propType
-        ] = (array) $this;
-        $keyframes = $keyframes ?? [];
-        $iterationIndex = $caching['lastIndex'] || 0;
-        $i = $iterationIndex;
-        $len = count($keyframes) - 1;
-        $shouldInterpolate = true;
-        $keyData = $keyframes[0] ?? [];
-        $nextKeyData = $keyframes[1] ?? [];
-
-        while ($shouldInterpolate) {
-            $keyData = $keyframes[$i] ?? [];
-            $nextKeyData = $keyframes[$i + 1] ?? [];
-            if ($i === $len - 1 && $frameNum >= $nextKeyData['t'] - $offsetTime) {
-                if ($keyData['h']) {
-                    $keyData = $nextKeyData;
-                }
-                $iterationIndex = 0;
-                break;
-            }
-            if ($nextKeyData['t'] - $offsetTime > $frameNum) {
-                $iterationIndex = $i;
-                break;
-            }
-            if ($i < $len - 1) {
-                $i++;
-            } else {
-                $iterationIndex = 0;
-                $shouldInterpolate = false;
-            }
-        }
-        $keyframeMetadata = $keyframesMetadata[$i] ?? [];
-
-        $kLen = 0;
-        $perc = 0;
-        $jLen = 0;
-        $j = 0;
-        $fnc = null;
-        $nextKeyTime = $nextKeyData['t'] - $offsetTime;
-        $keyTime = $keyData['t'] - $offsetTime;
-        $endValue = null;
-
-        if ($keyData['to'] && $keyData['s']) {
-            $keyframeMetadata['bezierData'] = $keyframeMetadata['bezierData'] ?? Bezier::buildBezierData(
-                $keyData['s'],
-                ($nextKeyData['s'] ?? $keyData['e']),
-                $keyData['to'],
-                $keyData['ti']
-            );
-            [ '__fnct' => $__fnct, 'bezierData' => $bezierData ] = $keyframeMetadata;
-
-            if ($frameNum >= $nextKeyTime || $frameNum < $keyTime) {
-                $ind = $frameNum >= $nextKeyTime ? count($bezierData['points']) - 1 : 0;
-
-                $kLen = count($bezierData['points'][$ind]['point'] ?? []);
-                for ($k = 0; $k < $kLen; $k++) {
-                    $newValue[$k] = $bezierData['points'][$ind]['point'][$k] ?? 0;
-                }
-                // $caching._lastKeyframeIndex = -1;
-            } else {
-                if ($__fnct) {
-                    $fnc = $__fnct;
-                } else {
-                    $fnc = BezierFactory::getBezierEasing(
-                        $keyData['o']['x'],
-                        $keyData['o']['y'],
-                        $keyData['i']['x'],
-                        $keyData['i']['y'],
-                        $keyData['n']
-                    )->get;
-                    $keyframeMetadata['__fnct'] = $fnc;
-                }
-                $perc = $fnc(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
-                $distanceInLine = $bezierData['segmentLength'] * $perc;
-
-                $segmentPerc = null;
-                $addedLength =
-                    $caching['lastFrame'] < $frameNum &&
-                    $caching['_lastKeyframeIndex'] === $i
-                      ? $caching['_lastAddedLength']
-                      : 0;
-
-                $j =
-                  $caching['lastFrame'] < $frameNum &&
-                  $caching['_lastKeyframeIndex'] === $i
-                    ? $caching['_lastPoint']
-                    : 0;
-                $shouldInterpolate = true;
-                $jLen = count($bezierData['points']);
-                while ($shouldInterpolate) {
-                    $addedLength += $bezierData['points'][$j]['partialLength'] ?? 0;
-                    if (
-                        $distanceInLine === 0 ||
-                        $perc === 0 ||
-                        $j === count($bezierData['points']) - 1
-                    ) {
-                        $kLen = count($bezierData['points'][$j]['point'] ?? []);
-                        for ($k = 0; $k < $kLen; $k++) {
-                            $newValue[$k] = $bezierData['points'][$j]['point'][$k] ?? 0;
-                        }
-                        break;
-                    }
-
-                    if (
-                        $distanceInLine >= $addedLength &&
-                        $distanceInLine <
-                          $addedLength + ($bezierData['points'][$j + 1]['partialLength'] ?? 0)
-                    ) {
-                        $segmentPerc =
-                          ($distanceInLine - $addedLength) /
-                          ($bezierData['points'][$j + 1]['partialLength'] ?? 0);
-                        $kLen = count($bezierData['points'][$j]['point'] ?? []);
-                        for ($k = 0; $k < $kLen; $k++) {
-                            $newValue[$k] =
-                              ($bezierData['points'][$j]['point'][$k] ?? 0) +
-                              (($bezierData['points'][$j + 1]['point'][$k] ?? 0) -
-                                ($bezierData['points'][$j]['point'][$k] ?? 0)) *
-                                $segmentPerc;
-                        }
-                        break;
-                    }
-                    if ($j < $jLen - 1) {
-                        $j++;
-                    } else {
-                        $shouldInterpolate = false;
-                    }
-                }
-                $caching['_lastPoint'] = $j;
-                $caching['_lastAddedLength'] =
-                  $addedLength - ($bezierData['points'][$j]['partialLength'] ?? 0);
-                $caching['_lastKeyframeIndex'] = $i;
-            }
-        } else {
-            $outX = null;
-            $outY = null;
-            $inX = null;
-            $inY = null;
-            $keyValue = null;
-
-            $len = count($keyData['s'] ?? []);
-            $endValue = ($nextKeyData['s'] ?? $keyData['e']);
-            if ($this->sh && $keyData['h'] !== 1) {
-                if ($frameNum >= $nextKeyTime) {
-                    $newValue[0] = $endValue[0];
-                    $newValue[1] = $endValue[1];
-                    $newValue[2] = $endValue[2];
-                } elseif ($frameNum <= $keyTime && $keyData['s']) {
-                    $newValue[0] = $keyData['s'][0];
-                    $newValue[1] = $keyData['s'][1];
-                    $newValue[2] = $keyData['s'][2];
-                } else {
-                    $quatStart = self::createQuaternion($keyData['s']);
-                    $quatEnd = self::createQuaternion($endValue);
-                    $time = ($frameNum - $keyTime) / ($nextKeyTime - $keyTime);
-
-                    self::quaternionToEuler($newValue, self::slerp(
-                        $quatStart,
-                        $quatEnd,
-                        $time
-                    ));
-                }
-            } else {
-                for ($i = 0; $i < $len; $i++) {
-                    if ($keyData['h'] !== 1) {
-                        if ($frameNum >= $nextKeyTime) {
-                            $perc = 1;
-                        } elseif ($frameNum < $keyTime) {
-                            $perc = 0;
-                        } else {
-                            if (gettype($keyData['o']['x']) === 'array') {
-                                $keyframeMetadata['__fnct'] = $keyframeMetadata['__fnct'] ?? [];
-                                if (($keyframeMetadata['__fnct'])[$i]) {
-                                    $fnc = ($keyframeMetadata['__fnct'])[$i];
-                                } elseif (
-                                    is_array($keyData['o']['y']) &&
-                                    is_array($keyData['i']['y']) &&
-                                    is_array($keyData['i']['x'])
-                                ) {
-                                    $outX =
-                                      $keyData['o']['x'][$i] ?? $keyData['o']['x'][0];
-                                    $outY =
-                                      $keyData['o']['y'][$i] ?? $keyData['o']['y'][0];
-                                    $inX =
-                                      $keyData['i']['x'][$i] ?? $keyData['i']['x'][0];
-                                    $inY =
-                                      $keyData['i']['y'][$i] ?? $keyData['i']['y'][0];
-                                    $fnc = BezierFactory::getBezierEasing(
-                                        $outX ?? 0,
-                                        $outY ?? 0,
-                                        $inX ?? 0,
-                                        $inY ?? 0
-                                    )->get;
-                                    $keyframeMetadata['__fnct'][$i] = $fnc;
-                                }
-                            } elseif ($keyframeMetadata['__fnct']) {
-                                $fnc = $keyframeMetadata['__fnct'];
-                            } else {
-                                $outX = $keyData['o']['x'];
-                                $outY = $keyData['o']['y'];
-                                $inX = $keyData['i']['x'];
-                                $inY = $keyData['i']['y'];
-                                $fnc = BezierFactory::getBezierEasing(
-                                    $outX,
-                                    $outY,
-                                    $inX,
-                                    $inY
-                                )->get;
-                                $keyData['keyframeMetadata'] = $fnc;
-                            }
-                            $perc = ($fnc)(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
-                        }
-                    }
-
-                    $endValue = $nextKeyData['s'] ?? $keyData['e'];
-                    $keyValue =
-                      $keyData['h'] === 1
-                        ? ($keyData['s'] ?? [])[$i]
-                        : (int)(($keyData['s'] ?? [])[$i]) + (($endValue[$i] ?? 0) - (int)(($keyData['s'] ?? [])[$i])) * (int)($perc);
-
-                    if ($keyValue !== null) {
-                        if ($propType === PropType::MultiDimensional) {
-                            $newValue[$i] = $keyValue;
-                        } else {
-                            $newValue = $keyValue;
-                        }
-                    }
-
-                }
-            }
-        }
-        $caching['lastIndex'] = $iterationIndex;
-
-        return $newValue;
-    }
-
-    public function processEffectsSequence()
-    {
-        if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
-        }
-        if (!$this->elem) {
-            throw new \Error(get_class($this) . ": elem (ElementInterface) is not implemented");
-        }
-        if (($this->elem['globalData']['frameId'] ?? 0) === $this->frameId) {
-            return 0;
-        }
-        if (count($this->effectsSequence) === 0) {
-            $this->_mdf = false;
-
-            return 0;
-        }
-        if ($this->lock && $this->pv) {
-            $this->setVValue($this->pv);
-
-            return 0;
-        }
-        $this->lock = true;
-        $this->_mdf = (bool)($this->_isFirstFrame);
-        $len = count($this->effectsSequence);
-        $finalValue = $this->kf
-          ? $this->pv
-          : $this->data['k'];
-
-        for ($i = 0; $i < $len; $i++) {
-            $finalValue = $this->effectsSequence[$i]($finalValue);
-        }
-        $this->setVValue($finalValue);
-        $this->_isFirstFrame = false;
-        $this->lock = false;
-        $this->frameId = $this->elem['globalData']['frameId'] ?? 0;
-
-        return 0;
-    }
-
-    public function setVValue($val)
-    {
-        $multipliedValue = 0;
-
-        if (getType($val) === 'number' && $this->propType === PropType::UniDimensional) {
-            $multipliedValue = $val * (int)($this->mult);
-            if (abs(($this->v) - $multipliedValue) > 0.00001) {
-                $this->v = $multipliedValue;
-                $this->_mdf = true;
-            }
-
-            return;
-        }
-        $i = 0;
-        $length = count($this->v);
-
-        while ($i < $length) {
-            $multipliedValue = ($val[$i] ?? 0) * (int)($this->mult);
-            if (abs(($this->v[$i] ?? 0) - $multipliedValue) > 0.00001) {
-                $this->v[$i] = $multipliedValue;
-                $this->_mdf = true;
-            }
-            $i++;
-        }
-    }
-
-    public function speedAtTime(int $_frameNum)
-    {
-        throw new \Error('Method is not implemented');
-    }
-
-    public function valueAtTime(int $_a, $_b = 0)
-    {
-        throw new \Error(get_class($this) . ": Method valueAtTime is not implemented");
-    }
-
-    public function velocityAtTime(int $_frameNum)
-    {
-        throw new \Error('Method is not implemented');
     }
 }

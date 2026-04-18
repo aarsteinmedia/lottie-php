@@ -12,7 +12,7 @@ abstract class RenderableElement extends FrameElement
     public $isTransparent = false;
     public array $renderableComponents = [];
 
-    public function addRenderableComponent(SVGEffects|ImageElement $component)
+    public function addRenderableComponent(ImageElement|SVGEffects $component)
     {
         if (!in_array($component, $this->renderableComponents)) {
             $this->renderableComponents[] = $component;
@@ -25,8 +25,8 @@ abstract class RenderableElement extends FrameElement
             return;
         }
         if (
-            $this->data['ip'] - $this->data['st'] <= $num &&
-            $this->data['op'] - $this->data['st'] > $num
+            $this->data['ip'] - $this->data['st'] <= $num
+            && $this->data['op'] - $this->data['st'] > $num
         ) {
             if (!$this->isInRange) {
                 $this->globalData['_mdf'] = true;
@@ -48,12 +48,12 @@ abstract class RenderableElement extends FrameElement
     public function checkTransparency()
     {
         if (!$this->finalTransform) {
-            throw new \Error(get_class($this) . ': finalTransform is not implemented');
+            throw new \Error(get_class($this).': finalTransform is not implemented');
         }
-        if ((int)($this->finalTransform['mProp']['o']['v']) <= 0) {
+        if ((int) $this->finalTransform['mProp']['o']['v'] <= 0) {
             if (
-                !$this->isTransparent &&
-                $this->globalData['renderConfig']['hideOnTransparent']
+                !$this->isTransparent
+                && $this->globalData['renderConfig']['hideOnTransparent']
             ) {
                 $this->isTransparent = true;
                 $this->hide();
@@ -71,18 +71,18 @@ abstract class RenderableElement extends FrameElement
     public function getLayerSize()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ': data (LottieLayer) is not implemented');
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
-        if ($this->data['ty'] === 5) {
+        if (5 === $this->data['ty']) {
             return [
-              'h' => (int)($this->data['textData']['height']),
-              'w' => (int)($this->data['textData']['width']),
+                'h' => (int) $this->data['textData']['height'],
+                'w' => (int) $this->data['textData']['width'],
             ];
         }
 
         return [
-          'h' => (int)($this->data['height']),
-          'w' => (int)($this->data['width'])
+            'h' => (int) $this->data['height'],
+            'w' => (int) $this->data['width'],
         ];
     }
 
@@ -119,8 +119,8 @@ abstract class RenderableElement extends FrameElement
     {
         $length = count($this->renderableComponents);
 
-        for ($i = 0; $i < $length; $i++) {
-            $this->renderableComponents[$i]->renderFrame((int)($this->_isFirstFrame));
+        for ($i = 0; $i < $length; ++$i) {
+            $this->renderableComponents[$i]->renderFrame((int) $this->_isFirstFrame);
         }
         /* $this->maskManager.renderFrame($this->finalTransform.mat);
             $this->renderableEffectsManager.renderFrame($this->_isFirstFrame); */
@@ -128,16 +128,16 @@ abstract class RenderableElement extends FrameElement
 
     public function show()
     {
-        throw new \Error(get_class($this) . ': Method show is not implemented');
+        throw new \Error(get_class($this).': Method show is not implemented');
     }
 
     public function sourceRectAtTime()
     {
         return [
-          'height' => 100,
-          'left' => 0,
-          'top' => 0,
-          'width' => 100,
+            'height' => 100,
+            'left' => 0,
+            'top' => 0,
+            'width' => 100,
         ];
     }
 }

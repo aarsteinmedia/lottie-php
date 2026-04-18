@@ -19,15 +19,6 @@ class ShapePath
 
     private $_pointPool;
 
-    public function __get(string $name)
-    {
-        if ($name === '_type') {
-
-            return 'ShapePath';
-
-        }
-    }
-
     public function __construct()
     {
         $this->v = createSizedArray($this->_maxLength);
@@ -35,6 +26,13 @@ class ShapePath
         $this->i = createSizedArray($this->_maxLength);
 
         $this->_pointPool = pointPool();
+    }
+
+    public function __get(string $name)
+    {
+        if ('_type' === $name) {
+            return 'ShapePath';
+        }
     }
 
     public function doubleArrayLength()
@@ -68,7 +66,7 @@ class ShapePath
             $this->v[$i] = $this->_pointPool->newElement();
             $this->o[$i] = $this->_pointPool->newElement();
             $this->i[$i] = $this->_pointPool->newElement();
-            $i++;
+            ++$i;
         }
     }
 
@@ -118,23 +116,27 @@ class ShapePath
         if ($this->_length >= $this->_maxLength) {
             $this->doubleArrayLength();
         }
+
         switch ($type) {
-            case 'v': {
+            case 'v':
                 $arr = $this->v;
+
                 break;
-            }
-            case 'i': {
+
+            case 'i':
                 $arr = $this->i;
+
                 break;
-            }
-            case 'o': {
+
+            case 'o':
                 $arr = $this->o;
+
                 break;
-            }
-            default: {
+
+            default:
                 $arr = [];
+
                 break;
-            }
         }
         if (!$arr[$pos] || !$replace) {
             $arr[$pos] = $this->_pointPool->newElement();
@@ -170,7 +172,7 @@ class ShapePath
         $_length = $this->_length;
         $cnt = $_length - 1;
 
-        for ($i = $init; $i < $_length; $i++) {
+        for ($i = $init; $i < $_length; ++$i) {
             $newPath->setTripleAt(
                 $vertices[$cnt][0] ?? 0,
                 $vertices[$cnt][1] ?? 0,
@@ -181,7 +183,7 @@ class ShapePath
                 $i,
                 false
             );
-            $cnt -= 1;
+            --$cnt;
         }
 
         return $newPath;

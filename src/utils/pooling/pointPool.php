@@ -9,8 +9,9 @@ use function LottiePHP\Utils\createTypedArray;
 function pointPool(): PoolFactory
 {
     static $instance = null;
-    if ($instance === null) {
+    if (null === $instance) {
         $instance = new PoolFactory(8, fn () => createTypedArray(ArrayType::Float32, 2));
     }
+
     return $instance;
 }

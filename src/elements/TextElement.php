@@ -30,40 +30,42 @@ abstract class TextElement extends RenderableDOMElement
         if ($documentData['ps']) {
             $matrixHelper->translate(
                 $documentData['ps'][0],
-                $documentData['ps'][1] + (int)($documentData['ascent']),
+                $documentData['ps'][1] + (int) $documentData['ascent'],
                 0
             );
         }
         $matrixHelper->translate(
             0,
-            -(int)($documentData['ls']),
+            -(int) $documentData['ls'],
             0
         );
+
         switch ($documentData['j']) {
-            case 1: {
+            case 1:
                 $matrixHelper->translate(
-                    (int)($documentData['justifyOffset']) +
-          ((int)($documentData['boxWidth']) -
-                    (int)($documentData['lineWidths'][$lineNumber])),
+                    (int) $documentData['justifyOffset']
+          + ((int) $documentData['boxWidth']
+                    - (int) $documentData['lineWidths'][$lineNumber]),
                     0,
                     0
                 );
+
                 break;
-            }
-            case 2: {
+
+            case 2:
                 $matrixHelper->translate(
-                    (int)($documentData['justifyOffset']) +
-          ((int)($documentData['boxWidth']) -
-                    (int)($documentData['lineWidths'][$lineNumber])) /
-                    2,
+                    (int) $documentData['justifyOffset']
+          + ((int) $documentData['boxWidth']
+                    - (int) $documentData['lineWidths'][$lineNumber])
+                    / 2,
                     0,
                     0
                 );
+
                 break;
-            }
-            default: {
+
+            default:
                 break;
-            }
         }
         $matrixHelper->translate(
             $xPos,
@@ -75,16 +77,17 @@ abstract class TextElement extends RenderableDOMElement
     public function buildColor(array $colorData)
     {
         $rgb = implode(',', [
-          round($colorData[0] * 255),
-          round($colorData[1] * 255),
-          round($colorData[2] * 255)
+            round($colorData[0] * 255),
+            round($colorData[1] * 255),
+            round($colorData[2] * 255),
         ]);
+
         return "rgb({$rgb})";
     }
 
     public function buildNewText()
     {
-        throw new \Error(get_class($$this) . ": Method buildNewText is not implemented");
+        throw new \Error(get_class(${$this}).': Method buildNewText is not implemented');
     }
 
     public function canResizeFont(bool $_canResize)
@@ -98,7 +101,7 @@ abstract class TextElement extends RenderableDOMElement
         $shapeStr = '';
         $length = count($shapes);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             if (($shapes[$i]['ty'] ?? '') !== ShapeType::Path || !($shapes[$i]['ks']['k'] ?? null)) {
                 continue;
             }
@@ -120,7 +123,7 @@ abstract class TextElement extends RenderableDOMElement
         BaseElement $comp
     ) {
         if (!$data['t']) {
-            throw new \Error(get_class($$this) . ": data.t (LottieLayer -> TextData) can't be undefined");
+            throw new \Error(get_class(${$this}).": data.t (LottieLayer -> TextData) can't be undefined");
         }
         $this->emptyProp = new LetterProps();
         $this->lettersChangedFlag = true;

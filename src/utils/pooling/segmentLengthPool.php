@@ -7,17 +7,17 @@ use LottiePHP\Utils\Shapes\ShapePath;
 function segmentsLengthPool(): PoolFactory
 {
     static $instance = null;
-    if ($instance === null) {
+    if (null === $instance) {
         $instance = new PoolFactory(
             8,
             fn () => [
-            'lengths' => [],
-            'totalLength' => 0
-      ],
+                'lengths' => [],
+                'totalLength' => 0,
+            ],
             function (ShapePath $element) {
                 $length = $element->lengths;
 
-                for ($i = 0; $i < $length; $i++) {
+                for ($i = 0; $i < $length; ++$i) {
                     bezierLengthPool()->release($element->lengths[$i]);
                 }
 

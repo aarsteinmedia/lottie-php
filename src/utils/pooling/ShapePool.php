@@ -19,9 +19,7 @@ class ShapePool
         }
 
         /** @var ShapePath $el */
-        $el = self::$_factory->newElement(...);
-
-        return $el;
+        return self::$_factory->newElement(...);
     }
 
     public static function release(...$args)
@@ -31,7 +29,6 @@ class ShapePool
 
     public static function clone(ShapePath $shape)
     {
-
         /** @var ShapePath $cloned */
         $cloned = self::newElement();
         $len = $shape->_length ?? count($shape->v);
@@ -39,7 +36,7 @@ class ShapePool
         $cloned->setLength($len);
         $cloned->c = $shape->c;
 
-        for ($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; ++$i) {
             $cloned->setTripleAt(
                 $shape->v[$i][0] ?? 0,
                 $shape->v[$i][1] ?? 0,
@@ -61,14 +58,13 @@ class ShapePool
 
     private static function _release($shapePath)
     {
-
-        if (!($shapePath instanceof ShapePath)) {
+        if (!$shapePath instanceof ShapePath) {
             return;
         }
 
         $len = $shapePath->_length;
 
-        for ($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; ++$i) {
             pointPool()->release($shapePath->v[$i]);
             pointPool()->release($shapePath->i[$i]);
             pointPool()->release($shapePath->o[$i]);

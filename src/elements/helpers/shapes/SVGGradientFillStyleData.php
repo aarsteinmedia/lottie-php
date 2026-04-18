@@ -2,8 +2,6 @@
 
 namespace LottiePHP\Elements\Helpers\Shapes;
 
-use DOMDocument;
-use DOMElement;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Helpers\Constants;
@@ -27,14 +25,14 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
     public $cst = [];
     public ?MultiDimensionalProperty $e;
     public ?GradientProperty $g;
-    public ?DOMElement $gf;
-    public ?DOMElement $gr;
+    public ?\DOMElement $gf;
+    public ?\DOMElement $gr;
     public ?KeyframedValueProperty $h;
     public $it = [];
     public ?string $maskId;
-    public ?DOMElement $ms;
+    public ?\DOMElement $ms;
     public ?ValueProperty $o;
-    public ?DOMElement $of;
+    public ?\DOMElement $of;
     public $ost = [];
     public $prevViewData = [];
     public ?MultiDimensionalProperty $s;
@@ -42,14 +40,14 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
     public ?SVGStyleData $style;
     public ?array $transform;
 
-    private DOMDocument $_dom;
+    private \DOMDocument $_dom;
 
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
         SVGStyleData $styleData
     ) {
-        $this->_dom = new DOMDocument();
+        $this->_dom = new \DOMDocument();
         $this->initDynamicPropertyContainer($elem);
         $this->initGradientData(
             $elem,
@@ -91,14 +89,14 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         );
         $this->h = PropertyFactory::getProp(
             $elem,
-            $data['h'] ?? [ 'k' => 0 ],
+            $data['h'] ?? ['k' => 0],
             0,
             0.01,
             $this
         );
         $this->a = PropertyFactory::getProp(
             $elem,
-            $data['a'] ?? [ 'k' => 0 ],
+            $data['a'] ?? ['k' => 0],
             0,
             Constants::$degToRads,
             $this
@@ -115,10 +113,10 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $this->_isAnimated = (bool) $this->_isAnimated;
     }
 
-    public function setGradientData(DOMElement $pathElement, array $data)
+    public function setGradientData(\DOMElement $pathElement, array $data)
     {
         $gradientId = createElementID();
-        $gfill = createNS($data['t'] === 1 ? 'linearGradient' : 'radialGradient', $this->_dom);
+        $gfill = createNS(1 === $data['t'] ? 'linearGradient' : 'radialGradient', $this->_dom);
 
         $gfill->setAttribute('id', $gradientId);
         $gfill->setAttribute('spreadMethod', 'pad');
@@ -136,7 +134,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $locationHref = LocationHref::getHref();
 
         $pathElement->setAttribute(
-            $data['ty'] === ShapeType::GradientFill ? 'fill' : 'stroke',
+            ShapeType::GradientFill === $data['ty'] ? 'fill' : 'stroke',
             "url({$locationHref}#{$gradientId})"
         );
         $this->gf = $gfill;
@@ -160,14 +158,13 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $maskId = createElementID();
 
         $mask->setAttribute('id', $maskId);
-        $opFill = createNS($data['t'] === 1 ? 'linearGradient' : 'radialGradient', $this->_dom);
-
+        $opFill = createNS(1 === $data['t'] ? 'linearGradient' : 'radialGradient', $this->_dom);
 
         $opFill->setAttribute('id', $opacityId);
         $opFill->setAttribute('spreadMethod', 'pad');
         $opFill->setAttribute('gradientUnits', 'userSpaceOnUse');
-        $jLen =
-          ($data['g']['k']['k'][0]['s'] ?? null
+        $jLen
+          = ($data['g']['k']['k'][0]['s'] ?? null
             ? count($data['g']['k']['k'][0]['s'] ?? [])
             : count($data['g']['k']['k'] ?? [])) || 0;
 
@@ -179,13 +176,13 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         }
         $locationHref = LocationHref::getHref();
         $maskElement->setAttribute(
-            $data['ty'] === ShapeType::GradientFill ? 'fill' : 'stroke',
+            ShapeType::GradientFill === $data['ty'] ? 'fill' : 'stroke',
             "url({$locationHref}#{$opacityId})"
         );
-        if ($data['ty'] === ShapeType::GradientStroke) {
+        if (ShapeType::GradientStroke === $data['ty']) {
             $maskElement->setAttribute('stroke-linecap', lineCapEnum($data['lc'] ?? 2));
             $maskElement->setAttribute('stroke-linejoin', lineJoinEnum($data['lj'] ?? 2));
-            if ($data['lj'] === 1) {
+            if (1 === $data['lj']) {
                 $maskElement->setAttribute('stroke-miterlimit', (int) $data['ml']);
             }
         }

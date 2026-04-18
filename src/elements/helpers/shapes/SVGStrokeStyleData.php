@@ -11,6 +11,7 @@ use LottiePHP\Utils\Shapes\Properties\DashProperty;
 class SVGStrokeStyleData extends SVGFillStyleData
 {
     public DashProperty $d;
+
     public function __construct(
         BaseElement|DynamicPropertyContainer $elem,
         SVGShapeData $data,
@@ -55,6 +56,6 @@ class SVGStrokeStyleData extends SVGFillStyleData
 
     public function getValue(...$args)
     {
-        return $$this->iterateDynamicProperties(...$args);
+        return ${$this}->iterateDynamicProperties(...$args);
     }
 }

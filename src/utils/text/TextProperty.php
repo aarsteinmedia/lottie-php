@@ -18,13 +18,13 @@ class TextProperty extends BaseProperty
     public ?array $data;
     public $defaultBoxWidth = [0, 0];
     public $effectsSequence = [];
-    public null|BaseProperty|BaseElement $elem;
+    public BaseElement|BaseProperty|null $elem;
     public $keysIndex = 0;
     public $minimumFontSize = 1;
     public $pv = '';
-    public string|array $v = '';
+    public array|string $v = '';
 
-    public function __construct(BaseProperty|BaseElement $elem, array $data)
+    public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
         $this->_frameId = Constants::$initialDefaultFrame;
         $this->kf = false;
@@ -37,32 +37,32 @@ class TextProperty extends BaseProperty
         $this->elem = $elem;
         $this->comp = $this->elem['comp'];
         $this->currentData = [
-          '__complete' => false,
-          'ascent' => 0,
-          'boxWidth' => $this->defaultBoxWidth,
-          'f' => '',
-          'fc' => '',
-          'fillColorAnim' => false,
-          'finalLineHeight' => 0,
-          'finalSize' => 0,
-          'finalText' => [],
-          'fStyle' => '',
-          'fWeight' => '',
-          'justifyOffset' => 0,
-          'l' => [],
-          'lh' => 0,
-          '$lineWidths' => [],
-          'ls' => 0,
-          'of' => '',
-          'ps' => null,
-          's' => 0,
-          'sc' => '',
-          'strokeColorAnim' => false,
-          'strokeWidthAnim' => false,
-          'sw' => 0,
-          't' => 0,
-          'tr' => 0,
-          'yOffset' => 0,
+            '__complete' => false,
+            'ascent' => 0,
+            'boxWidth' => $this->defaultBoxWidth,
+            'f' => '',
+            'fc' => '',
+            'fillColorAnim' => false,
+            'finalLineHeight' => 0,
+            'finalSize' => 0,
+            'finalText' => [],
+            'fStyle' => '',
+            'fWeight' => '',
+            'justifyOffset' => 0,
+            'l' => [],
+            'lh' => 0,
+            '$lineWidths' => [],
+            'ls' => 0,
+            'of' => '',
+            'ps' => null,
+            's' => 0,
+            'sc' => '',
+            'strokeColorAnim' => false,
+            'strokeWidthAnim' => false,
+            'sw' => 0,
+            't' => 0,
+            'tr' => 0,
+            'yOffset' => 0,
         ];
 
         $newData = $this->data['d']['k'][0]['s'] ?? null;
@@ -70,7 +70,6 @@ class TextProperty extends BaseProperty
         if ($newData) {
             $this->copyData($this->currentData, $newData);
         }
-
 
         if (!$this->searchProperty()) {
             $this->completeTextData($this->currentData);
@@ -101,15 +100,14 @@ class TextProperty extends BaseProperty
             $currentChars = $text[$i];
             if (FontManager::isCombinedCharacter($charCode)) {
                 $shouldCombine = true;
-                // It's a potential surrogate pair ($this is the High surrogate)
-            } elseif ($charCode >= 0xd800 && $charCode <= 0xdbff) {
+            // It's a potential surrogate pair ($this is the High surrogate)
+            } elseif ($charCode >= 0xD800 && $charCode <= 0xDBFF) {
                 if (FontManager::isRegionalFlag($text, $i)) {
                     $currentChars = substr($text, $i, 14);
                 } else {
                     $secondCharCode = charCodeAt($text, $i + 1);
                     // It's a surrogate pair ($this is the Low surrogate)
-                    if ($secondCharCode >= 0xdc00 && $secondCharCode <= 0xdfff) {
-
+                    if ($secondCharCode >= 0xDC00 && $secondCharCode <= 0xDFFF) {
                         if (FontManager::isModifier($charCode, $secondCharCode)) {
                             $currentChars = substr($text, $i, 2);
                             $shouldCombine = true;
@@ -120,7 +118,7 @@ class TextProperty extends BaseProperty
                         }
                     }
                 }
-            } elseif ($charCode > 0xdbff) {
+            } elseif ($charCode > 0xDBFF) {
                 // secondCharCode = text.charCodeAt(i + 1)
                 if (FontManager::isVariationSelector($charCode)) {
                     $shouldCombine = true;
@@ -131,7 +129,7 @@ class TextProperty extends BaseProperty
             }
             if ($shouldCombine) {
                 $charactersArray[count($charactersArray) - 1] += $currentChars;
-                // shouldCombine = false
+            // shouldCombine = false
             } else {
                 array_push($charactersArray, $currentChars);
             }
@@ -143,7 +141,7 @@ class TextProperty extends BaseProperty
 
     public function calculateExpression(string $_text): int
     {
-        throw new \Error(get_class($this) . ": Method calculateExpression is not implemented");
+        throw new \Error(get_class($this).': Method calculateExpression is not implemented');
     }
 
     public function canResizeFont(bool $_canResize)
@@ -156,14 +154,14 @@ class TextProperty extends BaseProperty
     public function completeTextData(array $documentData)
     {
         $documentData['__complete'] = true;
-        [ 'fontManager' => $fontManager ] = $this->elem['globalData'] ?? [];
+        ['fontManager' => $fontManager] = $this->elem['globalData'] ?? [];
 
         if (!$fontManager) {
-            throw new \Error(get_class($this) . ": FontManager not loaded to globalData");
+            throw new \Error(get_class($this).': FontManager not loaded to globalData');
         }
 
         [
-            'canResize' => $canResize, 'data' => $data, 'minimumFontSize' => $minimumFontSize
+            'canResize' => $canResize, 'data' => $data, 'minimumFontSize' => $minimumFontSize,
         ] = (array) $this;
 
         $letters = [];
@@ -208,16 +206,16 @@ class TextProperty extends BaseProperty
                 $trackingOffset = $documentData['tr'] / 1000 * $documentData['finalSize'];
                 $lastSpaceIndex = -1;
 
-                for ($i = 0; $i < $len; $i++) {
+                for ($i = 0; $i < $len; ++$i) {
                     $charCode = charCodeAt($finalText[$i], 0) ?? 0;
                     $newLineFlag = false;
-                    if ($finalText[$i] === ' ') {
+                    if (' ' === $finalText[$i]) {
                         $lastSpaceIndex = $i;
-                    } elseif ($charCode === 13 || $charCode === 3) {
+                    } elseif (13 === $charCode || 3 === $charCode) {
                         $lineWidth = 0;
                         $newLineFlag = true;
-                        $currentHeight +=
-                          $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
+                        $currentHeight
+                          += $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
                     }
                     if ($fontManager['chars']) {
                         $charData = $fontManager->getCharData(
@@ -229,21 +227,21 @@ class TextProperty extends BaseProperty
                           ? 0
                           : $charData['w'] * $documentData['finalSize'] / 100;
                     } else {
-                        $cLength =
-                          $fontManager->measureText(
+                        $cLength
+                          = $fontManager->measureText(
                               $finalText[$i] ?? '',
                               $documentData['f'],
                               $documentData['finalSize']
                           ) || 0;
                     }
-                    if ($lineWidth + $cLength > $boxWidth && $finalText[$i] !== ' ') {
-                        if ($lastSpaceIndex === -1) {
-                            $len++;
+                    if ($lineWidth + $cLength > $boxWidth && ' ' !== $finalText[$i]) {
+                        if (-1 === $lastSpaceIndex) {
+                            ++$len;
                         } else {
                             $i = $lastSpaceIndex;
                         }
-                        $currentHeight +=
-                          $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
+                        $currentHeight
+                          += $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
                         array_splice(
                             $finalText,
                             $i,
@@ -257,16 +255,16 @@ class TextProperty extends BaseProperty
                         $lineWidth += $trackingOffset;
                     }
                 }
-                $currentHeight +=
-                  (int)($fontData['ascent']) * $documentData['finalSize'] / 100;
+                $currentHeight
+                  += (int) $fontData['ascent'] * $documentData['finalSize'] / 100;
                 if (
-                    $canResize &&
-                    $documentData['finalSize'] > $minimumFontSize &&
-                    $boxHeight < $currentHeight
+                    $canResize
+                    && $documentData['finalSize'] > $minimumFontSize
+                    && $boxHeight < $currentHeight
                 ) {
-                    $documentData['finalSize'] -= 1;
-                    $documentData['finalLineHeight'] =
-                      $documentData['finalSize'] * $documentData['lh'] / $documentData['s'];
+                    --$documentData['finalSize'];
+                    $documentData['finalLineHeight']
+                      = $documentData['finalSize'] * $documentData['lh'] / $documentData['s'];
                 } else {
                     $documentData['finalText'] = $finalText;
                     $len = count($documentData['finalText']);
@@ -278,19 +276,19 @@ class TextProperty extends BaseProperty
         $uncollapsedSpaces = 0;
         $currentChar = '';
 
-        for ($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; ++$i) {
             $newLineFlag = false;
             $currentChar = $documentData['finalText'][$i] ?? '';
             $charCode = charCodeAt($currentChar, 0);
 
-            if ($charCode === 13 || $charCode === 3) {
+            if (13 === $charCode || 3 === $charCode) {
                 $uncollapsedSpaces = 0;
                 array_push($lineWidths, $lineWidth);
                 $maxLineWidth = $lineWidth > $maxLineWidth ? $lineWidth : $maxLineWidth;
                 $lineWidth = -2 * $trackingOffset;
                 $val = '';
                 $newLineFlag = true;
-                $currentLine++;
+                ++$currentLine;
             } else {
                 $val = $currentChar;
             }
@@ -309,8 +307,7 @@ class TextProperty extends BaseProperty
                 );
             }
 
-            //
-            if ($currentChar === ' ') {
+            if (' ' === $currentChar) {
                 $uncollapsedSpaces += $cLength + $trackingOffset;
             } else {
                 $lineWidth += $cLength + $trackingOffset + $uncollapsedSpaces;
@@ -319,20 +316,20 @@ class TextProperty extends BaseProperty
             array_push(
                 $letters,
                 [
-                'add' => $currentSize,
-                'an' => $cLength,
-                'animatorJustifyOffset' => 0,
-                'anIndexes' => [],
-                'l' => $cLength,
-                'line' => $currentLine,
-                'n' => $newLineFlag,
-                'val' => $val
-        ]
+                    'add' => $currentSize,
+                    'an' => $cLength,
+                    'animatorJustifyOffset' => 0,
+                    'anIndexes' => [],
+                    'l' => $cLength,
+                    'line' => $currentLine,
+                    'n' => $newLineFlag,
+                    'val' => $val,
+                ]
             );
-            if ($anchorGrouping === 2) {
+            if (2 === $anchorGrouping) {
                 $currentSize += $cLength;
-                if ($val === '' || $val === ' ' || $i === $len - 1) {
-                    if ($val === '' || $val === ' ') {
+                if ('' === $val || ' ' === $val || $i === $len - 1) {
+                    if ('' === $val || ' ' === $val) {
                         $currentSize -= $cLength;
                     }
                     while ($currentPos <= $i) {
@@ -343,15 +340,15 @@ class TextProperty extends BaseProperty
                             $letter['ind'] = $index;
                             $letter['extra'] = $cLength;
                         }
-                        $currentPos++;
+                        ++$currentPos;
                     }
-                    $index++;
+                    ++$index;
                     $currentSize = 0;
                 }
-            } elseif ($anchorGrouping === 3) {
+            } elseif (3 === $anchorGrouping) {
                 $currentSize += $cLength;
-                if ($val === '' || $i === $len - 1) {
-                    if ($val === '') {
+                if ('' === $val || $i === $len - 1) {
+                    if ('' === $val) {
                         $currentSize -= $cLength;
                     }
                     $letter = $letters[$currentPos];
@@ -362,10 +359,10 @@ class TextProperty extends BaseProperty
                             $letter['ind'] = $index;
                             $letter['extra'] = $cLength;
                         }
-                        $currentPos++;
+                        ++$currentPos;
                     }
                     $currentSize = 0;
-                    $index++;
+                    ++$index;
                 }
             } else {
                 $letter = $letters[$index];
@@ -374,7 +371,7 @@ class TextProperty extends BaseProperty
                     $letter['ind'] = $index;
                     $letter['extra'] = 0;
                 }
-                $index++;
+                ++$index;
             }
         }
         $documentData['l'] = $letters;
@@ -385,19 +382,21 @@ class TextProperty extends BaseProperty
             $documentData['justifyOffset'] = 0;
         } else {
             $documentData['boxWidth'] = $maxLineWidth;
+
             switch ($documentData['j']) {
-                case 1: {
+                case 1:
                     $documentData['justifyOffset'] = -$documentData['boxWidth'];
+
                     break;
-                }
-                case 2: {
+
+                case 2:
                     $documentData['justifyOffset'] = -$documentData['boxWidth'] / 2;
+
                     break;
-                }
+
                 case null:
-                default: {
+                default:
                     $documentData['justifyOffset'] = 0;
-                }
             }
         }
         $documentData['lineWidths'] = $lineWidths;
@@ -410,7 +409,7 @@ class TextProperty extends BaseProperty
         $ind = 0;
         $indexes = [];
 
-        for ($j = 0; $j < $jLen; $j++) {
+        for ($j = 0; $j < $jLen; ++$j) {
             $animatorData = $animators[$j];
             if (!$animatorData) {
                 continue;
@@ -422,29 +421,29 @@ class TextProperty extends BaseProperty
                 $documentData['strokeWidthAnim'] = true;
             }
             if (
-                $animatorData['a']['fc'] ??
-                $animatorData['a']['fh'] ??
-                $animatorData['a']['fs'] ??
-                $animatorData['a']['fb'] ?? null
+                $animatorData['a']['fc']
+                ?? $animatorData['a']['fh']
+                ?? $animatorData['a']['fs']
+                ?? $animatorData['a']['fb'] ?? null
             ) {
                 $documentData['fillColorAnim'] = true;
             }
             $ind = 0;
-            $based = (int)($animatorData['s']['b'] ?? null);
-            for ($i = 0; $i < $len; $i++) {
+            $based = (int) ($animatorData['s']['b'] ?? null);
+            for ($i = 0; $i < $len; ++$i) {
                 $letterData = $letters[$i] ?? [];
                 $letterData['anIndexes'][$j] = $ind;
                 if (
-                    $based === 1 && $letterData['val'] !== '' ||
-                    $based === 2 && $letterData['val'] !== '' && $letterData['val'] !== ' ' ||
-                    $based === 3 &&
-                    ($letterData['n'] || $letterData['val'] === ' ' || $i === $len - 1) ||
-                    $based === 4 && ($letterData['n'] || $i === $len - 1)
+                    1 === $based && '' !== $letterData['val']
+                    || 2 === $based && '' !== $letterData['val'] && ' ' !== $letterData['val']
+                    || 3 === $based
+                    && ($letterData['n'] || ' ' === $letterData['val'] || $i === $len - 1)
+                    || 4 === $based && ($letterData['n'] || $i === $len - 1)
                 ) {
-                    if ((int)($animatorData['s']['rn'] ?? 0) === 1) {
+                    if (1 === (int) ($animatorData['s']['rn'] ?? 0)) {
                         array_push($indexes, $ind);
                     }
-                    $ind++;
+                    ++$ind;
                 }
             }
             $textSelectorProperty = $data['a'][$j]['s'] ?? null;
@@ -456,9 +455,9 @@ class TextProperty extends BaseProperty
             $newInd = 0;
 
             if (($animatorData['s']['rn'] ?? 0) === 1) {
-                for ($i = 0; $i < $len; $i++) {
+                for ($i = 0; $i < $len; ++$i) {
                     $letterData = $letters[$i] ?? [];
-                    if ($currentInd !== (int)($letterData['anIndexes'][$j])) {
+                    if ($currentInd !== (int) $letterData['anIndexes'][$j]) {
                         $currentInd = $letterData['anIndexes'][$j] ?? 0;
                         $newInd = array_splice($indexes, floor(rand() * count($indexes)), 1)[0];
                     }
@@ -468,11 +467,11 @@ class TextProperty extends BaseProperty
                 }
             }
         }
-        $documentData['yOffset'] =
-          $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
+        $documentData['yOffset']
+          = $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
         $documentData['ls'] = $documentData['ls'] || 0;
-        $documentData['ascent'] =
-          (int)($fontData['ascent']) * $documentData['finalSize'] / 100;
+        $documentData['ascent']
+          = (int) $fontData['ascent'] * $documentData['finalSize'] / 100;
     }
 
     public function copyData(array $obj, array $data)
@@ -480,7 +479,7 @@ class TextProperty extends BaseProperty
         $keys = array_keys($data);
         $length = count($keys);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             if (array_key_exists($keys[$i], $data)) {
                 $obj[$keys[$i]] = $data[$keys[$i]];
             }
@@ -491,7 +490,7 @@ class TextProperty extends BaseProperty
 
     public function getExpressionValue(array $_currentValue, string $_text)
     {
-        throw new \Error(get_class($this) . ": Method getExpressionValue is not implemented");
+        throw new \Error(get_class($this).': Method getExpressionValue is not implemented');
     }
 
     public function getKeyframeValue()
@@ -501,15 +500,15 @@ class TextProperty extends BaseProperty
         // }
 
         $textKeys = $this->data['d']['k'] ?? [];
-        $frameNum = (int)($this->elem['comp']['renderedFrame'] ?? null);
+        $frameNum = (int) ($this->elem['comp']['renderedFrame'] ?? null);
         $i = 0;
         $len = count($textKeys);
 
         while ($i <= $len - 1) {
-            if ($i === $len - 1 || (int)($textKeys[$i + 1]['t'] ?? 0) > $frameNum) {
+            if ($i === $len - 1 || (int) ($textKeys[$i + 1]['t'] ?? 0) > $frameNum) {
                 break;
             }
-            $i++;
+            ++$i;
         }
         if ($this->keysIndex !== $i) {
             $this->keysIndex = $i;
@@ -525,15 +524,15 @@ class TextProperty extends BaseProperty
         // }
 
         if (
-            (($this->elem['globalData']['frameId'] ?? null) === $this->frameId ||
-              count($this->effectsSequence) === 0) &&
-              !$_finalValue
+            (($this->elem['globalData']['frameId'] ?? null) === $this->frameId
+              || 0 === count($this->effectsSequence))
+              && !$_finalValue
         ) {
             return 0;
         }
         $tValue = $this->data['d']['k'][$this->keysIndex]['s']['t'] ?? null;
 
-        if ($tValue !== null) {
+        if (null !== $tValue) {
             $this->currentData['t'] = $tValue;
         }
         $currentValue = $this->currentData;
@@ -547,10 +546,10 @@ class TextProperty extends BaseProperty
         $this->lock = true;
         $this->_mdf = false;
         $length = count($this->effectsSequence);
-        $finalValue =
-          $_finalValue ?? $this->data['d']['k'][$this->keysIndex]['s'] ?? null;
+        $finalValue
+          = $_finalValue ?? $this->data['d']['k'][$this->keysIndex]['s'] ?? null;
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             // Checking if index changed to prevent creating a new object every time the expression updates.
             if ($currentIndex === $this->keysIndex) {
                 $finalValue = $this->effectsSequence[$i](
@@ -560,7 +559,7 @@ class TextProperty extends BaseProperty
             } else {
                 $finalValue = $this->effectsSequence[$i](
                     $finalValue,
-                    $$finalValue['t'] ?? ''
+                    ${$finalValue}['t'] ?? ''
                 );
             }
         }
@@ -578,7 +577,7 @@ class TextProperty extends BaseProperty
     public function recalculate(int $index)
     {
         if (!$this->data['d']) {
-            throw new \Error(get_class($this) . ": data.k (TextData -> DocumentData) is not implemented");
+            throw new \Error(get_class($this).': data.k (TextData -> DocumentData) is not implemented');
         }
 
         $dData = $this->data['d']['k'][$index]['s'] ?? null;
@@ -592,15 +591,15 @@ class TextProperty extends BaseProperty
         $this->getValue($dData);
     }
 
-    public function searchExpressions(): bool|null
+    public function searchExpressions(): ?bool
     {
-        throw new \Error(get_class($this) . ": Method searchExpressions is not implemented");
+        throw new \Error(get_class($this).': Method searchExpressions is not implemented');
     }
 
     public function searchKeyframes()
     {
         if (!$this->data['d']) {
-            throw new \Error(get_class($this) . ": data.k (TextData -> DocumentData) is not implemented");
+            throw new \Error(get_class($this).': data.k (TextData -> DocumentData) is not implemented');
         }
 
         $this->kf = count($this->data['d']['k']) > 1;
@@ -622,8 +621,8 @@ class TextProperty extends BaseProperty
             $this->completeTextData($data);
         }
         $this->currentData = $data;
-        $this->currentData['boxWidth'] =
-          $this->currentData['boxWidth'] || $this->defaultBoxWidth;
+        $this->currentData['boxWidth']
+          = $this->currentData['boxWidth'] || $this->defaultBoxWidth;
         $this->_mdf = true;
     }
 
@@ -637,7 +636,7 @@ class TextProperty extends BaseProperty
     public function updateDocumentData(array $newData, ?int $indexFromProps)
     {
         if (!$this->data['d']) {
-            throw new \Error(get_class($this) . ": data.k (TextData -> DocumentData) is not implemented");
+            throw new \Error(get_class($this).': data.k (TextData -> DocumentData) is not implemented');
         }
         $index = $indexFromProps;
 

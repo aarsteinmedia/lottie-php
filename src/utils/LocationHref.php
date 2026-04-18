@@ -11,10 +11,8 @@ class LocationHref
         self::$_locationHref = $value;
     }
 
-
     public static function getHref()
     {
         return self::$_locationHref;
     }
-
 }

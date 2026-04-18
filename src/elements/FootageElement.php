@@ -2,13 +2,12 @@
 
 namespace LottiePHP\Elements;
 
-use DOMElement;
 use LottiePHP\Elements\Helpers\RenderableElement;
 
 class FootageElement extends RenderableElement
 {
     public ?array $assetData = null;
-    public ?DOMElement $footageData;
+    public ?\DOMElement $footageData;
 
     public function __construct(
         array $data,
@@ -23,7 +22,7 @@ class FootageElement extends RenderableElement
             $this->assetData = $globalData['getAssetData']($data['refId']) ?? null;
         }
         if (!$globalData['imageLoader']) {
-            throw new \Error(get_class($this) . ": imageLoader is not implemented in globalData");
+            throw new \Error(get_class($this).': imageLoader is not implemented in globalData');
         }
         $this->footageData = $globalData['imageLoader']['getAsset']($this->assetData);
         $this->initBaseData(
@@ -33,7 +32,7 @@ class FootageElement extends RenderableElement
         );
     }
 
-    public function getBaseElement(): DOMElement|null
+    public function getBaseElement(): ?\DOMElement
     {
         return null;
     }
@@ -58,11 +57,11 @@ class FootageElement extends RenderableElement
 
     public function prepareFrame()
     {
-        /* Pass Through*/
+        // Pass Through
     }
 
     public function renderFrame()
     {
-        /* Pass Through*/
+        // Pass Through
     }
 }

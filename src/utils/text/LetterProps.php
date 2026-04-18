@@ -9,8 +9,8 @@ class LetterProps
     public array|string $fc;
     public int|string $m;
     public ?int $o;
-    public int|array $p;
-    public string|array|null $sc;
+    public array|int $p;
+    public array|string|null $sc;
     public ?int $sw;
     public ?string $t;
 
@@ -19,8 +19,8 @@ class LetterProps
         ?int $sw = null,
         ?string $sc = null,
         ?string $fc = null,
-        null|int|string $m = null,
-        null|int|array $p = null
+        int|string|null $m = null,
+        array|int|null $p = null
     ) {
         $this->o = $o;
         $this->sw = $sw;
@@ -29,12 +29,12 @@ class LetterProps
         $this->m = $m;
         $this->p = $p;
         $this->_mdf = [
-          'fc' => (bool)($fc),
-          'm' => true,
-          'o' => true,
-          'p' => true,
-          'sc' => (bool)($sc),
-          'sw' => (bool)($sw),
+            'fc' => (bool) $fc,
+            'm' => true,
+            'o' => true,
+            'p' => true,
+            'sc' => (bool) $sc,
+            'sw' => (bool) $sw,
         ];
     }
 
@@ -80,14 +80,14 @@ class LetterProps
             $isUpdated = true;
         }
         if (
-            $p &&
-            count($p) > 0 &&
-            (($this->p)[0] !== $p[0] ||
-              ($this->p)[1] !== $p[1] ||
-              ($this->p)[4] !== $p[4] ||
-              ($this->p)[5] !== $p[5] ||
-              ($this->p)[12] !== $p[12] ||
-              ($this->p)[13] !== $p[13])
+            $p
+            && count($p) > 0
+            && ($this->p[0] !== $p[0]
+              || $this->p[1] !== $p[1]
+              || $this->p[4] !== $p[4]
+              || $this->p[5] !== $p[5]
+              || $this->p[12] !== $p[12]
+              || $this->p[13] !== $p[13])
         ) {
             $this->p = $p;
             $this->_mdf['p'] = true;

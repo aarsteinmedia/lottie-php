@@ -14,7 +14,7 @@ class ImageElement extends SVGBaseElement
         BaseElement $comp
     ) {
         parent::__construct();
-        
+
         if ($data['refId']) {
             $this->assetData = $globalData['getAssetData']($data['refId']);
         }
@@ -30,10 +30,10 @@ class ImageElement extends SVGBaseElement
         );
 
         $this->sourceRect = [
-          'height' => $this->assetData['h'] ?? 0,
-          'left' => 0,
-          'top' => 0,
-          'width' => $this->assetData['w'] ?? 0
+            'height' => $this->assetData['h'] ?? 0,
+            'left' => 0,
+            'top' => 0,
+            'width' => $this->assetData['w'] ?? 0,
         ];
     }
 }

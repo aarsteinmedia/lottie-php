@@ -12,6 +12,7 @@ use function LottiePHP\Utils\createTypedArray;
 class KeyframedMultidimensionalProperty extends BaseProperty
 {
     public $v;
+
     public function __construct(
         BaseProperty $elem,
         array $data,
@@ -25,34 +26,34 @@ class KeyframedMultidimensionalProperty extends BaseProperty
         $to = null;
         $ti = null;
 
-        for ($i = 0; $i < $length - 1; $i++) {
+        for ($i = 0; $i < $length - 1; ++$i) {
             if (($data['k'][$i]['to'] ?? null) && ($data['k'][$i]['s'] ?? null) && ($data['k'][$i + 1]['s'] ?? null)) {
                 $s = $data['k'][$i]['s'] ?? null;
                 $e = $data['k'][$i + 1]['s'] ?? null;
                 $to = $data['k'][$i]['to'] ?? null;
                 $ti = $data['k'][$i]['ti'] ?? null;
                 if (
-                    count($s) === 2 &&
-                    !($s[0] === $e[0] && $s[1] === $e[1]) &&
-                    Bezier::pointOnLine2D(
+                    2 === count($s)
+                    && !($s[0] === $e[0] && $s[1] === $e[1])
+                    && Bezier::pointOnLine2D(
                         $s[0] ?? 0,
                         $s[1] ?? 0,
                         $e[0] ?? 0,
                         $e[1] ?? 0,
                         $s[0] ?? 0 + ($to[0] ?? 0),
                         $s[1] ?? 0 + ($to[1] ?? 0)
-                    ) &&
-                    Bezier::pointOnLine2D(
+                    )
+                    && Bezier::pointOnLine2D(
                         $s[0] ?? 0,
                         $s[1] ?? 0,
                         $e[0] ?? 0,
                         $e[1] ?? 0,
                         $e[0] ?? 0 + ($ti[0] ?? 0),
                         $e[1] ?? 0 + ($ti[1] ?? 0)
-                    ) ||
-                    count($s) === 3 &&
-                    !($s[0] === $e[0] && $s[1] === $e[1] && $s[2] === $e[2]) &&
-                    Bezier::pointOnLine3D(
+                    )
+                    || 3 === count($s)
+                    && !($s[0] === $e[0] && $s[1] === $e[1] && $s[2] === $e[2])
+                    && Bezier::pointOnLine3D(
                         $s[0] ?? 0,
                         $s[1] ?? 0,
                         $s[2] ?? 0,
@@ -62,8 +63,8 @@ class KeyframedMultidimensionalProperty extends BaseProperty
                         $s[0] ?? 0 + ($to[0] ?? 0),
                         $s[1] ?? 0 + ($to[1] ?? 0),
                         $s[2] ?? 0 + ($to[2] ?? 0)
-                    ) &&
-                    Bezier::pointOnLine3D(
+                    )
+                    && Bezier::pointOnLine3D(
                         $s[0] ?? 0,
                         $s[1] ?? 0,
                         $s[2] ?? 0,
@@ -79,12 +80,12 @@ class KeyframedMultidimensionalProperty extends BaseProperty
                     $data['k'][$i]['ti'] = null;
                 }
                 if (
-                    $s[0] === $e[0] &&
-                    $s[1] === $e[1] &&
-                    $to[0] === 0 &&
-                    $to[1] === 0 &&
-                    $ti[0] === 0 &&
-                    $ti[1] === 0 && count($s) === 2 || $s[2] === $e[2] && $to[2] === 0 && $ti[2] === 0
+                    $s[0] === $e[0]
+                    && $s[1] === $e[1]
+                    && 0 === $to[0]
+                    && 0 === $to[1]
+                    && 0 === $ti[0]
+                    && 0 === $ti[1] && 2 === count($s) || $s[2] === $e[2] && 0 === $to[2] && 0 === $ti[2]
                 ) {
                     $data['k'][$i]['to'] = null;
                     $data['k'][$i]['ti'] = null;
@@ -107,14 +108,14 @@ class KeyframedMultidimensionalProperty extends BaseProperty
 
         $this->v = createTypedArray(ArrayType::Float32, $arrLen);
         $this->pv = createTypedArray(ArrayType::Float32, $arrLen);
-        for ($i = 0; $i < $arrLen; $i++) {
+        for ($i = 0; $i < $arrLen; ++$i) {
             $this->v[$i] = $this->initFrame;
             $this->pv[$i] = $this->initFrame;
         }
         $this->_caching = [
-          'lastFrame' => $this->initFrame,
-          'lastIndex' => 0,
-          'value' => createTypedArray(ArrayType::Float32, $arrLen),
+            'lastFrame' => $this->initFrame,
+            'lastIndex' => 0,
+            'value' => createTypedArray(ArrayType::Float32, $arrLen),
         ];
     }
 

@@ -20,7 +20,7 @@ class ShapeCollectionPool
         $shapeCollection = null;
 
         if (self::$_length) {
-            self::$_length -= 1;
+            --self::$_length;
             $shapeCollection = self::$pool[self::$_length];
         } else {
             $shapeCollection = new ShapeCollection();
@@ -31,12 +31,11 @@ class ShapeCollectionPool
 
     public static function releaseShape(ShapeCollection $shapeCollection)
     {
-
         if (!self::$pool) {
             self::$pool = createSizedArray(self::$_maxLength);
         }
 
-        for ($i = 0; $i < $shapeCollection->_length; $i++) {
+        for ($i = 0; $i < $shapeCollection->_length; ++$i) {
             ShapePool::release($shapeCollection->shapes[$i]);
         }
         $shapeCollection->_length = 0;
@@ -48,7 +47,6 @@ class ShapeCollectionPool
 
         self::$pool[self::$_length] = $shapeCollection;
 
-        self::$_length++;
+        ++self::$_length;
     }
-
 }

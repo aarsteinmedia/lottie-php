@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Animation;
 
-use DOMElement;
 use LottiePHP\Renderer\SVGRenderer;
 use LottiePHP\Utils\DataManager;
 
@@ -10,10 +9,10 @@ class AnimationItem
 {
     public array $animationData;
     public $assets = [];
-    public SVGRenderer|null $renderer = null;
+    public ?SVGRenderer $renderer = null;
     public $assetsPath = '';
     public $path = '';
-    public null|DOMElement $wrapper = null;
+    public ?\DOMElement $wrapper = null;
 
     protected ?string $fileName = null;
 
@@ -38,7 +37,7 @@ class AnimationItem
             if ($id === $this->assets[$i]?->id) {
                 return $this->assets[$i];
             }
-            $i++;
+            ++$i;
         }
 
         return null;
@@ -46,7 +45,6 @@ class AnimationItem
 
     public function getAssetsPath($assetData)
     {
-
         $path = '';
 
         if (!$assetData) {
@@ -63,7 +61,7 @@ class AnimationItem
             ) {
                 $imagePath = explode('/', $imagePath)[1];
             }
-            $path = $this->assetsPath . ($imagePath || '');
+            $path = $this->assetsPath.($imagePath || '');
         } else {
             $path = $this->path;
         }
@@ -85,9 +83,9 @@ class AnimationItem
 
     /**
      * @param array{
-     *  path: string|null,
-     *  assetsPath: string|null,
-     *  animationData: array|null
+     *  path: null|string,
+     *  assetsPath: null|string,
+     *  animationData: null|array
      * } $params
      */
     public function setParams(array $params): void
@@ -138,13 +136,10 @@ class AnimationItem
                 max(0, strrpos($this->fileName, '.json'))
             );
 
-
             DataManager::loadAnimation(
                 $path,
                 [$this, 'configAnimation']
             );
-
-
         } catch (\Exception $e) {
             echo $e->getMessage();
         }

@@ -11,6 +11,7 @@ class ShapeCollection
     public $_length = 0;
     public $_maxLength = 4;
     public array $shapes;
+
     public function __construct()
     {
         $this->shapes = createSizedArray($this->_maxLength);
@@ -23,12 +24,12 @@ class ShapeCollection
             $this->_maxLength *= 2;
         }
         $this->shapes[$this->_length] = $shapeData;
-        $this->_length++;
+        ++$this->_length;
     }
 
     public function releaseShapes()
     {
-        for ($i = 0; $i < $this->_length; $i++) {
+        for ($i = 0; $i < $this->_length; ++$i) {
             ShapePool::release($this->shapes[$i]);
         }
         $this->_length = 0;

@@ -16,6 +16,7 @@ abstract class TransformEffect
     public ?ValueProperty $op;
     public $opacity = 1;
     public ?EffectTypes $type;
+
     public function init(GroupEffect $effectsManager)
     {
         $this->effectsManager = $effectsManager;
@@ -47,8 +48,8 @@ abstract class TransformEffect
 
         $this->matrix?->reset();
         $this->matrix?->translate(
-            -($anchor[0]),
-            -($anchor[1]),
+            -$anchor[0],
+            -$anchor[1],
             $anchor[2]
         );
         $this->matrix?->scale(

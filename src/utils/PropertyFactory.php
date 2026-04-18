@@ -14,11 +14,11 @@ use LottiePHP\Utils\Properties\ValueProperty;
 class PropertyFactory
 {
     public static function getProp(
-        BaseProperty|BaseElement $elem,
+        BaseElement|BaseProperty $elem,
         ?array $dataFromProps,
         ?int $type = null,
         ?int $mult = null,
-        null|BaseProperty|BaseElement|DynamicPropertyContainer $container
+        BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $data = $dataFromProps;
 
@@ -35,7 +35,7 @@ class PropertyFactory
                 $mult,
                 $container
             );
-        } elseif (gettype($data['k'][0] ?? null) === 'number') {
+        } elseif ('number' === gettype($data['k'][0] ?? null)) {
             $p = new MultiDimensionalProperty(
                 $elem,
                 $data,
@@ -44,28 +44,29 @@ class PropertyFactory
             );
         } else {
             switch ($type) {
-                case 0: {
+                case 0:
                     $p = new KeyframedValueProperty(
                         $elem,
                         $data,
                         $mult,
                         $container
                     );
+
                     break;
-                }
-                case 1: {
+
+                case 1:
                     $p = new KeyframedMultidimensionalProperty(
                         $elem,
                         $data,
                         $mult,
                         $container
                     );
+
                     break;
-                }
+
                 case null:
-                default: {
+                default:
                     break;
-                }
             }
         }
         $p = $p ?? new NoProperty();

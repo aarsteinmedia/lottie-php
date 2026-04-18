@@ -45,33 +45,19 @@ abstract class EffectOne
     }
 }
 
-class SliderEffect extends EffectZero
-{
-}
+class SliderEffect extends EffectZero {}
 
-class AngleEffect extends EffectZero
-{
-}
+class AngleEffect extends EffectZero {}
 
-class ColorEffect extends EffectOne
-{
-}
+class ColorEffect extends EffectOne {}
 
-class PointEffect extends EffectOne
-{
-}
+class PointEffect extends EffectOne {}
 
-class LayerIndexEffect extends EffectZero
-{
-}
+class LayerIndexEffect extends EffectZero {}
 
-class MaskIndexEffect extends EffectZero
-{
-}
+class MaskIndexEffect extends EffectZero {}
 
-class CheckboxEffect extends EffectZero
-{
-}
+class CheckboxEffect extends EffectZero {}
 
 class NoValueEffect
 {

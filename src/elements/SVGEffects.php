@@ -11,10 +11,10 @@ use function LottiePHP\Utils\createElementID;
 
 class SVGEffects
 {
+    public array $filters = [];
     private $idPrefix = 'filter_result_';
     private static $registeredEffects = [];
 
-    public array $filters = [];
     public function __construct(RenderableElement $elem)
     {
         $source = 'SourceGraphic';
@@ -27,11 +27,11 @@ class SVGEffects
 
         $length = count($elem->data['ef'] ?? []);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $filterManager = null;
 
-            [ 'ty' => $ty ] = $elem->data['ef'][$i] ?? [ 'ty' => null ];
-            $Effect = $ty === null || !$this->registeredEffects[$ty] ? null : $this->registeredEffects[$ty]['effect'];
+            ['ty' => $ty] = $elem->data['ef'][$i] ?? ['ty' => null];
+            $Effect = null === $ty || !$this->registeredEffects[$ty] ? null : $this->registeredEffects[$ty]['effect'];
 
             if ($Effect && $ty && $elem->effectsManager) {
                 $filterManager = new ($Effect)(
@@ -43,7 +43,7 @@ class SVGEffects
                 );
                 $source = "{$this->idPrefix}{$count}";
                 if ($registeredEffects[$ty]['countsAsEffect'] ?? null) {
-                    $count++;
+                    ++$count;
                 }
             }
             if ($filterManager) {
@@ -69,7 +69,7 @@ class SVGEffects
         $length = count($this->filters);
         $effects = [];
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             if (($this->filters[$i]['type'] ?? null) === $type) {
                 array_push($effects, $this->filters[$i]);
             }
@@ -78,11 +78,11 @@ class SVGEffects
         return $effects;
     }
 
-    public function renderFrame(null|int|false $frame)
+    public function renderFrame(false|int|null $frame)
     {
         $length = $this->filters;
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $this->filters[$i]->renderFrame($frame);
         }
     }
@@ -90,8 +90,8 @@ class SVGEffects
     public static function registerEffect(int $id, array $effect, $countsAsEffect = false)
     {
         self::$registeredEffects[$id] = [
-          'countsAsEffect' => $countsAsEffect,
-          'effect' => $effect
+            'countsAsEffect' => $countsAsEffect,
+            'effect' => $effect,
         ];
     }
 }

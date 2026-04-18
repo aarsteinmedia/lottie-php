@@ -13,15 +13,15 @@ class SlotManager
 
     public function getProp(array $data)
     {
-        [ 'sid' => $sid ] = $data;
+        ['sid' => $sid] = $data;
 
         if (
-            $sid &&
-            ($this->animationData['slots'][$sid] ?? null)
+            $sid
+            && ($this->animationData['slots'][$sid] ?? null)
         ) {
             return [
-              ...$data,
-              $this->animationData['slots'][$sid]['p']
+                ...$data,
+                $this->animationData['slots'][$sid]['p'],
             ];
         }
 

@@ -2,22 +2,19 @@
 
 namespace LottiePHP\Utils\Helpers;
 
-use LottiePHP\Elements\BaseElement;
-use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\PropType;
-use LottiePHP\Utils\Properties\BaseProperty;
 
 abstract class DynamicPropertyContainer
 {
     public ?bool $_isAnimated;
     public ?bool $_mdf;
     public ?DynamicPropertyContainer $container;
-    public ?SVGShapeData $data;
+    public ?array $data;
     public $dynamicProperties = [];
     public ?bool $hd;
     public ?array $keyframes;
     public ?int $propertyIndex;
-    public null|PropType|false $propType;
+    public false|PropType|null $propType;
 
     public function addDynamicProperty(DynamicPropertyContainer $prop)
     {
@@ -31,7 +28,7 @@ abstract class DynamicPropertyContainer
 
     public function getValue(?bool $_flag)
     {
-        throw new \Error(get_class($this) . ": Method getValue is not implemented");
+        throw new \Error(get_class($this).': Method getValue is not implemented');
     }
 
     public function initDynamicPropertyContainer(DynamicPropertyContainer $container)
@@ -47,7 +44,7 @@ abstract class DynamicPropertyContainer
         $this->_mdf = false;
         $length = count($this->dynamicProperties);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $this->dynamicProperties[$i]['getValue']();
             if ($this->dynamicProperties[$i]['_mdf']) {
                 $this->_mdf = true;

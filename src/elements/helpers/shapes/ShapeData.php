@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Elements\Helpers\Shapes;
 
-use DOMElement;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Shapes\Properties\ShapeProperty;
 use LottiePHP\Utils\Shapes\ShapeCollection;
@@ -13,7 +12,7 @@ abstract class ShapeData
     public ?int $_length;
     public $caches = [];
     public ?SVGShapeData $data;
-    public ?DOMElement $gr;
+    public ?\DOMElement $gr;
     public ?bool $hd;
 
     public $it = [];
@@ -39,5 +38,4 @@ abstract class ShapeData
     {
         $this->_isAnimated = true;
     }
-
 }

@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Elements;
 
-use DOMElement;
 use LottiePHP\Utils\Enums\RendererType;
 
 use function LottiePHP\Utils\addClasses;
@@ -12,22 +11,15 @@ use function LottiePHP\Utils\createSizedArray;
 
 class SVGTextLottieElement extends TextElement
 {
-    private $emptyShapeData = [ 'shapes' => [] ];
-
+    use SVGBaseTraits;
     public ?bool $_sizeChanged;
     public ?array $bbox;
-    // override createContainerElements = SVGBaseElement.prototype.createContainerElements;
-    // override createRenderableComponents = SVGBaseElement.prototype.createRenderableComponents;
-    // override destroyBaseElement = SVGBaseElement.prototype.destroyBaseElement;
-    // override getBaseElement = SVGBaseElement.prototype.getBaseElement;
-    // getMatte = SVGBaseElement.prototype.getMatte;
-    // override initRendererElement = SVGBaseElement.prototype.initRendererElement;
     public ?int $renderedFrame;
     public $renderedLetters = [];
-    // override renderElement = SVGBaseElement.prototype.renderElement;
-    // setMatte = SVGBaseElement.prototype.setMatte;
-    public ?DOMElement $textContainer;
+    public ?\DOMElement $textContainer;
     public $textSpans = [];
+
+    private $emptyShapeData = ['shapes' => []];
 
     public function __construct(
         array $data,
@@ -46,19 +38,19 @@ class SVGTextLottieElement extends TextElement
     public function buildNewText()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
 
         if (!$this->globalData) {
-            throw new \Error(get_class($this) . ": globalData is not implemented");
+            throw new \Error(get_class($this).': globalData is not implemented');
         }
 
         if (!$this->layerElement) {
-            throw new \Error(get_class($this) . ": layerElement is not implemented");
+            throw new \Error(get_class($this).': layerElement is not implemented');
         }
 
         if (!$this->textProperty['currentData'] ?? null) {
-            throw new \Error(get_class($this) . ": DocumentData is not implemented");
+            throw new \Error(get_class($this).': DocumentData is not implemented');
         }
 
         $this->addDynamicProperty($this);
@@ -92,7 +84,7 @@ class SVGTextLottieElement extends TextElement
             if ($fontData['fFamily'] ?? null) {
                 $this->layerElement->setAttribute('font-family', $fontData['fFamily']);
             }
-            [ 'fWeight' => $fWeight, 'fStyle' => $fStyle ] = $documentData;
+            ['fWeight' => $fWeight, 'fStyle' => $fStyle] = $documentData;
 
             $this->layerElement->setAttribute('font-style', $fStyle);
             $this->layerElement->setAttribute('font-weight', $fWeight);
@@ -104,17 +96,17 @@ class SVGTextLottieElement extends TextElement
 
         $len = count($letters);
 
-        /** @var DOMElement|null $tSpan */
+        /** @var null|\DOMElement $tSpan */
         $tSpan = null;
         $matrixHelper = $this->mHelper;
         $shapeStr = '';
 
-        [ 'singleShape' => $singleShape, 'isSingleShape' => $isSingleShape ] = $this->data;
+        ['singleShape' => $singleShape, 'isSingleShape' => $isSingleShape] = $this->data;
         $xPos = 0;
         $yPos = 0;
         $isFirstLine = true;
-        $trackingOffset =
-          $documentData['tr'] * 0.001 * (int)($documentData['finalSize']);
+        $trackingOffset
+          = $documentData['tr'] * 0.001 * (int) $documentData['finalSize'];
 
         if ($isSingleShape && !$hasGlyphs && !$documentData['sz']) {
             $tElement = $this->textContainer;
@@ -122,18 +114,20 @@ class SVGTextLottieElement extends TextElement
             $justify = 'start';
 
             switch ($documentData['j']) {
-                case 1: {
+                case 1:
                     $justify = 'end';
+
                     break;
-                }
-                case 2: {
+
+                case 2:
                     $justify = 'middle';
+
                     break;
-                }
-                default: {
+
+                default:
                     $justify = 'start';
+
                     break;
-                }
             }
             $tElement?->setAttribute('text-anchor', $justify);
             $tElement?->setAttribute('letter-spacing', $trackingOffset);
@@ -141,10 +135,9 @@ class SVGTextLottieElement extends TextElement
 
             $len = count($textContent);
             $yPos = $documentData['ps']
-              ? $documentData['ps'][1] + (int)($documentData['ascent'])
+              ? $documentData['ps'][1] + (int) ($documentData['ascent'])
               : 0;
-            for ($i = 0; $i < $len; $i++) {
-
+            for ($i = 0; $i < $len; ++$i) {
                 $tSpan = $this->textSpans[$i]['span'] ?? createNS('tspan');
                 $tSpan->textContent = $textContent[$i] ?? '';
                 $tSpan->setAttribute('x', '0');
@@ -152,8 +145,8 @@ class SVGTextLottieElement extends TextElement
                 addStyles($tSpan, ['display' => 'inherit']);
                 $tElement?->appendChild($tSpan);
                 $this->textSpans[$i] = $this->textSpans[$i] ?? [
-                  'glyph' => null,
-                  'span' => null,
+                    'glyph' => null,
+                    'span' => null,
                 ];
                 $this->textSpans[$i]['span'] = $tSpan;
                 $yPos += (int) $documentData['finalLineHeight'];
@@ -166,15 +159,15 @@ class SVGTextLottieElement extends TextElement
             $cachedSpansLength = count($this->textSpans);
             $charData = null;
 
-            for ($i = 0; $i < $len; $i++) {
+            for ($i = 0; $i < $len; ++$i) {
                 $this->textSpans[$i] = $this->textSpans[$i] ?? [
-                  'childSpan' => null,
-                  'glyph' => null,
-                  'span' => null,
+                    'childSpan' => null,
+                    'glyph' => null,
+                    'span' => null,
                 ];
-                if (!$hasGlyphs || !$isSingleShape || $i === 0) {
-                    $tSpan =
-                      ($cachedSpansLength > $i
+                if (!$hasGlyphs || !$isSingleShape || 0 === $i) {
+                    $tSpan
+                      = ($cachedSpansLength > $i
                         ? $this->textSpans[$i]['span'] ?? null
                         : createNS($hasGlyphs ? 'g' : 'text')) ?? null;
 
@@ -198,7 +191,6 @@ class SVGTextLottieElement extends TextElement
                             if ($this->textSpans[$i]) {
                                 $this->textSpans[$i]['childSpan'] = $childSpan;
                             }
-
                         }
 
                         if ($this->textSpans[$i]) {
@@ -214,7 +206,7 @@ class SVGTextLottieElement extends TextElement
                 if ($isSingleShape) {
                     if ($letters[$i]['n'] ?? null) {
                         $xPos = -$trackingOffset;
-                        $yPos += (int)($documentData['yOffset']);
+                        $yPos += (int) $documentData['yOffset'];
                         $yPos += $isFirstLine ? 1 : 0;
                         $isFirstLine = false;
                     }
@@ -250,7 +242,7 @@ class SVGTextLottieElement extends TextElement
                         if ($charData['data']['shapes'] ?? null) {
                             $data = $this->buildShapeData(
                                 $charData['data'],
-                                (int)($documentData['finalSize'])
+                                (int) $documentData['finalSize']
                             );
                         }
                         $glyphElement = new SVGShapeElement(
@@ -260,7 +252,7 @@ class SVGTextLottieElement extends TextElement
                         );
                     }
                     if ($this->textSpans[$i]) {
-                        [ 'glyph' => $glyph ] = $this->textSpans[$i] ?? [];
+                        ['glyph' => $glyph] = $this->textSpans[$i] ?? [];
 
                         if ($glyph) {
                             if ($glyph->layerElement) {
@@ -270,7 +262,6 @@ class SVGTextLottieElement extends TextElement
                             $glyph->destroy();
                         }
 
-
                         $this->textSpans[$i]['glyph'] = $glyphElement;
                     }
                     $glyphElement->_debug = true;
@@ -279,7 +270,6 @@ class SVGTextLottieElement extends TextElement
                     if ($glyphElement->layerElement) {
                         $this->textSpans[$i]['childSpan']?->appendChild($glyphElement->layerElement);
                     }
-
 
                     // when using animated shapes, the layer will be scaled instead of replacing the internal scale
                     // $this might have issues with strokes and might need a different solution
@@ -292,7 +282,7 @@ class SVGTextLottieElement extends TextElement
                 }
                 if ($tSpan) {
                     if ($isSingleShape) {
-                        $translate = implode(',', [$matrixHelper->props[12],$matrixHelper->props[13]]);
+                        $translate = implode(',', [$matrixHelper->props[12], $matrixHelper->props[13]]);
                         $tSpan->setAttribute('transform', "translate({$translate})");
                     }
 
@@ -316,10 +306,9 @@ class SVGTextLottieElement extends TextElement
             while ($i < count($this->textSpans)) {
                 addStyles($span, ['display' => 'none']);
 
-                $i++;
+                ++$i;
             }
         }
-
 
         $this->_sizeChanged = true;
     }
@@ -355,15 +344,15 @@ class SVGTextLottieElement extends TextElement
 
         while ($i < $length) {
             if (
-                $textArray[$i] === chr(13) ||
-                $textArray[$i] === chr(3)
+                $textArray[$i] === chr(13)
+                || $textArray[$i] === chr(3)
             ) {
                 array_push($textContents, $currentTextContent);
                 $currentTextContent = '';
             } else {
                 $currentTextContent += $textArray[$i] ?? '';
             }
-            $i++;
+            ++$i;
         }
         array_push($textContents, $currentTextContent);
 
@@ -373,10 +362,10 @@ class SVGTextLottieElement extends TextElement
     public function createContent()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         if (!$this->globalData) {
-            throw new \Error(get_class($this) . ": globalData is not implemented");
+            throw new \Error(get_class($this).': globalData is not implemented');
         }
         if ($this->data['singleShape'] && !$this->globalData['fontManager']?->chars) {
             $this->textContainer = createNS('text');
@@ -386,16 +375,16 @@ class SVGTextLottieElement extends TextElement
     public function getValue()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         $length = count($this->textSpans);
         $glyphElement = null;
 
         $this->renderedFrame = $this->comp?->renderedFrame;
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $glyphElement = $this->textSpans[$i]['glyph'] ?? null;
             if ($glyphElement) {
-                $glyphElement->prepareFrame((int)($this->comp?->renderedFrame) - $this->data['st']);
+                $glyphElement->prepareFrame((int) $this->comp?->renderedFrame - $this->data['st']);
                 if ($glyphElement->_mdf) {
                     $this->_mdf = true;
                 }
@@ -406,14 +395,14 @@ class SVGTextLottieElement extends TextElement
     public function renderInnerContent()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         $this->validateText();
         if ($this->data['singleShape'] && !$this->_mdf) {
             return;
         }
         if (!$this->textProperty) {
-            throw new \Error(get_class($this) . ": textProperty is not initialized");
+            throw new \Error(get_class($this).': textProperty is not initialized');
         }
         $this->textAnimator?->getMeasures(
             $this->textProperty['currentData'],
@@ -428,7 +417,7 @@ class SVGTextLottieElement extends TextElement
             $textSpan = null;
             $glyphElement = null;
 
-            for ($i = 0; $i < $length; $i++) {
+            for ($i = 0; $i < $length; ++$i) {
                 if ($letters[$i]['n'] ?? null) {
                     continue;
                 }
@@ -460,15 +449,15 @@ class SVGTextLottieElement extends TextElement
     public function sourceRectAtTime()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         if (!$this->comp) {
-            throw new \Error(get_class($this) . ": comp (ElementInterface) is not implemented");
+            throw new \Error(get_class($this).': comp (ElementInterface) is not implemented');
         }
         if (!$this->layerElement) {
-            throw new \Error(get_class($this) . ": layerElement is not implemented");
+            throw new \Error(get_class($this).': layerElement is not implemented');
         }
-        $this->prepareFrame((int)($this->comp->renderedFrame) - $this->data['st']);
+        $this->prepareFrame((int) $this->comp->renderedFrame - $this->data['st']);
         $this->renderInnerContent();
         // if ($this->_sizeChanged) {
         //     $this->_sizeChanged = false;

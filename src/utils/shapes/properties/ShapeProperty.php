@@ -17,6 +17,7 @@ class ShapeProperty extends ShapeBaseProperty
     public ?array $shape;
     public ?int $totalShapeLength;
     public ?bool $x;
+
     public function __construct(
         BaseElement|DynamicPropertyContainer $elem,
         SVGShapeData $data,
@@ -30,13 +31,13 @@ class ShapeProperty extends ShapeBaseProperty
         $this->k = false;
         $this->kf = false;
         $this->_mdf = false;
-        $pathData = $type === 3 ? ($data['pt']['k'] ?? null) : $data['ks']['k'];
+        $pathData = 3 === $type ? ($data['pt']['k'] ?? null) : $data['ks']['k'];
 
         if (!$pathData) {
-            throw new \Error(get_class($this) . ": Could now get Path Data");
+            throw new \Error(get_class($this).': Could now get Path Data');
         }
-        $this->v = clone($pathData);
-        $this->pv = clone($this->v);
+        $this->v = clone $pathData;
+        $this->pv = clone $this->v;
         $this->localShapeCollection = ShapeCollectionPool::newShapeCollection();
         $this->paths = $this->localShapeCollection;
         $this->paths->addShape($this->v);
@@ -52,6 +53,7 @@ class ShapeProperty extends ShapeBaseProperty
 class KeyframedShapeProperty extends ShapeBaseProperty
 {
     public int $lastFrame;
+
     public function __construct(
         BaseElement|DynamicPropertyContainer $elem,
         SVGShapeData $data,
@@ -65,7 +67,7 @@ class KeyframedShapeProperty extends ShapeBaseProperty
         $this->elem = $elem;
         $this->container = $elem;
         $this->offsetTime = $elem->data['st'] ?? 0;
-        $this->keyframes = ($type === 3
+        $this->keyframes = (3 === $type
           ? ($data['pt']['k'] ?? null)
           : $data['ks']['k'] ?? []);
         $this->keyframesMetadata = [];
@@ -75,14 +77,14 @@ class KeyframedShapeProperty extends ShapeBaseProperty
         $length = count($shapePaths[0]['i'] ?? []);
 
         $this->v = ShapePool::newElement();
-        $this->v->setPathData((bool)($shapePaths[0]['c'] ?? false), $length);
-        $this->pv = clone($this->v);
+        $this->v->setPathData((bool) ($shapePaths[0]['c'] ?? false), $length);
+        $this->pv = clone $this->v;
         $this->localShapeCollection = ShapeCollectionPool::newShapeCollection();
         $this->paths = $this->localShapeCollection;
         $this->paths->addShape($this->v);
         $this->_caching = [
-          'lastFrame' => Constants::$initialDefaultFrame,
-          'lastIndex' => 0
+            'lastFrame' => Constants::$initialDefaultFrame,
+            'lastIndex' => 0,
         ];
     }
 

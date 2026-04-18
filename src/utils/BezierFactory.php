@@ -7,6 +7,7 @@ use LottiePHP\Utils\Enums\ArrayType;
 class BezierFactory
 {
     private static $beziers = [];
+
     /**
      * BezierEasing - use bezier curve for transition easing function
      * by Gaëtan Renaudeau 2014 - 2015 – MIT License.
@@ -15,9 +16,7 @@ class BezierFactory
      * Usage:
      * var spline = BezierEasing([ 0.25, 0.1, 0.25, 1.0 ])
      * spline.get(x) returns the easing value | x must be in [0, 1] range.
-     *
      */
-
     public static function getBezierEasing(
         int $a,
         int $b,
@@ -32,10 +31,10 @@ class BezierFactory
         }
 
         $bezEasing = new BezierEasing([
-          $a,
-          $b,
-          $c,
-          $d
+            $a,
+            $b,
+            $c,
+            $d,
         ]);
 
         self::$beziers[$str] = $bezEasing;
@@ -46,14 +45,6 @@ class BezierFactory
 
 class BezierEasing
 {
-    private array $_mSampleValues;
-    private array $_p;
-    private $_precomputed = false;
-
-    // private $float32ArraySupported = gettype(Float32Array) === 'function';
-    private $kSplineTableSize = 11;
-    private int $kSampleStepSize;
-
     /**
      * These values are established by empiricism with tests (tradeoff: performance VS precision).
      */
@@ -62,6 +53,13 @@ class BezierEasing
 
     private const SUBDIVISION_MAX_ITERATIONS = 10;
     private const SUBDIVISION_PRECISION = 0.0000001;
+    private array $_mSampleValues;
+    private array $_p;
+    private $_precomputed = false;
+
+    // private $float32ArraySupported = gettype(Float32Array) === 'function';
+    private $kSplineTableSize = 11;
+    private int $kSampleStepSize;
 
     public function __construct(array $points)
     {
@@ -102,8 +100,8 @@ class BezierEasing
         $lastSample = $this->kSplineTableSize - 1;
 
         while (
-            $currentSample !== $lastSample &&
-            (int)($mSampleValues[$currentSample]) <= $aX
+            $currentSample !== $lastSample
+            && (int) $mSampleValues[$currentSample] <= $aX
         ) {
             $intervalStart += $this->kSampleStepSize;
 
@@ -112,10 +110,10 @@ class BezierEasing
         --$currentSample;
 
         // Interpolate to provide an initial guess for t
-        $dist =
-          ($aX - (int)($mSampleValues[$currentSample])) /
-          ((int)($mSampleValues[$currentSample + 1]) -
-            (int)($mSampleValues[$currentSample]));
+        $dist
+          = ($aX - (int) $mSampleValues[$currentSample])
+          / ((int) $mSampleValues[$currentSample + 1]
+            - (int) $mSampleValues[$currentSample]);
         $guessForT = $intervalStart + $dist * $this->kSampleStepSize;
 
         $initialSlope = $this->getSlope(
@@ -132,7 +130,7 @@ class BezierEasing
                 $mX2 ?? 0
             );
         }
-        if ($initialSlope === 0.0) {
+        if (0.0 === $initialSlope) {
             return $guessForT;
         }
 
@@ -172,10 +170,10 @@ class BezierEasing
             return $x;
         } // linear
         // Because JavaScript number are imprecise, we should guarantee the extremes are right.
-        if ($x === 0) {
+        if (0 === $x) {
             return 0;
         }
-        if ($x === 1) {
+        if (1 === $x) {
             return 1;
         }
 
@@ -222,8 +220,8 @@ class BezierEasing
                 $aA = $currentT;
             }
         } while (
-            abs($currentX) > $this::SUBDIVISION_PRECISION &&
-            ++$i < $this::SUBDIVISION_MAX_ITERATIONS
+            abs($currentX) > $this::SUBDIVISION_PRECISION
+            && ++$i < $this::SUBDIVISION_MAX_ITERATIONS
         );
 
         return $currentT;
@@ -255,11 +253,10 @@ class BezierEasing
         int $aA1,
         int $aA2
     ) {
-        return (
-            3.0 * $this->A($aA1, $aA2) * $aT * $aT +
-            2.0 * $this->B($aA1, $aA2) * $aT +
-            $this->C($aA1)
-        );
+        return
+            3.0 * $this->A($aA1, $aA2) * $aT * $aT
+            + 2.0 * $this->B($aA1, $aA2) * $aT
+            + $this->C($aA1);
     }
 
     private function newtonRaphsonIterate(
@@ -277,7 +274,7 @@ class BezierEasing
                 $mX2
             );
 
-            if ($currentSlope === 0.0) {
+            if (0.0 === $currentSlope) {
                 return $aGuessT;
             }
             $currentX = $this->calcBezier(

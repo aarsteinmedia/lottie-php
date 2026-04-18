@@ -8,7 +8,6 @@ class ShapeModifiers
 {
     private static $Modifiers = [];
 
-
     public static function getModifier(
         string $nm,
         ?BaseElement $_elem = null,
@@ -25,5 +24,4 @@ class ShapeModifiers
     {
         self::$Modifiers[$nm] = self::$Modifiers[$nm] ?? $factory;
     }
-
 }

@@ -2,30 +2,12 @@
 
 namespace LottiePHP\Elements\Helpers;
 
-use DOMElement;
 use LottiePHP\Elements\BaseElement;
 
 use function LottiePHP\Utils\addStyles;
 
-abstract class RenderableDOMElement extends RenderableElement
+trait RenderableElementTraits
 {
-    public DOMElement|null $innerElement = null;
-
-    public function createContainerElements()
-    {
-        throw new \Error(get_class($this) . ': Method createContainerElements is not implemented');
-    }
-
-    public function createContent()
-    {
-        throw new \Error(get_class($this) . ': Method createContent is not implemented');
-    }
-
-    public function createRenderableComponents()
-    {
-        throw new \Error(get_class($this) . ': Method createRenderableComponents is not implemented');
-    }
-
     public function hide()
     {
         if ($this->hidden || $this->isInRange && !$this->isTransparent) {
@@ -38,6 +20,70 @@ abstract class RenderableDOMElement extends RenderableElement
         }
 
         $this->hidden = true;
+    }
+
+    public function renderFrame(?int $_val = null)
+    {
+        if (!$this->data) {
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
+        }
+        // If it is exported as hidden (data.hd === true) no need to render
+        // If it is not visible no need to render
+        if ($this->data['hd'] || $this->hidden) {
+            return;
+        }
+        $this->renderTransform();
+        $this->renderRenderable();
+        $this->renderLocalTransform();
+        $this->renderElement();
+        $this->renderInnerContent();
+
+        if ($this->_isFirstFrame) {
+            $this->_isFirstFrame = false;
+        }
+    }
+
+    public function show()
+    {
+        if (!$this->data) {
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
+        }
+        if (!$this->isInRange && $this->isTransparent) {
+            return;
+        }
+        if (!$this->data['hd']) {
+            $elem = $this->baseElement ?? $this->layerElement;
+
+            if (!$elem) {
+                throw new \Error(get_class($this).': Neither baseElement or layerElement is implemented');
+            }
+
+            addStyles($elem, ['display' => 'block']);
+        }
+        $this->hidden = false;
+        $this->_isFirstFrame = true;
+    }
+}
+
+abstract class RenderableDOMElement extends RenderableElement
+{
+    use RenderableElementTraits;
+
+    public ?\DOMElement $innerElement = null;
+
+    public function createContainerElements()
+    {
+        throw new \Error(get_class($this).': Method createContainerElements is not implemented');
+    }
+
+    public function createContent()
+    {
+        throw new \Error(get_class($this).': Method createContent is not implemented');
+    }
+
+    public function createRenderableComponents()
+    {
+        throw new \Error(get_class($this).': Method createRenderableComponents is not implemented');
     }
 
     public function initElement(
@@ -63,7 +109,7 @@ abstract class RenderableDOMElement extends RenderableElement
 
     public function initRendererElement()
     {
-        throw new \Error(get_class($this) . ': Method initRendererElement is not implemented');
+        throw new \Error(get_class($this).': Method initRendererElement is not implemented');
     }
 
     public function prepareFrame(int $num)
@@ -76,59 +122,12 @@ abstract class RenderableDOMElement extends RenderableElement
 
     public function renderElement()
     {
-
-        throw new \Error(get_class($this) . ': Method renderElement is not implemented');
-
-    }
-
-    public function renderFrame(int $_val)
-    {
-        if (!$this->data) {
-
-            throw new \Error(get_class($this) . ': data (LottieLayer) is not implemented');
-
-        }
-        // If it is exported as hidden (data.hd === true) no need to render
-        // If it is not visible no need to render
-        if ($this->data['hd'] || $this->hidden) {
-            return;
-        }
-        $this->renderTransform();
-        $this->renderRenderable();
-        $this->renderLocalTransform();
-        $this->renderElement();
-        $this->renderInnerContent();
-
-        if ($this->_isFirstFrame) {
-            $this->_isFirstFrame = false;
-        }
+        throw new \Error(get_class($this).': Method renderElement is not implemented');
     }
 
     public function renderInnerContent()
     {
         // TODO: Pass through?
-        throw new \Error(get_class($this) . ': Method renderInnerContent is not implemented');
-    }
-
-    public function show()
-    {
-        if (!$this->data) {
-            throw new \Error(get_class($this) . ': data (LottieLayer) is not implemented');
-        }
-        if (!$this->isInRange && $this->isTransparent) {
-            return;
-        }
-        if (!$this->data['hd']) {
-            $elem = $this->baseElement ?? $this->layerElement;
-
-            if (!$elem) {
-                throw new \Error(get_class($this) . ': Neither baseElement or layerElement is implemented');
-            }
-
-            addStyles($elem, ['display' => 'block']);
-
-        }
-        $this->hidden = false;
-        $this->_isFirstFrame = true;
+        throw new \Error(get_class($this).': Method renderInnerContent is not implemented');
     }
 }

@@ -3,7 +3,6 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
-use LottiePHP\Elements\Helpers\Shapes\SVGStrokeStyleData;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\RendererType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
@@ -23,6 +22,7 @@ class DashProperty extends DynamicPropertyContainer
     public $frameId = -1;
     public $k = false;
     public RendererType $renderer;
+
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
@@ -42,7 +42,7 @@ class DashProperty extends DynamicPropertyContainer
         $len = $dataLength || 0;
         $prop = null;
 
-        for ($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; ++$i) {
             $prop = PropertyFactory::getProp(
                 $elem,
                 $data[$i]['v'] ?? null,
@@ -52,8 +52,8 @@ class DashProperty extends DynamicPropertyContainer
             );
             $this->k = $prop['k'] || $this->k;
             $this->dataProps[$i] = [
-              'n' => $data[$i]['n'] ?? 'd',
-              'p' => $prop
+                'n' => $data[$i]['n'] ?? 'd',
+                'p' => $prop,
             ];
         }
         if (!$this->k) {
@@ -72,25 +72,26 @@ class DashProperty extends DynamicPropertyContainer
         }
 
         $this->iterateDynamicProperties();
-        $this->_mdf = $this->_mdf || (bool)($forceRender);
+        $this->_mdf = $this->_mdf || (bool) $forceRender;
         if (!$this->_mdf) {
             return 0;
         }
         $len = count($this->dataProps);
 
-        if ($this->renderer === RendererType::SVG) {
+        if (RendererType::SVG === $this->renderer) {
             $this->dashStr = '';
         }
-        for ($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; ++$i) {
             if (($this->dataProps[$i]['n'] ?? '') === 'o') {
-
                 $this->dashoffset[0] = $this->dataProps[$i]['p']['v'] ?? 0;
+
                 continue;
             }
-            if ($this->renderer === RendererType::SVG) {
+            if (RendererType::SVG === $this->renderer) {
                 $value = $this->dataProps[$i]['p']['v'] ?? '';
 
                 $this->dashStr .= " {$value}";
+
                 continue;
             }
 

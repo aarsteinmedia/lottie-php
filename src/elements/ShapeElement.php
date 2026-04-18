@@ -18,7 +18,7 @@ abstract class ShapeElement extends RenderableDOMElement
         $i = count($this->processedElements);
 
         while ($i) {
-            $i--;
+            --$i;
             $processedElement = $this->processedElements[$i];
 
             if ($processedElement?->elem === $elem) {
@@ -34,7 +34,7 @@ abstract class ShapeElement extends RenderableDOMElement
     {
         $length = count($this->shapeModifiers);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $this->shapeModifiers[$i]->addShape($data);
         }
     }
@@ -48,7 +48,7 @@ abstract class ShapeElement extends RenderableDOMElement
             if ($this->shapeModifiers[$i]->isAnimatedWithShape($data)) {
                 return true;
             }
-            $i++;
+            ++$i;
         }
 
         return false;
@@ -62,20 +62,20 @@ abstract class ShapeElement extends RenderableDOMElement
 
     public function renderModifiers()
     {
-        if (count($this->shapeModifiers) === 0) {
+        if (0 === count($this->shapeModifiers)) {
             return;
         }
         $length = count($this->shapes);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $this->shapes[$i]['sh']?->reset();
         }
 
         $len = count($this->shapeModifiers);
         $shouldBreakProcess = false;
 
-        for ($i = $len - 1; $i >= 0; $i--) {
-            $shouldBreakProcess = $this->shapeModifiers[$i]->processShapes((bool)($this->_isFirstFrame));
+        for ($i = $len - 1; $i >= 0; --$i) {
+            $shouldBreakProcess = $this->shapeModifiers[$i]->processShapes((bool) $this->_isFirstFrame);
             // workaround to fix cases where a repeater resets the shape so the following processes get called twice
             // TODO: find a better solution for $this
             if ($shouldBreakProcess) {
@@ -93,7 +93,7 @@ abstract class ShapeElement extends RenderableDOMElement
             if (($this->processedElements[$i]['elem'] ?? null) === $elem) {
                 return $this->processedElements[$i]['pos'] ?? 0;
             }
-            $i++;
+            ++$i;
         }
 
         return 0;

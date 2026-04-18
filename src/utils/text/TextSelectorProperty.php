@@ -14,8 +14,8 @@ class TextSelectorProperty extends BaseProperty
     public ValueProperty $a;
     public ?ValueProperty $b;
     public ?array $data;
-    public ValueProperty|array $e;
-    public null|BaseProperty|BaseElement $elem;
+    public array|ValueProperty $e;
+    public BaseElement|BaseProperty|null $elem;
     public $finalE = 0;
     public $finalS = 0;
     public ValueProperty $ne;
@@ -25,7 +25,7 @@ class TextSelectorProperty extends BaseProperty
     public ?int $totalChars;
     public ValueProperty $xe;
 
-    public function __construct(BaseProperty|BaseElement $elem, array $data)
+    public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
         parent::__construct();
         $this->k = false;
@@ -36,9 +36,9 @@ class TextSelectorProperty extends BaseProperty
         $this->s = PropertyFactory::getProp(
             $elem,
             $data['s'] ?? [
-            'a' => 0,
-            'k' => 0
-      ],
+                'a' => 0,
+                'k' => 0,
+            ],
             0,
             0,
             $this
@@ -52,14 +52,14 @@ class TextSelectorProperty extends BaseProperty
                 $this
             );
         } else {
-            $this->e = [ 'v' => 100 ];
+            $this->e = ['v' => 100];
         }
         $this->o = PropertyFactory::getProp(
             $elem,
             $data['o'] ?? [
-            'a' => 0,
-            'k' => 0
-      ],
+                'a' => 0,
+                'k' => 0,
+            ],
             0,
             0,
             $this
@@ -67,9 +67,9 @@ class TextSelectorProperty extends BaseProperty
         $this->xe = PropertyFactory::getProp(
             $elem,
             $data['xe'] ?? [
-            'a' => 0,
-            'k' => 0
-      ],
+                'a' => 0,
+                'k' => 0,
+            ],
             0,
             0,
             $this
@@ -77,9 +77,9 @@ class TextSelectorProperty extends BaseProperty
         $this->ne = PropertyFactory::getProp(
             $elem,
             $data['ne'] ?? [
-            'a' => 0,
-            'k' => 0
-      ],
+                'a' => 0,
+                'k' => 0,
+            ],
             0,
             0,
             $this
@@ -87,9 +87,9 @@ class TextSelectorProperty extends BaseProperty
         $this->sm = PropertyFactory::getProp(
             $elem,
             $data['sm'] ?? [
-            'a' => 0,
-            'k' => 100
-      ],
+                'a' => 0,
+                'k' => 100,
+            ],
             0,
             0,
             $this
@@ -102,12 +102,12 @@ class TextSelectorProperty extends BaseProperty
             $this
         );
 
-        if (count($this->dynamicProperties) === 0) {
+        if (0 === count($this->dynamicProperties)) {
             $this->getValue();
         }
     }
 
-    public function getMult(int $indFromProps, ?int $_val = null): int|array
+    public function getMult(int $indFromProps, ?int $_val = null): array|int
     {
         $ind = $indFromProps;
 
@@ -144,27 +144,29 @@ class TextSelectorProperty extends BaseProperty
         $type = $this->data['sh'];
 
         switch ($type) {
-            case 2: {
+            case 2:
                 if ($e === $s) {
                     $mult = $ind >= $e ? 1 : 0;
                 } else {
                     $mult = max(0, min(0.5 / ($e - $s) + ($ind - $s) / ($e - $s), 1));
                 }
                 $mult = ($easer)($mult);
+
                 break;
-            }
-            case 3: {
+
+            case 3:
                 if ($e === $s) {
                     $mult = $ind >= $e ? 0 : 1;
                 } else {
-                    $mult =
-                      1 - max(0, min(0.5 / ($e - $s) + ($ind - $s) / ($e - $s), 1));
+                    $mult
+                      = 1 - max(0, min(0.5 / ($e - $s) + ($ind - $s) / ($e - $s), 1));
                 }
 
                 $mult = ($easer)($mult);
+
                 break;
-            }
-            case 4: {
+
+            case 4:
                 if ($e === $s) {
                     $mult = 0;
                 } else {
@@ -176,9 +178,10 @@ class TextSelectorProperty extends BaseProperty
                     }
                 }
                 $mult = ($easer)($mult);
+
                 break;
-            }
-            case 5: {
+
+            case 5:
                 if ($e === $s) {
                     $mult = 0;
                 } else {
@@ -191,9 +194,10 @@ class TextSelectorProperty extends BaseProperty
                     $mult = sqrt(1 - $x * $x / ($a * $a));
                 }
                 $mult = ($easer)($mult);
+
                 break;
-            }
-            case 6: {
+
+            case 6:
                 if ($e === $s) {
                     $mult = 0;
                 } else {
@@ -201,10 +205,10 @@ class TextSelectorProperty extends BaseProperty
                     $mult = (1 + cos(M_PI + M_PI * 2 * $ind / ($e - $s))) / 2;
                 }
                 $mult = ($easer)($mult);
-                break;
-            }
 
-            default: {
+                break;
+
+            default:
                 if ($ind >= floor($s)) {
                     if ($ind - $s < 0) {
                         $mult = max(0, min(min($e, 1) - ($s - $ind), 1));
@@ -213,7 +217,6 @@ class TextSelectorProperty extends BaseProperty
                     }
                 }
                 $mult = ($easer)($mult);
-            }
         }
         // Smoothness implementation.
         // The $smoothness represents a reduced range of the original [0; 1] range.
@@ -225,10 +228,10 @@ class TextSelectorProperty extends BaseProperty
         //     - subtract the $threshold
         //     - divide it by the $smoothness ($this will return the range to [0; 1])
         // Note: If it doesn't work on some scenarios, consider applying it before the easer.
-        if ($this->sm['v'] !== 100) {
+        if (100 !== $this->sm['v']) {
             $smoothness = $this->sm['v'] * 0.01;
 
-            if ($smoothness === 0) {
+            if (0 === $smoothness) {
                 $smoothness = 0.00000001;
             }
             $threshold = 0.5 - $smoothness * 0.5;
@@ -259,10 +262,10 @@ class TextSelectorProperty extends BaseProperty
         $this->iterateDynamicProperties();
         $this->_mdf = $newCharsFlag || $this->_mdf;
         $this->_currentTextLength = count($this->elem['textProperty']['currentData']['l'] ?? []) || 0;
-        if ($newCharsFlag && $this->data['r'] === 2 && $this->e['v']) {
+        if ($newCharsFlag && 2 === $this->data['r'] && $this->e['v']) {
             $this->e['v'] = $this->_currentTextLength;
         }
-        $divisor = $this->data['r'] === 2 ? 1 : 100 / $this->data['totalChars'];
+        $divisor = 2 === $this->data['r'] ? 1 : 100 / $this->data['totalChars'];
         $o = $this->o['v'] / $divisor;
         $s = ($this->s['v'] ?? 0) / $divisor + $o;
         $e = $this->e['v'] / $divisor + $o;

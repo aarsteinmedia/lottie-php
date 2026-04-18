@@ -10,8 +10,9 @@ class ValueProperty extends BaseProperty
 {
     public $pv;
     public $v;
+
     public function __construct(
-        BaseProperty|BaseElement $elem,
+        BaseElement|BaseProperty $elem,
         array $data,
         ?int $mult = null,
         ?TextAnimatorProperty $container = null
@@ -34,6 +35,6 @@ class ValueProperty extends BaseProperty
 
     public function getValue(...$args)
     {
-        return$this->processEffectsSequence(...$args);
+        return $this->processEffectsSequence(...$args);
     }
 }

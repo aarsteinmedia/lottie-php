@@ -26,7 +26,7 @@ class SolidElement extends ImageElement
     public function createContent()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         $rect = createNS('rect');
 

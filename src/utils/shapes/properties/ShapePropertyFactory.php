@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Utils\Shapes\Properties;
 
-use LottiePHP\Elements\BaseElement;
 use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Elements\ShapeElement;
 use LottiePHP\Utils\Properties\KeyframedValueProperty;
@@ -30,8 +29,8 @@ class ShapePropertyFactory
 
         switch ($type) {
             case 3:
-            case 4: {
-                $dataProp = $type === 3 ? $data['pt'] : $data['ks'];
+            case 4:
+                $dataProp = 3 === $type ? $data['pt'] : $data['ks'];
                 $keys = $dataProp['k'] ?? 0;
 
                 if (count($keys ?? [])) {
@@ -40,6 +39,7 @@ class ShapePropertyFactory
                         $data,
                         $type
                     );
+
                     break;
                 }
                 $prop = new ShapeProperty(
@@ -47,19 +47,21 @@ class ShapePropertyFactory
                     $data,
                     $type
                 );
+
                 break;
-            }
-            case 5: {
+
+            case 5:
                 $prop = new RectShapeProperty($elem, $data);
+
                 break;
-            }
-            case 6: {
+
+            case 6:
                 $prop = new EllShapeProperty($elem, $data);
+
                 break;
-            }
-            case 7: {
+
+            case 7:
                 $prop = new StarShapeProperty($elem, $data);
-            }
         }
 
         if ($prop['k'] ?? 0) {

@@ -21,6 +21,7 @@ class StarShapeProperty extends ShapeBaseProperty
     public BaseProperty $pt;
     public BaseProperty $r;
     public ?BaseProperty $s;
+
     public function __construct(BaseElement|BaseProperty $elem, SVGShapeData $data)
     {
         $this->v = ShapePool::newElement();
@@ -32,7 +33,7 @@ class StarShapeProperty extends ShapeBaseProperty
         $this->d = $data['d'];
         $this->initDynamicPropertyContainer($elem);
 
-        if ($data['sy'] === 1) {
+        if (1 === $data['sy']) {
             $this->ir = PropertyFactory::getProp(
                 $elem,
                 $data['ir'],
@@ -98,11 +99,11 @@ class StarShapeProperty extends ShapeBaseProperty
     public function convertPolygonToPath()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (Shape) is not implemented");
+            throw new \Error(get_class($this).': data (Shape) is not implemented');
         }
 
         if (!$this->p) {
-            throw new \Error(get_class($this) . ": p value is not implemented");
+            throw new \Error(get_class($this).': p value is not implemented');
         }
 
         $numPts = floor($this->pt->v);
@@ -111,18 +112,18 @@ class StarShapeProperty extends ShapeBaseProperty
         $roundness = $this->os->v;
         $perimSegment = 2 * M_PI * $rad / ($numPts * 4);
         $currentAng = -M_PI * 0.5;
-        $dir = $this->data['d'] === 3 ? -1 : 1;
+        $dir = 3 === $this->data['d'] ? -1 : 1;
 
         $currentAng += $this->r->v;
         if ($this->v) {
             $this->v->_length = 0;
         }
 
-        for ($i = 0; $i < $numPts; $i++) {
+        for ($i = 0; $i < $numPts; ++$i) {
             $x = $rad * cos($currentAng);
             $y = $rad * sin($currentAng);
-            $ox = $x === 0 && $y === 0 ? 0 : $y / sqrt($x * $x + $y * $y);
-            $oy = $x === 0 && $y === 0 ? 0 : -$x / sqrt($x * $x + $y * $y);
+            $ox = 0 === $x && 0 === $y ? 0 : $y / sqrt($x * $x + $y * $y);
+            $oy = 0 === $x && 0 === $y ? 0 : -$x / sqrt($x * $x + $y * $y);
 
             $x += $this->p->v[0];
             $y += $this->p->v[1];
@@ -138,6 +139,7 @@ class StarShapeProperty extends ShapeBaseProperty
             );
             $currentAng += $angle * $dir;
         }
+
         /** @var ShapeCollection $emptyCollection */
         $emptyCollection = [];
         $this->paths = $emptyCollection;
@@ -146,7 +148,7 @@ class StarShapeProperty extends ShapeBaseProperty
 
     public function convertToPath()
     {
-        if ($this->data['sy'] === 1) {
+        if (1 === $this->data['sy']) {
             return $this->convertStarToPath();
         }
 
@@ -156,11 +158,11 @@ class StarShapeProperty extends ShapeBaseProperty
     public function convertStarToPath()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (Shape) is not implemented");
+            throw new \Error(get_class($this).': data (Shape) is not implemented');
         }
 
         if (!$this->v) {
-            throw new \Error(get_class($this) . ": v (ShapePath) is not implemented");
+            throw new \Error(get_class($this).': v (ShapePath) is not implemented');
         }
 
         $numPts = floor($this->pt->v) * 2;
@@ -170,9 +172,9 @@ class StarShapeProperty extends ShapeBaseProperty
                   $this->v->o.length = numPts; */
         $isLong = true;
         $longRad = $this->or->v;
-        $shortRad = (int)($this->ir?->v);
+        $shortRad = (int) $this->ir?->v;
         $longRound = $this->os->v;
-        $shortRound = (int)($this->is?->v);
+        $shortRound = (int) $this->is?->v;
         $longPerimSegment = 2 * M_PI * $longRad / ($numPts * 2);
         $shortPerimSegment = 2 * M_PI * $shortRad / ($numPts * 2);
         $rad = 0;
@@ -181,20 +183,20 @@ class StarShapeProperty extends ShapeBaseProperty
         $currentAng = -M_PI / 2;
 
         $currentAng += $this->r->v;
-        $dir = $this->data['d'] === 3 ? -1 : 1;
+        $dir = 3 === $this->data['d'] ? -1 : 1;
 
         $this->v->_length = 0;
-        for ($i = 0; $i < $numPts; $i++) {
+        for ($i = 0; $i < $numPts; ++$i) {
             $rad = $isLong ? $longRad : $shortRad;
             $roundness = $isLong ? $longRound : $shortRound;
             $perimSegment = $isLong ? $longPerimSegment : $shortPerimSegment;
             $x = $rad * cos($currentAng);
             $y = $rad * sin($currentAng);
-            $ox = $x === 0 && $y === 0 ? 0 : $y / sqrt($x * $x + $y * $y);
-            $oy = $x === 0 && $y === 0 ? 0 : -$x / sqrt($x * $x + $y * $y);
+            $ox = 0 === $x && 0 === $y ? 0 : $y / sqrt($x * $x + $y * $y);
+            $oy = 0 === $x && 0 === $y ? 0 : -$x / sqrt($x * $x + $y * $y);
 
-            $x += (int)($this->p?->v[0]);
-            $y += (int)($this->p?->v[1]);
+            $x += (int) $this->p?->v[0];
+            $y += (int) $this->p?->v[1];
             $this->v->setTripleAt(
                 $x,
                 $y,

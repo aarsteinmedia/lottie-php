@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Elements;
 
-use DOMElement;
 use LottiePHP\Elements\Helpers\FrameElement;
 
 class NullElement extends FrameElement
@@ -22,7 +21,7 @@ class NullElement extends FrameElement
         $this->initHierarchy();
     }
 
-    public function getBaseElement(): DOMElement|null
+    public function getBaseElement(): ?\DOMElement
     {
         return null;
     }

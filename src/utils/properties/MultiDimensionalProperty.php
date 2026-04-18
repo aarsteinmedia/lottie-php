@@ -11,11 +11,12 @@ use function LottiePHP\Utils\createTypedArray;
 class MultiDimensionalProperty extends BaseProperty
 {
     public $v;
+
     public function __construct(
-        BaseProperty|BaseElement $elem,
+        BaseElement|BaseProperty $elem,
         array $data,
         ?int $mult = null,
-        BaseProperty|BaseElement $container
+        BaseElement|BaseProperty $container
     ) {
         $this->propType = PropType::MultiDimensional;
         $this->mult = $mult || 1;
@@ -33,7 +34,7 @@ class MultiDimensionalProperty extends BaseProperty
         $this->v = createTypedArray(ArrayType::Float32, $length);
         $this->pv = createTypedArray(ArrayType::Float32, $length);
         $this->vel = createTypedArray(ArrayType::Float32, $length);
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $this->v[$i] = ($data['k'][$i] ?? 0) * $this->mult;
             $this->pv[$i] = $data['k'][$i] ?? 0;
         }

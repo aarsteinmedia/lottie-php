@@ -12,44 +12,158 @@ class SVGElementsRenderer
     private static ?Matrix $_identityMatrix;
     private static ?Matrix $_matrixHelper;
 
-
-    public static function createRenderFunction(SVGShapeData $data)
+    public static function createRenderFunction(array $data)
     {
-        switch ($data->ty) {
-            case ShapeType::Fill: {
+        switch ($data['ty']) {
+            case ShapeType::Fill:
                 return self::renderFill(...);
-            }
-            case ShapeType::GradientFill: {
+
+            case ShapeType::GradientFill:
                 return self::renderGradient(...);
-            }
-            case ShapeType::GradientStroke: {
+
+            case ShapeType::GradientStroke:
                 return self::renderGradientStroke(...);
-            }
-            case ShapeType::Stroke: {
+
+            case ShapeType::Stroke:
                 return self::renderStroke(...);
-            }
+
             case ShapeType::Path:
             case ShapeType::Ellipse:
             case ShapeType::Rectangle:
-            case ShapeType::PolygonStar: {
+            case ShapeType::PolygonStar:
                 return self::renderPath(...);
-            }
-            case ShapeType::Transform: {
+
+            case ShapeType::Transform:
                 return self::renderContentTransform(...);
-            }
-            case ShapeType::NoStyle: {
+
+            case ShapeType::NoStyle:
                 return self::renderNoop(...);
-            }
-            default: {
+
+            default:
                 return null;
+        }
+    }
+
+    public function renderGradient(
+        array $styleData,
+        ?SVGGradientFillStyleData $itemData,
+        bool|int|null $isFirstFrame
+    ) {
+        if (!$itemData) {
+            throw new \Error('SVGElementsRenderer: Method renderGradient is missing data');
+        }
+        $gfill = $itemData->gf;
+        $hasOpacity = $itemData->g?->_hasOpacity;
+        $pt1 = $itemData->s?->v ?? [0, 0];
+        $pt2 = $itemData->e?->v ?? [0, 0];
+
+        if ($itemData->o?->_mdf || $isFirstFrame) {
+            $attr = ShapeType::GradientFill === $styleData['ty'] ? 'fill-opacity' : 'stroke-opacity';
+
+            $itemData->style?->pElem->setAttribute($attr, $itemData->o?->v);
+        }
+        if ($itemData->s?->_mdf || $isFirstFrame) {
+            $attr1 = 1 === $styleData['t'] ? 'x1' : 'cx';
+            $attr2 = 'x1' === $attr1 ? 'y1' : 'cy';
+
+            $gfill?->setAttribute($attr1, $pt1[0]);
+            $gfill?->setAttribute($attr2, $pt1[1]);
+            if ($hasOpacity && !$itemData->g?->_collapsable) {
+                $itemData->of?->setAttribute($attr1, $pt1[0]);
+                $itemData->of?->setAttribute($attr2, $pt1[1]);
             }
+        }
+        $stops = null;
+        $stop = null;
+
+        if ($itemData->g && ($itemData->g->_cmdf || $isFirstFrame)) {
+            $stops = $itemData->cst;
+            $cValues = $itemData->g->c;
+            $length = count($stops);
+
+            for ($i = 0; $i < $length; ++$i) {
+                $stop = $stops[$i];
+                $stop->setAttribute('offset', "{$cValues[$i * 4]}%");
+                $stop->setAttribute(
+                    'stop-color',
+                    "rgb({$cValues[$i * 4 + 1]},{$cValues[$i * 4 + 2]},{$cValues[$i * 4 + 3]})"
+                );
+            }
+        }
+        if ($hasOpacity && $itemData->g && ($itemData->g->_omdf || $isFirstFrame)) {
+            $oValues = $itemData->g->o;
+
+            if ($itemData->g->_collapsable) {
+                $stops = $itemData->cst;
+            } else {
+                $stops = $itemData->ost;
+            }
+            $sLen = count($stops);
+
+            for ($i = 0; $i < $sLen; ++$i) {
+                $stop = $stops[$i];
+                if (!$itemData->g->_collapsable) {
+                    $stop->setAttribute('offset', "{$oValues[$i * 2]}%");
+                }
+                $stop->setAttribute('stop-opacity', "{$oValues[$i * 2 + 1]}");
+            }
+        }
+        if (1 === $styleData['t']) {
+            if ($itemData->e?->_mdf || $isFirstFrame) {
+                $gfill?->setAttribute('x2', $pt2[0]);
+                $gfill?->setAttribute('y2', $pt2[1]);
+                if ($hasOpacity && !$itemData->g?->_collapsable) {
+                    $itemData->of?->setAttribute('x2', $pt2[0]);
+                    $itemData->of?->setAttribute('y2', $pt2[1]);
+                }
+            }
+        } else {
+            $rad = 0;
+
+            if ($itemData->s?->_mdf || $itemData->e?->_mdf || $isFirstFrame) {
+                $rad = sqrt(pow($pt1[0] - $pt2[0], 2) + pow($pt1[1] - $pt2[1], 2));
+                $gfill?->setAttribute('r', $rad);
+                if ($hasOpacity && !$itemData->g?->_collapsable) {
+                    $itemData->of?->setAttribute('r', $rad);
+                }
+            }
+            if (
+                $itemData->e?->_mdf
+                || $itemData->h?->_mdf
+                || $itemData->a?->_mdf
+                || $isFirstFrame
+            ) {
+                if (!$rad) {
+                    $rad = sqrt(pow($pt1[0] - $pt2[0], 2) + pow($pt1[1] - $pt2[1], 2));
+                }
+                $ang = atan2($pt2[1] - $pt1[1], $pt2[0] - $pt1[0]);
+
+                $percent = (int) $itemData->h?->v;
+
+                if ($percent >= 1) {
+                    $percent = 0.99;
+                } elseif ($percent <= -1) {
+                    $percent = -0.99;
+                }
+                $dist = $rad * $percent;
+                $x = cos($ang + (int) $itemData->a?->v) * $dist + $pt1[0];
+                $y = sin($ang + (int) $itemData->a?->v) * $dist + $pt1[1];
+
+                $gfill?->setAttribute('fx', $x);
+                $gfill?->setAttribute('fy', $y);
+                if ($hasOpacity && !$itemData->g?->_collapsable) {
+                    $itemData->of?->setAttribute('fx', $x);
+                    $itemData->of?->setAttribute('fy', $y);
+                }
+            }
+            // gfill->setAttribute('fy','200');
         }
     }
 
     private static function renderContentTransform(
         array $_,
         ?SVGTransformData $itemData,
-        null|int|bool $isFirstFrame
+        bool|int|null $isFirstFrame
     ) {
         if (!$itemData) {
             throw new \Error('SVGElementsRenderer: Method renderContetTransform is missing data');
@@ -71,7 +185,7 @@ class SVGElementsRenderer
     private static function renderFill(
         array $_,
         ?SVGFillStyleData $itemData,
-        null|int|bool $isFirstFrame
+        bool|int|null $isFirstFrame
     ) {
         if (!$itemData) {
             throw new \Error('SVGElementsRenderer: Method renderFill is missing data');
@@ -91,126 +205,10 @@ class SVGElementsRenderer
         }
     }
 
-    public function renderGradient(
-        array $styleData,
-        ?SVGGradientFillStyleData $itemData,
-        null|int|bool $isFirstFrame
-    ) {
-        if (!$itemData) {
-            throw new \Error('SVGElementsRenderer: Method renderGradient is missing data');
-        }
-        $gfill = $itemData->gf;
-        $hasOpacity = $itemData->g?->_hasOpacity;
-        $pt1 = $itemData->s?->v ?? [0, 0];
-        $pt2 = $itemData->e?->v ?? [0, 0];
-
-        if ($itemData->o?->_mdf || $isFirstFrame) {
-            $attr = $styleData['ty'] === ShapeType::GradientFill ? 'fill-opacity' : 'stroke-opacity';
-
-            $itemData->style?->pElem->setAttribute($attr, $itemData->o?->v);
-        }
-        if ($itemData->s?->_mdf || $isFirstFrame) {
-            $attr1 = $styleData['t'] === 1 ? 'x1' : 'cx';
-            $attr2 = $attr1 === 'x1' ? 'y1' : 'cy';
-
-            $gfill?->setAttribute($attr1, $pt1[0]);
-            $gfill?->setAttribute($attr2, $pt1[1]);
-            if ($hasOpacity && !$itemData->g?->_collapsable) {
-                $itemData->of?->setAttribute($attr1, $pt1[0]);
-                $itemData->of?->setAttribute($attr2, $pt1[1]);
-            }
-        }
-        $stops = null;
-        $stop = null;
-
-        if ($itemData->g && ($itemData->g->_cmdf || $isFirstFrame)) {
-            $stops = $itemData->cst;
-            $cValues = $itemData->g->c;
-            $length = count($stops);
-
-            for ($i = 0; $i < $length; $i++) {
-                $stop = $stops[$i];
-                $stop->setAttribute('offset', "{$cValues[$i * 4]}%");
-                $stop->setAttribute(
-                    'stop-color',
-                    "rgb({$cValues[$i * 4 + 1]},{$cValues[$i * 4 + 2]},{$cValues[$i * 4 + 3]})"
-                );
-            }
-        }
-        if ($hasOpacity && $itemData->g && ($itemData->g->_omdf || $isFirstFrame)) {
-            $oValues = $itemData->g->o;
-
-            if ($itemData->g->_collapsable) {
-                $stops = $itemData->cst;
-            } else {
-                $stops = $itemData->ost;
-            }
-            $sLen = count($stops);
-
-            for ($i = 0; $i < $sLen; $i++) {
-                $stop = $stops[$i];
-                if (!$itemData->g->_collapsable) {
-                    $stop->setAttribute('offset', "{$oValues[$i * 2]}%");
-                }
-                $stop->setAttribute('stop-opacity', "{$oValues[$i * 2 + 1]}");
-            }
-        }
-        if ($styleData['t'] === 1) {
-            if ($itemData->e?->_mdf || $isFirstFrame) {
-                $gfill?->setAttribute('x2', $pt2[0]);
-                $gfill?->setAttribute('y2', $pt2[1]);
-                if ($hasOpacity && !$itemData->g?->_collapsable) {
-                    $itemData->of?->setAttribute('x2', $pt2[0]);
-                    $itemData->of?->setAttribute('y2', $pt2[1]);
-                }
-            }
-        } else {
-            $rad = 0;
-
-            if ($itemData->s?->_mdf || $itemData->e?->_mdf || $isFirstFrame) {
-                $rad = sqrt(pow($pt1[0] - $pt2[0], 2) + pow($pt1[1] - $pt2[1], 2));
-                $gfill?->setAttribute('r', $rad);
-                if ($hasOpacity && !$itemData->g?->_collapsable) {
-                    $itemData->of?->setAttribute('r', $rad);
-                }
-            }
-            if (
-                $itemData->e?->_mdf ||
-                $itemData->h?->_mdf ||
-                $itemData->a?->_mdf ||
-                $isFirstFrame
-            ) {
-                if (!$rad) {
-                    $rad = sqrt(pow($pt1[0] - $pt2[0], 2) + pow($pt1[1] - $pt2[1], 2));
-                }
-                $ang = atan2($pt2[1] - $pt1[1], $pt2[0] - $pt1[0]);
-
-                $percent = (int) $itemData->h?->v;
-
-                if ($percent >= 1) {
-                    $percent = 0.99;
-                } elseif ($percent <= -1) {
-                    $percent = -0.99;
-                }
-                $dist = $rad * $percent;
-                $x = cos($ang + (int)($itemData->a?->v)) * $dist + $pt1[0];
-                $y = sin($ang + (int)($itemData->a?->v)) * $dist + $pt1[1];
-
-                $gfill?->setAttribute('fx', $x);
-                $gfill?->setAttribute('fy', $y);
-                if ($hasOpacity && !$itemData->g?->_collapsable) {
-                    $itemData->of?->setAttribute('fx', $x);
-                    $itemData->of?->setAttribute('fy', $y);
-                }
-            }
-            // gfill->setAttribute('fy','200');
-        }
-    }
-
     private function renderGradientStroke(
         array $styleData,
-        null|SVGGradientStrokeStyleData|SVGGradientFillStyleData $itemData,
-        int|bool|null $isFirstFrame
+        SVGGradientFillStyleData|SVGGradientStrokeStyleData|null $itemData,
+        bool|int|null $isFirstFrame
     ) {
         self::renderGradient(
             $styleData,
@@ -232,7 +230,7 @@ class SVGElementsRenderer
     private function renderPath(
         array $styleData,
         ?SVGShapeData $itemData,
-        int|bool|null $isFirstFrame
+        bool|int|null $isFirstFrame
     ) {
         if (!$itemData) {
             throw new \Error('SVGElementsRenderer: Method renderPath is missing data');
@@ -241,7 +239,7 @@ class SVGElementsRenderer
         $shouldRedraw = false;
         $pathNodes = null;
         [
-            'caches' => $caches, 'lvl' => $lvl, 'sh' => $sh, 'styles' => $styles, 'transformers' => $transformers
+            'caches' => $caches, 'lvl' => $lvl, 'sh' => $sh, 'styles' => $styles, 'transformers' => $transformers,
         ] = $itemData;
         $length = count($styles);
         $paths = null;
@@ -249,10 +247,10 @@ class SVGElementsRenderer
         $iterations = null;
         $k = 0;
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $shouldRedraw = $sh?->_mdf || (bool) $isFirstFrame;
             $style = $styles[$i];
-            [ 'lvl' => $styleLevel ] = $style ?? [ 'lvl' => 0 ];
+            ['lvl' => $styleLevel] = $style ?? ['lvl' => 0];
 
             if ($styleLevel < $lvl) {
                 if (!self::$_matrixHelper) {
@@ -264,16 +262,16 @@ class SVGElementsRenderer
                 $k = count($transformers) - 1;
                 while (!$shouldRedraw && $iterations > 0) {
                     $shouldRedraw = $transformers[$k]['mProps']['_mdf'] ?? $shouldRedraw;
-                    $iterations--;
-                    $k--;
+                    --$iterations;
+                    --$k;
                 }
                 if ($shouldRedraw) {
                     $iterations = $lvl - $styleLevel;
                     $k = count($transformers) - 1;
                     while ($iterations > 0) {
                         $mat->multiply($transformers[$k]['mProps']['v'] ?? 0);
-                        $iterations--;
-                        $k--;
+                        --$iterations;
+                        --$k;
                     }
                 }
             } else {
@@ -288,7 +286,7 @@ class SVGElementsRenderer
 
             if ($shouldRedraw) {
                 $pathStringTransformed = '';
-                for ($j = 0; $j < $jLen; $j++) {
+                for ($j = 0; $j < $jLen; ++$j) {
                     $pathNodes = $paths?->shapes[$j];
                     if ($pathNodes?->_length) {
                         $pathStringTransformed .= buildShapeString(
@@ -304,17 +302,16 @@ class SVGElementsRenderer
                 $pathStringTransformed = $caches[$i];
             }
             if ($style) {
-                $style->d .= $styleData['hd'] === true ? '' : $pathStringTransformed ?? '';
+                $style->d .= true === $styleData['hd'] ? '' : $pathStringTransformed ?? '';
                 $style->_mdf = $shouldRedraw || $style->_mdf;
             }
         }
     }
 
-
     private function renderStroke(
         array $_,
-        SVGStrokeStyleData|SVGGradientStrokeStyleData|null $itemData,
-        int|bool|null $isFirstFrame
+        SVGGradientStrokeStyleData|SVGStrokeStyleData|null $itemData,
+        bool|int|null $isFirstFrame
     ) {
         if (!$itemData?->style) {
             throw new \Error('SVGElementsRenderer: Method renderStroke is missing data');

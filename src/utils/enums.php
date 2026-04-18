@@ -104,21 +104,24 @@ function lineCapEnum(int $val)
     switch ($val) {
         case 2:
             return 'round';
+
         case 3:
             return 'square';
+
         default:
             return 'butt';
     }
 }
-
 
 function lineJoinEnum(int $val)
 {
     switch ($val) {
         case 2:
             return 'round';
+
         case 3:
             return 'bevel';
+
         default:
             return 'miter';
     }

@@ -10,42 +10,47 @@ function getFontProperties(array $fontData)
     $fStyle = 'normal';
     $length = count($styles);
 
-    for ($i = 0; $i < $length; $i++) {
+    for ($i = 0; $i < $length; ++$i) {
         switch (strtolower($styles[$i] ?? '')) {
-            case 'italic': {
+            case 'italic':
                 $fStyle = 'italic';
+
                 break;
-            }
-            case 'bold': {
+
+            case 'bold':
                 $fWeight = '700';
+
                 break;
-            }
-            case 'black': {
+
+            case 'black':
                 $fWeight = '900';
+
                 break;
-            }
-            case 'medium': {
+
+            case 'medium':
                 $fWeight = '500';
+
                 break;
-            }
+
             case 'regular':
-            case 'normal': {
+            case 'normal':
                 $fWeight = '400';
+
                 break;
-            }
+
             case 'light':
-            case 'thin': {
+            case 'thin':
                 $fWeight = '200';
+
                 break;
-            }
-            default: {
+
+            default:
                 break;
-            }
         }
     }
 
     return [
-      'style' => $fStyle,
-      'weight' => $fontData['fWeight'] ?? $fWeight,
+        'style' => $fStyle,
+        'weight' => $fontData['fWeight'] ?? $fWeight,
     ];
 }

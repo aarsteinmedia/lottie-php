@@ -4,9 +4,7 @@ namespace LottiePHP\Elements\Helpers;
 
 /**
  * Handles AE's layer parenting property.
- *
  */
-
 abstract class HierarchyElement extends TransformElement
 {
     public $_isParent = false;
@@ -14,12 +12,12 @@ abstract class HierarchyElement extends TransformElement
     public function checkParenting()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         if (!$this->comp) {
-            throw new \Error(get_class($this) . ": comp (ElementInterface) is not implemented");
+            throw new \Error(get_class($this).': comp (ElementInterface) is not implemented');
         }
-        if ($this->data['parent'] === null) {
+        if (null === $this->data['parent']) {
             return;
         }
 

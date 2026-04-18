@@ -10,14 +10,14 @@ use function LottiePHP\Utils\createTypedArray;
 function bezierLengthPool(): PoolFactory
 {
     static $instance = null;
-    if ($instance === null) {
+    if (null === $instance) {
         $instance = new PoolFactory(
             8,
             fn () => [
-            'addedLength' => 0,
-            'lengths' => createTypedArray(ArrayType::Float32, Resolution::getDefaultCurveSegments()),
-            'percents' => createTypedArray(ArrayType::Float32, Resolution::getDefaultCurveSegments())
-      ]
+                'addedLength' => 0,
+                'lengths' => createTypedArray(ArrayType::Float32, Resolution::getDefaultCurveSegments()),
+                'percents' => createTypedArray(ArrayType::Float32, Resolution::getDefaultCurveSegments()),
+            ]
         );
     }
 

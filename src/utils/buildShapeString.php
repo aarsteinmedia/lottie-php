@@ -10,7 +10,7 @@ function buildShapeString(
     bool $closed,
     Matrix $mat
 ) {
-    if ($length === 0) {
+    if (0 === $length) {
         return '';
     }
     $_o = $pathNodes->o;
@@ -25,7 +25,7 @@ function buildShapeString(
     $oString = '';
     $shapeString = " M{$vString}";
 
-    for ($i = 1; $i < $length; $i++) {
+    for ($i = 1; $i < $length; ++$i) {
         $oVector = [$_o[$i - 1][0] ?? 0, $_o[$i - 1][1] ?? 0];
         $oString = $mat->applyToPointStringified(...$oVector);
         $iVector = [$_i[$i][0] ?? 0, $_i[$i][1] ?? 0];

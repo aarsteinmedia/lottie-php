@@ -30,7 +30,7 @@ class PoolFactory
         $element = null;
 
         if ($this->_length) {
-            $this->_length -= 1;
+            --$this->_length;
             $element = $this->pool[$this->_length];
         } else {
             $element = ($this->_create)();
@@ -39,7 +39,7 @@ class PoolFactory
         return $element;
     }
 
-    public function release(ShapePath|array $element)
+    public function release(array|ShapePath $element)
     {
         if ($this->_length === $this->_maxLength) {
             $this->pool = double($this->pool);
@@ -49,6 +49,6 @@ class PoolFactory
             ($this->_release)($element);
         }
         $this->pool[$this->_length] = $element;
-        $this->_length++;
+        ++$this->_length;
     }
 }

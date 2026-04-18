@@ -11,10 +11,11 @@ use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 class ShapeModifier extends DynamicPropertyContainer
 {
     public ?bool $closed;
-    public BaseElement $elem;
+    public BaseElement|DynamicPropertyContainer $elem;
     public ?int $frameId;
     public ?bool $k;
     public $shapes = [];
+
     public function addShape(SVGShapeData $data)
     {
         if ($this->closed) {
@@ -25,9 +26,9 @@ class ShapeModifier extends DynamicPropertyContainer
 
         /** @var SVGShapeData $shapeData */
         $shapeData = [
-          'data' => $data,
-          'localShapeCollection' => ShapeCollectionPool::newShapeCollection(),
-          'shape' => $data->sh,
+            'data' => $data,
+            'localShapeCollection' => ShapeCollectionPool::newShapeCollection(),
+            'shape' => $data->sh,
         ];
 
         array_push($this->shapes, $shapeData);
@@ -43,7 +44,7 @@ class ShapeModifier extends DynamicPropertyContainer
     }
 
     public function init(
-        BaseElement $elem,
+        BaseElement|DynamicPropertyContainer $elem,
         array $data,
         ?int $_posFromProps,
         ?array $_elemsData
@@ -62,14 +63,16 @@ class ShapeModifier extends DynamicPropertyContainer
         }
     }
 
-    public function initModifierProperties(BaseElement $_elem, array $_data)
-    {
-        throw new \Error(get_class($this) . ": Method initModifierProperties is not implemented");
+    public function initModifierProperties(
+        BaseElement|DynamicPropertyContainer $_elem,
+        array $_data
+    ) {
+        throw new \Error(get_class($this).': Method initModifierProperties is not implemented');
     }
 
     public function isAnimatedWithShape(array $_data)
     {
-        throw new \Error(get_class($this) . ": Method isAnimatedWithShape is not implemented");
+        throw new \Error(get_class($this).': Method isAnimatedWithShape is not implemented');
     }
 
     public function processKeys()

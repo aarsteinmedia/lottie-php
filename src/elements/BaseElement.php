@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Elements;
 
-use DOMElement;
 use LottiePHP\Effects\EffectsManager;
 
 use function LottiePHP\Utils\addStyles;
@@ -11,7 +10,7 @@ use function LottiePHP\Utils\getBlendMode;
 
 abstract class BaseElement
 {
-    public null|DOMElement $baseElement = null;
+    public ?\DOMElement $baseElement = null;
     public ?CompElement $comp;
     public ?array $compInterface;
     public ?array $data;
@@ -19,8 +18,8 @@ abstract class BaseElement
     public ?EffectsManager $effectsManager;
     public $frameDuration = 1;
     public ?array $globalData;
-    public array $itemsData = [];
-    public null|DOMElement $layerElement = null;
+    public ?array $itemsData = [];
+    public ?\DOMElement $layerElement = null;
     public ?string $layerId;
     public ?array $layerInterface = null;
     public ?MaskElement $maskManager;
@@ -29,18 +28,18 @@ abstract class BaseElement
 
     public function buildAllItems()
     {
-        throw new \Error(get_class($this) . ": Method buildAllItems is not implemented");
+        throw new \Error(get_class($this).': Method buildAllItems is not implemented');
     }
 
     public function checkLayers(?int $_frame)
     {
-        throw new \Error(get_class($this) . ": Method checkLayers is not implemented");
+        throw new \Error(get_class($this).': Method checkLayers is not implemented');
     }
 
     public function checkMasks()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not initialized");
+            throw new \Error(get_class($this).': data (LottieLayer) is not initialized');
         }
         if (!$this->data['hasMask']) {
             return false;
@@ -50,12 +49,12 @@ abstract class BaseElement
 
         while ($i < $length) {
             if (
-                $this->data.['masksProperties'][$i]['mode'] !== 'n' &&
-                $this->data.['masksProperties'][$i]['cl'] !== false
+                'n' !== $this->data.['masksProperties'][$i]['mode']
+                && false !== $this->data.['masksProperties'][$i]['cl']
             ) {
                 return true;
             }
-            $i++;
+            ++$i;
         }
 
         return false;
@@ -63,7 +62,7 @@ abstract class BaseElement
 
     public function destroy()
     {
-        /**
+        /*
          * If method is not implemented, it probably shouldn't throw an error
          * Pass through.
          */
@@ -71,12 +70,12 @@ abstract class BaseElement
 
     public function destroyBaseElement()
     {
-        throw new \Error(get_class($this) . ": Method destroyBaseElement is not implemented");
+        throw new \Error(get_class($this).': Method destroyBaseElement is not implemented');
     }
 
-    public function getBaseElement(): DOMElement|null
+    public function getBaseElement(): ?\DOMElement
     {
-        throw new \Error(get_class($this) . ": Method getBaseElement is not implemented");
+        throw new \Error(get_class($this).': Method getBaseElement is not implemented');
     }
 
     public function getType()
@@ -108,13 +107,13 @@ abstract class BaseElement
     public function setBlendMode()
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         $blendModeValue = getBlendMode($this->data['bm']);
         $elem = $this->baseElement ?? $this->layerElement;
 
         if (!$elem) {
-            throw new \Error(get_class($this) . ": Both baseElement and layerElement are not implemented");
+            throw new \Error(get_class($this).': Both baseElement and layerElement are not implemented');
         }
         addStyles(
             $elem,
@@ -124,6 +123,6 @@ abstract class BaseElement
 
     public function sourceRectAtTime()
     {
-        throw new \Error(get_class($this) . ": Method sourceRectAtTime is not implemented");
+        throw new \Error(get_class($this).': Method sourceRectAtTime is not implemented');
     }
 }

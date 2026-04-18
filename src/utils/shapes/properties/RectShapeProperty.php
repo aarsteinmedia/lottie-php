@@ -67,7 +67,7 @@ class RectShapeProperty extends ShapeBaseProperty
     public function convertRectToPath()
     {
         if (!$this->p) {
-            throw new \Error(get_class($this) . ": p value is not implemented");
+            throw new \Error(get_class($this).': p value is not implemented');
         }
 
         $p0 = $this->p->v[0];
@@ -85,8 +85,7 @@ class RectShapeProperty extends ShapeBaseProperty
             $this->v->_length = 0;
         }
 
-
-        if ($this->d === 2 || $this->d === 1) {
+        if (2 === $this->d || 1 === $this->d) {
             $this->v?->setTripleAt(
                 $p0 + $v0,
                 $p1 - $v1 + $round,
@@ -107,7 +106,7 @@ class RectShapeProperty extends ShapeBaseProperty
                 1,
                 true
             );
-            if ($round === 0) {
+            if (0 === $round) {
                 $this->v?->setTripleAt(
                     $p0 - $v0,
                     $p1 + $v1,
@@ -199,7 +198,7 @@ class RectShapeProperty extends ShapeBaseProperty
                 0,
                 true
             );
-            if ($round === 0) {
+            if (0 === $round) {
                 $this->v?->setTripleAt(
                     $p0 - $v0,
                     $p1 - $v1,

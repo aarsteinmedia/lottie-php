@@ -8,6 +8,7 @@ class ProcessedElement
 {
     public BaseElement $elem;
     public int $pos;
+
     public function __construct(BaseElement $element, int $position)
     {
         $this->elem = $element;

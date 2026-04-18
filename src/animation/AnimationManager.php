@@ -2,16 +2,14 @@
 
 namespace LottiePHP\Animation;
 
-use LottiePHP\Animation\AnimationItem;
-
 class AnimationManager
 {
     private static array $registeredAnimations = [];
 
     /**
      * @param array{
-     *  path: string|null,
-     *  assetsPath: string|null
+     *  path: null|string,
+     *  assetsPath: null|string
      * } $params
      */
     public static function loadAnimation(array $params)
@@ -26,7 +24,6 @@ class AnimationManager
             echo $e->getMessage();
         }
     }
-
 
     public static function setupAnimation(AnimationItem $animationItem)
     {

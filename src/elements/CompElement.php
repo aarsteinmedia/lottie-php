@@ -5,15 +5,8 @@ namespace LottiePHP\Elements;
 use LottiePHP\Elements\Helpers\RenderableDOMElement;
 use LottiePHP\Utils\Properties\BaseProperty;
 
-abstract class CompElement extends RenderableDOMElement
+trait CompTrait
 {
-    public ?bool $completeLayers;
-    public $currentFrame = 0;
-    public $elements = [];
-    public $layers = [];
-    public ?int $renderedFrame;
-    public ?BaseProperty $tm;
-
     public function destroy()
     {
         $this->destroyElements();
@@ -24,7 +17,7 @@ abstract class CompElement extends RenderableDOMElement
     {
         $length = count($this->layers);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $this->elements[$i]?->destroy();
         }
     }
@@ -33,7 +26,6 @@ abstract class CompElement extends RenderableDOMElement
     {
         return $this->elements;
     }
-
 
     public function initElement(
         array $data,
@@ -53,7 +45,7 @@ abstract class CompElement extends RenderableDOMElement
         $this->createContainerElements();
         $this->createRenderableComponents();
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         if ($this->data['xt'] || !$globalData['progressiveLoad']) {
             $this->buildAllItems();
@@ -64,7 +56,7 @@ abstract class CompElement extends RenderableDOMElement
     public function prepareFrame(int $val)
     {
         if (!$this->data) {
-            throw new \Error(get_class($this) . ": data (LottieLayer) is not implemented");
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
 
         $this->_mdf = false;
@@ -75,7 +67,7 @@ abstract class CompElement extends RenderableDOMElement
         }
 
         if ($this->tm?->_placeholder) {
-            $this->renderedFrame = $val / (int)($this->data['sr']);
+            $this->renderedFrame = $val / (int) $this->data['sr'];
         } else {
             $timeRemapped = $this->tm?->v || 0;
 
@@ -93,7 +85,7 @@ abstract class CompElement extends RenderableDOMElement
             $this->checkLayers($this->renderedFrame);
         }
         // This iteration needs to be backwards because of how expressions connect between each other
-        for ($i = $length - 1; $i >= 0; $i--) {
+        for ($i = $length - 1; $i >= 0; --$i) {
             if ($this->completeLayers || $this->elements[$i]) {
                 $this->elements[$i]?->prepareFrame($this->renderedFrame - ($this->layers[$i]['st'] ?? 0));
                 if ($this->elements[$i]?->_mdf) {
@@ -107,7 +99,7 @@ abstract class CompElement extends RenderableDOMElement
     {
         $length = count($this->layers);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             if ($this->completeLayers || $this->elements[$i]) {
                 $this->elements[$i]->renderFrame();
             }
@@ -118,4 +110,15 @@ abstract class CompElement extends RenderableDOMElement
     {
         $this->elements = $elems;
     }
+}
+abstract class CompElement extends RenderableDOMElement
+{
+    use CompTrait;
+
+    public ?bool $completeLayers;
+    public $currentFrame = 0;
+    public $elements = [];
+    public $layers = [];
+    public ?int $renderedFrame;
+    public ?BaseProperty $tm;
 }

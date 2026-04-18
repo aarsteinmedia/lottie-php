@@ -41,21 +41,18 @@ class Matrix
         int $z
     ): array {
         return [
-          'x' =>
-            $x * ($this->props[0] ?? 0) +
-            $y * ($this->props[4] ?? 0) +
-            $z * ($this->props[8] ?? 0) +
-            ($this->props[12] ?? 0),
-          'y' =>
-            $x * ($this->props[1] ?? 0) +
-            $y * ($this->props[5] ?? 0) +
-            $z * ($this->props[9] ?? 0) +
-            ($this->props[13] ?? 0),
-          'z' =>
-            $x * ($this->props[2] ?? 0) +
-            $y * ($this->props[6] ?? 0) +
-            $z * ($this->props[10] ?? 0) +
-            ($this->props[14] ?? 0),
+            'x' => $x * ($this->props[0] ?? 0)
+              + $y * ($this->props[4] ?? 0)
+              + $z * ($this->props[8] ?? 0)
+              + ($this->props[12] ?? 0),
+            'y' => $x * ($this->props[1] ?? 0)
+              + $y * ($this->props[5] ?? 0)
+              + $z * ($this->props[9] ?? 0)
+              + ($this->props[13] ?? 0),
+            'z' => $x * ($this->props[2] ?? 0)
+              + $y * ($this->props[6] ?? 0)
+              + $z * ($this->props[10] ?? 0)
+              + ($this->props[14] ?? 0),
         ];
     }
 
@@ -66,23 +63,23 @@ class Matrix
     ): array {
         if ($this->isIdentity()) {
             return [$x,
-              $y,
-              $z];
+                $y,
+                $z];
         }
 
         return [
-          $x * ($this->props[0] ?? 0) +
-          $y * ($this->props[4] ?? 0) +
-          $z * ($this->props[8] ?? 0) +
-          ($this->props[12] ?? 0),
-          $x * ($this->props[1] ?? 0) +
-          $y * ($this->props[5] ?? 0) +
-          $z * ($this->props[9] ?? 0) +
-          ($this->props[13] ?? 0),
-          $x * ($this->props[2] ?? 0) +
-          $y * ($this->props[6] ?? 0) +
-          $z * ($this->props[10] ?? 0) +
-          ($this->props[14] ?? 0),
+            $x * ($this->props[0] ?? 0)
+            + $y * ($this->props[4] ?? 0)
+            + $z * ($this->props[8] ?? 0)
+            + ($this->props[12] ?? 0),
+            $x * ($this->props[1] ?? 0)
+            + $y * ($this->props[5] ?? 0)
+            + $z * ($this->props[9] ?? 0)
+            + ($this->props[13] ?? 0),
+            $x * ($this->props[2] ?? 0)
+            + $y * ($this->props[6] ?? 0)
+            + $z * ($this->props[10] ?? 0)
+            + ($this->props[14] ?? 0),
         ];
     }
 
@@ -93,7 +90,7 @@ class Matrix
         }
         $_p = $this->props;
 
-        return round(($x * ($_p[0] ?? 0) + $y * ($_p[4] ?? 0) + ($_p[12] ?? 0)) * 100) / 100 . ',' . round(($x * ($_p[1] ?? 0) + $y * ($_p[5] ?? 0) + ($_p[13] ?? 0)) * 100) / 100;
+        return round(($x * ($_p[0] ?? 0) + $y * ($_p[4] ?? 0) + ($_p[12] ?? 0)) * 100) / 100 .','.round(($x * ($_p[1] ?? 0) + $y * ($_p[5] ?? 0) + ($_p[13] ?? 0)) * 100) / 100;
     }
 
     public function applyToTriplePoints(
@@ -105,12 +102,12 @@ class Matrix
 
         if ($this->isIdentity()) {
             $arr[] = [
-              $pt1[0] ?? 0,
-              $pt1[1] ?? 0,
-              $pt2[0] ?? 0,
-              $pt2[1] ?? 0,
-              $pt3[0] ?? 0,
-              $pt3[1] ?? 0
+                $pt1[0] ?? 0,
+                $pt1[1] ?? 0,
+                $pt2[0] ?? 0,
+                $pt2[1] ?? 0,
+                $pt3[0] ?? 0,
+                $pt3[1] ?? 0,
             ];
         } else {
             $p0 = $this->props[0] ?? 0;
@@ -121,12 +118,12 @@ class Matrix
             $p13 = $this->props[13] ?? 0;
 
             $arr[] = [
-              ($pt1[0] ?? 0) * $p0 + ($pt1[1] ?? 0) * $p4 + $p12,
-              ($pt1[0] ?? 0) * $p1 + ($pt1[1] ?? 0) * $p5 + $p13,
-              ($pt2[0] ?? 0) * $p0 + ($pt2[1] ?? 0) * $p4 + $p12,
-              ($pt2[0] ?? 0) * $p1 + ($pt2[1] ?? 0) * $p5 + $p13,
-              ($pt3[0] ?? 0) * $p0 + ($pt3[1] ?? 0) * $p4 + $p12,
-              ($pt3[0] ?? 0) * $p1 + ($pt3[1] ?? 0) * $p5 + $p13,
+                ($pt1[0] ?? 0) * $p0 + ($pt1[1] ?? 0) * $p4 + $p12,
+                ($pt1[0] ?? 0) * $p1 + ($pt1[1] ?? 0) * $p5 + $p13,
+                ($pt2[0] ?? 0) * $p0 + ($pt2[1] ?? 0) * $p4 + $p12,
+                ($pt2[0] ?? 0) * $p1 + ($pt2[1] ?? 0) * $p5 + $p13,
+                ($pt3[0] ?? 0) * $p0 + ($pt3[1] ?? 0) * $p4 + $p12,
+                ($pt3[0] ?? 0) * $p1 + ($pt3[1] ?? 0) * $p5 + $p13,
             ];
         }
 
@@ -138,9 +135,8 @@ class Matrix
         int $y,
         int $z
     ): int {
-        return (
-            $x * ($this->props[0] ?? 0) + $y * ($this->props[4] ?? 0) + $z * ($this->props[8] ?? 0) + ($this->props[12] ?? 0)
-        );
+        return
+            $x * ($this->props[0] ?? 0) + $y * ($this->props[4] ?? 0) + $z * ($this->props[8] ?? 0) + ($this->props[12] ?? 0);
     }
 
     public function applyToY(
@@ -148,9 +144,8 @@ class Matrix
         int $y,
         int $z
     ): int {
-        return (
-            $x * ($this->props[1] ?? 0) + $y * ($this->props[5] ?? 0) + $z * ($this->props[9] ?? 0) + ($this->props[13] ?? 0)
-        );
+        return
+            $x * ($this->props[1] ?? 0) + $y * ($this->props[5] ?? 0) + $z * ($this->props[9] ?? 0) + ($this->props[13] ?? 0);
     }
 
     public function applyToZ(
@@ -158,12 +153,11 @@ class Matrix
         int $y,
         int $z
     ): int {
-        return (
-            $x * $this->props[2] +
-            $y * $this->props[6] +
-            $z * $this->props[10] +
-            $this->props[14]
-        );
+        return
+            $x * $this->props[2]
+            + $y * $this->props[6]
+            + $z * $this->props[10]
+            + $this->props[14];
     }
 
     public function clone(Matrix $matr): Matrix
@@ -184,7 +178,7 @@ class Matrix
     {
         $length = count($this->props);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $val = $this->props[$i];
 
             if ($val !== $matr?->props[$i]) {
@@ -197,18 +191,18 @@ class Matrix
 
     public function getInverseMatrix(): Matrix
     {
-        $determinant =
-          ($this->props[0] ?? 0) * ($this->props[5] ?? 0) - ($this->props[1] ?? 0) * ($this->props[4] ?? 0);
+        $determinant
+          = ($this->props[0] ?? 0) * ($this->props[5] ?? 0) - ($this->props[1] ?? 0) * ($this->props[4] ?? 0);
         $a = $this->props[5] / $determinant;
         $b = -$this->props[1] / $determinant;
         $c = -$this->props[4] / $determinant;
         $d = $this->props[0] / $determinant;
-        $e =
-          ($this->props[4] * $this->props[13] - $this->props[5] * $this->props[12]) /
-          $determinant;
-        $f =
-          -($this->props[0] * $this->props[13] - $this->props[1] * $this->props[12]) /
-          $determinant;
+        $e
+          = ($this->props[4] * $this->props[13] - $this->props[5] * $this->props[12])
+          / $determinant;
+        $f
+          = -($this->props[0] * $this->props[13] - $this->props[1] * $this->props[12])
+          / $determinant;
 
         $inverseMatrix = new Matrix();
 
@@ -254,22 +248,22 @@ class Matrix
     {
         if (!$this->_identityCalculated) {
             $this->_identity = !(
-                $this->props[0] !== 1 ||
-        $this->props[1] !== 0 ||
-        $this->props[2] !== 0 ||
-        $this->props[3] !== 0 ||
-        $this->props[4] !== 0 ||
-        $this->props[5] !== 1 ||
-        $this->props[6] !== 0 ||
-        $this->props[7] !== 0 ||
-        $this->props[8] !== 0 ||
-        $this->props[9] !== 0 ||
-        $this->props[10] !== 1 ||
-        $this->props[11] !== 0 ||
-        $this->props[12] !== 0 ||
-        $this->props[13] !== 0 ||
-        $this->props[14] !== 0 ||
-        $this->props[15] !== 1
+                1 !== $this->props[0]
+        || 0 !== $this->props[1]
+        || 0 !== $this->props[2]
+        || 0 !== $this->props[3]
+        || 0 !== $this->props[4]
+        || 1 !== $this->props[5]
+        || 0 !== $this->props[6]
+        || 0 !== $this->props[7]
+        || 0 !== $this->props[8]
+        || 0 !== $this->props[9]
+        || 1 !== $this->props[10]
+        || 0 !== $this->props[11]
+        || 0 !== $this->props[12]
+        || 0 !== $this->props[13]
+        || 0 !== $this->props[14]
+        || 1 !== $this->props[15]
             );
             $this->_identityCalculated = true;
         }
@@ -285,21 +279,21 @@ class Matrix
     public function reset(): Matrix
     {
         $this->props[] = [1,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          1];
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1];
 
         return $this;
     }
@@ -398,7 +392,7 @@ class Matrix
         int $sy,
         $sz = 1
     ): Matrix {
-        if ($sx === 1 && $sy === 1 && $sz === 1) {
+        if (1 === $sx && 1 === $sy && 1 === $sz) {
             return $this;
         }
 
@@ -441,21 +435,21 @@ class Matrix
         int $p
     ): Matrix {
         $this->props[] = [$a,
-          $b,
-          $c,
-          $d,
-          $e,
-          $f,
-          $g,
-          $h,
-          $i,
-          $j,
-          $k,
-          $l,
-          $m,
-          $n,
-          $o,
-          $p];
+            $b,
+            $c,
+            $d,
+            $e,
+            $f,
+            $g,
+            $h,
+            $i,
+            $j,
+            $k,
+            $l,
+            $m,
+            $n,
+            $o,
+            $p];
 
         return $this;
     }
@@ -499,43 +493,44 @@ class Matrix
             0,
             0,
             1
-        )->
-          _t(
-              1,
-              0,
-              0,
-              0,
-              tan($ax),
-              1,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              1
-          )->
-          _t(
-              $mCos,
-              -$mSin,
-              0,
-              0,
-              $mSin,
-              $mCos,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              1
-          );
+        )
+            ->_t(
+                1,
+                0,
+                0,
+                0,
+                tan($ax),
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+            )
+            ->_t(
+                $mCos,
+                -$mSin,
+                0,
+                0,
+                $mSin,
+                $mCos,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+            )
+        ;
     }
 
     public function to2dCSS(): string
@@ -555,9 +550,9 @@ class Matrix
         $cssValue = 'matrix3d(';
         $v = 10000;
 
-        for ($i = 0; $i < 16; $i++) {
+        for ($i = 0; $i < 16; ++$i) {
             $cssValue += round(($this->props[$i] ?? 0) * $v) / $v;
-            $cssValue += $i === 15 ? ')' : ',';
+            $cssValue += 15 === $i ? ')' : ',';
         }
 
         return $cssValue;
@@ -584,18 +579,18 @@ class Matrix
         $_p = $this->props;
 
         if (
-            $a2 === 1 &&
-            $b2 === 0 &&
-            $c2 === 0 &&
-            $d2 === 0 &&
-            $e2 === 0 &&
-            $f2 === 1 &&
-            $g2 === 0 &&
-            $h2 === 0 &&
-            $i2 === 0 &&
-            $j2 === 0 &&
-            $k2 === 1 &&
-            $l2 === 0
+            1 === $a2
+            && 0 === $b2
+            && 0 === $c2
+            && 0 === $d2
+            && 0 === $e2
+            && 1 === $f2
+            && 0 === $g2
+            && 0 === $h2
+            && 0 === $i2
+            && 0 === $j2
+            && 1 === $k2
+            && 0 === $l2
         ) {
             $_p[12] = ($_p[12] ?? 0) * $a2 + ($_p[15] ?? 0) * $m2;
             $_p[13] = ($_p[13] ?? 0) * $f2 + ($_p[15] ?? 0) * $n2;
@@ -656,7 +651,7 @@ class Matrix
         // Reassign instead of default parameter, to normalize negative and catch NaN values
         $tz = $tzFromProps || 0;
 
-        if ($tx !== 0 || $ty !== 0 || $tz !== 0) {
+        if (0 !== $tx || 0 !== $ty || 0 !== $tz) {
             return $this->_t(
                 1,
                 0,
