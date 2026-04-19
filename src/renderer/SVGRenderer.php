@@ -3,12 +3,13 @@
 namespace LottiePHP\Renderer;
 
 use LottiePHP\Animation\AnimationItem;
+use LottiePHP\Elements\SVGCompElement;
 
 use function LottiePHP\Utils\createNS;
 
 class SVGRenderer extends SVGRendererBase
 {
-    public AnimationItem $animationItem;
+    public ?AnimationItem $animationItem;
     public ?\DOMElement $layerElement;
     public array $renderConfig;
     private \DOMDocument $_dom;
@@ -45,8 +46,12 @@ class SVGRenderer extends SVGRendererBase
         ];
     }
 
-    public function createComp(array $data): SVGCompElement
-    {
+    public function createComp(
+        array $data,
+        ?\DOMElement $_container = null,
+        ?array $_comp = null,
+        $_ = null
+    ): SVGCompElement {
         if (!$this->globalData) {
             throw new \Error(get_class($this).': Can\'t access globalData');
         }

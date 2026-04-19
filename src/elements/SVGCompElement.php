@@ -3,8 +3,8 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Elements\Helpers\RenderableElementTraits;
+use LottiePHP\Renderer\BaseRenderer;
 use LottiePHP\Renderer\RendererTraits;
-use LottiePHP\Renderer\SVGRendererBase;
 use LottiePHP\Renderer\SVGRendererTraits;
 use LottiePHP\Utils\Properties\KeyframedValueProperty;
 use LottiePHP\Utils\PropertyFactory;
@@ -34,7 +34,7 @@ class SVGCompElement extends SVGBaseElement
     public function __construct(
         array $data,
         array $globalData,
-        SVGCompElement|SVGTextLottieElement $comp
+        BaseRenderer|SVGCompElement|SVGTextLottieElement $comp
     ) {
         $this->layers = $data['layers'];
         $this->elements = createSizedArray(count($this->layers ?? []));
@@ -52,7 +52,7 @@ class SVGCompElement extends SVGBaseElement
         ) : ['_placeholder' => true]);
     }
 
-    public function createComp(array $data)
+    public function createComp(array $data): SVGCompElement
     {
         if (!$this->globalData) {
             throw new \Error(get_class($this).': Cannot access global data');

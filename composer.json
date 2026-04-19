@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "autoload": {
     "psr-4": {
-      "AarsteinMedia\\LottiePHP\\": "src/"
+      "LottiePHP\\": "src/"
     },
     "files": [
       "src/utils/index.php",
@@ -20,7 +20,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "AarsteinMedia\\LottiePHP\\Tests\\": "tests/"
+      "LottiePHP\\Tests\\": "tests/"
     }
   },
   "require": {
