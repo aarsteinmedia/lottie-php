@@ -2,6 +2,8 @@
 
 namespace LottiePHP;
 
+require dirname(__DIR__, 1) . '/vendor/autoload.php';
+
 use LottiePHP\Animation\AnimationManager;
 
 use function LottiePHP\Utils\DotLottie\getAnimationData;
@@ -19,7 +21,7 @@ class LottieToSVG
         try {
             // Load the resource
             [
-                'animations' => $animations, 'manifest' => $manifest,
+                'animations' => $animations,
             ] = getAnimationData($path);
 
             if (

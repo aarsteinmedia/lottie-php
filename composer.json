@@ -3,12 +3,24 @@
   "version": "0.1.0",
   "autoload": {
     "psr-4": {
-      "LottiePHP\\": "src/"
-    }
+      "AarsteinMedia\\LottiePHP\\": "src/"
+    },
+    "files": [
+      "src/utils/index.php",
+      "src/utils/buildShapeString.php",
+      "src/utils/getFontProperties.php",
+      "src/utils/dotLottie/getAnimationData.php",
+      "src/utils/dotLottie/getLottieJSON.php",
+      "src/utils/dotLottie/resolveAssets.php",
+      "src/utils/pooling/bezierLengthPool.php",
+      "src/utils/pooling/double.php",
+      "src/utils/pooling/pointPool.php",
+      "src/utils/pooling/segmentLengthPool.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
-      "LottiePHP\\Tests\\": "tests/"
+      "AarsteinMedia\\LottiePHP\\Tests\\": "tests/"
     }
   },
   "require": {
