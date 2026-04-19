@@ -174,7 +174,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
             return;
         }
 
-        $this->_caching = $this->_caching ?? [];
+        $this->_caching ??= [];
 
         $frameNum = (int) $this->comp?->renderedFrame - $this->offsetTime;
         $initTime = ($this->keyframes[0]['t'] ?? 0) - $this->offsetTime;

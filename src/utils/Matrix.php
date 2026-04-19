@@ -135,8 +135,7 @@ class Matrix
         int $y,
         int $z
     ): int {
-        return
-            $x * ($this->props[0] ?? 0) + $y * ($this->props[4] ?? 0) + $z * ($this->props[8] ?? 0) + ($this->props[12] ?? 0);
+        return $x * ($this->props[0] ?? 0) + $y * ($this->props[4] ?? 0) + $z * ($this->props[8] ?? 0) + ($this->props[12] ?? 0);
     }
 
     public function applyToY(
@@ -144,8 +143,7 @@ class Matrix
         int $y,
         int $z
     ): int {
-        return
-            $x * ($this->props[1] ?? 0) + $y * ($this->props[5] ?? 0) + $z * ($this->props[9] ?? 0) + ($this->props[13] ?? 0);
+        return $x * ($this->props[1] ?? 0) + $y * ($this->props[5] ?? 0) + $z * ($this->props[9] ?? 0) + ($this->props[13] ?? 0);
     }
 
     public function applyToZ(

@@ -150,7 +150,7 @@ class FontManager
         if (!$chars) {
             return;
         }
-        $this->chars = $this->chars ?? [];
+        $this->chars ??= [];
         $length = count($chars);
         $j = 0;
         $jLen = count($this->chars);

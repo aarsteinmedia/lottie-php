@@ -140,7 +140,7 @@ class StarShapeProperty extends ShapeBaseProperty
             $currentAng += $angle * $dir;
         }
 
-        /** @var ShapeCollection $emptyCollection */
+        /**  ShapeCollection $emptyCollection */
         $emptyCollection = [];
         $this->paths = $emptyCollection;
         $this->paths[0] = $this->v;

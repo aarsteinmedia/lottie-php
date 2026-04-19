@@ -19,7 +19,9 @@ class ShapePool
         }
 
         /** @var ShapePath $el */
-        return self::$_factory->newElement(...);
+        $el = self::$_factory->newElement(...);
+        
+        return $el;
     }
 
     public static function release(...$args)

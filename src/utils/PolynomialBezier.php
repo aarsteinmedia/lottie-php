@@ -127,8 +127,8 @@ class PolynomialBezier
         $tolerance = $toleranceFromProps;
         $maxRecursion = $maxRecursionFromProps;
 
-        $tolerance = $tolerance ?? 2;
-        $maxRecursion = $maxRecursion ?? 7;
+        $tolerance ??= 2;
+        $maxRecursion ??= 7;
         $intersections = [];
 
         $this->intersectsImpl(

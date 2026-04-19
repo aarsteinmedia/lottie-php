@@ -69,7 +69,7 @@ class PropertyFactory
                     break;
             }
         }
-        $p = $p ?? new NoProperty();
+        $p ??= new NoProperty();
         if (count($p['effectsSequence']) > 0) {
             ($container['addDynamicProperty'] ?? null)($p);
         }

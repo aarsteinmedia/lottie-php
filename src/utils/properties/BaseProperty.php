@@ -62,7 +62,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
 
     public function getValueAtCurrentTime()
     {
-        $this->_caching = $this->_caching ?? [];
+        $this->_caching ??= [];
 
         if (null === $this->initFrame) {
             $this->initFrame = Constants::$initialDefaultFrame;
@@ -140,7 +140,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
             'keyframesMetadata' => $keyframesMetadata,
             'propType' => $propType,
         ] = (array) $this;
-        $keyframes = $keyframes ?? [];
+        $keyframes ??= [];
         $iterationIndex = $caching['lastIndex'] || 0;
         $i = $iterationIndex;
         $len = count($keyframes) - 1;
@@ -183,7 +183,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $endValue = null;
 
         if ($keyData['to'] && $keyData['s']) {
-            $keyframeMetadata['bezierData'] = $keyframeMetadata['bezierData'] ?? Bezier::buildBezierData(
+            $keyframeMetadata['bezierData'] ??= Bezier::buildBezierData(
                 $keyData['s'],
                 $nextKeyData['s'] ?? $keyData['e'],
                 $keyData['to'],
@@ -312,7 +312,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                             $perc = 0;
                         } else {
                             if ('array' === gettype($keyData['o']['x'])) {
-                                $keyframeMetadata['__fnct'] = $keyframeMetadata['__fnct'] ?? [];
+                                $keyframeMetadata['__fnct'] ??= [];
                                 if ($keyframeMetadata['__fnct'][$i]) {
                                     $fnc = $keyframeMetadata['__fnct'][$i];
                                 } elseif (

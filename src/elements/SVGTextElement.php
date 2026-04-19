@@ -144,7 +144,7 @@ class SVGTextLottieElement extends TextElement
                 $tSpan->setAttribute('y', $yPos);
                 addStyles($tSpan, ['display' => 'inherit']);
                 $tElement?->appendChild($tSpan);
-                $this->textSpans[$i] = $this->textSpans[$i] ?? [
+                $this->textSpans[$i] ??= [
                     'glyph' => null,
                     'span' => null,
                 ];
@@ -160,7 +160,7 @@ class SVGTextLottieElement extends TextElement
             $charData = null;
 
             for ($i = 0; $i < $len; ++$i) {
-                $this->textSpans[$i] = $this->textSpans[$i] ?? [
+                $this->textSpans[$i] ??= [
                     'childSpan' => null,
                     'glyph' => null,
                     'span' => null,

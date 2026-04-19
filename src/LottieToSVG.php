@@ -30,11 +30,9 @@ class LottieToSVG
             }
 
             // Initialize lottie player and load animation
-            $animationItem = AnimationManager::loadAnimation([
+            return AnimationManager::loadAnimation([
                 'animationData' => $animations[0],
             ]);
-
-            return $animationItem;
         } catch (\Exception $error) {
             error_log($error->getMessage());
         }

@@ -402,7 +402,7 @@ class OffsetPathModifier extends ShapeModifier
             $p2b
         );
 
-        $p1 = $p1 ?? $p1a;
+        $p1 ??= $p1a;
         $p2 = $this->lineIntersection(
             $p2a,
             $p3,
@@ -410,7 +410,7 @@ class OffsetPathModifier extends ShapeModifier
             $p2b
         );
 
-        $p2 = $p2 ?? $p2a;
+        $p2 ??= $p2a;
 
         return new PolynomialBezier(
             $p0,

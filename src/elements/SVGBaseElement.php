@@ -147,7 +147,7 @@ trait SVGBaseTraits
         // This should not be a common case. But for backward compatibility, we'll create the matte object.
         // It solves animations that have two consecutive layers marked as matte masks.
         // Which is an undefined behavior in AE.
-        $this->matteMasks = $this->matteMasks ?? [];
+        $this->matteMasks ??= [];
         if ($this->matteMasks[$matteType]) {
             return $this->matteMasks[$matteType];
         }

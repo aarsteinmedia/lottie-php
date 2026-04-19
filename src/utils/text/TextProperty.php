@@ -640,7 +640,7 @@ class TextProperty extends BaseProperty
         }
         $index = $indexFromProps;
 
-        $index = $index ?? $this->keysIndex;
+        $index ??= $this->keysIndex;
         $dData = $this->copyData([], $this->data['d']['k'][$index]['s'] ?? []);
 
         $dData = $this->copyData($dData, $newData);
