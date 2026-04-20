@@ -4,7 +4,6 @@ namespace LottiePHP\Utils\Properties;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\PropType;
-use LottiePHP\Utils\Text\TextAnimatorProperty;
 
 class ValueProperty extends BaseProperty
 {

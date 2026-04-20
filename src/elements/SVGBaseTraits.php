@@ -283,4 +283,3 @@ trait SVGBaseTraits
         $this->matteElement->setAttribute('mask', "url({$locationHref}#{$id})");
     }
 }
-

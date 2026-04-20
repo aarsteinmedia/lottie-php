@@ -8,6 +8,7 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
 {
     public ?bool $_isAnimated;
     public ?bool $_mdf;
+
     /**
      * In the original TS implementation this is a structural type (“anything with addDynamicProperty”).
      * In PHP we keep it loose to avoid brittle cross-hierarchy typing in this port.

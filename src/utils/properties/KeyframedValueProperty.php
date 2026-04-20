@@ -3,7 +3,6 @@
 namespace LottiePHP\Utils\Properties;
 
 use LottiePHP\Elements\BaseElement;
-use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\PropType;
 
 class KeyframedValueProperty extends BaseProperty
