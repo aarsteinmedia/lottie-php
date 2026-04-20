@@ -12,7 +12,6 @@ class SVGRenderer extends SVGRendererBase
     public ?AnimationItem $animationItem;
     public ?\DOMElement $layerElement;
     public array $renderConfig;
-    private \DOMDocument $_dom;
 
     public function __construct(AnimationItem $animationItem, ?array $config = [])
     {
@@ -20,6 +19,7 @@ class SVGRenderer extends SVGRendererBase
 
         $this->_dom = new \DOMDocument('1.0', 'UTF-8');
         $this->svgElement = createNS('svg', $this->_dom);
+        $this->_dom->appendChild($this->svgElement);
 
         $defs = createNS('defs', $this->_dom);
         $this->svgElement->appendChild($defs);
@@ -28,22 +28,47 @@ class SVGRenderer extends SVGRendererBase
         $this->svgElement->appendChild($mask);
         $this->layerElement = $mask;
 
-        $this->renderConfig[] = [
-            'contentVisibility' => $config['contentVisibility'] || 'visible',
+        // Lottie-web expects a globalData bag available everywhere.
+        // For still rendering we keep this minimal but non-null.
+        $this->globalData = [
+            'defs' => $defs,
+            'frameNum' => 0,
+            'frameId' => 0,
+            '_mdf' => true,
+            'progressiveLoad' => false,
+            'projectInterface' => [
+                'currentFrame' => 0,
+                'registerComposition' => static function (): void {},
+            ],
+        ];
+
+        $this->renderConfig = [
+            'contentVisibility' => $config['contentVisibility'] ?? 'visible',
             'filterSize' => [
                 'height' => $config['filterSize']['height'] ?? '100%',
                 'width' => $config['filterSize']['width'] ?? '100%',
                 'x' => $config['filterSize']['x'] ?? '0%',
                 'y' => $config['filterSize']['y'] ?? '0%',
             ],
-            'focusable' => $config['focusable'],
-            'height' => $config['height'],
-            'hideOnTransparent' => false !== $config['hideOnTransparent'],
-            'imagePreserveAspectRatio' => $config['imagePreserveAspectRatio'] || 'xMidYMid slice',
-            'preserveAspectRatio' => $config['preserveAspectRatio'] || 'xMidYMid meet',
-            'viewBoxSize' => $config['viewBoxSize'] || false,
-            'width' => $config['width'],
+            'focusable' => $config['focusable'] ?? null,
+            'height' => $config['height'] ?? null,
+            'hideOnTransparent' => false !== ($config['hideOnTransparent'] ?? true),
+            'imagePreserveAspectRatio' => $config['imagePreserveAspectRatio'] ?? 'xMidYMid slice',
+            'preserveAspectRatio' => $config['preserveAspectRatio'] ?? 'xMidYMid meet',
+            'viewBoxSize' => $config['viewBoxSize'] ?? false,
+            'width' => $config['width'] ?? null,
+            'viewBoxOnly' => $config['viewBoxOnly'] ?? false,
+            'className' => $config['className'] ?? null,
+            'id' => $config['id'] ?? null,
+            'progressiveLoad' => $config['progressiveLoad'] ?? false,
         ];
+    }
+
+    public function toSVGString(): string
+    {
+        $xml = $this->svgElement->ownerDocument?->saveXML($this->svgElement);
+
+        return is_string($xml) ? $xml : '';
     }
 
     public function createComp(

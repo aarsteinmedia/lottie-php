@@ -9,18 +9,18 @@ use LottiePHP\Utils\Enums\PropType;
 class KeyframedValueProperty extends BaseProperty
 {
     public ?string $selectorValue;
-    public int $v;
+    // BaseProperty defines `$v` already. Avoid redeclaring with a narrower type.
 
     public function __construct(
         BaseElement|BaseProperty $elem,
-        SVGShapeData $data,
-        ?int $mult = null,
-        ?BaseElement $container = null
+        array $data,
+        ?float $mult = null,
+        BaseElement|BaseProperty|null $container = null
     ) {
         $this->propType = PropType::UniDimensional;
         $this->keyframes = $data['k'];
         $this->keyframesMetadata = [];
-        $this->offsetTime = $elem['data']['st'];
+        $this->offsetTime = $elem['data']['st'] ?? 0;
         $this->frameId = -1;
         $this->_caching = [
             '_lastKeyframeIndex' => -1,
@@ -31,7 +31,7 @@ class KeyframedValueProperty extends BaseProperty
         $this->k = true;
         $this->kf = true;
         $this->data = $data;
-        $this->mult = $mult || 1;
+        $this->mult = $mult ?? 1.0;
         $this->elem = $elem;
         $this->container = $container;
         $this->comp = $elem['comp'];

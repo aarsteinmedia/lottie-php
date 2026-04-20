@@ -17,7 +17,7 @@ class PropertyFactory
         BaseElement|BaseProperty $elem,
         ?array $dataFromProps,
         ?int $type = null,
-        ?int $mult = null,
+        ?float $mult = null,
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $data = $dataFromProps;
@@ -28,14 +28,22 @@ class PropertyFactory
         }
         $p = null;
 
-        if (!count($data['k'] ?? [])) {
+        $k = $data['k'] ?? null;
+        if (!is_array($k)) {
             $p = new ValueProperty(
                 $elem,
                 $data,
                 $mult,
                 $container
             );
-        } elseif ('number' === gettype($data['k'][0] ?? null)) {
+        } elseif (!count($k)) {
+            $p = new ValueProperty(
+                $elem,
+                $data,
+                $mult,
+                $container
+            );
+        } elseif ('number' === gettype($k[0] ?? null)) {
             $p = new MultiDimensionalProperty(
                 $elem,
                 $data,

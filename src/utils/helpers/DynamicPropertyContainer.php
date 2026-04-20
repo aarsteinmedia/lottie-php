@@ -4,11 +4,15 @@ namespace LottiePHP\Utils\Helpers;
 
 use LottiePHP\Utils\Enums\PropType;
 
-abstract class DynamicPropertyContainer
+abstract class DynamicPropertyContainer implements \ArrayAccess
 {
     public ?bool $_isAnimated;
     public ?bool $_mdf;
-    public ?DynamicPropertyContainer $container;
+    /**
+     * In the original TS implementation this is a structural type (“anything with addDynamicProperty”).
+     * In PHP we keep it loose to avoid brittle cross-hierarchy typing in this port.
+     */
+    public mixed $container = null;
     public ?array $data;
     public $dynamicProperties = [];
     public ?bool $hd;
@@ -22,7 +26,11 @@ abstract class DynamicPropertyContainer
             return;
         }
         array_push($this->dynamicProperties, $prop);
-        $this->container['addDynamicProperty']($this);
+        if (is_object($this->container) && method_exists($this->container, 'addDynamicProperty')) {
+            $this->container->addDynamicProperty($this);
+        } elseif (is_array($this->container) && isset($this->container['addDynamicProperty']) && is_callable($this->container['addDynamicProperty'])) {
+            ($this->container['addDynamicProperty'])($this);
+        }
         $this->_isAnimated = true;
     }
 
@@ -31,7 +39,7 @@ abstract class DynamicPropertyContainer
         throw new \Error(get_class($this).': Method getValue is not implemented');
     }
 
-    public function initDynamicPropertyContainer(DynamicPropertyContainer $container)
+    public function initDynamicPropertyContainer(mixed $container)
     {
         $this->container = $container;
         $this->dynamicProperties = [];
@@ -58,5 +66,35 @@ abstract class DynamicPropertyContainer
     {
         // Pass through
         // throw new Error('Method is not implemented')
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return is_string($offset) && property_exists($this, $offset);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        if (!is_string($offset) || !property_exists($this, $offset)) {
+            return null;
+        }
+
+        return $this->{$offset};
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        if (!is_string($offset)) {
+            return;
+        }
+        $this->{$offset} = $value;
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        if (!is_string($offset) || !property_exists($this, $offset)) {
+            return;
+        }
+        $this->{$offset} = null;
     }
 }

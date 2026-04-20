@@ -2,6 +2,7 @@
 
 namespace LottiePHP\Elements;
 
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Elements\Helpers\RenderableElement;
 use LottiePHP\Elements\Helpers\Shapes\ShapeGroupData;
 use LottiePHP\Elements\Helpers\Shapes\SVGElementsRenderer;
@@ -52,7 +53,7 @@ class SVGShapeElement extends ShapeElement
     public function __construct(
         array $data,
         array $globalData,
-        RenderableElement|SVGCompElement $comp
+        RenderableElement|SVGCompElement|BaseElement $comp
     ) {
         $this->identityMatrix = new Matrix();
 

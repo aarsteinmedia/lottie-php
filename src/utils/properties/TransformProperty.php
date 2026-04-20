@@ -39,10 +39,12 @@ class TransformProperty extends BaseProperty
     public ?ValueProperty $rx;
     public ?ValueProperty $ry;
     public ?ValueProperty $rz;
-    public ?BaseProperty $s;
+    // BaseProperty already defines `$s` (untyped). Keep child untyped to satisfy PHP covariance rules.
+    public $s;
     public ?ValueProperty $sa;
     public ?ValueProperty $sk;
-    public Matrix $v;
+    // BaseProperty defines `$v` (untyped). Keep child untyped.
+    public $v;
     private $defaultVector = [0, 0];
 
     public function __construct(
@@ -533,20 +535,5 @@ class TransformProperty extends BaseProperty
             ;
             $this->appliedTransformations = 4;
         }
-    }
-}
-
-class TransformPropertyFactory
-{
-    public static function getTransformProperty(
-        BaseElement|DynamicPropertyContainer $elem,
-        array $data,
-        BaseElement|DynamicPropertyContainer|null $container
-    ) {
-        return new TransformProperty(
-            $elem,
-            $data,
-            $container
-        );
     }
 }

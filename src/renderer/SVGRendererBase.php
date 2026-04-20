@@ -190,7 +190,6 @@ trait SVGRendererTraits
                 );
             }
 
-            $this->animationItem->wrapper?->appendChild($this->svgElement);
             // Mask animation
             $defs = $this->globalData['defs'];
 
@@ -316,7 +315,7 @@ abstract class SVGRendererBase extends BaseRenderer
     public $destroyed = false;
     public array $renderConfig = [];
     public \DOMElement $svgElement;
-    private \DOMDocument $_dom;
+    protected \DOMDocument $_dom;
 
     public function destroy()
     {
@@ -386,7 +385,9 @@ abstract class SVGRendererBase extends BaseRenderer
                 }
             }
 
-            if ($this->globalData['_mdf']) {
+            // For still rendering we must draw at least once (frame 0),
+            // even if no dynamic properties report _mdf changes.
+            if ($this->globalData['_mdf'] || 0 === (int) $num) {
                 for ($i = 0; $i < $length; ++$i) {
                     if ('boolean' === gettype($this->elements[$i])) {
                         continue;

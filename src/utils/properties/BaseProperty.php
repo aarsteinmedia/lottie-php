@@ -20,7 +20,9 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public bool|int $_isFirstFrame = false;
     public ?string $_name;
     public ?bool $_placeholder;
-    public ?array $comp;
+    // In this port, `$comp` is sometimes treated like a composition/element reference.
+    // Keep it loose to avoid type errors during rendering.
+    public mixed $comp = null;
     public array|ValueProperty $e;
     public $effectsSequence = [];
     public BaseElement|BaseProperty|null $elem;

@@ -93,14 +93,14 @@ class AnimationItem
         try {
             $this->renderer = new SVGRenderer(
                 $this,
-                $params['rendererSettings']
+                $params['rendererSettings'] ?? []
             );
 
-            if ($params['assetsPath']) {
+            if (!empty($params['assetsPath'])) {
                 $this->assetsPath = $params['assetsPath'];
             }
 
-            if ($params['animationData']) {
+            if (!empty($params['animationData'])) {
                 ['animationData' => $animationData] = $params;
 
                 $this->setupAnimation($animationData);
@@ -108,7 +108,7 @@ class AnimationItem
                 return;
             }
 
-            $path = $params['path'];
+            $path = $params['path'] ?? null;
 
             if (!$path) {
                 return;

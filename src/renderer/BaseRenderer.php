@@ -14,8 +14,6 @@ use LottiePHP\Elements\SVGShapeElement;
 use LottiePHP\Elements\SVGTextLottieElement;
 use LottiePHP\Utils\FontManager;
 
-use function LottiePHP\Utils\slotFactory;
-
 trait RendererTraits
 {
     public function buildAllItems()
@@ -227,15 +225,18 @@ trait RendererTraits
             throw new \Error(get_class($this).': animationItem is not implemented');
         }
         $this->globalData['fontManager'] = new FontManager();
-        $this->globalData['slotManager'] = slotFactory($animData);
-        $this->globalData['fontManager']->addChars($animData['chars']);
-        $this->globalData['fontManager']->addFonts($animData['fonts'], $fontsContainer);
+        // Slot manager is used for runtime text/image replacement in players.
+        // For a still frame renderer we can omit it safely.
+        $this->globalData['slotManager'] = null;
+        $this->globalData['fontManager']->addChars($animData['chars'] ?? []);
+        $this->globalData['fontManager']->addFonts($animData['fonts'] ?? [], $fontsContainer);
 
-        $this->globalData['imageLoader'] = $this->animationItem['imagePreloader'];
-        $this->globalData['audioController'] = $this->animationItem['audioController'];
+        // Not needed for still SVG output (keep null-safe to avoid crashes).
+        $this->globalData['imageLoader'] = null;
+        $this->globalData['audioController'] = null;
         $this->globalData['frameId'] = 0;
-        $this->globalData['frameRate'] = (int) $animData['fr'] || 60;
-        $this->globalData['nm'] = $animData['nm'];
+        $this->globalData['frameRate'] = (int) ($animData['fr'] ?? 60);
+        $this->globalData['nm'] = $animData['nm'] ?? '';
         $this->globalData['compSize'] = [
             'h' => $animData['h'],
             'w' => $animData['w'],

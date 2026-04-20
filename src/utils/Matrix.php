@@ -2,8 +2,6 @@
 
 namespace LottiePHP\Utils;
 
-use LottiePHP\Utils\Enums\ArrayType;
-
 /* !
  Transformation Matrix v2.0
  (c) Epistemex 2014-2015
@@ -30,15 +28,14 @@ class Matrix
 
     public function __construct()
     {
+        $this->props = array_fill(0, 16, 0.0);
         $this->reset();
-
-        $this->props = createTypedArray(ArrayType::Float32, 16);
     }
 
     public function applyToPoint(
-        int $x,
-        int $y,
-        int $z
+        float $x,
+        float $y,
+        float $z
     ): array {
         return [
             'x' => $x * ($this->props[0] ?? 0)
@@ -57,9 +54,9 @@ class Matrix
     }
 
     public function applyToPointArray(
-        int $x,
-        int $y,
-        int $z
+        float $x,
+        float $y,
+        float $z
     ): array {
         if ($this->isIdentity()) {
             return [$x,
@@ -83,7 +80,7 @@ class Matrix
         ];
     }
 
-    public function applyToPointStringified(int $x, int $y): string
+    public function applyToPointStringified(float $x, float $y): string
     {
         if ($this->isIdentity()) {
             return "{$x},{$y}";
@@ -98,10 +95,10 @@ class Matrix
         array $pt2,
         array $pt3
     ): array {
-        $arr = createTypedArray(ArrayType::Float32, 6);
+        $arr = array_fill(0, 6, 0.0);
 
         if ($this->isIdentity()) {
-            $arr[] = [
+            $arr = [
                 $pt1[0] ?? 0,
                 $pt1[1] ?? 0,
                 $pt2[0] ?? 0,
@@ -117,7 +114,7 @@ class Matrix
             $p12 = $this->props[12] ?? 0;
             $p13 = $this->props[13] ?? 0;
 
-            $arr[] = [
+            $arr = [
                 ($pt1[0] ?? 0) * $p0 + ($pt1[1] ?? 0) * $p4 + $p12,
                 ($pt1[0] ?? 0) * $p1 + ($pt1[1] ?? 0) * $p5 + $p13,
                 ($pt2[0] ?? 0) * $p0 + ($pt2[1] ?? 0) * $p4 + $p12,
@@ -131,26 +128,26 @@ class Matrix
     }
 
     public function applyToX(
-        int $x,
-        int $y,
-        int $z
-    ): int {
+        float $x,
+        float $y,
+        float $z
+    ): float {
         return $x * ($this->props[0] ?? 0) + $y * ($this->props[4] ?? 0) + $z * ($this->props[8] ?? 0) + ($this->props[12] ?? 0);
     }
 
     public function applyToY(
-        int $x,
-        int $y,
-        int $z
-    ): int {
+        float $x,
+        float $y,
+        float $z
+    ): float {
         return $x * ($this->props[1] ?? 0) + $y * ($this->props[5] ?? 0) + $z * ($this->props[9] ?? 0) + ($this->props[13] ?? 0);
     }
 
     public function applyToZ(
-        int $x,
-        int $y,
-        int $z
-    ): int {
+        float $x,
+        float $y,
+        float $z
+    ): float {
         return
             $x * $this->props[2]
             + $y * $this->props[6]
@@ -160,14 +157,15 @@ class Matrix
 
     public function clone(Matrix $matr): Matrix
     {
-        $matr->props[] = $this->props;
+        $matr->props = $this->props;
 
         return $matr;
     }
 
     public function cloneFromProps(array $props): Matrix
     {
-        $this->props[] = $props;
+        $this->props = $props;
+        $this->_identityCalculated = false;
 
         return $this;
     }
@@ -276,27 +274,18 @@ class Matrix
 
     public function reset(): Matrix
     {
-        $this->props[] = [1,
-            0,
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            0,
-            1];
+        $this->props = [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+        ];
+        $this->_identityCalculated = false;
 
         return $this;
     }
 
-    public function rotate(?int $angle): Matrix
+    public function rotate(?float $angle): Matrix
     {
         if (!$angle) {
             return $this;
@@ -324,7 +313,7 @@ class Matrix
         );
     }
 
-    public function rotateX(?int $angle): Matrix
+    public function rotateX(?float $angle): Matrix
     {
         if (!$angle) {
             return $this;
@@ -352,7 +341,7 @@ class Matrix
         );
     }
 
-    public function rotateY(?int $angle): Matrix
+    public function rotateY(?float $angle): Matrix
     {
         if (!$angle) {
             return $this;
@@ -380,15 +369,15 @@ class Matrix
         );
     }
 
-    public function rotateZ(?int $angle): Matrix
+    public function rotateZ(?float $angle): Matrix
     {
         return $this->rotate($angle);
     }
 
     public function scale(
-        int $sx,
-        int $sy,
-        $sz = 1
+        float $sx,
+        float $sy,
+        float $sz = 1.0
     ): Matrix {
         if (1 === $sx && 1 === $sy && 1 === $sz) {
             return $this;
@@ -415,44 +404,35 @@ class Matrix
     }
 
     public function setTransform(
-        int $a,
-        int $b,
-        int $c,
-        int $d,
-        int $e,
-        int $f,
-        int $g,
-        int $h,
-        int $i,
-        int $j,
-        int $k,
-        int $l,
-        int $m,
-        int $n,
-        int $o,
-        int $p
+        float $a,
+        float $b,
+        float $c,
+        float $d,
+        float $e,
+        float $f,
+        float $g,
+        float $h,
+        float $i,
+        float $j,
+        float $k,
+        float $l,
+        float $m,
+        float $n,
+        float $o,
+        float $p
     ): Matrix {
-        $this->props[] = [$a,
-            $b,
-            $c,
-            $d,
-            $e,
-            $f,
-            $g,
-            $h,
-            $i,
-            $j,
-            $k,
-            $l,
-            $m,
-            $n,
-            $o,
-            $p];
+        $this->props = [
+            $a, $b, $c, $d,
+            $e, $f, $g, $h,
+            $i, $j, $k, $l,
+            $m, $n, $o, $p,
+        ];
+        $this->_identityCalculated = false;
 
         return $this;
     }
 
-    public function shear(int $sx, int $sy): Matrix
+    public function shear(float $sx, float $sy): Matrix
     {
         return $this->_t(
             1,
@@ -464,12 +444,12 @@ class Matrix
         );
     }
 
-    public function skew(int $ax, int $ay): Matrix
+    public function skew(float $ax, float $ay): Matrix
     {
         return $this->shear(tan($ax), tan($ay));
     }
 
-    public function skewFromAxis(int $ax, int $angle): Matrix
+    public function skewFromAxis(float $ax, float $angle): Matrix
     {
         $mCos = cos($angle);
         $mSin = sin($angle);
@@ -545,34 +525,32 @@ class Matrix
 
     public function toCSS(): string
     {
-        $cssValue = 'matrix3d(';
         $v = 10000;
-
+        $parts = [];
         for ($i = 0; $i < 16; ++$i) {
-            $cssValue += round(($this->props[$i] ?? 0) * $v) / $v;
-            $cssValue += 15 === $i ? ')' : ',';
+            $parts[] = (string) (round(($this->props[$i] ?? 0) * $v) / $v);
         }
 
-        return $cssValue;
+        return 'matrix3d('.implode(',', $parts).')';
     }
 
     public function transform(
-        int $a2,
-        int $b2,
-        int $c2,
-        int $d2,
-        int $e2,
-        int $f2,
-        int $g2,
-        int $h2,
-        int $i2,
-        int $j2,
-        int $k2,
-        int $l2,
-        int $m2,
-        int $n2,
-        int $o2,
-        int $p2
+        float $a2,
+        float $b2,
+        float $c2,
+        float $d2,
+        float $e2,
+        float $f2,
+        float $g2,
+        float $h2,
+        float $i2,
+        float $j2,
+        float $k2,
+        float $l2,
+        float $m2,
+        float $n2,
+        float $o2,
+        float $p2
     ): Matrix {
         $_p = $this->props;
 
@@ -642,12 +620,12 @@ class Matrix
     }
 
     public function translate(
-        int $tx,
-        int $ty,
-        ?int $tzFromProps = null
+        float $tx,
+        float $ty,
+        ?float $tzFromProps = null
     ) {
         // Reassign instead of default parameter, to normalize negative and catch NaN values
-        $tz = $tzFromProps || 0;
+        $tz = $tzFromProps ?? 0;
 
         if (0 !== $tx || 0 !== $ty || 0 !== $tz) {
             return $this->_t(
@@ -673,12 +651,12 @@ class Matrix
         return $this;
     }
 
-    private function _t(int ...$args): Matrix
+    private function _t(float ...$args): Matrix
     {
         return $this->transform(...$args);
     }
 
-    private function roundMatrixProperty(int $val): int
+    private function roundMatrixProperty(float $val): float
     {
         $v = 10000;
 

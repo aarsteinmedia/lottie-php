@@ -11,13 +11,11 @@ use function LottiePHP\Utils\createTypedArray;
 
 class KeyframedMultidimensionalProperty extends BaseProperty
 {
-    public $v;
-
     public function __construct(
-        BaseProperty $elem,
+        BaseElement|BaseProperty $elem,
         array $data,
-        ?int $mult = null,
-        ?BaseElement $container = null
+        ?float $mult = null,
+        BaseElement|BaseProperty|null $container = null
     ) {
         $this->propType = PropType::MultiDimensional;
         $length = count($data['k']);
@@ -95,11 +93,11 @@ class KeyframedMultidimensionalProperty extends BaseProperty
         $this->data = $data;
         $this->keyframes = $data['k'];
         $this->keyframesMetadata = [];
-        $this->offsetTime = $elem['data']['st'];
+        $this->offsetTime = $elem['data']['st'] ?? 0;
         $this->k = true;
         $this->kf = true;
         $this->_isFirstFrame = true;
-        $this->mult = $mult || 1;
+        $this->mult = $mult ?? 1.0;
         $this->elem = $elem;
         $this->container = $container;
         $this->comp = $elem['comp'];

@@ -8,10 +8,10 @@ use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\createElementID;
 use function LottiePHP\Utils\getBlendMode;
 
-abstract class BaseElement
+abstract class BaseElement implements \ArrayAccess
 {
     public ?\DOMElement $baseElement = null;
-    public ?CompElement $comp;
+    public ?BaseElement $comp = null;
     public ?array $compInterface;
     public ?array $data;
     public ?array $dynamicProperties;
@@ -124,5 +124,35 @@ abstract class BaseElement
     public function sourceRectAtTime()
     {
         throw new \Error(get_class($this).': Method sourceRectAtTime is not implemented');
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return is_string($offset) && property_exists($this, $offset);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        if (!is_string($offset) || !property_exists($this, $offset)) {
+            return null;
+        }
+
+        return $this->{$offset};
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        if (!is_string($offset)) {
+            return;
+        }
+        $this->{$offset} = $value;
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        if (!is_string($offset) || !property_exists($this, $offset)) {
+            return;
+        }
+        $this->{$offset} = null;
     }
 }

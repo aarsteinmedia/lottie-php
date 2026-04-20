@@ -49,4 +49,29 @@ class LottieToSVG
             error_log($error->getMessage());
         }
     }
+
+    public static function renderFirstFrame(string $path, ?array $rendererSettings = []): ?string
+    {
+        $anim = self::load($path);
+        if (!$anim || !$anim->renderer) {
+            return null;
+        }
+
+        // Ensure renderer settings are applied (optional)
+        if ($rendererSettings) {
+            $anim->setParams([
+                'animationData' => $anim->animationData ?? null,
+                'path' => null,
+                'assetsPath' => null,
+                'rendererSettings' => $rendererSettings,
+            ]);
+        }
+
+        $anim->renderer->initItems();
+        $anim->renderer->renderFrame(0);
+
+        return method_exists($anim->renderer, 'toSVGString')
+            ? $anim->renderer->toSVGString()
+            : null;
+    }
 }

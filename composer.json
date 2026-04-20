@@ -7,6 +7,7 @@
     },
     "files": [
       "src/utils/index.php",
+      "src/utils/enums.php",
       "src/utils/buildShapeString.php",
       "src/utils/getFontProperties.php",
       "src/utils/dotLottie/getAnimationData.php",

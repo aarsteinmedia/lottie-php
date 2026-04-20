@@ -8,20 +8,18 @@ use LottiePHP\Utils\Text\TextAnimatorProperty;
 
 class ValueProperty extends BaseProperty
 {
-    public $pv;
-    public $v;
-
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
-        ?int $mult = null,
-        ?TextAnimatorProperty $container = null
+        ?float $mult = null,
+        BaseElement|BaseProperty|null $container = null
     ) {
         $this->propType = PropType::UniDimensional;
-        $this->mult = $mult || 1;
+        $this->mult = $mult ?? 1.0;
         $this->data = $data;
-        $this->v = ($data['k'] * ($mult || 1));
-        $this->pv = $data['k'];
+        $k = $data['k'] ?? 0;
+        $this->v = ($k * ($this->mult ?? 1));
+        $this->pv = $k;
         $this->_mdf = false;
         $this->elem = $elem;
         $this->container = $container;

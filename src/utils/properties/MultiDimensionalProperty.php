@@ -10,16 +10,14 @@ use function LottiePHP\Utils\createTypedArray;
 
 class MultiDimensionalProperty extends BaseProperty
 {
-    public $v;
-
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
-        ?int $mult = null,
-        BaseElement|BaseProperty $container
+        ?float $mult = null,
+        BaseElement|BaseProperty|null $container = null
     ) {
         $this->propType = PropType::MultiDimensional;
-        $this->mult = $mult || 1;
+        $this->mult = $mult ?? 1.0;
         $this->data = $data;
         $this->_mdf = false;
         $this->elem = $elem;
