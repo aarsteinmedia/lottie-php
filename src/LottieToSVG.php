@@ -24,6 +24,16 @@ class LottieToSVG
                 'animations' => $animations,
             ] = getAnimationData($path);
 
+            // Convert all animations to associative array
+            for ($i = 0; $i < count($animations); $i++) {
+                $animation = $animations[$i];
+                if ('string' !== gettype($animation)) {
+                    continue;
+                }
+
+                $animations[$i] = json_decode($animation, true);
+            }
+
             if (
                 !$animations
                 || array_any($animations, fn ($animation) => !isLottie($animation))

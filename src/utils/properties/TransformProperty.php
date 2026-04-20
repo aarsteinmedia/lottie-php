@@ -539,9 +539,9 @@ class TransformProperty extends BaseProperty
 class TransformPropertyFactory
 {
     public static function getTransformProperty(
-        BaseElement|BaseProperty $elem,
+        BaseElement|DynamicPropertyContainer $elem,
         array $data,
-        BaseElement|BaseProperty|null $container
+        BaseElement|DynamicPropertyContainer|null $container
     ) {
         return new TransformProperty(
             $elem,

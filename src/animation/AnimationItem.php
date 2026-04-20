@@ -101,7 +101,9 @@ class AnimationItem
             }
 
             if ($params['animationData']) {
-                $this->setupAnimation($params['animationData']);
+                ['animationData' => $animationData] = $params;
+
+                $this->setupAnimation($animationData);
 
                 return;
             }

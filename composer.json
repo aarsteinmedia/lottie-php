@@ -33,7 +33,7 @@
   },
   "scripts": {
     "test": "phpunit",
-    "test:watch": "phpunit-watcher watch",
+    "dev": "phpunit-watcher watch",
     "lint": "php-cs-fixer fix --dry-run --diff src",
     "lint:fix": "php-cs-fixer fix src"
   }

@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Matrix;
@@ -86,7 +87,7 @@ class RepeaterModifier extends ShapeModifier
         for ($i = 0; $i < $length; ++$i) {
             $elements[$i]->_shouldRender = $renderFlag;
             if (ShapeType::Group === $elements[$i]?->ty) {
-                $this->changeGroupRender($elements[$i]?->it[], $renderFlag);
+                $this->changeGroupRender($elements[$i]?->it, $renderFlag);
             }
         }
     }

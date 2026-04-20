@@ -14,7 +14,7 @@ class SVGRenderer extends SVGRendererBase
     public array $renderConfig;
     private \DOMDocument $_dom;
 
-    public function __construct(AnimationItem $animationItem, array $config = [])
+    public function __construct(AnimationItem $animationItem, ?array $config = [])
     {
         $this->animationItem = $animationItem;
 

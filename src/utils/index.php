@@ -121,13 +121,8 @@ function getBlendMode($mode = 16)
     return $blendModeEnums[$mode] || '';
 }
 
-function isLottie(array|string $jsonFromProps)
+function isLottie(array $json)
 {
-    $json = $jsonFromProps;
-    if ('string' === gettype($json)) {
-        $json = json_decode($json, true);
-    }
-
     $mandatory = [
         'v',
         'ip',
