@@ -7,6 +7,7 @@ use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Matrix;
+use LottiePHP\Utils\Properties\TransformProperty;
 use LottiePHP\Utils\Properties\TransformPropertyFactory;
 use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
@@ -26,7 +27,7 @@ class RepeaterModifier extends ShapeModifier
     public ?Matrix $sMatrix;
     public ?ValueProperty $so;
     public ?Matrix $tMatrix;
-    public ?array $tr;
+    public ?TransformProperty $tr;
     private ?int $_currentCopies;
     private $_elements = [];
     private $_groups = [];
@@ -40,7 +41,7 @@ class RepeaterModifier extends ShapeModifier
         Matrix $pMatrix,
         Matrix $rMatrix,
         Matrix $sMatrix,
-        array $transform,
+        TransformProperty $transform,
         int $perc,
         ?bool $inv
     ) {

@@ -25,7 +25,7 @@ class LottieToSVG
             ] = getAnimationData($path);
 
             // Convert all animations to associative array
-            for ($i = 0; $i < count($animations); $i++) {
+            for ($i = 0; $i < count($animations); ++$i) {
                 $animation = $animations[$i];
                 if ('string' !== gettype($animation)) {
                     continue;

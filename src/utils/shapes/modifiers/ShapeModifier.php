@@ -4,6 +4,7 @@ namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
+use LottiePHP\Elements\SVGShapeElement;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Pooling\ShapeCollectionPool;
@@ -11,7 +12,7 @@ use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 class ShapeModifier extends DynamicPropertyContainer
 {
     public ?bool $closed;
-    public BaseElement|DynamicPropertyContainer $elem;
+    public DynamicPropertyContainer|SVGShapeElement $elem;
     public ?int $frameId;
     public ?bool $k;
     public $shapes = [];
