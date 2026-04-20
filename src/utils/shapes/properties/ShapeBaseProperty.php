@@ -18,7 +18,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public ?array $_caching;
     public ?array $_cachingAtTime;
     public ?CompElement $comp;
-    public ?SVGShapeData $data = null;
+    public ?array $data = null;
     public $effectsSequence = [];
     public BaseElement $elem;
     public ?int $frameId;
@@ -157,9 +157,9 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                   : ($keyPropS['o'][$j][$k] ?? 0) + (($keyPropE['o'][$j][$k] ?? 0) - ($keyPropS['o'][$j][$k] ?? 0)) * $perc) ?? 0;
                 $previousValue['o'][$j][$k] = $vertexValue;
                 $vertexValue = ($isHold
-                  ? $keyPropS['v'][$j][$k]
-                  : ($keyPropS['v'][$j][$k] ?? 0) + (($keyPropE['v'][$j][$k] ?? 0) - ($keyPropS['v'][$j][$k] ?? 0)) * $perc) ?? 0;
-                $previousValue['v'][$j][$k] = $vertexValue;
+                  ? $keyPropS->v[$j][$k]
+                  : ($keyPropS->v[$j][$k] ?? 0) + (($keyPropE->v[$j][$k] ?? 0) - ($keyPropS->v[$j][$k] ?? 0)) * $perc) ?? 0;
+                $previousValue->v[$j][$k] = $vertexValue;
             }
         }
     }

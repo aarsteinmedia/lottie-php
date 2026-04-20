@@ -49,7 +49,7 @@ class SVGTextLottieElement extends TextElement
             throw new \Error(get_class($this).': layerElement is not implemented');
         }
 
-        if (!$this->textProperty['currentData'] ?? null) {
+        if (!$this->textProperty->currentData ?? null) {
             throw new \Error(get_class($this).': DocumentData is not implemented');
         }
 
@@ -57,7 +57,7 @@ class SVGTextLottieElement extends TextElement
         $i = 0;
         $len = 0;
 
-        $documentData = $this->textProperty['currentData'];
+        $documentData = $this->textProperty->currentData;
 
         $this->renderedLetters = createSizedArray(count($documentData['l'] ?? 0));
         if ($documentData['fc']) {
@@ -405,13 +405,13 @@ class SVGTextLottieElement extends TextElement
             throw new \Error(get_class($this).': textProperty is not initialized');
         }
         $this->textAnimator?->getMeasures(
-            $this->textProperty['currentData'],
+            $this->textProperty->currentData,
             $this->lettersChangedFlag
         );
         if ($this->lettersChangedFlag || $this->textAnimator?->lettersChangedFlag) {
             $this->_sizeChanged = true;
             $renderedLetters = $this->textAnimator?->renderedLetters;
-            $letters = $this->textProperty['currentData']['l'];
+            $letters = $this->textProperty->currentData['l'];
             $length = count($letters);
             $renderedLetter = null;
             $textSpan = null;
@@ -459,19 +459,6 @@ class SVGTextLottieElement extends TextElement
         }
         $this->prepareFrame((int) $this->comp->renderedFrame - $this->data['st']);
         $this->renderInnerContent();
-        // if ($this->_sizeChanged) {
-        //     $this->_sizeChanged = false;
-        //     $textBox = $this->layerElement->getBBox();
-
-        //     $this->bbox = [
-        //       'height' => $textBox['height'],
-        //       'left' => $textBox['x'],
-        //       'top' => $textBox['y'],
-        //       'width' => $textBox['width'],
-        //     ];
-
-        //     return $this->bbox;
-        // }
 
         return null;
     }

@@ -212,7 +212,7 @@ class TransformProperty extends BaseProperty
     public function addDynamicProperty(DynamicPropertyContainer $prop)
     {
         parent::addDynamicProperty($prop);
-        $this->elem['addDynamicProperty']($prop);
+        $this->elem->addDynamicProperty($prop);
         $this->_isDirty = true;
     }
 
@@ -284,7 +284,7 @@ class TransformProperty extends BaseProperty
 
     public function getValue($forceRender = false)
     {
-        if ($this->elem['globalData']['frameId'] === $this->frameId) {
+        if ($this->elem->globalData['frameId'] === $this->frameId) {
             return 0;
         }
         if ($this->_isDirty) {
@@ -331,7 +331,7 @@ class TransformProperty extends BaseProperty
                 $v1 = null;
                 $v2 = null;
 
-                ['frameRate' => $frameRate] = $this->elem['globalData'] ?? ['frameRate' => 60];
+                ['frameRate' => $frameRate] = $this->elem->globalData ?? ['frameRate' => 60];
 
                 if ($this->p->keyframes ?? null) {
                     if (
@@ -463,7 +463,7 @@ class TransformProperty extends BaseProperty
                 );
             }
         }
-        $this->frameId = $this->elem['globalData']['frameId'] ?? null;
+        $this->frameId = $this->elem->globalData['frameId'] ?? null;
 
         return 0;
     }

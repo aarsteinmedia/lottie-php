@@ -386,7 +386,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         if (!$this->elem) {
             throw new \Error(get_class($this).': elem (ElementInterface) is not implemented');
         }
-        if (($this->elem['globalData']['frameId'] ?? 0) === $this->frameId) {
+        if (($this->elem->globalData['frameId'] ?? 0) === $this->frameId) {
             return 0;
         }
         if (0 === count($this->effectsSequence)) {
@@ -412,7 +412,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $this->setVValue($finalValue);
         $this->_isFirstFrame = false;
         $this->lock = false;
-        $this->frameId = $this->elem['globalData']['frameId'] ?? 0;
+        $this->frameId = $this->elem->globalData['frameId'] ?? 0;
 
         return 0;
     }

@@ -20,7 +20,7 @@ class ShapePropertyFactory
 
     public static function getShapeProp(
         ShapeElement $elem,
-        SVGShapeData $data,
+        array $data,
         int $type,
         ?array $_arr = null,
         ?array $_trims = null

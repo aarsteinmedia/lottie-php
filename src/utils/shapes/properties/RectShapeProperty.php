@@ -23,7 +23,7 @@ class RectShapeProperty extends ShapeBaseProperty
     public ValueProperty $r;
     public MultiDimensionalProperty $s;
 
-    public function __construct(BaseElement|BaseProperty $elem, SVGShapeData $data)
+    public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
         $this->v = ShapePool::newElement();
         $this->v->c = true;

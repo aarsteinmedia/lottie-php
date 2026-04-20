@@ -188,7 +188,7 @@ class MaskElement
                     3
                 ),
             ];
-            $shapePath = $this->viewData[$i]['prop']['v'] ?? null;
+            $shapePath = $this->viewData[$i]['prop']->v ?? null;
 
             if (!$this->viewData[$i]['prop']['k'] ?? null && $shapePath) {
                 $this->drawPath(
@@ -253,7 +253,7 @@ class MaskElement
         $i = 0;
         $oVector = '';
         $iVector = '';
-        $vVector = implode(',', $pathNodes['v'][0] ?? []);
+        $vVector = implode(',', $pathNodes->v[0] ?? []);
         $pathString = " M{$vVector}";
 
         $len = $pathNodes->_length || 0;
@@ -261,15 +261,15 @@ class MaskElement
         for ($i = 1; $i < $len; ++$i) {
             $oVector = implode(',', $pathNodes['o'][$i - 1] ?? []);
             $iVector = implode(',', $pathNodes['i'][$i] ?? []);
-            $vVector = implode(',', $pathNodes['v'][$i] ?? []);
+            $vVector = implode(',', $pathNodes->v[$i] ?? []);
 
             $pathString += " C{$oVector} {$iVector} {$vVector}";
         }
 
         if ($pathNodes['c'] && $len > 1) {
             $oVector = implode(',', $pathNodes['o'][$i - 1] ?? []);
-            $iVector = implode(',', $pathNodes['v'][0] ?? []);
-            $vVector = implode(',', $pathNodes['v'][0] ?? []);
+            $iVector = implode(',', $pathNodes->v[0] ?? []);
+            $vVector = implode(',', $pathNodes->v[0] ?? []);
 
             $pathString += " C{$oVector} {$iVector} {$vVector}";
         }
@@ -301,11 +301,11 @@ class MaskElement
 
     public function renderFrame(?int $frame)
     {
-        $finalMat = $this->element['finalTransform']['mat'] ?? null;
+        $finalMat = $this->element->finalTransform['mat'] ?? null;
         $length = count($this->masksProperties);
 
         for ($i = 0; $i < $length; ++$i) {
-            $shapePath = $this->viewData[$i]['prop']['v'] ?? null;
+            $shapePath = $this->viewData[$i]['prop']->v ?? null;
 
             if ($shapePath && ($this->viewData[$i]['prop']['_mdf'] ?? $frame)) {
                 $this->drawPath(
@@ -317,7 +317,7 @@ class MaskElement
             if ($this->viewData[$i]['op']['_mdf'] ?? $frame) {
                 ($this->viewData[$i]['elem'] ?? null)?->setAttribute(
                     'fill-opacity',
-                    $this->viewData[$i]['op']['v'] ?? 1
+                    $this->viewData[$i]['op']->v ?? 1
                 );
             }
             if (($this->masksProperties[$i]['mode'] ?? '') === 'n') {
@@ -325,7 +325,7 @@ class MaskElement
             }
             if (
                 ($this->viewData[$i]['invRect'] ?? null)
-                && ($this->element['finalTransform']['mProp']['_mdf'] ?? $frame)
+                && ($this->element->finalTransform['mProp']['_mdf'] ?? $frame)
             ) {
                 ($this->viewData[$i]['invRect'] ?? null)?->setAttribute(
                     'transform',
@@ -342,7 +342,7 @@ class MaskElement
             }
             ['expan' => $feMorph] = $storedData;
 
-            if ($storedData['x']['v'] < 0) {
+            if ($storedData['x']->v < 0) {
                 if ('erode' !== $storedData['lastOperator']) {
                     $storedData['lastOperator'] = 'erode';
                     $locationHref = LocationHref::getHref();
@@ -352,7 +352,7 @@ class MaskElement
                         "url({$locationHref}\\#{$filterId})"
                     );
                 }
-                $feMorph?->setAttribute('radius', -$storedData['x']['v']);
+                $feMorph?->setAttribute('radius', -$storedData['x']->v);
 
                 continue;
             }
@@ -362,7 +362,7 @@ class MaskElement
             }
             $storedData['elem']->setAttribute(
                 'stroke-width',
-                $storedData['x']['v'] * 2
+                $storedData['x']->v * 2
             );
         }
     }

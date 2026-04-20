@@ -35,16 +35,16 @@ abstract class TransformEffect
             return;
         }
         $effectElements = $this->effectsManager['effectElements'] ?? [];
-        $anchor = $effectElements[0]['p']['v'] ?? null;
-        $position = $effectElements[1]['p']['v'] ?? null;
-        $isUniformScale = ($effectElements[2]['p']['v'] ?? 0) === 1;
-        $scaleHeight = $effectElements[3]['p']['v'] ?? 0;
+        $anchor = $effectElements[0]['p']->v ?? null;
+        $position = $effectElements[1]['p']->v ?? null;
+        $isUniformScale = ($effectElements[2]['p']->v ?? 0) === 1;
+        $scaleHeight = $effectElements[3]['p']->v ?? 0;
         $scaleWidth = $isUniformScale
           ? $scaleHeight
-          : ($effectElements[4]['p']['v'] ?? 0);
-        $skew = $effectElements[5]['p']['v'] ?? 0;
-        $skewAxis = $effectElements[6]['p']['v'] ?? 0;
-        $rotation = $effectElements[7]['p']['v'] ?? 0;
+          : ($effectElements[4]['p']->v ?? 0);
+        $skew = $effectElements[5]['p']->v ?? 0;
+        $skewAxis = $effectElements[6]['p']->v ?? 0;
+        $rotation = $effectElements[7]['p']->v ?? 0;
 
         $this->matrix?->reset();
         $this->matrix?->translate(
@@ -65,8 +65,8 @@ abstract class TransformEffect
             0
         );
         $this->_mdf = true;
-        if ($this->opacity !== $effectElements[8]['p']['v'] ?? null) {
-            $this->opacity = $effectElements[8]['p']['v'] ?? null;
+        if ($this->opacity !== $effectElements[8]['p']->v ?? null) {
+            $this->opacity = $effectElements[8]['p']->v ?? null;
             $this->_opMdf = true;
         }
     }

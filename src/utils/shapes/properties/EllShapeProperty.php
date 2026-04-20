@@ -16,7 +16,7 @@ class EllShapeProperty extends ShapeBaseProperty
     public ?int $d;
     public BaseProperty $s;
 
-    public function __construct(BaseElement|BaseProperty $elem, SVGShapeData $data)
+    public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
         $this->_cPoint = Constants::$roundCorner;
         $this->v = ShapePool::newElement();

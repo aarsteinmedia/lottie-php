@@ -50,7 +50,7 @@ abstract class RenderableElement extends FrameElement
         if (!$this->finalTransform) {
             throw new \Error(get_class($this).': finalTransform is not implemented');
         }
-        if ((int) $this->finalTransform['mProp']['o']['v'] <= 0) {
+        if ((int) $this->finalTransform['mProp']['o']->v <= 0) {
             if (
                 !$this->isTransparent
                 && $this->globalData['renderConfig']['hideOnTransparent']

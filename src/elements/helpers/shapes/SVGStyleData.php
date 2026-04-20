@@ -33,7 +33,7 @@ class SVGStyleData
     public function __construct(SVGShapeData $data, int $level)
     {
         $this->data = $data;
-        $this->type = $data->ty;
+        $this->type = $data['ty'];
         $this->lvl = $level;
         $this->closed = true === $data['hd'];
 

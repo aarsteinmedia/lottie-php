@@ -269,7 +269,7 @@ class SVGElementsRenderer
                     $iterations = $lvl - $styleLevel;
                     $k = count($transformers) - 1;
                     while ($iterations > 0) {
-                        $mat->multiply($transformers[$k]['mProps']['v'] ?? 0);
+                        $mat->multiply($transformers[$k]['mProps']->v ?? 0);
                         --$iterations;
                         --$k;
                     }

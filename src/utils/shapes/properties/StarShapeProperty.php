@@ -22,7 +22,7 @@ class StarShapeProperty extends ShapeBaseProperty
     public BaseProperty $r;
     public ?BaseProperty $s;
 
-    public function __construct(BaseElement|BaseProperty $elem, SVGShapeData $data)
+    public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
         $this->v = ShapePool::newElement();
         $this->v->setPathData(true, 0);
@@ -140,7 +140,7 @@ class StarShapeProperty extends ShapeBaseProperty
             $currentAng += $angle * $dir;
         }
 
-        /**  ShapeCollection $emptyCollection */
+        /** @var ShapeCollection $emptyCollection */
         $emptyCollection = [];
         $this->paths = $emptyCollection;
         $this->paths[0] = $this->v;

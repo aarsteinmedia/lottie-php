@@ -143,13 +143,13 @@ class SVGShapeElement extends ShapeElement
     }
 
     public function createShapeElement(
-        SVGShapeData $data,
+        array $data,
         array $ownTransformers,
         int $level
     ) {
         $ty = 4;
 
-        switch ($data->ty) {
+        switch ($data['ty']) {
             case ShapeType::Rectangle:
                 $ty = 5;
 
@@ -187,7 +187,7 @@ class SVGShapeElement extends ShapeElement
         $styleOb = new SVGStyleData($data, $level);
         $pathElement = $styleOb->pElem;
 
-        switch ($data->ty) {
+        switch ($data['ty']) {
             case ShapeType::Stroke:
                 $elementData = new SVGStrokeStyleData(
                     $this,

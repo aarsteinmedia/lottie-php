@@ -35,7 +35,7 @@ class TextProperty extends BaseProperty
         }
         $this->data = $data;
         $this->elem = $elem;
-        $this->comp = $this->elem['comp'];
+        $this->comp = $this->elem->comp;
         $this->currentData = [
             '__complete' => false,
             'ascent' => 0,
@@ -79,7 +79,7 @@ class TextProperty extends BaseProperty
     public function addEffect(\Closure $effectFunction)
     {
         array_push($this->effectsSequence, $effectFunction);
-        $this->elem['addDynamicProperty']($this);
+        $this->elem->addDynamicProperty($this);
     }
 
     public function buildFinalText(string $text)
@@ -148,13 +148,13 @@ class TextProperty extends BaseProperty
     {
         $this->canResize = $_canResize;
         $this->recalculate($this->keysIndex);
-        $this->elem['addDynamicProperty']($this);
+        $this->elem->addDynamicProperty($this);
     }
 
     public function completeTextData(array $documentData)
     {
         $documentData['__complete'] = true;
-        ['fontManager' => $fontManager] = $this->elem['globalData'] ?? [];
+        ['fontManager' => $fontManager] = $this->elem->globalData ?? [];
 
         if (!$fontManager) {
             throw new \Error(get_class($this).': FontManager not loaded to globalData');
@@ -500,7 +500,7 @@ class TextProperty extends BaseProperty
         // }
 
         $textKeys = $this->data['d']['k'] ?? [];
-        $frameNum = (int) ($this->elem['comp']['renderedFrame'] ?? null);
+        $frameNum = (int) ($this->elem->comp['renderedFrame'] ?? null);
         $i = 0;
         $len = count($textKeys);
 
@@ -524,7 +524,7 @@ class TextProperty extends BaseProperty
         // }
 
         if (
-            (($this->elem['globalData']['frameId'] ?? null) === $this->frameId
+            (($this->elem->globalData['frameId'] ?? null) === $this->frameId
               || 0 === count($this->effectsSequence))
               && !$_finalValue
         ) {
@@ -569,7 +569,7 @@ class TextProperty extends BaseProperty
         $this->v = $this->currentData;
         $this->pv = $this->v;
         $this->lock = false;
-        $this->frameId = $this->elem['globalData']['frameId'] ?? null;
+        $this->frameId = $this->elem->globalData['frameId'] ?? null;
 
         return 0;
     }
@@ -630,7 +630,7 @@ class TextProperty extends BaseProperty
     {
         $this->minimumFontSize = floor($_fontValue) || 1;
         $this->recalculate($this->keysIndex);
-        $this->elem['addDynamicProperty']($this);
+        $this->elem->addDynamicProperty($this);
     }
 
     public function updateDocumentData(array $newData, ?int $indexFromProps)
@@ -648,6 +648,6 @@ class TextProperty extends BaseProperty
         $this->data['d']['k'][$index]['s'] = $dData;
         $this->recalculate($index);
         $this->setCurrentData($dData);
-        $this->elem['addDynamicProperty']($this);
+        $this->elem->addDynamicProperty($this);
     }
 }

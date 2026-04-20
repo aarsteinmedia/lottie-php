@@ -20,7 +20,7 @@ class ShapeProperty extends ShapeBaseProperty
 
     public function __construct(
         BaseElement|DynamicPropertyContainer $elem,
-        SVGShapeData $data,
+        array $data,
         int $type
     ) {
         $this->propType = PropType::Shape;
@@ -56,7 +56,7 @@ class KeyframedShapeProperty extends ShapeBaseProperty
 
     public function __construct(
         BaseElement|DynamicPropertyContainer $elem,
-        SVGShapeData $data,
+        array $data,
         int $type
     ) {
         $this->lastFrame = Constants::$initialDefaultFrame;

@@ -49,35 +49,35 @@ class RepeaterModifier extends ShapeModifier
             throw new \Error(get_class($this).': Missing required data from Transform');
         }
         $dir = $inv ? -1 : 1;
-        $scaleX = $transform['s']['v'][0] + (1 - $transform['s']['v'][0]) * (1 - $perc);
-        $scaleY = $transform['s']['v'][1] + (1 - $transform['s']['v'][1]) * (1 - $perc);
+        $scaleX = $transform['s']->v[0] + (1 - $transform['s']->v[0]) * (1 - $perc);
+        $scaleY = $transform['s']->v[1] + (1 - $transform['s']->v[1]) * (1 - $perc);
 
         $pMatrix->translate(
-            $transform['p']['v'][0] * $dir * $perc,
-            $transform['p']['v'][1] * $dir * $perc,
-            $transform['p']['v'][2]
+            $transform['p']->v[0] * $dir * $perc,
+            $transform['p']->v[1] * $dir * $perc,
+            $transform['p']->v[2]
         );
         $rMatrix->translate(
-            -$transform['a']['v'][0],
-            -$transform['a']['v'][1],
-            $transform['a']['v'][2]
+            -$transform['a']->v[0],
+            -$transform['a']->v[1],
+            $transform['a']->v[2]
         );
-        $rMatrix->rotate(-$transform['r']['v'] * $dir * $perc);
+        $rMatrix->rotate(-$transform['r']->v * $dir * $perc);
         $rMatrix->translate(
-            $transform['a']['v'][0] ?? 0,
-            $transform['a']['v'][1] ?? 0,
-            $transform['a']['v'][2]
+            $transform['a']->v[0] ?? 0,
+            $transform['a']->v[1] ?? 0,
+            $transform['a']->v[2]
         );
         $sMatrix->translate(
-            -($transform['a']['v'][0] ?? 0),
-            -($transform['a']['v'][1] ?? 0),
-            $transform['a']['v'][2]
+            -($transform['a']->v[0] ?? 0),
+            -($transform['a']->v[1] ?? 0),
+            $transform['a']->v[2]
         );
         $sMatrix->scale($inv ? 1 / $scaleX : $scaleX, $inv ? 1 / $scaleY : $scaleY);
         $sMatrix->translate(
-            $transform['a']['v'][0] ?? 0,
-            $transform['a']['v'][1] ?? 0,
-            $transform['a']['v'][2]
+            $transform['a']->v[0] ?? 0,
+            $transform['a']->v[1] ?? 0,
+            $transform['a']->v[2]
         );
     }
 
@@ -415,7 +415,7 @@ class RepeaterModifier extends ShapeModifier
             if ($items[count($items) - 1]) {
                 $items[count($items) - 1]['transform']['mProps']['_mdf'] = true;
                 $items[count($items) - 1]['transform']['op']['_mdf'] = true;
-                $items[count($items) - 1]['transform']['op']['v']
+                $items[count($items) - 1]['transform']['op']->v
                     = 1 === $this->_currentCopies
                       ? (int) ($this->so?->v)
                       : (int) ($this->so?->v)

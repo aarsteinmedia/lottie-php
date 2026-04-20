@@ -45,7 +45,7 @@ class DashProperty extends DynamicPropertyContainer
         for ($i = 0; $i < $len; ++$i) {
             $prop = PropertyFactory::getProp(
                 $elem,
-                $data[$i]['v'] ?? null,
+                $data[$i]->v ?? null,
                 0,
                 0,
                 $this
@@ -83,19 +83,19 @@ class DashProperty extends DynamicPropertyContainer
         }
         for ($i = 0; $i < $len; ++$i) {
             if (($this->dataProps[$i]['n'] ?? '') === 'o') {
-                $this->dashoffset[0] = $this->dataProps[$i]['p']['v'] ?? 0;
+                $this->dashoffset[0] = $this->dataProps[$i]['p']->v ?? 0;
 
                 continue;
             }
             if (RendererType::SVG === $this->renderer) {
-                $value = $this->dataProps[$i]['p']['v'] ?? '';
+                $value = $this->dataProps[$i]['p']->v ?? '';
 
                 $this->dashStr .= " {$value}";
 
                 continue;
             }
 
-            $this->dashArray[$i] = $this->dataProps[$i]['p']['v'] ?? null;
+            $this->dashArray[$i] = $this->dataProps[$i]['p']->v ?? null;
         }
 
         return 0;

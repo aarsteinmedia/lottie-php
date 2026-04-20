@@ -11,7 +11,7 @@ use function LottiePHP\Utils\getBlendMode;
 abstract class BaseElement implements \ArrayAccess
 {
     public ?\DOMElement $baseElement = null;
-    public ?BaseElement $comp = null;
+    public ?CompElement $comp = null;
     public ?array $compInterface;
     public ?array $data;
     public ?array $dynamicProperties;

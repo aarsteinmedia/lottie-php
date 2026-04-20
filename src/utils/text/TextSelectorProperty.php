@@ -112,7 +112,7 @@ class TextSelectorProperty extends BaseProperty
         $ind = $indFromProps;
 
         if (
-            $this->_currentTextLength !== count($this->elem['textProperty']['currentData']['l'] ?? [])
+            $this->_currentTextLength !== count($this->elem->textProperty->currentData['l'] ?? [])
         ) {
             $this->getValue();
         }
@@ -121,15 +121,15 @@ class TextSelectorProperty extends BaseProperty
         $x2 = 1;
         $y2 = 1;
 
-        if ($this->ne['v'] > 0) {
-            $x1 = $this->ne['v'] / 100.0;
+        if ($this->ne->v > 0) {
+            $x1 = $this->ne->v / 100.0;
         } else {
-            $y1 = -$this->ne['v'] / 100.0;
+            $y1 = -$this->ne->v / 100.0;
         }
-        if ($this->xe['v'] > 0) {
-            $x2 = 1.0 - $this->xe['v'] / 100.0;
+        if ($this->xe->v > 0) {
+            $x2 = 1.0 - $this->xe->v / 100.0;
         } else {
-            $y2 = 1.0 + $this->xe['v'] / 100.0;
+            $y2 = 1.0 + $this->xe->v / 100.0;
         }
         $easer = BezierFactory::getBezierEasing(
             $x1,
@@ -228,8 +228,8 @@ class TextSelectorProperty extends BaseProperty
         //     - subtract the $threshold
         //     - divide it by the $smoothness ($this will return the range to [0; 1])
         // Note: If it doesn't work on some scenarios, consider applying it before the easer.
-        if (100 !== $this->sm['v']) {
-            $smoothness = $this->sm['v'] * 0.01;
+        if (100 !== $this->sm->v) {
+            $smoothness = $this->sm->v * 0.01;
 
             if (0 === $smoothness) {
                 $smoothness = 0.00000001;
@@ -246,7 +246,7 @@ class TextSelectorProperty extends BaseProperty
             }
         }
 
-        return $mult * $this->a['v'];
+        return $mult * $this->a->v;
     }
 
     public function getTextSelectorProp(
@@ -261,14 +261,14 @@ class TextSelectorProperty extends BaseProperty
     {
         $this->iterateDynamicProperties();
         $this->_mdf = $newCharsFlag || $this->_mdf;
-        $this->_currentTextLength = count($this->elem['textProperty']['currentData']['l'] ?? []) || 0;
-        if ($newCharsFlag && 2 === $this->data['r'] && $this->e['v']) {
-            $this->e['v'] = $this->_currentTextLength;
+        $this->_currentTextLength = count($this->elem->textProperty->currentData['l'] ?? []) || 0;
+        if ($newCharsFlag && 2 === $this->data['r'] && $this->e->v) {
+            $this->e->v = $this->_currentTextLength;
         }
         $divisor = 2 === $this->data['r'] ? 1 : 100 / $this->data['totalChars'];
-        $o = $this->o['v'] / $divisor;
-        $s = ($this->s['v'] ?? 0) / $divisor + $o;
-        $e = $this->e['v'] / $divisor + $o;
+        $o = $this->o->v / $divisor;
+        $s = ($this->s->v ?? 0) / $divisor + $o;
+        $e = $this->e->v / $divisor + $o;
 
         if ($s > $e) {
             $_s = $s;

@@ -104,7 +104,7 @@ abstract class TransformElement extends BaseElement
                     $this->finalTransform['_localMatMdf'] = true;
                 }
                 if ($this->localTransforms[$i]['_opMdf'] && !$this->finalTransform['_opMdf']) {
-                    $this->finalTransform['localOpacity'] = (int) $this->finalTransform['mProp']['o']['v'];
+                    $this->finalTransform['localOpacity'] = (int) $this->finalTransform['mProp']['o']->v;
                     $this->finalTransform['_opMdf'] = true;
                 }
                 ++$i;
@@ -159,11 +159,11 @@ abstract class TransformElement extends BaseElement
         }
 
         if ($this->finalTransform['_matMdf']) {
-            $mat = $this->finalTransform['mProp']['v']['props'];
+            $mat = $this->finalTransform['mProp']->v['props'];
 
             $finalMat->cloneFromProps($mat);
             for ($i = 0; $i < $length; ++$i) {
-                if ($this->hierarchy[$i]->finalTransform['mProp']['v']) {
+                if ($this->hierarchy[$i]->finalTransform['mProp']->v) {
                     ['v' => $matrix] = $this->hierarchy[$i]->finalTransform['mProp'] ?? ['v' => null];
 
                     if ($matrix) {
@@ -176,7 +176,7 @@ abstract class TransformElement extends BaseElement
             $this->finalTransform['_localMatMdf'] = $this->finalTransform['_matMdf'];
         }
         if ($this->finalTransform['_opMdf']) {
-            $this->finalTransform['localOpacity'] = (int) $this->finalTransform['mProp']['o']['v'];
+            $this->finalTransform['localOpacity'] = (int) $this->finalTransform['mProp']['o']->v;
         }
     }
 

@@ -239,7 +239,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                 return;
             }
             $this->_isFirstFrame = false;
-            $alignment = $this->_moreOptions['alignment']['v'];
+            $alignment = $this->_moreOptions['alignment']->v;
             $animators = $this->_animatorsData;
             $textData = $this->_textData;
             $matrixHelper = $this->mHelper;
@@ -271,10 +271,10 @@ class TextAnimatorProperty extends DynamicPropertyContainer
             if ($this->_hasMaskedPath && $this->_pathData['m']) {
                 $mask = $this->_pathData['m'];
                 if (!$this->_pathData['n'] || $this->_pathData['_mdf']) {
-                    $paths = $mask['v'];
+                    $paths = $mask->v;
 
                     if ($paths) {
-                        if ($this->_pathData.['r']['v'] ?? null) {
+                        if ($this->_pathData.['r']->v ?? null) {
                             $paths = array_reverse($paths);
                         }
                         $pathInfo = [
@@ -290,11 +290,11 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 continue;
                             }
                             $bezierData = Bezier::buildBezierData(
-                                $paths['v'][$i],
-                                $paths['v'][$i + 1],
-                                [($paths['o'][$i][0] ?? 0) - ($paths['v'][$i][0] ?? 0), ($paths['o'][$i][1] ?? 0) - ($paths['v'][$i][1] ?? 0)],
+                                $paths->v[$i],
+                                $paths->v[$i + 1],
+                                [($paths['o'][$i][0] ?? 0) - ($paths->v[$i][0] ?? 0), ($paths['o'][$i][1] ?? 0) - ($paths->v[$i][1] ?? 0)],
                                 [
-                                    ($paths['i'][$i + 1][0] ?? 0) - ($paths['v'][$i + 1][0] ?? 0), ($paths['i'][$i + 1][1] ?? 0) - ($paths['v'][$i + 1][1] ?? 0),
+                                    ($paths['i'][$i + 1][0] ?? 0) - ($paths->v[$i + 1][0] ?? 0), ($paths['i'][$i + 1][1] ?? 0) - ($paths->v[$i + 1][1] ?? 0),
                                 ]
                             );
                             $pathInfo['tLength'] += $bezierData['segmentLength'];
@@ -302,12 +302,12 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             $totalLength += $bezierData['segmentLength'];
                         }
                         $i = $len;
-                        if (($mask['v']['c'] ?? null) && !is_array($paths)) {
+                        if (($mask->v['c'] ?? null) && !is_array($paths)) {
                             $bezierData = Bezier::buildBezierData(
-                                $paths['v'][$i],
-                                $paths['v'][0],
-                                [($paths['o'][$i][0] ?? 0) - ($paths['v'][$i][0] ?? 0), ($paths['o'][$i][1] ?? 0) - ($paths['v'][$i][1] ?? 0)],
-                                [($paths['i'][0][0] ?? 0) - ($paths['v'][0][0] ?? 0), ($paths['i'][0][1] ?? 0) - ($paths['v'][0][1] ?? 0)]
+                                $paths->v[$i],
+                                $paths->v[0],
+                                [($paths['o'][$i][0] ?? 0) - ($paths->v[$i][0] ?? 0), ($paths['o'][$i][1] ?? 0) - ($paths->v[$i][1] ?? 0)],
+                                [($paths['i'][0][0] ?? 0) - ($paths->v[0][0] ?? 0), ($paths['i'][0][1] ?? 0) - ($paths->v[0][1] ?? 0)]
                             );
                             $pathInfo['tLength'] += $bezierData['segmentLength'];
                             array_push($pathInfo['segments'], $bezierData);
@@ -318,14 +318,14 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                 }
                 $pathInfo = $this->_pathData['pi'];
 
-                $currentLength = $this->_pathData['f']['v'] ?? 0;
+                $currentLength = $this->_pathData['f']->v ?? 0;
                 $segmentInd = 0;
                 $pointInd = 1;
                 $segmentLength = 0;
                 // $shouldMeasure = true
                 $segments = $pathInfo['segments'] ?? [];
 
-                if ($currentLength > 0 && $mask['v']['c'] ?? null) {
+                if ($currentLength > 0 && $mask->v['c'] ?? null) {
                     if ($pathInfo['tLength'] ?? 0 < abs($currentLength)) {
                         $currentLength = -abs($currentLength) % ($pathInfo['tLength'] ?? 0);
                     }
@@ -515,11 +515,11 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 if (!$mult) {
                                     continue;
                                 }
-                                if (is_array($animatorProps['p']['v'])) {
+                                if (is_array($animatorProps['p']->v)) {
                                     if (is_array($mult)) {
-                                        $animatorOffset += $animatorProps['p']['v'][0] * ($mult[0] ?? 1);
+                                        $animatorOffset += $animatorProps['p']->v[0] * ($mult[0] ?? 1);
                                     } else {
-                                        $animatorOffset += $animatorProps['p']['v'][0] * $mult;
+                                        $animatorOffset += $animatorProps['p']->v[0] * $mult;
                                     }
                                 }
                             }
@@ -534,29 +534,29 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             if (!$mult) {
                                 continue;
                             }
-                            if (!is_array($animatorProps['a']['v'])) {
+                            if (!is_array($animatorProps['a']->v)) {
                                 continue;
                             }
                             if (is_array($mult)) {
-                                $animatorOffset += ($animatorProps['a']['v'][0] ?? 0) * ($mult[0] ?? 1);
+                                $animatorOffset += ($animatorProps['a']->v[0] ?? 0) * ($mult[0] ?? 1);
 
                                 continue;
                             }
-                            $animatorOffset += ($animatorProps['a']['v'][0] ?? 0) * $mult;
+                            $animatorOffset += ($animatorProps['a']->v[0] ?? 0) * $mult;
                         }
                         $shouldMeasure = true;
 
                         // Force alignment only works with a single line for now
-                        if ($this->_pathData['a']['v'] ?? null) {
+                        if ($this->_pathData['a']->v ?? null) {
                             $currentLength
                             = ($letters[0]['an'] ?? 0) * 0.5
                             + ($totalLength
-                              - (int) ($this->_pathData['f']['v'] ?? null)
+                              - (int) ($this->_pathData['f']->v ?? null)
                               - ($letters[0]['an'] ?? 0) * 0.5
                               - ($letters[count($letters) - 1]['an'] ?? 0) * 0.5)
                               * $ind
                               / ($len - 1);
-                            $currentLength += (int) ($this->_pathData['f']['v'] ?? 0);
+                            $currentLength += (int) ($this->_pathData['f']->v ?? 0);
                         }
                         while ($shouldMeasure) {
                             if (
@@ -587,7 +587,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                     ++$segmentInd;
                                     if ($segments[$segmentInd]) {
                                         $points = $segments[$segmentInd]['points'] ?? [];
-                                    } elseif ($mask['v']['c'] ?? null) {
+                                    } elseif ($mask->v['c'] ?? null) {
                                         $pointInd = 0;
                                         $segmentInd = 0;
                                         $points = $segments[$segmentInd]['points'] ?? [];
@@ -639,20 +639,20 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         if (0 !== $xPos || 0 !== $documentData['j']) {
                             if ($this->_hasMaskedPath) {
                                 if (is_array($mult)) {
-                                    $currentLength += (int) $animatorProps['t']['v'] * ($mult[0] ?? 1);
+                                    $currentLength += (int) $animatorProps['t']->v * ($mult[0] ?? 1);
                                 } else {
-                                    $currentLength += (int) $animatorProps['t']['v'] * (int) $mult;
+                                    $currentLength += (int) $animatorProps['t']->v * (int) $mult;
                                 }
 
                                 continue;
                             }
 
                             if (is_array($mult)) {
-                                $xPos += (int) $animatorProps['t']['v'] * ($mult[0] ?? 1);
+                                $xPos += (int) $animatorProps['t']->v * ($mult[0] ?? 1);
 
                                 continue;
                             }
-                            $xPos += (int) $animatorProps['t']['v'] * (int) $mult;
+                            $xPos += (int) $animatorProps['t']->v * (int) $mult;
                         }
                     }
                     if ($documentData['strokeWidthAnim']) {
@@ -688,23 +688,23 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 $letters[$i]['anIndexes'][$j] ?? 0,
                                 $textData['a'][$j]['s']['totalChars'] ?? 0
                             );
-                            if (!$mult || !is_array($animatorProps['a']['v'])) {
+                            if (!$mult || !is_array($animatorProps['a']->v)) {
                                 continue;
                             }
 
                             if (is_array($mult)) {
                                 $matrixHelper->translate(
-                                    -($animatorProps['a']['v'][0] ?? 0) * ($mult[0] ?? 1),
-                                    -($animatorProps['a']['v'][1] ?? 0) * ($mult[1] ?? 1),
-                                    ($animatorProps['a']['v'][2] ?? 0) * ($mult[2] ?? 1)
+                                    -($animatorProps['a']->v[0] ?? 0) * ($mult[0] ?? 1),
+                                    -($animatorProps['a']->v[1] ?? 0) * ($mult[1] ?? 1),
+                                    ($animatorProps['a']->v[2] ?? 0) * ($mult[2] ?? 1)
                                 );
 
                                 continue;
                             }
                             $matrixHelper->translate(
-                                -($animatorProps['a']['v'][0] ?? 0) * $mult,
-                                -($animatorProps['a']['v'][1] ?? 0) * $mult,
-                                ($animatorProps['a']['v'][2] ?? 0) * $mult
+                                -($animatorProps['a']->v[0] ?? 0) * $mult,
+                                -($animatorProps['a']->v[1] ?? 0) * $mult,
+                                ($animatorProps['a']->v[2] ?? 0) * $mult
                             );
                         }
                     }
@@ -716,21 +716,21 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 $letters[$i]['anIndexes'][$j] ?? 0,
                                 $textData['a'][$j]['s']['totalChars'] ?? 0
                             );
-                            if (!$mult || !is_array($animatorProps['s']['v'])) {
+                            if (!$mult || !is_array($animatorProps['s']->v)) {
                                 continue;
                             }
                             if (is_array($mult)) {
                                 $matrixHelper->scale(
-                                    1 + (($animatorProps['s']['v'][0] ?? 0) - 1) * ($mult[0] ?? 1),
-                                    1 + (($animatorProps['s']['v'][1] ?? 0) - 1) * ($mult[1] ?? 1),
+                                    1 + (($animatorProps['s']->v[0] ?? 0) - 1) * ($mult[0] ?? 1),
+                                    1 + (($animatorProps['s']->v[1] ?? 0) - 1) * ($mult[1] ?? 1),
                                     1
                                 );
 
                                 continue;
                             }
                             $matrixHelper->scale(
-                                1 + (($animatorProps['s']['v'][0] ?? 0) - 1) * $mult,
-                                1 + (($animatorProps['s']['v'][1] ?? 0) - 1) * $mult,
+                                1 + (($animatorProps['s']->v[0] ?? 0) - 1) * $mult,
+                                1 + (($animatorProps['s']->v[1] ?? 0) - 1) * $mult,
                                 1
                             );
                         }
@@ -749,104 +749,104 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         if ($animatorProps['sk']['propType']) {
                             if (is_array($mult)) {
                                 $matrixHelper->skewFromAxis(
-                                    -(int) $animatorProps['sk']['v'] * ($mult[0] ?? 1),
-                                    (int) ($animatorProps['sa']['v'] ?? 0) * ($mult[1] ?? 1)
+                                    -(int) $animatorProps['sk']->v * ($mult[0] ?? 1),
+                                    (int) ($animatorProps['sa']->v ?? 0) * ($mult[1] ?? 1)
                                 );
                             } else {
                                 $matrixHelper->skewFromAxis(
-                                    -(int) $animatorProps['sk']['v'] * $mult,
-                                    (int) ($animatorProps['sa']['v'] ?? 0) * $mult
+                                    -(int) $animatorProps['sk']->v * $mult,
+                                    (int) ($animatorProps['sa']->v ?? 0) * $mult
                                 );
                             }
                         }
                         if ($animatorProps['r']['propType'] ?? null) {
                             if (is_array($mult)) {
-                                $matrixHelper->rotateZ(-(int) $animatorProps['r']['v'] * ($mult[2] ?? 1));
+                                $matrixHelper->rotateZ(-(int) $animatorProps['r']->v * ($mult[2] ?? 1));
                             } else {
-                                $matrixHelper->rotateZ(-(int) $animatorProps['r']['v'] * $mult);
+                                $matrixHelper->rotateZ(-(int) $animatorProps['r']->v * $mult);
                             }
                         }
                         if ($animatorProps['ry']['propType'] ?? null) {
                             if (is_array($mult)) {
-                                $matrixHelper->rotateY((int) $animatorProps['ry']['v'] * ($mult[1] ?? 1));
+                                $matrixHelper->rotateY((int) $animatorProps['ry']->v * ($mult[1] ?? 1));
                             } else {
-                                $matrixHelper->rotateY((int) $animatorProps['ry']['v'] * $mult);
+                                $matrixHelper->rotateY((int) $animatorProps['ry']->v * $mult);
                             }
                         }
                         if ($animatorProps['rx']['propType'] ?? null) {
                             if (is_array($mult)) {
-                                $matrixHelper->rotateX((int) $animatorProps['rx']['v'] * ($mult[0] ?? 1));
+                                $matrixHelper->rotateX((int) $animatorProps['rx']->v * ($mult[0] ?? 1));
                             } else {
-                                $matrixHelper->rotateX((int) $animatorProps['rx']['v'] * $mult);
+                                $matrixHelper->rotateX((int) $animatorProps['rx']->v * $mult);
                             }
                         }
                         if ($animatorProps['o']['propType'] ?? null) {
                             if (is_array($mult)) {
                                 $elemOpacity
-                                += ((int) $animatorProps['o']['v'] * ($mult[0] ?? 1) - $elemOpacity) * ($mult[0] ?? 1);
+                                += ((int) $animatorProps['o']->v * ($mult[0] ?? 1) - $elemOpacity) * ($mult[0] ?? 1);
                             } else {
                                 $elemOpacity
-                                += ((int) $animatorProps['o']['v'] * $mult - $elemOpacity) * $mult;
+                                += ((int) $animatorProps['o']->v * $mult - $elemOpacity) * $mult;
                             }
                         }
                         if ($documentData['strokeWidthAnim'] && ($animatorProps['sw']['propType'] ?? null)) {
                             if (is_array($mult)) {
-                                $sw += (int) $animatorProps['sw']['v'] * ($mult[0] ?? 1);
+                                $sw += (int) $animatorProps['sw']->v * ($mult[0] ?? 1);
                             } else {
-                                $sw += (int) $animatorProps['sw']['v'] * $mult;
+                                $sw += (int) $animatorProps['sw']->v * $mult;
                             }
                         }
                         if (
                             $documentData['strokeColorAnim']
                             && ($animatorProps['sc']['propType'] ?? null)
-                            && is_array($animatorProps['sc']['v'])
+                            && is_array($animatorProps['sc']->v)
                         ) {
                             for ($k = 0; $k < 3; ++$k) {
                                 if (is_array($mult)) {
-                                    $sc[$k] += (($animatorProps['sc']['v'][$k] ?? 0) - ($sc[$k] ?? 0)) * ($mult[0] ?? 1);
+                                    $sc[$k] += (($animatorProps['sc']->v[$k] ?? 0) - ($sc[$k] ?? 0)) * ($mult[0] ?? 1);
                                 } else {
-                                    $sc[$k] += (($animatorProps['sc']['v'][$k] ?? 0) - ($sc[$k] ?? 0)) * $mult;
+                                    $sc[$k] += (($animatorProps['sc']->v[$k] ?? 0) - ($sc[$k] ?? 0)) * $mult;
                                 }
                             }
                         }
                         if ($documentData['fillColorAnim'] && $documentData['fc']) {
                             if ($animatorProps['fc']['propType'] ?? null) {
                                 for ($k = 0; $k < 3; ++$k) {
-                                    if (!is_array($animatorProps['fc']['v'])) {
+                                    if (!is_array($animatorProps['fc']->v)) {
                                         continue;
                                     }
                                     if (is_array($mult)) {
-                                        $fc[$k] += (($animatorProps['fc']['v'][$k] ?? 0) - ($fc[$k] ?? 0)) * ($mult[0] ?? 1);
+                                        $fc[$k] += (($animatorProps['fc']->v[$k] ?? 0) - ($fc[$k] ?? 0)) * ($mult[0] ?? 1);
                                     } else {
-                                        $fc[$k] += (($animatorProps['fc']['v'][$k] ?? 0) - ($fc[$k] ?? 0)) * $mult;
+                                        $fc[$k] += (($animatorProps['fc']->v[$k] ?? 0) - ($fc[$k] ?? 0)) * $mult;
                                     }
                                 }
                             }
                             if ($animatorProps['fh']['propType'] ?? null) {
                                 if (is_array($mult)) {
-                                    $fc = addHueToRGB($fc, (int) $animatorProps['fh']['v'] * ($mult[0] ?? 1));
+                                    $fc = addHueToRGB($fc, (int) $animatorProps['fh']->v * ($mult[0] ?? 1));
                                 } else {
-                                    $fc = addHueToRGB($fc, (int) $animatorProps['fh']['v'] * $mult);
+                                    $fc = addHueToRGB($fc, (int) $animatorProps['fh']->v * $mult);
                                 }
                             }
                             if ($animatorProps['fs']['propType'] ?? null) {
                                 if (is_array($mult)) {
                                     $fc = addSaturationToRGB(
                                         $fc,
-                                        (int) $animatorProps['fs']['v'] * ($mult[0] ?? 1)
+                                        (int) $animatorProps['fs']->v * ($mult[0] ?? 1)
                                     );
                                 } else {
-                                    $fc = addSaturationToRGB($fc, (int) $animatorProps['fs']['v'] * $mult);
+                                    $fc = addSaturationToRGB($fc, (int) $animatorProps['fs']->v * $mult);
                                 }
                             }
                             if ($animatorProps['fb']['propType'] ?? null) {
                                 if (is_array($mult)) {
                                     $fc = addBrightnessToRGB(
                                         $fc,
-                                        (int) $animatorProps['fb']['v'] * ($mult[0] ?? 1)
+                                        (int) $animatorProps['fb']->v * ($mult[0] ?? 1)
                                     );
                                 } else {
-                                    $fc = addBrightnessToRGB($fc, (int) $animatorProps['fb']['v'] * $mult);
+                                    $fc = addBrightnessToRGB($fc, (int) $animatorProps['fb']->v * $mult);
                                 }
                             }
                         }
@@ -861,34 +861,34 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 $letters[$i]['anIndexes'][$j] ?? 0,
                                 $textData['a'][$j]['s']['totalChars'] ?? 0
                             );
-                            if (!$mult || !is_array($animatorProps['p']['v'])) {
+                            if (!$mult || !is_array($animatorProps['p']->v)) {
                                 continue;
                             }
                             if ($this->_hasMaskedPath) {
                                 if (is_array($mult)) {
                                     $matrixHelper->translate(
                                         0,
-                                        $animatorProps['p']['v'][1] * $mult[0],
-                                        -$animatorProps['p']['v'][2] * $mult[1]
+                                        $animatorProps['p']->v[1] * $mult[0],
+                                        -$animatorProps['p']->v[2] * $mult[1]
                                     );
                                 } else {
                                     $matrixHelper->translate(
                                         0,
-                                        $animatorProps['p']['v'][1] * $mult,
-                                        -$animatorProps['p']['v'][2] * $mult
+                                        $animatorProps['p']->v[1] * $mult,
+                                        -$animatorProps['p']->v[2] * $mult
                                     );
                                 }
                             } elseif (is_array($mult)) {
                                 $matrixHelper->translate(
-                                    $animatorProps['p']['v'][0] * $mult[0],
-                                    $animatorProps['p']['v'][1] * $mult[1],
-                                    -$animatorProps['p']['v'][2] * $mult[2]
+                                    $animatorProps['p']->v[0] * $mult[0],
+                                    $animatorProps['p']->v[1] * $mult[1],
+                                    -$animatorProps['p']->v[2] * $mult[2]
                                 );
                             } else {
                                 $matrixHelper->translate(
-                                    $animatorProps['p']['v'][0] * $mult,
-                                    $animatorProps['p']['v'][1] * $mult,
-                                    -$animatorProps['p']['v'][2] * $mult
+                                    $animatorProps['p']->v[0] * $mult,
+                                    $animatorProps['p']->v[1] * $mult,
+                                    -$animatorProps['p']->v[2] * $mult
                                 );
                             }
                         }
@@ -925,7 +925,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             $alignment[1] * $yOff * 0.01 + $yPos,
                             0
                         );
-                        if ($this->_pathData['p']['v'] ?? null) {
+                        if ($this->_pathData['p']->v ?? null) {
                             $tanAngle
                             = ((int) ($currentPoint['point'][1] ?? 0) - (int) ($prevPoint['point'][1] ?? 0))
                             / ((int) ($currentPoint['point'][0] ?? 0) - (int) ($prevPoint['point'][0] ?? 0));
