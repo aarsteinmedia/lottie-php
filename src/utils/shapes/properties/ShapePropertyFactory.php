@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Utils\Shapes\Properties;
 
-use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Elements\ShapeElement;
 use LottiePHP\Utils\Properties\KeyframedValueProperty;
 

@@ -190,6 +190,8 @@ trait SVGRendererTraits
                 );
             }
 
+            $this->animationItem->wrapper?->appendChild($this->svgElement);
+
             // Mask animation
             $defs = $this->globalData['defs'];
 

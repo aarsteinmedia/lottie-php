@@ -3,7 +3,6 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
-use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\PropType;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;

@@ -91,6 +91,10 @@ class AnimationItem
     public function setParams(array $params): void
     {
         try {
+            if ($params['wrapper'] || $params['container']) {
+                $this->wrapper = $params['wrapper'] ?? $params['container'];
+            }
+
             $this->renderer = new SVGRenderer(
                 $this,
                 $params['rendererSettings'] ?? []
@@ -140,7 +144,7 @@ class AnimationItem
 
             DataManager::loadAnimation(
                 $path,
-                [$this, 'configAnimation']
+                $this->configAnimation(...)
             );
         } catch (\Exception $e) {
             echo $e->getMessage();
@@ -149,6 +153,6 @@ class AnimationItem
 
     public function setupAnimation(array $data)
     {
-        DataManager::completeAnimation($data, [$this, 'configAnimation']);
+        DataManager::completeAnimation($data, $this->configAnimation(...));
     }
 }
