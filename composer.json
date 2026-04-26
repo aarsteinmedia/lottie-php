@@ -14,6 +14,7 @@
       "src/utils/dotLottie/getLottieJSON.php",
       "src/utils/dotLottie/resolveAssets.php",
       "src/utils/pooling/bezierLengthPool.php",
+      "src/utils/pooling/domDocumentPool.php",
       "src/utils/pooling/double.php",
       "src/utils/pooling/pointPool.php",
       "src/utils/pooling/segmentLengthPool.php"
