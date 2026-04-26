@@ -94,6 +94,7 @@ class AnimationItem
     {
         try {
             $this->wrapper = domDocumentPool()->createElement('div');
+            domDocumentPool()->appendChild($this->wrapper);
 
             $this->renderer = new SVGRenderer(
                 $this,

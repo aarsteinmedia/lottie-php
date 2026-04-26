@@ -21,7 +21,7 @@ class SVGRenderer extends SVGRendererBase
         $this->animationItem = $animationItem;
         $this->svgElement = createNS('svg');
 
-        domDocumentPool()->appendChild($this->svgElement);
+        $this->animationItem->wrapper->appendChild($this->svgElement);
 
         $defs = createNS('defs');
         $this->svgElement->appendChild($defs);

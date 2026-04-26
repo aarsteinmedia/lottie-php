@@ -35,6 +35,7 @@
   },
   "scripts": {
     "test": "phpunit",
+    "predev": "composer dump-autoload",
     "dev": "phpunit-watcher watch",
     "lint": "php-cs-fixer fix --dry-run --diff src",
     "lint:fix": "php-cs-fixer fix src"
