@@ -33,7 +33,7 @@ function buildShapeString(
         $vVector = [$_v[$i][0] ?? 0, $_v[$i][1] ?? 0];
         $vString = $mat->applyToPointStringified(...$vVector);
 
-        $shapeString += " C{$oString} {$iString} {$vString}";
+        $shapeString .= " C{$oString} {$iString} {$vString}";
     }
     if ($closed) {
         $oVector = [$_o[$i - 1][0] ?? 0, $_o[$i - 1][1] ?? 0];
@@ -43,7 +43,7 @@ function buildShapeString(
         $vVector = [$_v[0][0] ?? 0, $_v[0][1] ?? 0];
         $vString = $mat->applyToPointStringified(...$vVector);
 
-        $shapeString += " C{$oString} {$iString} {$vString}z";
+        $shapeString .= " C{$oString} {$iString} {$vString}z";
     }
 
     return $shapeString;

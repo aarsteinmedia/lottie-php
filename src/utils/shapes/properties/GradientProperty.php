@@ -3,7 +3,6 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
-use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Properties\BaseProperty;
@@ -18,14 +17,14 @@ class GradientProperty extends DynamicPropertyContainer
     public int $_hasOpacity;
     public $_omdf = false;
     public array $c;
-    public ?SVGShapeData $data;
+    public ?array $data;
     public ?bool $k;
     public array $o;
     public $prop;
 
     public function __construct(
         BaseElement|BaseProperty $elem,
-        SVGShapeData $data,
+        array $data,
         BaseElement|DynamicPropertyContainer $container
     ) {
         $this->data = $data;

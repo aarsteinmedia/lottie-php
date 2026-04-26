@@ -199,8 +199,8 @@ trait SVGRendererTraits
             $this->globalData['progressiveLoad'] = $this->renderConfig['progressiveLoad'];
             $this->data = $animData;
 
-            $maskElement = createNS('clipPath', $this->_dom);
-            $rect = createNS('rect', $this->_dom);
+            $maskElement = createNS('clipPath');
+            $rect = createNS('rect');
 
             $rect->setAttribute('width', $animData['w']);
             $rect->setAttribute('height', $animData['h']);
@@ -317,7 +317,6 @@ abstract class SVGRendererBase extends BaseRenderer
     public $destroyed = false;
     public array $renderConfig = [];
     public \DOMElement $svgElement;
-    protected \DOMDocument $_dom;
 
     public function destroy()
     {

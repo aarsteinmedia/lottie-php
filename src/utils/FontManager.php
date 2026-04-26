@@ -4,6 +4,8 @@ namespace LottiePHP\Utils;
 
 use LottiePHP\Utils\Enums\RendererType;
 
+use function LottiePHP\Utils\Pooling\domDocumentPool;
+
 class FontManager
 {
     private const A_TAG_CODE_POINT = 917601;
@@ -74,11 +76,9 @@ class FontManager
     private static ?RendererType $engine;
     private $_warned = false;
     private int $initTime;
-    private \DOMDocument $_dom;
 
     public function __construct()
     {
-        $this->_dom = new \DOMDocument();
         $this->initTime = time();
     }
 
@@ -242,52 +242,52 @@ class FontManager
                 // }
 
                 if ($shouldLoadFont) {
-                    $s = $this->_dom->createElement('style');
+                    $s = domDocumentPool()->createElement('style');
 
                     $s->setAttribute('f-forigin', $fontList['fOrigin']);
                     $s->setAttribute('f-origin', $fontList['origin']);
                     $s->setAttribute('f-family', $fontList['fFamily']);
-                    $s->innerText = "@font-face {font-family: {$fontList['fFamily']}; font-style: normal; src: url('{$fontList['fPath']}');}";
+                    $s->textContent = "@font-face {font-family: {$fontList['fFamily']}; font-style: normal; src: url('{$fontList['fPath']}');}";
                     $defs?->appendChild($s);
                 }
             } elseif (
                 'g' === $fontList['fOrigin'] || 1 === $fontList['origin']
             ) {
-                $loadedSelector = $this->_dom->querySelectorAll('link[f-forigin="g"], link[f-origin="1"]');
+                // $loadedSelector = domDocumentPool()->querySelectorAll('link[f-forigin="g"], link[f-origin="1"]');
 
-                $len = count($loadedSelector);
+                // $len = count($loadedSelector);
 
-                for ($i = 0; $i < $len; ++$i) {
-                    if (str_contains($loadedSelector[$i]?->getAttribute('href'), $fontList['fPath'])) {
-                        $shouldLoadFont = false;
-                    }
-                }
+                // for ($i = 0; $i < $len; ++$i) {
+                //     if (str_contains($loadedSelector[$i]?->getAttribute('href'), $fontList['fPath'])) {
+                //         $shouldLoadFont = false;
+                //     }
+                // }
 
                 if ($shouldLoadFont) {
-                    $link = $this->_dom->createElement('link');
+                    $link = domDocumentPool()->createElement('link');
 
                     $link->setAttribute('f-forigin', $fontList['fOrigin']);
                     $link->setAttribute('f-origin', $fontList['origin']);
                     $link->setAttribute('type', 'text/css');
                     $link->setAttribute('rel', 'stylesheet');
                     $link->setAttribute('href', $fontList['fPath']);
-                    $this->_dom->appendChild($link);
+                    domDocumentPool()->appendChild($link);
                 }
             } elseif (
                 't' === $fontList['fOrigin'] || 2 === $fontList['origin']
             ) {
-                $loadedSelector = $this->_dom->querySelectorAll('script[f-forigin="t"], script[f-origin="2"]');
+                // $loadedSelector = domDocumentPool()->querySelectorAll('script[f-forigin="t"], script[f-origin="2"]');
 
-                $len = count($loadedSelector);
+                // $len = count($loadedSelector);
 
-                for ($i = 0; $i < $len; ++$i) {
-                    if ($fontList['fPath'] === $loadedSelector[$i]?->getAttribute('src')) {
-                        $shouldLoadFont = false;
-                    }
-                }
+                // for ($i = 0; $i < $len; ++$i) {
+                //     if ($fontList['fPath'] === $loadedSelector[$i]?->getAttribute('src')) {
+                //         $shouldLoadFont = false;
+                //     }
+                // }
 
                 if ($shouldLoadFont) {
-                    $sc = $this->_dom->createElement('link');
+                    $sc = domDocumentPool()->createElement('link');
 
                     $sc->setAttribute('f-forigin', $fontList['fOrigin']);
                     $sc->setAttribute('f-origin', $fontList['origin']);
@@ -396,10 +396,9 @@ class FontManager
 
     private static function setUpNode(
         string $font,
-        string $family
+        string $family,
     ) {
-        $dom = new \DOMDocument('1.0', 'UTF-8');
-        $parentNode = $dom->createElement('span');
+        $parentNode = domDocumentPool()->createElement('span');
         $parentNode->setAttribute('aria-hidden', 'true');
         addStyles(
             $parentNode,
@@ -416,7 +415,7 @@ class FontManager
             ]
         );
 
-        $node = $dom->createElement('span');
+        $node = domDocumentPool()->createElement('span');
         $node->textContent = 'giItT1WQy@!-/#';
 
         $font = self::trimFontOptions($font);
@@ -429,7 +428,7 @@ class FontManager
         );
 
         $parentNode->appendChild($node);
-        $dom->appendChild($parentNode);
+        domDocumentPool()->appendChild($parentNode);
 
         $width = (int) $node->getAttribute('width');
 
@@ -532,7 +531,7 @@ class FontManager
     ) {
         $fontProps = getFontProperties($fontData);
 
-        $tHelper = createNS('text', $this->_dom);
+        $tHelper = createNS('text');
 
         addStyles($tHelper, ['font-size' => '100px']);
 

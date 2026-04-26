@@ -9,7 +9,7 @@ class SolidElement extends ImageElement
     public function __construct(
         array $data,
         array $globalData,
-        BaseElement $comp
+        BaseElement $comp,
     ) {
         parent::__construct(
             $data,

@@ -40,14 +40,11 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
     public ?SVGStyleData $style;
     public ?array $transform;
 
-    private \DOMDocument $_dom;
-
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
-        SVGStyleData $styleData
+        SVGStyleData $styleData,
     ) {
-        $this->_dom = new \DOMDocument();
         $this->initDynamicPropertyContainer($elem);
         $this->initGradientData(
             $elem,
@@ -116,7 +113,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
     public function setGradientData(\DOMElement $pathElement, array $data)
     {
         $gradientId = createElementID();
-        $gfill = createNS(1 === $data['t'] ? 'linearGradient' : 'radialGradient', $this->_dom);
+        $gfill = createNS(1 === $data['t'] ? 'linearGradient' : 'radialGradient');
 
         $gfill->setAttribute('id', $gradientId);
         $gfill->setAttribute('spreadMethod', 'pad');
@@ -126,7 +123,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $jLen = ($data['g']['p'] ?? 1) * 4;
 
         for ($j = 0; $j < $jLen; $j += 4) {
-            $stop = createNS('stop', $this->_dom);
+            $stop = createNS('stop');
             $gfill->appendChild($stop);
             array_push($stops, $stop);
         }
@@ -147,8 +144,8 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
             return;
         }
         $stop = null;
-        $mask = createNS('mask', $this->_dom);
-        $maskElement = createNS('path', $this->_dom);
+        $mask = createNS('mask');
+        $maskElement = createNS('path');
 
         // if (!maskElement || !mask) {
         //   throw new Error("${$this->constructor.name}: Could not create svg element")
@@ -158,7 +155,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $maskId = createElementID();
 
         $mask->setAttribute('id', $maskId);
-        $opFill = createNS(1 === $data['t'] ? 'linearGradient' : 'radialGradient', $this->_dom);
+        $opFill = createNS(1 === $data['t'] ? 'linearGradient' : 'radialGradient');
 
         $opFill->setAttribute('id', $opacityId);
         $opFill->setAttribute('spreadMethod', 'pad');
@@ -169,7 +166,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
             : count($data['g']['k']['k'] ?? [])) || 0;
 
         for ($j = ($data['g']['p'] ?? 1) * 4; $j < $jLen; $j += 2) {
-            $stop = createNS('stop', $this->_dom);
+            $stop = createNS('stop');
             $stop->setAttribute('stop-color', 'rgb(255,255,255)');
             $opFill->appendChild($stop);
             array_push($this->stops, $stop);

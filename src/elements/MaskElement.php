@@ -22,12 +22,10 @@ class MaskElement
     public array $storedData = [];
     public array $viewData;
 
-    private \DOMDocument $dom;
-
     public function __construct(
         array $data,
         BaseElement $element,
-        array $globalData
+        array $globalData,
     ) {
         $this->data = $data;
         $this->element = $element;
@@ -37,8 +35,6 @@ class MaskElement
         $length = count($this->masksProperties);
 
         $this->viewData = createSizedArray($length);
-
-        $this->dom = new \DOMDocument();
 
         $properties = $this->masksProperties;
         $count = 0;
@@ -67,7 +63,7 @@ class MaskElement
                 || ($properties[$i]['mode'] ?? '') === 'i')
                 && 0 === $count
             ) {
-                $rect = createNS('rect', $this->dom);
+                $rect = createNS('rect');
                 $rect->setAttribute('fill', '#ffffff');
                 $rect->setAttribute('width', $this->element['comp']['data']['w'] ?? 0);
                 $rect->setAttribute('height', $this->element['comp']['data']['h'] ?? 0);
@@ -76,7 +72,7 @@ class MaskElement
                 $rect = null;
             }
 
-            $path = createNS('path', $this->dom);
+            $path = createNS('path');
 
             if (($properties[$i]['mode'] ?? '') === 'n') {
                 $this->viewData[$i] = [
@@ -121,10 +117,10 @@ class MaskElement
                     $this->element
                 );
                 $filterID = createElementID();
-                $expansor = createNS('filter', $this->dom);
+                $expansor = createNS('filter');
 
                 $expansor->setAttribute('id', $filterID);
-                $feMorph = createNS('feMorphology', $this->dom);
+                $feMorph = createNS('feMorphology');
                 $feMorph->setAttribute('operator', 'erode');
                 $feMorph->setAttribute('in', 'SourceGraphic');
                 $feMorph->setAttribute('radius', '0');
@@ -148,12 +144,12 @@ class MaskElement
             ];
             if (($properties[$i]['mode'] ?? '') === 'i') {
                 $jLen = count($currentMasks);
-                $g = createNS('g', $this->dom);
+                $g = createNS('g');
 
                 for ($j = 0; $j < $jLen; ++$j) {
                     $g->appendChild($currentMasks[$j]);
                 }
-                $mask = createNS('mask', $this->dom);
+                $mask = createNS('mask');
 
                 $mask->setAttribute('mask-type', 'alpha');
                 $mask->setAttribute('id', "{$layerId}_{$count}");
@@ -199,7 +195,7 @@ class MaskElement
             }
         }
 
-        $this->maskElement = createNS($maskType, $this->dom);
+        $this->maskElement = createNS($maskType);
 
         $cLen = count($currentMasks);
 
@@ -228,10 +224,10 @@ class MaskElement
         $w = $this->globalData['compSize']['w'] || 0;
         $h = $this->globalData['compSize']['h'] || 0;
 
-        $path += " h{$w}";
-        $path += " v{$h}";
-        $path += " h-{$w}";
-        $path += " v-{$h} ";
+        $path .= " h{$w}";
+        $path .= " v{$h}";
+        $path .= " h-{$w}";
+        $path .= " v-{$h} ";
 
         return $path;
     }
@@ -263,7 +259,7 @@ class MaskElement
             $iVector = implode(',', $pathNodes['i'][$i] ?? []);
             $vVector = implode(',', $pathNodes->v[$i] ?? []);
 
-            $pathString += " C{$oVector} {$iVector} {$vVector}";
+            $pathString .= " C{$oVector} {$iVector} {$vVector}";
         }
 
         if ($pathNodes['c'] && $len > 1) {
@@ -271,7 +267,7 @@ class MaskElement
             $iVector = implode(',', $pathNodes->v[0] ?? []);
             $vVector = implode(',', $pathNodes->v[0] ?? []);
 
-            $pathString += " C{$oVector} {$iVector} {$vVector}";
+            $pathString .= " C{$oVector} {$iVector} {$vVector}";
         }
 
         if ($viewData['lastPath'] !== $pathString) {

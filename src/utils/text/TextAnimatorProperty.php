@@ -239,7 +239,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                 return;
             }
             $this->_isFirstFrame = false;
-            $alignment = $this->_moreOptions['alignment']->v;
+            $alignment = $this->_moreOptions['alignment']['v'];
             $animators = $this->_animatorsData;
             $textData = $this->_textData;
             $matrixHelper = $this->mHelper;
@@ -274,7 +274,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                     $paths = $mask->v;
 
                     if ($paths) {
-                        if ($this->_pathData.['r']->v ?? null) {
+                        if ($this->_pathData['r']->v ?? null) {
                             $paths = array_reverse($paths);
                         }
                         $pathInfo = [

@@ -5,6 +5,8 @@ namespace LottiePHP\Utils;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Helpers\Constants;
 
+use function LottiePHP\Utils\Pooling\domDocumentPool;
+
 function addStyles(\DOMElement $el, array $styles)
 {
     $existing = $el->getAttribute('style');
@@ -75,11 +77,9 @@ function createSizedArray(int $length): array
     return array_fill(0, $length, null);
 }
 
-function createNS(string $type, ?\DOMDocument $domFromProps = null)
+function createNS(string $type)
 {
-    $dom = $domFromProps ?? new \DOMDocument('1.0', 'UTF-8');
-
-    return $dom->createElementNS(Constants::$namespaceSVG, $type);
+    return domDocumentPool()->createElementNS(Constants::$namespaceSVG, $type);
 }
 
 function floatEqual(int $a, int $b)

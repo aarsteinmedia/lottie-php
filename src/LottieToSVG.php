@@ -41,12 +41,9 @@ class LottieToSVG
                 throw new \Error('Broken or corrupted file');
             }
 
-            $dom = new \DOMDocument();
-
             // Initialize lottie player and load animation
             return AnimationManager::loadAnimation([
                 'animationData' => $animations[0],
-                'container' => $dom->createElement('div'),
             ]);
         } catch (\Exception $error) {
             error_log($error->getMessage());

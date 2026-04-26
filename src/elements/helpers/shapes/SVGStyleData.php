@@ -30,8 +30,10 @@ class SVGStyleData
     public ?ShapeType $ty;
     public ?ShapeType $type;
 
-    public function __construct(SVGShapeData $data, int $level)
-    {
+    public function __construct(
+        SVGShapeData $data,
+        int $level
+    ) {
         $this->data = $data;
         $this->type = $data['ty'];
         $this->lvl = $level;

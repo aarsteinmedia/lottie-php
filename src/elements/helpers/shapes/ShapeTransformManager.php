@@ -16,7 +16,7 @@ class ShapeTransformManager
         $key = '_';
 
         for ($i = 0; $i < $length; ++$i) {
-            $key += "{$transforms[$i]['transform']['key']}_";
+            $key .= "{$transforms[$i]['transform']['key']}_";
         }
         $sequence = $this->sequences[$key];
 

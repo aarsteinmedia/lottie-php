@@ -24,7 +24,7 @@ class SVGTextLottieElement extends TextElement
     public function __construct(
         array $data,
         array $globalData,
-        SVGCompElement $comp
+        SVGCompElement $comp,
     ) {
         $this->renderType = RendererType::SVG;
 
@@ -350,7 +350,7 @@ class SVGTextLottieElement extends TextElement
                 array_push($textContents, $currentTextContent);
                 $currentTextContent = '';
             } else {
-                $currentTextContent += $textArray[$i] ?? '';
+                $currentTextContent .= $textArray[$i] ?? '';
             }
             ++$i;
         }

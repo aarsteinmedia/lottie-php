@@ -5,6 +5,8 @@ namespace LottiePHP\Animation;
 use LottiePHP\Renderer\SVGRenderer;
 use LottiePHP\Utils\DataManager;
 
+use function LottiePHP\Utils\Pooling\domDocumentPool;
+
 class AnimationItem
 {
     public array $animationData;
@@ -91,13 +93,11 @@ class AnimationItem
     public function setParams(array $params): void
     {
         try {
-            if ($params['wrapper'] || $params['container']) {
-                $this->wrapper = $params['wrapper'] ?? $params['container'];
-            }
+            $this->wrapper = domDocumentPool()->createElement('div');
 
             $this->renderer = new SVGRenderer(
                 $this,
-                $params['rendererSettings'] ?? []
+                $params['rendererSettings'] ?? [],
             );
 
             if (!empty($params['assetsPath'])) {
