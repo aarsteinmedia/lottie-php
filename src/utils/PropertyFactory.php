@@ -28,14 +28,14 @@ class PropertyFactory
         $p = null;
 
         $k = $data['k'] ?? null;
-        if ('integer' === gettype($k)) {
+        if (is_int($k) || is_float($k)) {
             $p = new ValueProperty(
                 $elem,
                 $data,
                 $mult,
                 $container
             );
-        } elseif (is_array($k) && 'integer' === gettype($k[0])) {
+        } elseif (is_array($k) && array_key_exists(0, $k) && (is_int($k[0]) || is_float($k[0]))) {
             $p = new MultiDimensionalProperty(
                 $elem,
                 $data,

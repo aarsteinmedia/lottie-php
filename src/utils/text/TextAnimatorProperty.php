@@ -11,6 +11,7 @@ use LottiePHP\Utils\Properties\BaseProperty;
 use LottiePHP\Utils\PropertyFactory;
 
 use function LottiePHP\Utils\createSizedArray;
+use function LottiePHP\Utils\toRGBString;
 
 function rgbToHSV(
     int $r,
@@ -897,24 +898,10 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         $letterSw = $sw < 0 ? 0 : $sw;
                     }
                     if ($documentData['strokeColorAnim']) {
-                        $rgb = implode(
-                            ',',
-                            array_map(
-                                fn ($c) => round($c * 255),
-                                $sc
-                            )
-                        );
-                        $letterSc = "rgb({$rgb})";
+                        $letterSc = toRGBString($sc);
                     }
                     if ($documentData['fillColorAnim'] && $documentData['fc']) {
-                        $rgb = implode(
-                            ',',
-                            array_map(
-                                fn ($c) => round($c * 255),
-                                $fc
-                            )
-                        );
-                        $letterFc = "rgb({$rgb})";
+                        $letterFc = toRGBString($fc);
                     }
 
                     if ($this->_hasMaskedPath) {

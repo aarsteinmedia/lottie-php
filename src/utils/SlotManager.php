@@ -19,9 +19,15 @@ class SlotManager
             $sid
             && ($this->animationData['slots'][$sid] ?? null)
         ) {
+            $slotProp = $this->animationData['slots'][$sid]['p'] ?? [];
+
+            if (!is_array($slotProp)) {
+                return $data;
+            }
+
             return [
                 ...$data,
-                $this->animationData['slots'][$sid]['p'],
+                ...$slotProp,
             ];
         }
 

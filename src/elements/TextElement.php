@@ -76,13 +76,11 @@ abstract class TextElement extends RenderableDOMElement
 
     public function buildColor(array $colorData)
     {
-        $rgb = implode(',', [
-            round($colorData[0] * 255),
-            round($colorData[1] * 255),
-            round($colorData[2] * 255),
-        ]);
+        $r = round($colorData[0] * 255);
+        $g = round($colorData[1] * 255);
+        $b = round($colorData[2] * 255);
 
-        return "rgb({$rgb})";
+        return "rgb({$r},{$g},{$b})";
     }
 
     public function buildNewText()

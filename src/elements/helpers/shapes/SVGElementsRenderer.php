@@ -6,6 +6,7 @@ use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Matrix;
 
 use function LottiePHP\Utils\buildShapeString;
+use function LottiePHP\Utils\toRGBString;
 
 class SVGElementsRenderer
 {
@@ -195,11 +196,9 @@ class SVGElementsRenderer
         $styleElem = $itemData->style;
 
         if ($itemData->c?->v && ($itemData->c->_mdf || $isFirstFrame)) {
-            $rgb = implode(',', array_map(fn ($color) => floor($color), $itemData->c->v));
-
             $styleElem->pElem->setAttribute(
                 'fill',
-                "rgb({$rgb})"
+                toRGBString($itemData->c->v)
             );
         }
         if ($itemData->o?->_mdf || $isFirstFrame) {

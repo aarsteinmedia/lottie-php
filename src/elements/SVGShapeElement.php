@@ -72,9 +72,6 @@ class SVGShapeElement extends ShapeElement
             $globalData,
             $comp
         );
-
-        // Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
-        // Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
     }
 
     public function addToAnimatedContents(

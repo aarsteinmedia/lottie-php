@@ -135,3 +135,17 @@ function isLottie(array $json)
 
     return array_all($mandatory, fn (string $field) => array_key_exists($field, $json));
 }
+
+function toRGBString(?array $v)
+{
+    if (!$v) {
+        return 'rgb(0,0,0)';
+    }
+
+    // v is already scaled to 0..255 by property factory; keep it fast and allocation-light.
+    $r = ($v[0] ?? 0) | 0;
+    $g = ($v[1] ?? 0) | 0;
+    $b = ($v[2] ?? 0) | 0;
+
+    return "rgb({$r},{$g},{$b})";
+}
