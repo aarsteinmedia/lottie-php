@@ -12,7 +12,7 @@ class PoolFactory
     private int $_maxLength;
     private array $pool;
     private \Closure $_create;
-    private \Closure $_release;
+    private ?\Closure $_release = null;
 
     public function __construct(
         int $initialLength,
@@ -20,8 +20,8 @@ class PoolFactory
         ?callable $_release = null
     ) {
         $this->_maxLength = $initialLength;
-        $this->_create = $_create;
-        $this->_release = $_release;
+        $this->_create = \Closure::fromCallable($_create);
+        $this->_release = $_release ? \Closure::fromCallable($_release) : null;
         $this->pool = createSizedArray($this->_maxLength);
     }
 

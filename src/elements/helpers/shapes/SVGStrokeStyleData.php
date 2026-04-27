@@ -14,7 +14,7 @@ class SVGStrokeStyleData extends SVGFillStyleData
 
     public function __construct(
         BaseElement|DynamicPropertyContainer $elem,
-        SVGShapeData $data,
+        array $data,
         SVGStyleData $styleObj
     ) {
         parent::__construct(
@@ -56,6 +56,6 @@ class SVGStrokeStyleData extends SVGFillStyleData
 
     public function getValue(...$args)
     {
-        return ${$this}->iterateDynamicProperties(...$args);
+        return $this->iterateDynamicProperties(...$args);
     }
 }

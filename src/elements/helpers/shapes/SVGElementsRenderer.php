@@ -9,12 +9,14 @@ use function LottiePHP\Utils\buildShapeString;
 
 class SVGElementsRenderer
 {
-    private static ?Matrix $_identityMatrix;
-    private static ?Matrix $_matrixHelper;
+    private static ?Matrix $_identityMatrix = null;
+    private static ?Matrix $_matrixHelper = null;
 
     public static function createRenderFunction(array $data)
     {
-        switch ($data['ty']) {
+        $ty = ShapeType::tryFrom($data['ty'] ?? '');
+
+        switch ($ty) {
             case ShapeType::Fill:
                 return self::renderFill(...);
 
@@ -44,7 +46,7 @@ class SVGElementsRenderer
         }
     }
 
-    public function renderGradient(
+    private static function renderGradient(
         array $styleData,
         ?SVGGradientFillStyleData $itemData,
         bool|int|null $isFirstFrame
@@ -205,7 +207,7 @@ class SVGElementsRenderer
         }
     }
 
-    private function renderGradientStroke(
+    private static function renderGradientStroke(
         array $styleData,
         SVGGradientFillStyleData|SVGGradientStrokeStyleData|null $itemData,
         bool|int|null $isFirstFrame
@@ -222,12 +224,12 @@ class SVGElementsRenderer
         );
     }
 
-    private function renderNoop(array $_)
+    private static function renderNoop(array $_)
     {
         // Pass Through
     }
 
-    private function renderPath(
+    private static function renderPath(
         array $styleData,
         ?SVGShapeData $itemData,
         bool|int|null $isFirstFrame
@@ -238,9 +240,12 @@ class SVGElementsRenderer
         $pathStringTransformed = null;
         $shouldRedraw = false;
         $pathNodes = null;
-        [
-            'caches' => $caches, 'lvl' => $lvl, 'sh' => $sh, 'styles' => $styles, 'transformers' => $transformers,
-        ] = $itemData;
+        $caches = $itemData->caches ?? [];
+        $lvl = $itemData->lvl ?? 0;
+        $sh = $itemData->sh ?? null;
+        $styles = $itemData->styles ?? [];
+        $transformers = $itemData->transformers ?? [];
+
         $length = count($styles);
         $paths = null;
         $mat = null;
@@ -248,9 +253,9 @@ class SVGElementsRenderer
         $k = 0;
 
         for ($i = 0; $i < $length; ++$i) {
-            $shouldRedraw = $sh?->_mdf || (bool) $isFirstFrame;
+            $shouldRedraw = (bool) ($sh?->_mdf ?? false) || (bool) $isFirstFrame;
             $style = $styles[$i];
-            ['lvl' => $styleLevel] = $style ?? ['lvl' => 0];
+            $styleLevel = (int) ($style?->lvl ?? 0);
 
             if ($styleLevel < $lvl) {
                 if (!self::$_matrixHelper) {
@@ -261,7 +266,7 @@ class SVGElementsRenderer
                 $iterations = $lvl - $styleLevel;
                 $k = count($transformers) - 1;
                 while (!$shouldRedraw && $iterations > 0) {
-                    $shouldRedraw = $transformers[$k]['mProps']['_mdf'] ?? $shouldRedraw;
+                    $shouldRedraw = (bool) ($transformers[$k]['mProps']?->_mdf ?? false) || $shouldRedraw;
                     --$iterations;
                     --$k;
                 }
@@ -269,7 +274,7 @@ class SVGElementsRenderer
                     $iterations = $lvl - $styleLevel;
                     $k = count($transformers) - 1;
                     while ($iterations > 0) {
-                        $mat->multiply($transformers[$k]['mProps']->v ?? 0);
+                        $mat->multiply($transformers[$k]['mProps']?->v ?? 0);
                         --$iterations;
                         --$k;
                     }
@@ -281,7 +286,7 @@ class SVGElementsRenderer
 
                 $mat = self::$_identityMatrix;
             }
-            $paths = $sh?->paths;
+            $paths = $sh?->paths ?? null;
             $jLen = $paths?->_length ?? 0;
 
             if ($shouldRedraw) {
@@ -302,13 +307,15 @@ class SVGElementsRenderer
                 $pathStringTransformed = $caches[$i];
             }
             if ($style) {
-                $style->d .= true === $styleData['hd'] ? '' : $pathStringTransformed ?? '';
-                $style->_mdf = $shouldRedraw || $style->_mdf;
+                $style->d .= true === ($styleData['hd'] ?? false) ? '' : ($pathStringTransformed ?? '');
+                $style->_mdf = $shouldRedraw || (bool) ($style->_mdf ?? false);
             }
         }
+
+        $itemData->caches = $caches;
     }
 
-    private function renderStroke(
+    private static function renderStroke(
         array $_,
         SVGGradientStrokeStyleData|SVGStrokeStyleData|null $itemData,
         bool|int|null $isFirstFrame
@@ -321,7 +328,8 @@ class SVGElementsRenderer
         $d = $itemData->d;
         $o = $itemData->o;
         $w = $itemData->w;
-        ['msElem' => $msElem, 'pElem' => $pElem] = $itemData->style;
+        $msElem = $itemData->style->msElem ?? null;
+        $pElem = $itemData->style->pElem ?? null;
 
         if ($d && ($d->_mdf || $isFirstFrame) && $d->dashStr) {
             $pElem->setAttribute('stroke-dasharray', $d->dashStr);
@@ -336,8 +344,8 @@ class SVGElementsRenderer
             $pElem->setAttribute('stroke-opacity', $o?->v ?? 1);
         }
         if ($w?->_mdf || $isFirstFrame) {
-            $pElem->setAttribute('stroke-width', $w?->v || 0);
-            $msElem?->setAttribute('stroke-width', $w?->v || 0);
+            $pElem?->setAttribute('stroke-width', $w?->v ?? 0);
+            $msElem?->setAttribute('stroke-width', $w?->v ?? 0);
         }
     }
 }

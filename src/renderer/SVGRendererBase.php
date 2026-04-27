@@ -64,7 +64,7 @@ trait SVGRendererTraits
         //     $element->initExpressions();
         // }
         $this->appendElementInPos($element, $pos);
-        if ($this->layers[$pos]['tt']) {
+        if (isset($this->layers[$pos]['tt'])) {
             $elementIndex
               = array_key_exists('tp', $this->layers[$pos])
                 ? $this->findIndexByInd($this->layers[$pos]['tp'])
@@ -222,8 +222,8 @@ trait SVGRendererTraits
             $defs->appendChild($maskElement);
             $this->layers = $animData['layers'];
             $this->elements = createSizedArray(count($animData['layers']));
-        } catch (\Exception $e) {
-            error_log(get_class($this).":\n".$e->getMessage());
+        } catch (\Throwable $e) {
+            error_log(get_class($this).":\n".$e->getMessage()."\n".$e->getTraceAsString());
         }
     }
 
@@ -399,8 +399,8 @@ abstract class SVGRendererBase extends BaseRenderer
                     }
                 }
             }
-        } catch (\Exception $e) {
-            error_log(get_class($this).'\n'.$e->getMessage());
+        } catch (\Throwable $e) {
+            error_log(get_class($this)."\n".$e->getMessage()."\n".$e->getTraceAsString());
         }
     }
 

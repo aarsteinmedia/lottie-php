@@ -71,12 +71,12 @@ class ShapePath
     }
 
     public function setTripleAt(
-        int $vX,
-        int $vY,
-        int $oX,
-        int $oY,
-        int $iX,
-        int $iY,
+        float $vX,
+        float $vY,
+        float $oX,
+        float $oY,
+        float $iX,
+        float $iY,
         int $pos,
         ?bool $replace = null
     ) {
@@ -104,14 +104,12 @@ class ShapePath
     }
 
     public function setXYAt(
-        int $x,
-        int $y,
+        float $x,
+        float $y,
         string $type,
         int $pos,
         ?bool $replace = false
     ) {
-        $arr = [];
-
         $this->_length = max($this->_length, $pos + 1);
         if ($this->_length >= $this->_maxLength) {
             $this->doubleArrayLength();
@@ -119,30 +117,32 @@ class ShapePath
 
         switch ($type) {
             case 'v':
-                $arr = $this->v;
+                if (!($this->v[$pos] ?? null) || !$replace) {
+                    $this->v[$pos] = $this->_pointPool->newElement();
+                }
+                $this->v[$pos][0] = $x;
+                $this->v[$pos][1] = $y;
 
                 break;
 
             case 'i':
-                $arr = $this->i;
+                if (!($this->i[$pos] ?? null) || !$replace) {
+                    $this->i[$pos] = $this->_pointPool->newElement();
+                }
+                $this->i[$pos][0] = $x;
+                $this->i[$pos][1] = $y;
 
                 break;
 
             case 'o':
-                $arr = $this->o;
-
-                break;
-
-            default:
-                $arr = [];
+                if (!($this->o[$pos] ?? null) || !$replace) {
+                    $this->o[$pos] = $this->_pointPool->newElement();
+                }
+                $this->o[$pos][0] = $x;
+                $this->o[$pos][1] = $y;
 
                 break;
         }
-        if (!$arr[$pos] || !$replace) {
-            $arr[$pos] = $this->_pointPool->newElement();
-        }
-        $arr[$pos][0] = $x;
-        $arr[$pos][1] = $y;
     }
 
     public function toReversed()

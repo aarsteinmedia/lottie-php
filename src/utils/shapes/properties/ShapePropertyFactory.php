@@ -3,7 +3,6 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\ShapeElement;
-use LottiePHP\Utils\Properties\KeyframedValueProperty;
 
 class ShapePropertyFactory
 {
@@ -30,14 +29,11 @@ class ShapePropertyFactory
             case 3:
             case 4:
                 $dataProp = 3 === $type ? $data['pt'] : $data['ks'];
-                $keys = $dataProp['k'] ?? 0;
+                $keys = $dataProp['k'] ?? null;
 
-                if (count($keys ?? [])) {
-                    $prop = new KeyframedValueProperty(
-                        $elem,
-                        $data,
-                        $type
-                    );
+                // When `k` is an array of keyframes, we need the keyframed shape property.
+                if (is_array($keys) && count($keys) > 0 && is_array($keys[0] ?? null)) {
+                    $prop = new KeyframedShapeProperty($elem, $data, $type);
 
                     break;
                 }
@@ -63,7 +59,7 @@ class ShapePropertyFactory
                 $prop = new StarShapeProperty($elem, $data);
         }
 
-        if ($prop['k'] ?? 0) {
+        if (($prop->k ?? false) === true) {
             $elem->addDynamicProperty($prop);
         }
 

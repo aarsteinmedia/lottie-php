@@ -4,6 +4,7 @@ namespace LottiePHP\Utils\Properties;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
 class ValueProperty extends BaseProperty
 {
@@ -11,7 +12,7 @@ class ValueProperty extends BaseProperty
         BaseElement|BaseProperty $elem,
         array $data,
         ?float $mult = null,
-        BaseElement|BaseProperty|null $container = null
+        BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::UniDimensional;
         $this->mult = $mult ?? 1.0;

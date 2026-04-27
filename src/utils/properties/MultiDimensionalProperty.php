@@ -5,6 +5,7 @@ namespace LottiePHP\Utils\Properties;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
 use function LottiePHP\Utils\createTypedArray;
 
@@ -14,7 +15,7 @@ class MultiDimensionalProperty extends BaseProperty
         BaseElement|BaseProperty $elem,
         array $data,
         ?float $mult = null,
-        BaseElement|BaseProperty|null $container = null
+        BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::MultiDimensional;
         $this->mult = $mult ?? 1.0;

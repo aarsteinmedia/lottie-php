@@ -29,7 +29,7 @@ trait RenderableElementTraits
         }
         // If it is exported as hidden (data.hd === true) no need to render
         // If it is not visible no need to render
-        if ($this->data['hd'] || $this->hidden) {
+        if (($this->data['hd'] ?? false) || $this->hidden) {
             return;
         }
         $this->renderTransform();
@@ -51,7 +51,7 @@ trait RenderableElementTraits
         if (!$this->isInRange && $this->isTransparent) {
             return;
         }
-        if (!$this->data['hd']) {
+        if (!($this->data['hd'] ?? false)) {
             $elem = $this->baseElement ?? $this->layerElement;
 
             if (!$elem) {

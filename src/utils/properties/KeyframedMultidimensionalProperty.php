@@ -6,6 +6,7 @@ use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Bezier;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
 use function LottiePHP\Utils\createTypedArray;
 
@@ -15,7 +16,7 @@ class KeyframedMultidimensionalProperty extends BaseProperty
         BaseElement|BaseProperty $elem,
         array $data,
         ?float $mult = null,
-        BaseElement|BaseProperty|null $container = null
+        BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::MultiDimensional;
         $length = count($data['k']);

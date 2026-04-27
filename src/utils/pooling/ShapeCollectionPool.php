@@ -8,9 +8,9 @@ use function LottiePHP\Utils\createSizedArray;
 
 class ShapeCollectionPool
 {
-    private $_length = 0;
-    private $_maxLength = 4;
-    private ?array $pool;
+    private static int $_length = 0;
+    private static int $_maxLength = 4;
+    private static ?array $pool = null;
 
     public static function newShapeCollection()
     {

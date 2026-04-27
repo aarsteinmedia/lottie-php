@@ -35,8 +35,33 @@ class ShapeProperty extends ShapeBaseProperty
         if (!$pathData) {
             throw new \Error(get_class($this).': Could now get Path Data');
         }
-        $this->v = clone $pathData;
-        $this->pv = clone $this->v;
+        // Lottie JSON uses plain arrays for path data.
+        // Normalize to a `ShapePath` instance so downstream code can rely on methods/fields.
+        if (is_array($pathData) && isset($pathData['i'], $pathData['o'], $pathData['v'])) {
+            $len = count($pathData['v'] ?? []);
+            $shapePath = ShapePool::newElement();
+            $shapePath->setPathData((bool) ($pathData['c'] ?? false), $len);
+            for ($i = 0; $i < $len; ++$i) {
+                $v = $pathData['v'][$i] ?? [0, 0];
+                $o = $pathData['o'][$i] ?? [0, 0];
+                $in = $pathData['i'][$i] ?? [0, 0];
+                $shapePath->setTripleAt(
+                    (float) ($v[0] ?? 0),
+                    (float) ($v[1] ?? 0),
+                    (float) ($o[0] ?? 0),
+                    (float) ($o[1] ?? 0),
+                    (float) ($in[0] ?? 0),
+                    (float) ($in[1] ?? 0),
+                    $i,
+                    true
+                );
+            }
+            $this->v = $shapePath;
+            $this->pv = ShapePool::clone($shapePath);
+        } else {
+            $this->v = $pathData;
+            $this->pv = $this->v;
+        }
         $this->localShapeCollection = ShapeCollectionPool::newShapeCollection();
         $this->paths = $this->localShapeCollection;
         $this->paths->addShape($this->v);

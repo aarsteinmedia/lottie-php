@@ -21,8 +21,8 @@ abstract class ShapeElement extends RenderableDOMElement
             --$i;
             $processedElement = $this->processedElements[$i];
 
-            if ($processedElement['elem'] === $elem) {
-                $processedElement['pos'] = $pos;
+            if ($processedElement->elem === $elem) {
+                $processedElement->pos = $pos;
 
                 return;
             }
@@ -90,8 +90,9 @@ abstract class ShapeElement extends RenderableDOMElement
         $i = 0;
 
         while ($i < $length) {
-            if (($this->processedElements[$i]['elem'] ?? null) === $elem) {
-                return $this->processedElements[$i]['pos'] ?? 0;
+            $processedElement = $this->processedElements[$i];
+            if ($processedElement->elem === $elem) {
+                return $processedElement->pos;
             }
             ++$i;
         }

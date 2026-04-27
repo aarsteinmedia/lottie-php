@@ -6,7 +6,7 @@ use LottiePHP\Utils\Shapes\ShapePath;
 
 class ShapePool
 {
-    private static ?PoolFactory $_factory;
+    private static ?PoolFactory $_factory = null;
 
     public static function newElement(): ShapePath
     {
@@ -19,14 +19,12 @@ class ShapePool
         }
 
         /** @var ShapePath $el */
-        $el = self::$_factory->newElement(...);
-        
-        return $el;
+        return self::$_factory->newElement();
     }
 
     public static function release(...$args)
     {
-        return self::$_factory->release(...$args);
+        return self::$_factory?->release(...$args);
     }
 
     public static function clone(ShapePath $shape)

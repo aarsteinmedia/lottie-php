@@ -85,7 +85,7 @@ class SVGShapeElement extends ShapeElement
         $length = count($this->animatedContents);
 
         while ($i < $length) {
-            if ($this->animatedContents[$i]['element'] ?? null === $element) {
+            if (($this->animatedContents[$i]['element'] ?? null) === $element) {
                 return;
             }
             ++$i;
@@ -123,23 +123,38 @@ class SVGShapeElement extends ShapeElement
             true
         );
         $this->filterUniqueShapes();
+
+        $this->debugLog(
+            'createContent done: shapesData='
+            .count($this->shapesData ?? [])
+            .' shapes='.count($this->shapes ?? [])
+            .' stylesList='.count($this->stylesList ?? [])
+            .' animatedContents='.count($this->animatedContents ?? [])
+            .' shapesWithStyles='
+            .count(array_filter($this->shapes ?? [], fn ($s) => count($s?->styles ?? []) > 0))
+        );
     }
 
     public function createGroupElement(array $data)
     {
         $elementData = new ShapeGroupData();
 
-        if ($data['ln']) {
+        if (!empty($data['ln'] ?? null)) {
             $elementData->gr->setAttribute('id', $data['ln']);
         }
-        if ($data['cl']) {
-            addClasses($elementData->gr, $data['cl']);
+        if (!empty($data['cl'] ?? null)) {
+            addClasses($elementData->gr, [$data['cl']]);
         }
-        if ($data['bm']) {
-            addStyles($elementData->gr, ['mix-blend-mode' => getBlendMode($data['bm'])]);
+        if (!empty($data['bm'] ?? null)) {
+            addStyles($elementData->gr, ['mix-blend-mode' => getBlendMode((int) $data['bm'])]);
         }
 
-        return $elementData;
+        // Keep the original TS-like shape tree structure expected by `searchShapes`.
+        return [
+            'gr' => $elementData->gr,
+            'it' => [],
+            'prevViewData' => [],
+        ];
     }
 
     public function createShapeElement(
@@ -149,7 +164,9 @@ class SVGShapeElement extends ShapeElement
     ) {
         $ty = 4;
 
-        switch ($data['ty']) {
+        $shapeTy = ShapeType::tryFrom($data['ty'] ?? '');
+
+        switch ($shapeTy) {
             case ShapeType::Rectangle:
                 $ty = 5;
 
@@ -181,13 +198,15 @@ class SVGShapeElement extends ShapeElement
         return $elementData;
     }
 
-    public function createStyleElement(SVGShapeData $data, int $level)
+    public function createStyleElement(array $data, int $level)
     {
         $elementData = null;
         $styleOb = new SVGStyleData($data, $level);
         $pathElement = $styleOb->pElem;
 
-        switch ($data['ty']) {
+        $styleTy = ShapeType::tryFrom($data['ty'] ?? '');
+
+        switch ($styleTy) {
             case ShapeType::Stroke:
                 $elementData = new SVGStrokeStyleData(
                     $this,
@@ -209,7 +228,7 @@ class SVGShapeElement extends ShapeElement
             case ShapeType::GradientFill:
             case ShapeType::GradientStroke:
                 $GradientConstructor
-                  = ShapeType::GradientFill === $data['ty']
+                  = ShapeType::GradientFill === $styleTy
                     ? SVGGradientFillStyleData::class
                     : SVGGradientStrokeStyleData::class;
 
@@ -242,7 +261,7 @@ class SVGShapeElement extends ShapeElement
                 );
         }
 
-        if (ShapeType::Stroke === $data['ty'] || ShapeType::GradientStroke === $data['ty']) {
+        if (ShapeType::Stroke === $styleTy || ShapeType::GradientStroke === $styleTy) {
             $pathElement->setAttribute('stroke-linecap', lineCapEnum($data['lc'] ?? 2));
             $pathElement->setAttribute('stroke-linejoin', lineJoinEnum($data['lj'] ?? 2));
             $pathElement->setAttribute('fill-opacity', '0');
@@ -255,13 +274,13 @@ class SVGShapeElement extends ShapeElement
             $pathElement->setAttribute('fill-rule', 'evenodd');
         }
 
-        if ($data['ln']) {
+        if (!empty($data['ln'] ?? null)) {
             $pathElement->setAttribute('id', $data['ln']);
         }
-        if ($data['cl']) {
+        if (!empty($data['cl'] ?? null)) {
             addClasses($pathElement, [$data['cl']]);
         }
-        if ($data['bm']) {
+        if (!empty($data['bm'] ?? null)) {
             addStyles($pathElement, ['mix-blend-mode' => getBlendMode($data['bm'])]);
         }
         array_push($this->stylesList, $styleOb);
@@ -273,7 +292,10 @@ class SVGShapeElement extends ShapeElement
         //   console.log(elementData)
         // }
 
-        return $elementData;
+        return [
+            'style' => $styleOb,
+            'element' => $elementData,
+        ];
     }
 
     public function createTransformElement(array $data, \DOMElement $container)
@@ -321,9 +343,14 @@ class SVGShapeElement extends ShapeElement
             $areAnimated = false;
             $tempShapes = [];
             for ($i = 0; $i < $length; ++$i) {
-                if (in_array($style, $this->shapes[$i]['styles'])) {
-                    array_push($tempShapes, $this->shapes[$i]);
-                    $areAnimated = $this->shapes[$i]['_isAnimated'] ?? $areAnimated;
+                $shape = $this->shapes[$i] ?? null;
+                if (!$shape) {
+                    continue;
+                }
+
+                if (in_array($style, $shape->styles ?? [], true)) {
+                    array_push($tempShapes, $shape);
+                    $areAnimated = (bool) ($shape->_isAnimated ?? $areAnimated);
                 }
             }
             if (count($tempShapes) > 1 && $areAnimated) {
@@ -371,6 +398,11 @@ class SVGShapeElement extends ShapeElement
 
     public function renderInnerContent()
     {
+        $this->debugLog(
+            'renderInnerContent start: shapes='.count($this->shapes ?? [])
+            .' stylesList='.count($this->stylesList ?? [])
+            .' animatedContents='.count($this->animatedContents ?? [])
+        );
         $this->renderModifiers();
         $length = count($this->stylesList);
 
@@ -388,7 +420,7 @@ class SVGShapeElement extends ShapeElement
                 $maskPathString = $this->stylesList[$i]?->d ?? '';
                 $this->stylesList[$i]->d = "M0 0{$maskPathString}";
             }
-            $this->stylesList[$i]?->pElem->setAttribute('d', $this->stylesList[$i]?->d || 'M0 0');
+            $this->stylesList[$i]?->pElem?->setAttribute('d', $this->stylesList[$i]?->d ?: 'M0 0');
         }
     }
 
@@ -397,17 +429,21 @@ class SVGShapeElement extends ShapeElement
         $length = count($this->animatedContents);
 
         for ($i = 0; $i < $length; ++$i) {
+            $data = $this->animatedContents[$i]['data'] ?? null;
+            $element = $this->animatedContents[$i]['element'] ?? null;
+            $fn = $this->animatedContents[$i]['fn'] ?? null;
+
             if (
                 !$this->_isFirstFrame
-                && !$this->animatedContents[$i]['element']?->_isAnimated
-                || $this->animatedContents[$i]['data'] ?? null === true
-                || !$this->animatedContents[$i]['fn'] ?? null
+                && !$element?->_isAnimated
+                || true === $data
+                || !$fn
             ) {
                 continue;
             }
-            $this->animatedContents[$i]['fn'](
-                $this->animatedContents[$i]['data'] ?? null,
-                $this->animatedContents[$i]['element'] ?? null,
+            $fn(
+                $data,
+                $element,
                 $this->_isFirstFrame
             );
         }
@@ -440,7 +476,9 @@ class SVGShapeElement extends ShapeElement
                 $arr[$i]['_shouldRender'] = $shouldRender;
             }
 
-            switch ($arr[$i]['ty'] ?? '') {
+            $shapeType = ShapeType::tryFrom($arr[$i]['ty'] ?? '');
+
+            switch ($shapeType) {
                 case ShapeType::Fill:
                 case ShapeType::Stroke:
                 case ShapeType::GradientFill:
@@ -450,7 +488,7 @@ class SVGShapeElement extends ShapeElement
                         ['style' => $style] = $itemsData[$i] ?? ['style' => null];
 
                         if ($style) {
-                            $style['closed'] = false;
+                            $style->closed = false;
                         }
                     } else {
                         $itemsData[$i] = $this->createStyleElement(
@@ -458,9 +496,9 @@ class SVGShapeElement extends ShapeElement
                             $level
                         );
                     }
-                    if ($arr[$i]['_shouldRender'] ?? null && $itemsData[$i]['style']['pElem']['parentNode'] ?? null !== $container) {
-                        ['pElem' => $pElem] = $itemsData[$i]['style'] ?? ['pElem' => null];
+                    $pElem = $itemsData[$i]['style']?->pElem ?? null;
 
+                    if (($arr[$i]['_shouldRender'] ?? null) && $pElem?->parentNode !== $container) {
                         if ($pElem) {
                             $container->appendChild($pElem);
                         }
@@ -530,7 +568,7 @@ class SVGShapeElement extends ShapeElement
                             $level
                         );
                     }
-                    $this->setElementStyles($itemsData[$i]);
+                    $this->setElementStyles($itemsData[$i], $ownStyles);
 
                     break;
 
@@ -544,7 +582,7 @@ class SVGShapeElement extends ShapeElement
                         $Modifier = $itemsData[$i];
                         $Modifier->closed = false;
                     } else {
-                        $Modifier = ShapeModifiers::getModifier($arr[$i]['ty'] ?? ShapeType::Unknown);
+                        $Modifier = ShapeModifiers::getModifier($shapeType ?? ShapeType::Unknown);
                         $Modifier->init($this, $arr[$i]);
                         $itemsData[$i] = $Modifier;
                         array_push($this->shapeModifiers, $Modifier);
@@ -561,7 +599,7 @@ class SVGShapeElement extends ShapeElement
 
                         break;
                     }
-                    $Modifier = ShapeModifiers::getModifier($arr[$i]['ty'] ?? ShapeType::Unknown);
+                    $Modifier = ShapeModifiers::getModifier($shapeType ?? ShapeType::Unknown);
                     $itemsData[$i] = $Modifier;
                     $Modifier->init(
                         $this,
@@ -601,13 +639,14 @@ class SVGShapeElement extends ShapeElement
         }
     }
 
-    public function setElementStyles(SVGShapeData $elementData)
+    public function setElementStyles(SVGShapeData $elementData, ?array $styles = null)
     {
-        $length = count($this->stylesList);
+        $stylesToUse = $styles ?? $this->stylesList;
+        $length = count($stylesToUse);
 
         for ($i = 0; $i < $length; ++$i) {
-            if (!$this->stylesList[$i]?->closed) {
-                array_push($elementData->styles, $this->stylesList[$i]);
+            if (!$stylesToUse[$i]?->closed) {
+                array_push($elementData->styles, $stylesToUse[$i]);
             }
         }
     }
@@ -619,5 +658,13 @@ class SVGShapeElement extends ShapeElement
         for ($i = 0; $i < $length; ++$i) {
             $shapes[$i]?->setAsAnimated();
         }
+    }
+
+    private function debugLog(string $message): void
+    {
+        if (!getenv('LOTTIE_PHP_DEBUG')) {
+            return;
+        }
+        error_log('[LottiePHP][SVGShapeElement] '.$message);
     }
 }

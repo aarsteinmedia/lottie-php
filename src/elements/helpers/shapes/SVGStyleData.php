@@ -13,31 +13,32 @@ class SVGStyleData
     public bool $closed;
     public ?int $coOp;
     public $d = '';
-    public SVGShapeData $data;
+    public array $data;
     public ?array $finalTransform;
-    public ?\DOMElement $gr;
-    public ?array $grd;
-    public ?bool $hd;
-    public ?array $it;
+    public ?\DOMElement $gr = null;
+    public ?array $grd = null;
+    public ?bool $hd = null;
+    public ?array $it = null;
     public int $lvl;
-    public ?\DOMElement $msElem;
+    public ?\DOMElement $msElem = null;
     public \DOMElement $pElem;
-    public ?BaseElement $prevViewData;
-    public ?array $pt;
-    public ?SVGStyleData $style;
-    public ?int $t;
-    public ?array $transform;
-    public ?ShapeType $ty;
+    public ?BaseElement $prevViewData = null;
+    public ?array $pt = null;
+    public ?SVGStyleData $style = null;
+    public ?int $t = null;
+    public ?array $transform = null;
+    public ?ShapeType $ty = null;
     public ?ShapeType $type;
 
     public function __construct(
-        SVGShapeData $data,
+        array $data,
         int $level
     ) {
         $this->data = $data;
-        $this->type = $data['ty'];
+        $this->type = ShapeType::tryFrom($data['ty'] ?? '');
         $this->lvl = $level;
-        $this->closed = true === $data['hd'];
+        // "closed" here is used by style renderers to decide path closing behavior.
+        $this->closed = ($data['closed'] ?? false) === true;
 
         $this->pElem = createNS('path');
     }

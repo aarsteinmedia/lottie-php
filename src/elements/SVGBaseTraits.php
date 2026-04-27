@@ -39,7 +39,7 @@ trait SVGBaseTraits
         $layerElementParent = null;
 
         // If this layer acts as a mask for the following layer
-        if (isset($this->data['td'])) {
+        if ($this->data['td'] ?? 0) {
             $this->matteMasks = [];
             $gg = createNS('g');
 
@@ -50,7 +50,7 @@ trait SVGBaseTraits
 
             $layerElementParent = $gg;
             $this->globalData['defs']->appendChild($gg);
-        } elseif (isset($this->data['tt'])) {
+        } elseif ($this->data['tt'] ?? null) {
             $this->matteElement->appendChild($this->layerElement);
 
             $layerElementParent = $this->matteElement;
@@ -138,7 +138,7 @@ trait SVGBaseTraits
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
-        if ($this->data['hd']) {
+        if (($this->data['hd'] ?? false) === true) {
             return null;
         }
 

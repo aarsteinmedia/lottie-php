@@ -158,12 +158,12 @@ abstract class TransformElement extends BaseElement
         }
 
         if ($this->finalTransform['_matMdf']) {
-            $mat = $this->finalTransform['mProp']->v['props'];
+            $mat = $this->finalTransform['mProp']->v->props;
 
             $finalMat->cloneFromProps($mat);
             for ($i = 0; $i < $length; ++$i) {
                 if ($this->hierarchy[$i]->finalTransform['mProp']->v) {
-                    ['v' => $matrix] = $this->hierarchy[$i]->finalTransform['mProp'] ?? ['v' => null];
+                    $matrix = $this->hierarchy[$i]->finalTransform['mProp']->v ?? null;
 
                     if ($matrix) {
                         $finalMat->multiply($matrix);

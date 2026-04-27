@@ -4,6 +4,7 @@ namespace LottiePHP\Utils\Properties;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
 class KeyframedValueProperty extends BaseProperty
 {
@@ -14,7 +15,7 @@ class KeyframedValueProperty extends BaseProperty
         BaseElement|BaseProperty $elem,
         array $data,
         ?float $mult = null,
-        BaseElement|BaseProperty|null $container = null
+        BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::UniDimensional;
         $this->keyframes = $data['k'];

@@ -45,8 +45,10 @@ class LottieToSVG
             return AnimationManager::loadAnimation([
                 'animationData' => $animations[0],
             ]);
-        } catch (\Exception $error) {
-            error_log($error->getMessage());
+        } catch (\Throwable $error) {
+            error_log(
+                $error::class.': '.$error->getMessage()."\n".$error->getTraceAsString()
+            );
         }
     }
 

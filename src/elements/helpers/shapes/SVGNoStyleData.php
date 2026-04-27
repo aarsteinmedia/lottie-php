@@ -15,7 +15,7 @@ class SVGNoStyleData extends DynamicPropertyContainer
 
     public function __construct(
         BaseElement|DynamicPropertyContainer $elem,
-        SVGShapeData $_data,
+        array $_data,
         SVGStyleData $styleObj
     ) {
         $this->initDynamicPropertyContainer($elem);
