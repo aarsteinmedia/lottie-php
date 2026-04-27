@@ -267,7 +267,7 @@ class SVGShapeElement extends ShapeElement
             }
         }
 
-        if (2 === $data['r']) {
+        if (2 === ($data['r'] ?? null)) {
             $pathElement->setAttribute('fill-rule', 'evenodd');
         }
 
@@ -533,7 +533,7 @@ class SVGShapeElement extends ShapeElement
                         $shouldRender
                     );
 
-                    if ($arr[$i]['_shouldRender'] ?? null && $itemsData[$i]['gr']['parentNode'] ?? null !== $container) {
+                    if ($arr[$i]['_shouldRender'] ?? null && ($itemsData[$i]['gr']?->parentNode ?? null) !== $container) {
                         ['gr' => $gr] = $itemsData[$i] ?? [];
 
                         if ($gr) {
@@ -547,7 +547,7 @@ class SVGShapeElement extends ShapeElement
                     if (!$processedPos) {
                         $itemsData[$i] = $this->createTransformElement($arr[$i], $container);
                     }
-                    $currentTransform = $itemsData[$i]['transform'];
+                    $currentTransform = $itemsData[$i]?->transform ?? null;
                     if ($currentTransform) {
                         array_push($ownTransformers, $currentTransform);
                     }

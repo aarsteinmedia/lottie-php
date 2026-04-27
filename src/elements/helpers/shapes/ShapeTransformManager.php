@@ -49,7 +49,7 @@ class ShapeTransformManager
 
         if (!$isFirstFrame) {
             while ($i < $length) {
-                if ($sequence['transforms'][$i]['transform']['mProps']['_mdf'] ?? null) {
+                if ($sequence['transforms'][$i]['transform']['mProps']->_mdf ?? null) {
                     $_mdf = true;
 
                     break;

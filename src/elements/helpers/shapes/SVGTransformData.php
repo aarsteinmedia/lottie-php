@@ -25,7 +25,7 @@ class SVGTransformData
             'mProps' => $mProps,
             'op' => $op,
         ];
-        $this->_isAnimated = count($this->transform['mProps']['dynamicProperties']) > 0
-          || count($this->transform['op']['effectsSequence']) > 0;
+        $this->_isAnimated = count($this->transform['mProps']->dynamicProperties ?? []) > 0
+          || count($this->transform['op']->effectsSequence ?? []) > 0;
     }
 }

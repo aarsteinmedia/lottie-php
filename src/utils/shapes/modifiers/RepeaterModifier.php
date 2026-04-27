@@ -413,7 +413,7 @@ class RepeaterModifier extends ShapeModifier
             $jLen = count($itemsTransform);
 
             if ($items[count($items) - 1]) {
-                $items[count($items) - 1]['transform']['mProps']['_mdf'] = true;
+                $items[count($items) - 1]['transform']['mProps']->_mdf = true;
                 $items[count($items) - 1]['transform']['op']['_mdf'] = true;
                 $items[count($items) - 1]['transform']['op']->v
                     = 1 === $this->_currentCopies

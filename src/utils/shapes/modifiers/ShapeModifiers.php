@@ -3,13 +3,14 @@
 namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Enums\ShapeType;
 
 class ShapeModifiers
 {
     private static $Modifiers = [];
 
     public static function getModifier(
-        string $nm,
+        ShapeType|string $nm,
         ?BaseElement $_elem = null,
         ?array $_data = null
     ) {

@@ -143,9 +143,14 @@ function toRGBString(?array $v)
     }
 
     // v is already scaled to 0..255 by property factory; keep it fast and allocation-light.
-    $r = ($v[0] ?? 0) | 0;
-    $g = ($v[1] ?? 0) | 0;
-    $b = ($v[2] ?? 0) | 0;
+    $r = (int) ($v[0] ?? 0);
+    $g = (int) ($v[1] ?? 0);
+    $b = (int) ($v[2] ?? 0);
+
+    // Clamp just in case upstream sends values outside the expected range.
+    $r = max(0, min(255, $r));
+    $g = max(0, min(255, $g));
+    $b = max(0, min(255, $b));
 
     return "rgb({$r},{$g},{$b})";
 }

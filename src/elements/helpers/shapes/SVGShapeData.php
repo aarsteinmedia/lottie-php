@@ -26,7 +26,7 @@ class SVGShapeData extends ShapeData
         $length = count($transformers);
 
         while ($i < $length) {
-            if (count($transformers[$i]['mProps']['dynamicProperties'] ?? []) > 0) {
+            if (count($transformers[$i]['mProps']->dynamicProperties ?? []) > 0) {
                 $this->_isAnimated = true;
 
                 break;

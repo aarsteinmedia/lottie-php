@@ -40,7 +40,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?int $numKeys;
     public $offsetTime = 0;
     public ?array $propertyGroup;
-    public array|int|ShapePath|null $pv;
+    public array|float|ShapePath|null $pv;
     public $s;
     public ?array $sh;
     public ?\Closure $smooth;
