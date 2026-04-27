@@ -17,7 +17,7 @@ abstract class HierarchyElement extends TransformElement
         if (!$this->comp) {
             throw new \Error(get_class($this).': comp (ElementInterface) is not implemented');
         }
-        if (null === $this->data['parent']) {
+        if (!isset($this->data['parent']) || null === $this->data['parent']) {
             return;
         }
 

@@ -13,6 +13,11 @@ use function LottiePHP\Utils\createNS;
 
 trait SVGBaseTraits
 {
+    public ?\DOMElement $maskedElement;
+    public ?\DOMElement $matteElement;
+    public ?\DOMElement $transformedElement;
+    public ?bool $_sizeChanged;
+
     public function createContainerElements()
     {
         if (!$this->data) {
@@ -34,7 +39,7 @@ trait SVGBaseTraits
         $layerElementParent = null;
 
         // If this layer acts as a mask for the following layer
-        if ($this->data['td']) {
+        if (isset($this->data['td'])) {
             $this->matteMasks = [];
             $gg = createNS('g');
 
@@ -45,7 +50,7 @@ trait SVGBaseTraits
 
             $layerElementParent = $gg;
             $this->globalData['defs']->appendChild($gg);
-        } elseif ($this->data['tt']) {
+        } elseif (isset($this->data['tt'])) {
             $this->matteElement->appendChild($this->layerElement);
 
             $layerElementParent = $this->matteElement;
@@ -53,10 +58,10 @@ trait SVGBaseTraits
         } else {
             $this->baseElement = $this->layerElement;
         }
-        if ($this->data['ln']) {
+        if (isset($this->data['ln'])) {
             $this->layerElement->setAttribute('id', $this->data['ln']);
         }
-        if ($this->data['cl']) {
+        if (isset($this->data['cl'])) {
             addClasses($this->layerElement, [$this->data['cl']]);
         }
 

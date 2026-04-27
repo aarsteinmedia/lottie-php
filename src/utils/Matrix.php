@@ -377,7 +377,7 @@ class Matrix
     public function scale(
         float $sx,
         float $sy,
-        float $sz = 1.0
+        ?float $sz = 1.0
     ): Matrix {
         if (1 === $sx && 1 === $sy && 1 === $sz) {
             return $this;

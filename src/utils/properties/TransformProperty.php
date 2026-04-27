@@ -16,7 +16,7 @@ class TransformProperty extends BaseProperty
     public ?array $_transformCachingAtTime;
     public BaseProperty $a;
     public $appliedTransformations = 0;
-    public ?bool $autoOriented;
+    public ?bool $autoOriented = false;
     public ?array $data;
     public BaseElement|BaseProperty|null $elem;
 
@@ -41,8 +41,8 @@ class TransformProperty extends BaseProperty
     public ?ValueProperty $rz;
     // BaseProperty already defines `$s` (untyped). Keep child untyped to satisfy PHP covariance rules.
     public $s;
-    public ?ValueProperty $sa;
-    public ?ValueProperty $sk;
+    public ?ValueProperty $sa = null;
+    public ?ValueProperty $sk = null;
     // BaseProperty defines `$v` (untyped). Keep child untyped.
     public $v;
     private $defaultVector = [0, 0];
@@ -229,50 +229,50 @@ class TransformProperty extends BaseProperty
             $mat->translate(
                 -$this->a->v[0],
                 -$this->a->v[1],
-                $this->a->v[2]
+                $this->a->v[2] ?? 0
             );
         }
         if ($this->s) {
             $mat->scale(
                 $this->s->v[0],
                 $this->s->v[1],
-                $this->s->v[2]
+                $this->s->v[2] ?? 1.0
             );
         }
         if ($this->sk) {
-            $mat->skewFromAxis(-$this->sk->v, (int) ($this->sa->v ?? null));
+            $mat->skewFromAxis(-$this->sk->v, ($this->sa->v ?? 0));
         }
         if ($this->r) {
             $mat->rotate(-$this->r->v);
         } else {
             $mat
-                ->rotateZ(-(int) ($this->rz->v ?? null))
-                ->rotateY((int) ($this->ry->v ?? null))
-                ->rotateX((int) ($this->rx->v ?? null))
-                ->rotateZ(-(int) $this->or->v[2] ?? 0)
-                ->rotateY((int) $this->or->v[1] ?? 0)
-                ->rotateX((int) $this->or->v[0] ?? 0)
+                ->rotateZ(-$this->rz->v ?? 0.0)
+                ->rotateY($this->ry->v ?? 0.0)
+                ->rotateX($this->rx->v ?? 0.0)
+                ->rotateZ(-($this->or->v[2] ?? 0.0))
+                ->rotateY($this->or->v[1] ?? 0.0)
+                ->rotateX($this->or->v[0] ?? 0.0)
             ;
         }
         if ($this->data['p'] && array_key_exists('s', $this->data['p'])) {
             if (array_key_exists('z', $this->data['p'])) {
                 $mat->translate(
-                    (int) ($this->px->v ?? null),
-                    (int) ($this->py->v ?? null),
-                    -(int) ($this->pz->v ?? null)
+                    $this->px->v ?? 0.0,
+                    $this->py->v ?? 0.0,
+                    -($this->pz->v ?? 0.0)
                 );
             } else {
                 $mat->translate(
-                    (int) ($this->px->v ?? null),
-                    (int) ($this->py->v ?? null),
+                    $this->px->v ?? 0.0,
+                    $this->py->v ?? 0.0,
                     0
                 );
             }
         } else {
             $mat->translate(
-                (int) ($this->p->v[0] ?? 0),
-                (int) ($this->p->v[1] ?? 0),
-                -(int) ($this->p->v[2] ?? 0)
+                $this->p->v[0] ?? 0.0,
+                $this->p->v[1] ?? 0.0,
+                -($this->p->v[2] ?? 0.0)
             );
         }
     }
@@ -302,29 +302,29 @@ class TransformProperty extends BaseProperty
                 $this->v->translate(
                     -$this->a->v[0],
                     -$this->a->v[1],
-                    $this->a->v[2]
+                    $this->a->v[2] ?? 0.0
                 );
             }
             if ($this->appliedTransformations < 2 && $this->s) {
                 $this->v->scale(
                     $this->s->v[0],
                     $this->s->v[1],
-                    $this->s->v[2]
+                    $this->s->v[2] ?? 1.0
                 );
             }
             if ($this->sk && $this->appliedTransformations < 3) {
-                $this->v->skewFromAxis(-$this->sk->v, (int) ($this->sa->v ?? null));
+                $this->v->skewFromAxis(-$this->sk->v, ($this->sa->v ?? 0.0));
             }
             if ($this->r && $this->appliedTransformations < 4) {
                 $this->v->rotate(-$this->r->v);
             } elseif (!$this->r && $this->appliedTransformations < 4) {
                 $this->v
-                    ->rotateZ(-(int) ($this->rz->v ?? null))
-                    ->rotateY((int) ($this->ry->v ?? null))
-                    ->rotateX((int) ($this->rx->v ?? null))
-                    ->rotateZ(-(int) $this->or->v[2] ?? 0)
-                    ->rotateY((int) $this->or->v[1] ?? 0)
-                    ->rotateX((int) $this->or->v[0] ?? 0)
+                    ->rotateZ(-($this->rz->v ?? 0.0))
+                    ->rotateY($this->ry->v ?? 0.0)
+                    ->rotateX($this->rx->v ?? 0.0)
+                    ->rotateZ(-($this->or->v[2] ?? 0.0))
+                    ->rotateY($this->or->v[1] ?? 0.0)
+                    ->rotateX($this->or->v[0] ?? 0.0)
                 ;
             }
             if ($this->autoOriented) {
@@ -335,7 +335,7 @@ class TransformProperty extends BaseProperty
 
                 if ($this->p->keyframes ?? null) {
                     if (
-                        (int) ($this->p->_caching['lastFrame'] ?? 0) + $this->p->offsetTime
+                        ($this->p->_caching['lastFrame'] ?? 0) + $this->p->offsetTime
                         <= ($this->p->keyframes[0]['t'] ?? 0)
                     ) {
                         $v1 = $this->p->getValueAtTime(
@@ -343,11 +343,11 @@ class TransformProperty extends BaseProperty
                             0
                         );
                         $v2 = $this->p->getValueAtTime(
-                            (int) ($this->p->keyframes[0]['t'] ?? 0) / $frameRate,
+                            ($this->p->keyframes[0]['t'] ?? 0.0) / $frameRate,
                             0
                         );
                     } elseif (
-                        (int) ($this->p->_caching['lastFrame'] ?? 0) + $this->p->offsetTime
+                        ($this->p->_caching['lastFrame'] ?? 0) + $this->p->offsetTime
                         >= ($this->p->keyframes[count($this->p->keyframes) - 1]['t'] ?? 0)
                     ) {
                         $v1 = $this->p->getValueAtTime(
@@ -362,7 +362,7 @@ class TransformProperty extends BaseProperty
                     } else {
                         $v1 = $this->p->pv;
                         $v2 = $this->p->getValueAtTime(
-                            ((int) ($this->p->_caching['lastFrame'] ?? 0)
+                            (($this->p->_caching['lastFrame'] ?? 0.0)
               + $this->p->offsetTime
               - 0.01)
               / $frameRate,
@@ -377,7 +377,7 @@ class TransformProperty extends BaseProperty
                     $pyKeyframes = $this->py?->keyframes ?? [];
 
                     if (
-                        (int) ($this->px->_caching['lastFrame'] ?? 0) + $this->px->offsetTime
+                        ($this->px->_caching['lastFrame'] ?? 0) + $this->px->offsetTime
                         <= ($pxKeyframes[0]['t'] ?? 0)
                     ) {
                         $v1[0] = $this->px->getValueAtTime(
@@ -393,11 +393,11 @@ class TransformProperty extends BaseProperty
                             0
                         );
                         $v2[1] = $this->py->getValueAtTime(
-                            (int) $pyKeyframes[0]['t'] / $frameRate,
+                            $pyKeyframes[0]['t'] / $frameRate,
                             0
                         );
                     } elseif (
-                        (int) $this->px->_caching['lastFrame'] + $this->px->offsetTime
+                        (float) $this->px->_caching['lastFrame'] + $this->px->offsetTime
                         >= ($pxKeyframes[count($pxKeyframes) - 1]['t'] ?? 0)
                     ) {
                         $v1[0] = $this->px->getValueAtTime(
@@ -425,12 +425,12 @@ class TransformProperty extends BaseProperty
                     } else {
                         $v1 = [$this->px->pv, $this->py->pv];
                         $v2[0] = $this->px->getValueAtTime(
-                            ((int) ($this->px->_caching['lastFrame'] ?? 0) + $this->px->offsetTime - 0.01)
+                            (($this->px->_caching['lastFrame'] ?? 0.0) + $this->px->offsetTime - 0.01)
               / $frameRate,
                             $this->px->offsetTime
                         );
                         $v2[1] = $this->py->getValueAtTime(
-                            ((int) ($this->py->_caching['lastFrame'] ?? 0) + $this->py->offsetTime - 0.01)
+                            (($this->py->_caching['lastFrame'] ?? 0.0) + $this->py->offsetTime - 0.01)
               / $frameRate,
                             $this->py->offsetTime
                         );
@@ -444,14 +444,14 @@ class TransformProperty extends BaseProperty
             if ($this->data['p'] && array_key_exists('s', $this->data['p'])) {
                 if (array_key_exists('z', $this->data['p'])) {
                     $this->v->translate(
-                        (int) ($this->px->v ?? null),
-                        (int) ($this->py->v ?? null),
-                        -(int) ($this->pz->v ?? null)
+                        $this->px->v ?? 0.0,
+                        $this->py->v ?? 0.0,
+                        -($this->pz->v ?? 0.0)
                     );
                 } else {
                     $this->v->translate(
-                        (int) ($this->px->v ?? null),
-                        (int) ($this->py->v ?? null),
+                        $this->px->v ?? 0.0,
+                        $this->py->v ?? 0.0,
                         0
                     );
                 }
@@ -459,7 +459,7 @@ class TransformProperty extends BaseProperty
                 $this->v->translate(
                     $this->p->v[0],
                     $this->p->v[1],
-                    -$this->p->v[2]
+                    -($this->p->v[2] ?? 0.0)
                 );
             }
         }
@@ -484,7 +484,7 @@ class TransformProperty extends BaseProperty
         $this->pre->translate(
             -$this->a->v[0],
             -$this->a->v[1],
-            $this->a->v[2]
+            $this->a->v[2] ?? 0.0
         );
         $this->appliedTransformations = 1;
 
@@ -499,7 +499,7 @@ class TransformProperty extends BaseProperty
         $this->pre->scale(
             $this->s->v[0],
             $this->s->v[1],
-            $this->s->v[2]
+            $this->s->v[2] ?? 1.0
         );
         $this->appliedTransformations = 2;
 
@@ -507,7 +507,7 @@ class TransformProperty extends BaseProperty
             if (count($this->sk->effectsSequence) > 0 || count($this->sa->effectsSequence ?? [])) {
                 return;
             }
-            $this->pre->skewFromAxis(-$this->sk->v, (int) ($this->sa->v ?? null));
+            $this->pre->skewFromAxis(-$this->sk->v, $this->sa->v ?? 0.0);
             $this->appliedTransformations = 3;
         }
         if ($this->r) {
@@ -526,12 +526,12 @@ class TransformProperty extends BaseProperty
             && !count($this->or->effectsSequence ?? [])
         ) {
             $this->pre
-                ->rotateZ(-(int) ($this->rz->v ?? 0))
-                ->rotateY((int) ($this->ry->v ?? 0))
-                ->rotateX((int) ($this->rx->v ?? 0))
-                ->rotateZ(-(int) ($this->or->v[2] ?? 0))
-                ->rotateY($this->or->v[1] ?? 0)
-                ->rotateX($this->or->v[0] ?? 0)
+                ->rotateZ(-($this->rz->v ?? 0.0))
+                ->rotateY($this->ry->v ?? 0.0)
+                ->rotateX($this->rx->v ?? 0.0)
+                ->rotateZ(-($this->or->v[2] ?? 0.0))
+                ->rotateY($this->or->v[1] ?? 0.0)
+                ->rotateX($this->or->v[0] ?? 0.0)
             ;
             $this->appliedTransformations = 4;
         }
