@@ -111,7 +111,7 @@ abstract class BaseElement implements \ArrayAccess
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
-        $blendModeValue = getBlendMode($this->data['bm']);
+        $blendModeValue = getBlendMode($this->data['bm'] ?? 16);
         $elem = $this->baseElement ?? $this->layerElement;
 
         if (!$elem) {

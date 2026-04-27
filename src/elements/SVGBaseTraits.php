@@ -16,6 +16,7 @@ trait SVGBaseTraits
     public ?\DOMElement $maskedElement;
     public ?\DOMElement $matteElement;
     public ?\DOMElement $transformedElement;
+    public ?array $matteMasks;
     public ?bool $_sizeChanged;
 
     public function createContainerElements()
@@ -69,7 +70,7 @@ trait SVGBaseTraits
          * Clipping compositions to hide content that exceeds boundaries.
          * If collapsed transformations is on, component should not be clipped.
          */
-        if (0 === $this->data['ty'] && !$this->data['hd']) {
+        if (0 === ($this->data['ty'] ?? 0) && !($this->data['hd'] ?? false)) {
             $cp = createNS('clipPath');
             $pt = createNS('path');
 
@@ -104,7 +105,7 @@ trait SVGBaseTraits
                 );
             }
         }
-        if (0 !== $this->data['bm']) {
+        if (0 !== ($this->data['bm'] ?? null)) {
             $this->setBlendMode();
         }
     }
@@ -148,7 +149,7 @@ trait SVGBaseTraits
     public function getMatte($matteType = 1): string
     {
         $this->matteMasks ??= [];
-        if ($this->matteMasks[$matteType]) {
+        if ($this->matteMasks[$matteType] ?? null) {
             return $this->matteMasks[$matteType];
         }
         $layerId = $this->layerId;

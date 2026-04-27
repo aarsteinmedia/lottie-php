@@ -36,7 +36,7 @@ class AnimationItem
         $length = count($this->assets);
 
         while ($i < $length) {
-            if ($id === $this->assets[$i]?->id) {
+            if ($id === ($this->assets[$i]['id'] ?? null)) {
                 return $this->assets[$i];
             }
             ++$i;

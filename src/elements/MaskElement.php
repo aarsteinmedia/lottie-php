@@ -103,6 +103,8 @@ class MaskElement
             );
             $path->setAttribute('clip-rule', 'nonzero');
 
+            $filterID = null;
+
             if (($properties[$i]['x']['k'] ?? null) === 0) {
                 $feMorph = null;
                 $x = null;
@@ -255,15 +257,15 @@ class MaskElement
         $len = $pathNodes->_length || 0;
 
         for ($i = 1; $i < $len; ++$i) {
-            $oVector = implode(',', $pathNodes['o'][$i - 1] ?? []);
-            $iVector = implode(',', $pathNodes['i'][$i] ?? []);
+            $oVector = implode(',', $pathNodes->o[$i - 1] ?? []);
+            $iVector = implode(',', $pathNodes->i[$i] ?? []);
             $vVector = implode(',', $pathNodes->v[$i] ?? []);
 
             $pathString .= " C{$oVector} {$iVector} {$vVector}";
         }
 
-        if ($pathNodes['c'] && $len > 1) {
-            $oVector = implode(',', $pathNodes['o'][$i - 1] ?? []);
+        if ($pathNodes->c && $len > 1) {
+            $oVector = implode(',', $pathNodes->o[$i - 1] ?? []);
             $iVector = implode(',', $pathNodes->v[0] ?? []);
             $vVector = implode(',', $pathNodes->v[0] ?? []);
 
@@ -274,7 +276,7 @@ class MaskElement
             $pathShapeValue = '';
 
             if ($viewData['elem']) {
-                if ($pathNodes['c']) {
+                if ($pathNodes->c) {
                     $pathShapeValue = ($pathData['inv'] ?? false)
                       ? $this->solidPath.$pathString
                       : $pathString;

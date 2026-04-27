@@ -16,10 +16,10 @@ class ImageElement extends SVGBaseElement
         parent::__construct();
 
         if ($data['refId']) {
-            $this->assetData = $globalData['getAssetData']($data['refId']);
+            $this->assetData = $globalData['getAssetData']($data['refId']) ?? null;
         }
 
-        if ($this->assetData['sid']) {
+        if ($this->assetData['sid'] ?? null) {
             $this->assetData = $globalData['slotManager']['getProp']($this->assetData) ?? [];
         }
 

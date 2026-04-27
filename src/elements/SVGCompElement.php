@@ -35,7 +35,7 @@ class SVGCompElement extends SVGBaseElement
         array $globalData,
         BaseRenderer|SVGCompElement|SVGTextLottieElement $comp
     ) {
-        $this->layers = $data['layers'];
+        $this->layers = $data['layers'] ?? null;
         $this->elements = createSizedArray(count($this->layers ?? []));
 
         $this->initElement(

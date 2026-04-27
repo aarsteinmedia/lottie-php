@@ -457,8 +457,8 @@ class TransformProperty extends BaseProperty
                 }
             } elseif ($this->p) {
                 $this->v->translate(
-                    $this->p->v[0],
-                    $this->p->v[1],
+                    $this->p->v[0] ?? 0.0,
+                    $this->p->v[1] ?? 0.0,
                     -($this->p->v[2] ?? 0.0)
                 );
             }
@@ -497,8 +497,8 @@ class TransformProperty extends BaseProperty
         }
 
         $this->pre->scale(
-            $this->s->v[0],
-            $this->s->v[1],
+            $this->s->v[0] ?? 1.0,
+            $this->s->v[1] ?? 1.0,
             $this->s->v[2] ?? 1.0
         );
         $this->appliedTransformations = 2;

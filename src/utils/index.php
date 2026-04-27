@@ -82,6 +82,11 @@ function createNS(string $type)
     return domDocumentPool()->createElementNS(Constants::$namespaceSVG, $type);
 }
 
+function createTag($type)
+{
+    return domDocumentPool()->createElement($type);
+}
+
 function floatEqual(int $a, int $b)
 {
     return abs($a - $b) * 100000 <= min(abs($a), abs($b));
@@ -118,7 +123,7 @@ function getBlendMode($mode = 16)
         9 => 'soft-light',
     ];
 
-    return $blendModeEnums[$mode] || '';
+    return $blendModeEnums[$mode] ?? '';
 }
 
 function isLottie(array $json)

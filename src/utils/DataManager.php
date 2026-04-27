@@ -39,4 +39,9 @@ class DataManager
 
         self::completeAnimation($json, $onComplete);
     }
+
+    public static function loadData(string $path)
+    {
+        return null;
+    }
 }

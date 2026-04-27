@@ -205,7 +205,7 @@ trait RendererTraits
         $length = count($assets);
 
         for ($i = 0; $i < $length; ++$i) {
-            if ($assets[$i]['xt']) {
+            if ($assets[$i]['xt'] ?? null) {
                 $comp = $this->createComp($assets[$i]);
 
                 // $comp->initExpressions();
@@ -230,6 +230,9 @@ trait RendererTraits
         $this->globalData['slotManager'] = null;
         $this->globalData['fontManager']->addChars($animData['chars'] ?? []);
         $this->globalData['fontManager']->addFonts($animData['fonts'] ?? [], $fontsContainer);
+
+        $this->globalData['getAssetData'] = $this->animationItem->getAssetData(...);
+        $this->globalData['getAssetsPath'] = $this->animationItem->getAssetsPath(...);
 
         // Not needed for still SVG output (keep null-safe to avoid crashes).
         $this->globalData['imageLoader'] = null;
