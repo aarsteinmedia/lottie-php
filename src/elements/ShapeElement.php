@@ -13,7 +13,7 @@ abstract class ShapeElement extends RenderableDOMElement
     public $shapeModifiers = [];
     public $shapes = [];
 
-    public function addProcessedElement(BaseElement $elem, int $pos)
+    public function addProcessedElement(array $elem, int $pos)
     {
         $i = count($this->processedElements);
 
@@ -21,8 +21,8 @@ abstract class ShapeElement extends RenderableDOMElement
             --$i;
             $processedElement = $this->processedElements[$i];
 
-            if ($processedElement?->elem === $elem) {
-                $processedElement->pos = $pos;
+            if ($processedElement['elem'] === $elem) {
+                $processedElement['pos'] = $pos;
 
                 return;
             }

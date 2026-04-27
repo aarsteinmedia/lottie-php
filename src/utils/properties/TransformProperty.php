@@ -240,7 +240,7 @@ class TransformProperty extends BaseProperty
             );
         }
         if ($this->sk) {
-            $mat->skewFromAxis(-$this->sk->v, ($this->sa->v ?? 0));
+            $mat->skewFromAxis(-$this->sk->v, $this->sa->v ?? 0);
         }
         if ($this->r) {
             $mat->rotate(-$this->r->v);
@@ -313,7 +313,7 @@ class TransformProperty extends BaseProperty
                 );
             }
             if ($this->sk && $this->appliedTransformations < 3) {
-                $this->v->skewFromAxis(-$this->sk->v, ($this->sa->v ?? 0.0));
+                $this->v->skewFromAxis(-$this->sk->v, $this->sa->v ?? 0.0);
             }
             if ($this->r && $this->appliedTransformations < 4) {
                 $this->v->rotate(-$this->r->v);

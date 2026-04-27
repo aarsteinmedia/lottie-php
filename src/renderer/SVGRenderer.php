@@ -6,7 +6,6 @@ use LottiePHP\Animation\AnimationItem;
 use LottiePHP\Elements\SVGCompElement;
 
 use function LottiePHP\Utils\createNS;
-use function LottiePHP\Utils\Pooling\domDocumentPool;
 
 class SVGRenderer extends SVGRendererBase
 {

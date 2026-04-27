@@ -3,7 +3,6 @@
 namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
-use LottiePHP\Elements\CompElement;
 use LottiePHP\Utils\BezierFactory;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Helpers\Constants;
