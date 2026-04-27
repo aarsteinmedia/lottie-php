@@ -23,7 +23,7 @@ class PropertyFactory
         $data = $dataFromProps;
 
         if ($data && array_key_exists('sid', $data) && $data['sid']) {
-            $data = ($elem->globalData['slotManager']['getProp'] ?? null)($data);
+            $data = ($elem->globalData['slotManager']?->getProp ?? null)($data);
         }
         $p = null;
 

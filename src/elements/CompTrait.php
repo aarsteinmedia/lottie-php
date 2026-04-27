@@ -44,7 +44,7 @@ trait CompTrait
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
-        if ($this->data['xt'] || !$globalData['progressiveLoad']) {
+        if (($this->data['xt'] ?? false) || !$globalData['progressiveLoad']) {
             $this->buildAllItems();
         }
         $this->hide();
@@ -59,14 +59,14 @@ trait CompTrait
         $this->_mdf = false;
         $this->prepareRenderableFrame($val);
         $this->prepareProperties($val, $this->isInRange);
-        if (!$this->isInRange && !$this->data['xt']) {
+        if (!$this->isInRange && !($this->data['xt'] ?? false)) {
             return;
         }
 
-        if ($this->tm?->_placeholder) {
+        if (!$this->tm || ($this->tm->_placeholder ?? false)) {
             $this->renderedFrame = $val / (int) $this->data['sr'];
         } else {
-            $timeRemapped = $this->tm?->v || 0;
+            $timeRemapped = $this->tm->v || 0;
 
             if ($timeRemapped === $this->data['op']) {
                 $timeRemapped = $this->data['op'] - 1;

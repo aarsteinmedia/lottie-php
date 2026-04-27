@@ -24,7 +24,7 @@ class SVGCompElement extends SVGBaseElement
     // public function createCamera = SVGRendererBase.prototype.createCamera;
     public $currentFrame = 0;
     public array $elements;
-    public ?array $layers;
+    public array $layers;
     public $pendingElements = [];
     // public function setProjectInterface = SVGRendererBase.prototype.setProjectInterface;
     public $supports3d = true;
@@ -35,20 +35,22 @@ class SVGCompElement extends SVGBaseElement
         array $globalData,
         BaseRenderer|SVGCompElement|SVGTextLottieElement $comp
     ) {
-        $this->layers = $data['layers'] ?? null;
-        $this->elements = createSizedArray(count($this->layers ?? []));
+        $this->layers = $data['layers'] ?? [];
+        $this->elements = createSizedArray(count($this->layers));
 
         $this->initElement(
             $data,
             $globalData,
             $comp
         );
-        $this->tm = ($data['tm'] ? PropertyFactory::getProp(
-            $this,
-            $data['tm'],
-            0,
-            $globalData['frameRate'],
-        ) : ['_placeholder' => true]);
+        $this->tm = !empty($data['tm'])
+            ? PropertyFactory::getProp(
+                $this,
+                $data['tm'],
+                0,
+                $globalData['frameRate'],
+            )
+            : null;
     }
 
     public function createComp(array $data): SVGCompElement

@@ -18,7 +18,6 @@ class ShapePool
             );
         }
 
-        /** @var ShapePath $el */
         return self::$_factory->newElement();
     }
 
@@ -76,8 +75,3 @@ class ShapePool
         $shapePath->c = false;
     }
 }
-
-// $ShapePool = {
-//   clone,
-//   newElement
-// }

@@ -4,6 +4,7 @@ namespace LottiePHP\Animation;
 
 use LottiePHP\Renderer\SVGRenderer;
 use LottiePHP\Utils\DataManager;
+use LottiePHP\Utils\ImagePreloader;
 
 use function LottiePHP\Utils\Pooling\domDocumentPool;
 
@@ -15,8 +16,14 @@ class AnimationItem
     public $assetsPath = '';
     public $path = '';
     public ?\DOMElement $wrapper = null;
+    public ImagePreloader $imagePreloader;
 
     protected ?string $fileName = null;
+
+    public function __construct()
+    {
+        $this->imagePreloader = new ImagePreloader();
+    }
 
     public function configAnimation(array $animationData)
     {
@@ -53,10 +60,10 @@ class AnimationItem
             return $path;
         }
 
-        if ($assetData->e) {
-            $path = $assetData->p || '';
+        if ($assetData['e'] ?? null) {
+            $path = $assetData['p'] ?? '';
         } elseif ($this->assetsPath) {
-            $imagePath = $assetData->p;
+            $imagePath = $assetData['p'] ?? null;
 
             if (
                 array_any(['i/', 'images/'], fn ($_path) => str_contains($imagePath, $_path))
@@ -72,6 +79,26 @@ class AnimationItem
     public function getPath()
     {
         return $this->path;
+    }
+
+    public function trigger(string $name) {}
+
+    public function checkLoaded() {}
+
+    public function imagesLoaded()
+    {
+        $this->trigger('loaded_images');
+        $this->checkLoaded();
+    }
+
+    public function preloadImages()
+    {
+        $this->imagePreloader->setAssetsPath($this->assetsPath);
+        $this->imagePreloader->setPath($this->path);
+        $this->imagePreloader->loadAssets(
+            $this->animationData['assets'],
+            $this->imagesLoaded(...)
+        );
     }
 
     public function renderFrame()

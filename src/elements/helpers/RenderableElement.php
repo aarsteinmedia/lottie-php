@@ -3,6 +3,7 @@
 namespace LottiePHP\Elements\Helpers;
 
 use LottiePHP\Elements\ImageElement;
+use LottiePHP\Elements\MaskElement;
 use LottiePHP\Elements\SVGEffects;
 
 abstract class RenderableElement extends FrameElement
@@ -12,7 +13,7 @@ abstract class RenderableElement extends FrameElement
     public $isTransparent = false;
     public array $renderableComponents = [];
 
-    public function addRenderableComponent(ImageElement|SVGEffects $component)
+    public function addRenderableComponent(ImageElement|MaskElement|SVGEffects $component)
     {
         if (!in_array($component, $this->renderableComponents)) {
             $this->renderableComponents[] = $component;

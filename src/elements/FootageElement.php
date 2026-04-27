@@ -24,7 +24,7 @@ class FootageElement extends RenderableElement
         if (!$globalData['imageLoader']) {
             throw new \Error(get_class($this).': imageLoader is not implemented in globalData');
         }
-        $this->footageData = $globalData['imageLoader']['getAsset']($this->assetData) ?? null;
+        $this->footageData = $globalData['imageLoader']?->getAsset($this->assetData) ?? null;
         $this->initBaseData(
             $data,
             $globalData,

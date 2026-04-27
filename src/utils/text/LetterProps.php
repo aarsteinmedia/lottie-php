@@ -6,10 +6,10 @@ class LetterProps
 {
     public ?bool $__complete;
     public array $_mdf;
-    public array|string $fc;
-    public int|string $m;
+    public array|string|null $fc;
+    public int|string|null $m;
     public ?int $o;
-    public array|int $p;
+    public array|int|null $p;
     public array|string|null $sc;
     public ?int $sw;
     public ?string $t;

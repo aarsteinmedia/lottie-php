@@ -3,7 +3,7 @@
 namespace LottiePHP\Elements\Helpers\Shapes;
 
 use LottiePHP\Utils\Enums\ShapeType;
-use LottiePHP\Utils\Shapes\Properties\ShapeProperty;
+use LottiePHP\Utils\Shapes\Properties\ShapeBaseProperty;
 use LottiePHP\Utils\Shapes\ShapeCollection;
 
 abstract class ShapeData
@@ -22,8 +22,8 @@ abstract class ShapeData
     public $lvl = 0;
     public $pathsData = [];
     public $prevViewData = [];
-    public ?ShapeProperty $sh = null;
-    public ?ShapeProperty $shape;
+    public ?ShapeBaseProperty $sh = null;
+    public ?ShapeBaseProperty $shape;
     public ?SVGStyleData $style;
     public $styledShapes = [];
     public $styles = [];

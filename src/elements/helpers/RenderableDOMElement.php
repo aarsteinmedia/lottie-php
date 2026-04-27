@@ -69,7 +69,7 @@ abstract class RenderableDOMElement extends RenderableElement
 {
     use RenderableElementTraits;
 
-    public ?\DOMElement $innerElement = null;
+    public ?\DOMElement $innerElem = null;
 
     public function createContainerElements()
     {

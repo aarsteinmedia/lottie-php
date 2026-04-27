@@ -2,14 +2,14 @@
 
 namespace LottiePHP\Elements\Helpers\Shapes;
 
-use LottiePHP\Utils\Shapes\Properties\ShapeProperty;
+use LottiePHP\Utils\Shapes\Properties\ShapeBaseProperty;
 
 class SVGShapeData extends ShapeData
 {
     public function __construct(
         array $transformers,
         int $level,
-        ShapeProperty $shape
+        ShapeBaseProperty $shape
     ) {
         $this->caches = [];
         $this->styles = [];

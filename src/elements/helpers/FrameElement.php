@@ -39,12 +39,12 @@ abstract class FrameElement extends HierarchyElement
         for ($i = 0; $i < $length; ++$i) {
             if (
                 !$isVisible
-                && !($this->_isParent && PropType::Transform === $this->dynamicProperties[$i]['propType'])
+                && !($this->_isParent && PropType::Transform === $this->dynamicProperties[$i]->propType)
             ) {
                 continue;
             }
-            $this->dynamicProperties[$i]['getValue']();
-            if (!$this->globalData || !$this->dynamicProperties[$i]['_mdf']) {
+            $this->dynamicProperties[$i]->getValue();
+            if (!$this->globalData || !$this->dynamicProperties[$i]->_mdf) {
                 continue;
             }
             $this->globalData['_mdf'] = true;

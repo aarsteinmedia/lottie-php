@@ -54,8 +54,8 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
         $length = count($this->dynamicProperties);
 
         for ($i = 0; $i < $length; ++$i) {
-            $this->dynamicProperties[$i]['getValue']();
-            if ($this->dynamicProperties[$i]['_mdf']) {
+            $this->dynamicProperties[$i]->getValue();
+            if ($this->dynamicProperties[$i]->_mdf) {
                 $this->_mdf = true;
             }
         }

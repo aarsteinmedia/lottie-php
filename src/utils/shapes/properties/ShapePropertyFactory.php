@@ -2,7 +2,8 @@
 
 namespace LottiePHP\Utils\Shapes\Properties;
 
-use LottiePHP\Elements\ShapeElement;
+use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
 class ShapePropertyFactory
 {
@@ -17,7 +18,7 @@ class ShapePropertyFactory
     }
 
     public static function getShapeProp(
-        ShapeElement $elem,
+        BaseElement|DynamicPropertyContainer $elem,
         array $data,
         int $type,
         ?array $_arr = null,

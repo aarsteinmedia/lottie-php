@@ -91,7 +91,7 @@ class SVGTextLottieElement extends TextElement
         $this->layerElement->setAttribute('aria-label', $documentData['t']);
 
         $letters = $documentData['l'];
-        $hasGlyphs = (bool) $this->globalData['fontManager']['chars'] ?? null;
+        $hasGlyphs = (bool) $this->globalData['fontManager']?->chars ?? null;
 
         $len = count($letters);
 

@@ -22,7 +22,7 @@ class TextProperty extends BaseProperty
     public $keysIndex = 0;
     public $minimumFontSize = 1;
     public $pv = '';
-    public array|string $v = '';
+    public $v = '';
 
     public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
@@ -31,7 +31,7 @@ class TextProperty extends BaseProperty
         $this->_isFirstFrame = true;
         $this->_mdf = false;
         if ($data['d']['sid'] ?? null) {
-            $data['d'] = $elem['globalData']['slotManager']->getProp($data['d']);
+            $data['d'] = $elem['globalData']['slotManager']?->getProp($data['d']);
         }
         $this->data = $data;
         $this->elem = $elem;
@@ -192,7 +192,7 @@ class TextProperty extends BaseProperty
         $trackingOffset = $documentData['tr'] / 1000 * $documentData['finalSize'];
         $charCode = null;
 
-        if ($documentData['sz']) {
+        if ($documentData['sz'] ?? null) {
             $shouldComplete = true;
             [$boxWidth, $boxHeight] = $documentData['sz'];
             $currentHeight = 0;
@@ -292,7 +292,7 @@ class TextProperty extends BaseProperty
             } else {
                 $val = $currentChar;
             }
-            if ($fontManager['chars']) {
+            if ($fontManager?->chars) {
                 $charData = $fontManager->getCharData(
                     $currentChar,
                     $fontData['fStyle'],
@@ -377,13 +377,13 @@ class TextProperty extends BaseProperty
         $documentData['l'] = $letters;
         $maxLineWidth = $lineWidth > $maxLineWidth ? $lineWidth : $maxLineWidth;
         array_push($lineWidths, $lineWidth);
-        if ($documentData['sz']) {
+        if ($documentData['sz'] ?? null) {
             $documentData['boxWidth'] = $documentData['sz'][0];
             $documentData['justifyOffset'] = 0;
         } else {
             $documentData['boxWidth'] = $maxLineWidth;
 
-            switch ($documentData['j']) {
+            switch ($documentData['j'] ?? null) {
                 case 1:
                     $documentData['justifyOffset'] = -$documentData['boxWidth'];
 

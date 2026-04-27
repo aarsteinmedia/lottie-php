@@ -215,7 +215,7 @@ class MaskElement
             $defs->appendChild($this->maskElement);
         }
         if (count($this->viewData) > 0) {
-            $this->element['addRenderableComponent']($this);
+            $this->element->addRenderableComponent($this);
         }
     }
 

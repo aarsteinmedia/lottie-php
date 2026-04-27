@@ -6,6 +6,7 @@
       "LottiePHP\\": "src/"
     },
     "files": [
+      "src/effects/index.php",
       "src/utils/index.php",
       "src/utils/enums.php",
       "src/utils/buildShapeString.php",

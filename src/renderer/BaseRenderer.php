@@ -235,7 +235,7 @@ trait RendererTraits
         $this->globalData['getAssetsPath'] = $this->animationItem->getAssetsPath(...);
 
         // Not needed for still SVG output (keep null-safe to avoid crashes).
-        $this->globalData['imageLoader'] = null;
+        $this->globalData['imageLoader'] = $this->animationItem->imagePreloader; // null
         $this->globalData['audioController'] = null;
         $this->globalData['frameId'] = 0;
         $this->globalData['frameRate'] = (int) ($animData['fr'] ?? 60);

@@ -28,6 +28,11 @@ abstract class BaseElement implements \ArrayAccess
     public ?array $shapesData = [];
     public $type;
 
+    public function addRenderableComponent(ImageElement|MaskElement|SVGEffects $component)
+    {
+        throw new \Error(get_class($this).': Method addRenderableComponent is not implemented');
+    }
+
     public function buildAllItems()
     {
         throw new \Error(get_class($this).': Method buildAllItems is not implemented');
@@ -43,7 +48,7 @@ abstract class BaseElement implements \ArrayAccess
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not initialized');
         }
-        if (!$this->data['hasMask']) {
+        if (!($this->data['hasMask'] ?? false)) {
             return false;
         }
         $i = 0;
@@ -51,8 +56,8 @@ abstract class BaseElement implements \ArrayAccess
 
         while ($i < $length) {
             if (
-                'n' !== $this->data.['masksProperties'][$i]['mode']
-                && false !== $this->data.['masksProperties'][$i]['cl']
+                'n' !== $this->data['masksProperties'][$i]['mode']
+                && false !== ($this->data['masksProperties'][$i]['cl'] ?? null)
             ) {
                 return true;
             }
