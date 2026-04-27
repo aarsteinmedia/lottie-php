@@ -254,7 +254,6 @@ abstract class BaseRenderer extends FrameElement
     public $elements = [];
     public $layers = [];
     public $pendingElements = [];
-    public $renderedFrame = -1;
 
     public function addPendingElement(BaseElement $element)
     {

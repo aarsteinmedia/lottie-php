@@ -119,6 +119,5 @@ abstract class CompElement extends RenderableDOMElement
     public $currentFrame = 0;
     public $elements = [];
     public $layers = [];
-    public ?int $renderedFrame;
     public ?BaseProperty $tm;
 }

@@ -149,7 +149,7 @@ class TransformProperty extends BaseProperty
                 $this
             );
         }
-        if ($data['sk']) {
+        if (array_key_exists('sk', $data)) {
             $this->sk = PropertyFactory::getProp(
                 $elem,
                 $data['sk'],

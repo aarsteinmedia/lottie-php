@@ -36,7 +36,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?bool $lock;
     public ?\Closure $loopIn;
     public ?\Closure $loopOut;
-    public ?int $mult;
+    public ?float $mult;
     public ?int $numKeys;
     public $offsetTime = 0;
     public ?array $propertyGroup;

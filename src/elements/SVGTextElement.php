@@ -14,7 +14,6 @@ class SVGTextLottieElement extends TextElement
     use SVGBaseTraits;
     public ?bool $_sizeChanged;
     public ?array $bbox;
-    public ?int $renderedFrame;
     public $renderedLetters = [];
     public ?\DOMElement $textContainer;
     public $textSpans = [];
@@ -24,7 +23,7 @@ class SVGTextLottieElement extends TextElement
     public function __construct(
         array $data,
         array $globalData,
-        SVGCompElement $comp,
+        BaseElement $comp,
     ) {
         $this->renderType = RendererType::SVG;
 

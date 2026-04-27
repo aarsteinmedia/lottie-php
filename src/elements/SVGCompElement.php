@@ -26,7 +26,6 @@ class SVGCompElement extends SVGBaseElement
     public array $elements;
     public ?array $layers;
     public $pendingElements = [];
-    public $renderedFrame = -1;
     // public function setProjectInterface = SVGRendererBase.prototype.setProjectInterface;
     public $supports3d = true;
     public ?KeyframedValueProperty $tm;

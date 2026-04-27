@@ -11,7 +11,6 @@ use LottiePHP\Utils\Properties\TransformPropertyFactory;
 abstract class TransformElement extends BaseElement
 {
     public false|int $_isFirstFrame = false;
-    public $finalTransform;
     public $hierarchy = [];
     public $localTransforms;
     public Matrix $mHelper;

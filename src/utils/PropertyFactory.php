@@ -22,7 +22,6 @@ class PropertyFactory
     ) {
         $data = $dataFromProps;
 
-        // console.log(data)
         if ($data && array_key_exists('sid', $data) && $data['sid']) {
             $data = ($elem->globalData['slotManager']['getProp'] ?? null)($data);
         }
@@ -30,6 +29,7 @@ class PropertyFactory
 
         $k = $data['k'] ?? null;
         if (!is_array($k)) {
+            echo 'foo';
             $p = new ValueProperty(
                 $elem,
                 $data,
@@ -37,6 +37,7 @@ class PropertyFactory
                 $container
             );
         } elseif (!count($k)) {
+            echo 'bar';
             $p = new ValueProperty(
                 $elem,
                 $data,
@@ -78,6 +79,7 @@ class PropertyFactory
             }
         }
         $p ??= new NoProperty();
+
         if (count($p['effectsSequence']) > 0) {
             ($container['addDynamicProperty'] ?? null)($p);
         }

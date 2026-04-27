@@ -16,7 +16,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
 {
     public ?array $_caching;
     public ?array $_cachingAtTime;
-    public ?CompElement $comp;
+    public ?BaseElement $comp;
     public ?array $data = null;
     public $effectsSequence = [];
     public BaseElement $elem;

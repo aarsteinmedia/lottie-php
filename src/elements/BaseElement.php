@@ -11,10 +11,12 @@ use function LottiePHP\Utils\getBlendMode;
 abstract class BaseElement implements \ArrayAccess
 {
     public ?\DOMElement $baseElement = null;
-    public ?CompElement $comp = null;
+    public ?BaseElement $comp = null;
+    public $renderedFrame = -1;
     public ?array $compInterface;
     public ?array $data;
     public ?array $dynamicProperties;
+    public ?array $finalTransform;
     public ?EffectsManager $effectsManager;
     public $frameDuration = 1;
     public ?array $globalData;
