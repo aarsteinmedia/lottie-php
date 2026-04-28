@@ -318,15 +318,15 @@ class Bezier
     }
 
     public static function pointOnLine3D(
-        int $x1,
-        int $y1,
-        int $z1,
-        int $x2,
-        int $y2,
-        int $z2,
-        int $x3,
-        int $y3,
-        int $z3
+        float $x1,
+        float $y1,
+        float $z1,
+        float $x2,
+        float $y2,
+        float $z2,
+        float $x3,
+        float $y3,
+        float $z3
     ) {
         if (0 === $z1 && 0 === $z2 && 0 === $z3) {
             return self::pointOnLine2D(

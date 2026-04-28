@@ -148,14 +148,14 @@ abstract class TextElement extends RenderableDOMElement
         $this->textAnimator->searchProperties($this->dynamicProperties);
     }
 
-    public function prepareFrame(int $num)
+    public function prepareFrame(float $num)
     {
         $this->_mdf = false;
         $this->prepareRenderableFrame($num);
         $this->prepareProperties($num, $this->isInRange);
     }
 
-    public function setMinimumFontSize(int $_fontSize)
+    public function setMinimumFontSize(float $_fontSize)
     {
         $this->textProperty?->setMinimumFontSize($_fontSize);
     }

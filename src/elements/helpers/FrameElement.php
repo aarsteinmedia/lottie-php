@@ -33,7 +33,7 @@ abstract class FrameElement extends HierarchyElement
         $this->_mdf = false;
     }
 
-    public function prepareProperties(int $_number, $isVisible = false)
+    public function prepareProperties(float $_number, $isVisible = false)
     {
         $length = count($this->dynamicProperties);
 

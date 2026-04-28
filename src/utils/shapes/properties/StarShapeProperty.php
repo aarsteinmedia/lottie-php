@@ -12,7 +12,7 @@ use LottiePHP\Utils\Shapes\ShapeCollection;
 
 class StarShapeProperty extends ShapeBaseProperty
 {
-    public ?array $d;
+    public mixed $d;
     public ?BaseProperty $ir;
     public ?BaseProperty $is;
     public BaseProperty $or;

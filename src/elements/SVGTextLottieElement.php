@@ -383,7 +383,7 @@ class SVGTextLottieElement extends TextElement
         for ($i = 0; $i < $length; ++$i) {
             $glyphElement = $this->textSpans[$i]['glyph'] ?? null;
             if ($glyphElement) {
-                $glyphElement->prepareFrame((int) $this->comp?->renderedFrame - $this->data['st']);
+                $glyphElement->prepareFrame((float) $this->comp?->renderedFrame - $this->data['st']);
                 if ($glyphElement->_mdf) {
                     $this->_mdf = true;
                 }
@@ -456,7 +456,7 @@ class SVGTextLottieElement extends TextElement
         if (!$this->layerElement) {
             throw new \Error(get_class($this).': layerElement is not implemented');
         }
-        $this->prepareFrame((int) $this->comp->renderedFrame - $this->data['st']);
+        $this->prepareFrame((float) $this->comp->renderedFrame - $this->data['st']);
         $this->renderInnerContent();
 
         return null;

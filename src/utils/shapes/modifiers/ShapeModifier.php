@@ -11,7 +11,7 @@ use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 
 class ShapeModifier extends DynamicPropertyContainer
 {
-    public ?bool $closed;
+    public ?bool $closed = null;
     public DynamicPropertyContainer|SVGShapeElement $elem;
     public ?int $frameId;
     public ?bool $k;

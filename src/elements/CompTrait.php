@@ -50,7 +50,7 @@ trait CompTrait
         $this->hide();
     }
 
-    public function prepareFrame(int $val)
+    public function prepareFrame(float $val)
     {
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');

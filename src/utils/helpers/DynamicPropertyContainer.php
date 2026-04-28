@@ -7,7 +7,7 @@ use LottiePHP\Utils\Enums\PropType;
 abstract class DynamicPropertyContainer implements \ArrayAccess
 {
     public ?bool $_isAnimated;
-    public ?bool $_mdf;
+    public ?bool $_mdf = null;
 
     /**
      * In the original TS implementation this is a structural type (“anything with addDynamicProperty”).

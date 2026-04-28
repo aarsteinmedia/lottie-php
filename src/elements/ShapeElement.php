@@ -54,7 +54,7 @@ abstract class ShapeElement extends RenderableDOMElement
         return false;
     }
 
-    public function prepareFrame(int $num)
+    public function prepareFrame(float $num)
     {
         $this->prepareRenderableFrame($num);
         $this->prepareProperties($num, $this->isInRange);

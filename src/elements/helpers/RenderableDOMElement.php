@@ -112,7 +112,7 @@ abstract class RenderableDOMElement extends RenderableElement
         throw new \Error(get_class($this).': Method initRendererElement is not implemented');
     }
 
-    public function prepareFrame(int $num)
+    public function prepareFrame(float $num)
     {
         $this->_mdf = false;
         $this->prepareRenderableFrame($num);

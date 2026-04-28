@@ -15,19 +15,26 @@ class PropertyFactory
 {
     public static function getProp(
         BaseElement|BaseProperty $elem,
-        ?array $dataFromProps,
+        mixed $dataFromProps,
         ?int $type = null,
         ?float $mult = null,
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $data = $dataFromProps;
 
-        if ($data && array_key_exists('sid', $data) && $data['sid']) {
+        // Lottie data is usually an object/array with a `k` field, but some files
+        // (or upstream calls) can pass raw numeric values. Normalize those here
+        // to avoid array_key_exists()/indexing on scalars.
+        if (is_int($data) || is_float($data)) {
+            $data = ['k' => $data];
+        }
+
+        if (is_array($data) && array_key_exists('sid', $data) && $data['sid']) {
             $data = ($elem->globalData['slotManager']?->getProp ?? null)($data);
         }
         $p = null;
 
-        if (!$data) {
+        if (!$data || !is_array($data)) {
             return new NoProperty();
         }
 

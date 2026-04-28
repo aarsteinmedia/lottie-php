@@ -1086,40 +1086,41 @@ class TextAnimatorProperty extends DynamicPropertyContainer
             );
         }
 
-        if ($this->_textData['p'] && array_key_exists('m', $this->_textData['p']) && $this->_elem['maskManager']) {
+        $textPathData = $this->_textData['p'] ?? null;
+        if ($textPathData && is_array($textPathData) && array_key_exists('m', $textPathData) && $this->_elem['maskManager']) {
             $this->_pathData = [
                 'a' => PropertyFactory::getProp(
                     $this->_elem,
-                    $this->_textData['p']['a'],
+                    $textPathData['a'],
                     0,
                     0,
                     $this
                 ),
                 'f' => PropertyFactory::getProp(
                     $this->_elem,
-                    $this->_textData['p']['f'],
+                    $textPathData['f'],
                     0,
                     0,
                     $this
                 ),
                 'l' => PropertyFactory::getProp(
                     $this->_elem,
-                    $this->_textData['p']['l'],
+                    $textPathData['l'],
                     0,
                     0,
                     $this
                 ),
-                'm' => $this->_elem['maskManager']->getMaskProperty($this->_textData['p']['m']),
+                'm' => $this->_elem['maskManager']->getMaskProperty($textPathData['m']),
                 'p' => PropertyFactory::getProp(
                     $this->_elem,
-                    $this->_textData['p']['p'],
+                    $textPathData['p'],
                     0,
                     0,
                     $this
                 ),
                 'r' => PropertyFactory::getProp(
                     $this->_elem,
-                    $this->_textData['p']['r'],
+                    $textPathData['r'],
                     0,
                     0,
                     $this

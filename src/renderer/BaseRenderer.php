@@ -307,7 +307,7 @@ abstract class BaseRenderer extends FrameElement
         throw new \Error(get_class($this).': Method createText not implemented');
     }
 
-    public function prepareFrame(int $_num)
+    public function prepareFrame(float $_num)
     {
         throw new \Error(get_class($this).': Method prepareFrame not yet implemented');
     }

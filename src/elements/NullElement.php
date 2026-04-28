@@ -26,7 +26,7 @@ class NullElement extends FrameElement
         return null;
     }
 
-    public function prepareFrame(int $num)
+    public function prepareFrame(float $num)
     {
         $this->prepareProperties($num, true);
     }

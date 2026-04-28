@@ -21,7 +21,7 @@ class SVGElementsRenderer
         if ($isFirstFrame || $itemData->transform['op']->_mdf) {
             $itemData->transform['container']->setAttribute(
                 'opacity',
-                $itemData->transform['op']->v
+                $itemData->transform['op']->v ?? 1
             );
         }
         if ($isFirstFrame || $itemData->transform['mProps']->_mdf) {
@@ -49,7 +49,7 @@ class SVGElementsRenderer
             );
         }
         if ($itemData->o?->_mdf || $isFirstFrame) {
-            $styleElem->pElem->setAttribute('fill-opacity', $itemData->o?->v);
+            $styleElem->pElem->setAttribute('fill-opacity', $itemData->o?->v ?? 1);
         }
     }
 

@@ -101,7 +101,7 @@ abstract class BaseElement implements \ArrayAccess
         $this->layerId = createElementID();
 
         // Stretch factor for old animations missing $this property.
-        if (!$this->data['sr']) {
+        if (!($this->data['sr'] ?? null)) {
             $this->data['sr'] = 1;
         }
         $this->effectsManager = new EffectsManager(

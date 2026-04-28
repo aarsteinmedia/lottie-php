@@ -2,6 +2,7 @@
 
 namespace LottiePHP\Utils\Text;
 
+use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Properties\BaseProperty;
 use LottiePHP\Utils\PropertyFactory;
 
@@ -11,8 +12,8 @@ class TextAnimatorDataProperty
     public ?TextSelectorProperty $s;
 
     public function __construct(
-        BaseProperty $elem,
-        ?TextAnimatorDataProperty $animatorProps,
+        BaseElement|BaseProperty $elem,
+        array|TextAnimatorDataProperty|null $animatorProps,
         ?TextAnimatorProperty $container
     ) {
         $defaultData = ['propType' => false];

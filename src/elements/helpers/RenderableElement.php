@@ -20,7 +20,7 @@ abstract class RenderableElement extends FrameElement
         }
     }
 
-    public function checkLayerLimits(int $num)
+    public function checkLayerLimits(float $num)
     {
         if (!$this->data || !$this->globalData) {
             return;
@@ -104,7 +104,7 @@ abstract class RenderableElement extends FrameElement
         $this->renderableComponents = [];
     }
 
-    public function prepareRenderableFrame(int $num, $_ = false)
+    public function prepareRenderableFrame(float $num, $_ = false)
     {
         $this->checkLayerLimits($num);
     }

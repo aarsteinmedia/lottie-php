@@ -70,7 +70,7 @@ abstract class TransformElement extends BaseElement
             'localMat' => $mat,
             'localOpacity' => 1,
             'mat' => $mat,
-            'mProp' => $this->data['ks']
+            'mProp' => ($this->data['ks'] ?? null)
               ? TransformPropertyFactory::getTransformProperty(
                   $this,
                   $this->data['ks'],
@@ -79,7 +79,7 @@ abstract class TransformElement extends BaseElement
               : ['o' => 0],
         ];
 
-        if ($this->data['ao']) {
+        if ($this->data['ao'] ?? null) {
             $this->finalTransform['mProp']['autoOriented'] = true;
         }
     }

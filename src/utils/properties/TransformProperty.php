@@ -8,6 +8,7 @@ use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\PropertyFactory;
+use LottiePHP\Utils\Shapes\Modifiers\ShapeModifier;
 
 class TransformProperty extends BaseProperty
 {
@@ -49,7 +50,7 @@ class TransformProperty extends BaseProperty
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
-        BaseElement|BaseProperty|null $container = null
+        BaseElement|BaseProperty|ShapeModifier|null $container = null
     ) {
         $this->pre = new Matrix();
         $this->elem = $elem;
@@ -58,25 +59,26 @@ class TransformProperty extends BaseProperty
         $this->data = $data;
         $this->v = new Matrix();
         $this->initDynamicPropertyContainer($container ?? $elem);
-        if ($data['p'] && array_key_exists('s', $data['p'])) {
+        $positionData = $data['p'] ?? null;
+        if ($positionData && is_array($positionData) && array_key_exists('s', $positionData)) {
             $this->px = PropertyFactory::getProp(
                 $elem,
-                $data['p']['x'],
+                $positionData['x'],
                 0,
                 0,
                 $this
             );
             $this->py = PropertyFactory::getProp(
                 $elem,
-                $data['p']['y'],
+                $positionData['y'],
                 0,
                 0,
                 $this
             );
-            if (array_key_exists('z', $data['p'])) {
+            if (array_key_exists('z', $positionData)) {
                 $this->pz = PropertyFactory::getProp(
                     $elem,
-                    $data['p']['z'],
+                    $positionData['z'],
                     0,
                     0,
                     $this
@@ -187,7 +189,7 @@ class TransformProperty extends BaseProperty
             $this
         );
         // Opacity is not part of the transform properties, that's why it won't use $this->dynamicProperties. That way transforms won't get updated if opacity changes.
-        if ($data['o']) {
+        if ($data['o'] ?? null) {
             $this->o = PropertyFactory::getProp(
                 $elem,
                 $data['o'],
@@ -253,8 +255,9 @@ class TransformProperty extends BaseProperty
                 ->rotateX($this->or->v[0] ?? 0.0)
             ;
         }
-        if ($this->data['p'] && array_key_exists('s', $this->data['p'])) {
-            if (array_key_exists('z', $this->data['p'])) {
+        $positionData = $this->data['p'] ?? null;
+        if ($positionData && is_array($positionData) && array_key_exists('s', $positionData)) {
+            if (array_key_exists('z', $positionData)) {
                 $mat->translate(
                     $this->px->v ?? 0.0,
                     $this->py->v ?? 0.0,
@@ -440,8 +443,9 @@ class TransformProperty extends BaseProperty
                 }
                 $this->v->rotate(-atan2($v1[1] - $v2[1], $v1[0] - $v2[0]));
             }
-            if ($this->data['p'] && array_key_exists('s', $this->data['p'])) {
-                if (array_key_exists('z', $this->data['p'])) {
+            $positionData = $this->data['p'] ?? null;
+            if ($positionData && is_array($positionData) && array_key_exists('s', $positionData)) {
+                if (array_key_exists('z', $positionData)) {
                     $this->v->translate(
                         $this->px->v ?? 0.0,
                         $this->py->v ?? 0.0,

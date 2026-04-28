@@ -2,6 +2,7 @@
 
 namespace LottiePHP\Elements\Helpers\Shapes;
 
+use LottiePHP\Utils\Properties\KeyframedValueProperty;
 use LottiePHP\Utils\Properties\TransformProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
 
@@ -17,7 +18,7 @@ class SVGTransformData
 
     public function __construct(
         TransformProperty $mProps,
-        ValueProperty $op,
+        KeyframedValueProperty|ValueProperty $op,
         \DOMElement $container
     ) {
         $this->transform = [

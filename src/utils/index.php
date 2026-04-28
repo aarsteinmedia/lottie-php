@@ -220,6 +220,36 @@ function isLottie(array $json)
     return array_all($mandatory, fn (string $field) => array_key_exists($field, $json));
 }
 
+function rgbToHex(
+    float $rVal,
+    float $gVal,
+    float $bVal
+) {
+    $colorMap = [];
+    $hex = null;
+
+    for ($i = 0; $i < 256; ++$i) {
+        $hex = dechex($i);
+        $colorMap[$i] = 1 === strlen($hex) ? "0{$hex}" : $hex;
+    }
+
+    $r = $rVal;
+    $g = $gVal;
+    $b = $bVal;
+
+    if ($rVal < 0) {
+        $r = 0;
+    }
+    if ($gVal < 0) {
+        $g = 0;
+    }
+    if ($bVal < 0) {
+        $b = 0;
+    }
+
+    return "#{$colorMap[$r]}{$colorMap[$g]}{$colorMap[$b]}";
+}
+
 function toRGBString(?array $v)
 {
     if (!$v) {
