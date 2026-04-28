@@ -49,6 +49,14 @@ class SVGShapeElement extends ShapeElement
      */
     public $stylesList = [];
 
+    private function debugLog(string $message): void
+    {
+        if (!getenv('LOTTIE_PHP_DEBUG')) {
+            return;
+        }
+        error_log('[LottiePHP][SVGShapeElement] '.$message);
+    }
+
     public function __construct(
         array $data,
         array $globalData,
@@ -655,13 +663,5 @@ class SVGShapeElement extends ShapeElement
         for ($i = 0; $i < $length; ++$i) {
             $shapes[$i]?->setAsAnimated();
         }
-    }
-
-    private function debugLog(string $message): void
-    {
-        if (!getenv('LOTTIE_PHP_DEBUG')) {
-            return;
-        }
-        error_log('[LottiePHP][SVGShapeElement] '.$message);
     }
 }

@@ -12,18 +12,18 @@ class AnimationItem
 {
     public array $animationData;
     public $assets = [];
-    public ?SVGRenderer $renderer = null;
     public $assetsPath = '';
-    public $path = '';
-    public ?\DOMElement $wrapper = null;
     public ImagePreloader $imagePreloader;
-
-    protected ?string $fileName = null;
+    public $path = '';
+    public ?SVGRenderer $renderer = null;
+    public ?\DOMElement $wrapper = null;
 
     public function __construct()
     {
         $this->imagePreloader = new ImagePreloader();
     }
+
+    public function checkLoaded() {}
 
     public function configAnimation(array $animationData)
     {
@@ -80,10 +80,6 @@ class AnimationItem
     {
         return $this->path;
     }
-
-    public function trigger(string $name) {}
-
-    public function checkLoaded() {}
 
     public function imagesLoaded()
     {
@@ -183,4 +179,8 @@ class AnimationItem
     {
         DataManager::completeAnimation($data, $this->configAnimation(...));
     }
+
+    public function trigger(string $name) {}
+
+    protected ?string $fileName = null;
 }

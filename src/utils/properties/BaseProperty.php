@@ -51,6 +51,104 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public array|int|null $vel;
     public ?bool $x;
 
+    private static function createQuaternion(array $values): array
+    {
+        $heading = $values[0] * Constants::$degToRads;
+        $attitude = $values[1] * Constants::$degToRads;
+        $bank = $values[2] * Constants::$degToRads;
+        $c1 = cos($heading / 2);
+        $c2 = cos($attitude / 2);
+        $c3 = cos($bank / 2);
+        $s1 = sin($heading / 2);
+        $s2 = sin($attitude / 2);
+        $s3 = sin($bank / 2);
+        $w = $c1 * $c2 * $c3 - $s1 * $s2 * $s3;
+        $x = $s1 * $s2 * $c3 + $c1 * $c2 * $s3;
+        $y = $s1 * $c2 * $c3 + $c1 * $s2 * $s3;
+        $z = $c1 * $s2 * $c3 - $s1 * $c2 * $s3;
+
+        return [
+            $x,
+            $y,
+            $z,
+            $w,
+        ];
+    }
+
+    private static function quaternionToEuler(array $out, array $quat)
+    {
+        $qx = $quat[0];
+        $qy = $quat[1];
+        $qz = $quat[2];
+        $qw = $quat[3];
+        $heading = atan2(
+            2 * $qy * $qw - 2 * $qx * $qz,
+            1 - 2 * $qy * $qy - 2 * $qz * $qz
+        );
+        $attitude = asin(2 * $qx * $qy + 2 * $qz * $qw);
+        $bank = atan2(
+            2 * $qx * $qw - 2 * $qy * $qz,
+            1 - 2 * $qx * $qx - 2 * $qz * $qz
+        );
+
+        $out[0] = $heading / Constants::$degToRads;
+        $out[1] = $attitude / Constants::$degToRads;
+        $out[2] = $bank / Constants::$degToRads;
+    }
+
+    /**
+     * Based on Toji's https://github.com/toji/gl-matrix/.
+     */
+    private static function slerp(
+        array $a,
+        array $b,
+        int $t
+    ): array {
+        $out = [
+            0,
+            0,
+            0,
+            0,
+        ];
+        $ax = $a[0];
+        $ay = $a[1];
+        $az = $a[2];
+        $aw = $a[3];
+        $bx = $b[0];
+        $by = $b[1];
+        $bz = $b[2];
+        $bw = $b[3];
+        $omega = 0;
+        $cosom = 0;
+        $sinom = 0;
+        $scale0 = 0;
+        $scale1 = 0;
+
+        $cosom = $ax * $bx + $ay * $by + $az * $bz + $aw * $bw;
+        if ($cosom < 0.0) {
+            $cosom = -$cosom;
+            $bx = -$bx;
+            $by = -$by;
+            $bz = -$bz;
+            $bw = -$bw;
+        }
+        if (1.0 - $cosom > 0.000001) {
+            $omega = acos($cosom);
+            $sinom = sin($omega);
+            $scale0 = sin((1.0 - $t) * $omega) / $sinom;
+            $scale1 = sin($t * $omega) / $sinom;
+        } else {
+            $scale0 = 1.0 - $t;
+            $scale1 = $t;
+        }
+        $out[0] = $scale0 * $ax + $scale1 * $bx;
+        $out[1] = $scale0 * $ay + $scale1 * $by;
+        $out[2] = $scale0 * $az + $scale1 * $bz;
+        $out[3] = $scale0 * $aw + $scale1 * $bw;
+
+        return $out;
+    }
+
     public function addEffect(\Closure $effectFunction)
     {
         array_push($this->effectsSequence, $effectFunction);
@@ -456,103 +554,5 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public function velocityAtTime(int $_frameNum)
     {
         throw new \Error('Method is not implemented');
-    }
-
-    private static function quaternionToEuler(array $out, array $quat)
-    {
-        $qx = $quat[0];
-        $qy = $quat[1];
-        $qz = $quat[2];
-        $qw = $quat[3];
-        $heading = atan2(
-            2 * $qy * $qw - 2 * $qx * $qz,
-            1 - 2 * $qy * $qy - 2 * $qz * $qz
-        );
-        $attitude = asin(2 * $qx * $qy + 2 * $qz * $qw);
-        $bank = atan2(
-            2 * $qx * $qw - 2 * $qy * $qz,
-            1 - 2 * $qx * $qx - 2 * $qz * $qz
-        );
-
-        $out[0] = $heading / Constants::$degToRads;
-        $out[1] = $attitude / Constants::$degToRads;
-        $out[2] = $bank / Constants::$degToRads;
-    }
-
-    private static function createQuaternion(array $values): array
-    {
-        $heading = $values[0] * Constants::$degToRads;
-        $attitude = $values[1] * Constants::$degToRads;
-        $bank = $values[2] * Constants::$degToRads;
-        $c1 = cos($heading / 2);
-        $c2 = cos($attitude / 2);
-        $c3 = cos($bank / 2);
-        $s1 = sin($heading / 2);
-        $s2 = sin($attitude / 2);
-        $s3 = sin($bank / 2);
-        $w = $c1 * $c2 * $c3 - $s1 * $s2 * $s3;
-        $x = $s1 * $s2 * $c3 + $c1 * $c2 * $s3;
-        $y = $s1 * $c2 * $c3 + $c1 * $s2 * $s3;
-        $z = $c1 * $s2 * $c3 - $s1 * $c2 * $s3;
-
-        return [
-            $x,
-            $y,
-            $z,
-            $w,
-        ];
-    }
-
-    /**
-     * Based on Toji's https://github.com/toji/gl-matrix/.
-     */
-    private static function slerp(
-        array $a,
-        array $b,
-        int $t
-    ): array {
-        $out = [
-            0,
-            0,
-            0,
-            0,
-        ];
-        $ax = $a[0];
-        $ay = $a[1];
-        $az = $a[2];
-        $aw = $a[3];
-        $bx = $b[0];
-        $by = $b[1];
-        $bz = $b[2];
-        $bw = $b[3];
-        $omega = 0;
-        $cosom = 0;
-        $sinom = 0;
-        $scale0 = 0;
-        $scale1 = 0;
-
-        $cosom = $ax * $bx + $ay * $by + $az * $bz + $aw * $bw;
-        if ($cosom < 0.0) {
-            $cosom = -$cosom;
-            $bx = -$bx;
-            $by = -$by;
-            $bz = -$bz;
-            $bw = -$bw;
-        }
-        if (1.0 - $cosom > 0.000001) {
-            $omega = acos($cosom);
-            $sinom = sin($omega);
-            $scale0 = sin((1.0 - $t) * $omega) / $sinom;
-            $scale1 = sin($t * $omega) / $sinom;
-        } else {
-            $scale0 = 1.0 - $t;
-            $scale1 = $t;
-        }
-        $out[0] = $scale0 * $ax + $scale1 * $bx;
-        $out[1] = $scale0 * $ay + $scale1 * $by;
-        $out[2] = $scale0 * $az + $scale1 * $bz;
-        $out[3] = $scale0 * $aw + $scale1 * $bw;
-
-        return $out;
     }
 }

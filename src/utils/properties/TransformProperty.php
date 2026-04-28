@@ -35,7 +35,7 @@ class TransformProperty extends BaseProperty
     public ?ValueProperty $px;
     public ?ValueProperty $py;
     public ?ValueProperty $pz;
-    public ?ValueProperty $r;
+    public KeyframedValueProperty|ValueProperty|null $r;
     public ?ValueProperty $rx;
     public ?ValueProperty $ry;
     public ?ValueProperty $rz;
@@ -45,7 +45,6 @@ class TransformProperty extends BaseProperty
     public ?ValueProperty $sk = null;
     // BaseProperty defines `$v` (untyped). Keep child untyped.
     public $v;
-    private $defaultVector = [0, 0];
 
     public function __construct(
         BaseElement|BaseProperty $elem,
@@ -536,4 +535,5 @@ class TransformProperty extends BaseProperty
             $this->appliedTransformations = 4;
         }
     }
+    private $defaultVector = [0, 0];
 }

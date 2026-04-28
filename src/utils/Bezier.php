@@ -11,7 +11,92 @@ use function LottiePHP\Utils\Pooling\segmentsLengthPool;
 
 class Bezier
 {
-    private static $_bezierSegmentPoints;
+    private static function getBezierLength(
+        array $pt1,
+        array $pt2,
+        array $pt3,
+        array $pt4
+    ): array {
+        $curveSegments = Resolution::getDefaultCurveSegments();
+        $ptCoord = null;
+        $perc = 0;
+        $addedLength = 0;
+        $ptDistance = null;
+        $point = [];
+        $lastPoint = [];
+        $lengthData = bezierLengthPool()->newElement();
+        $len = count($pt3);
+
+        for ($k = 0; $k < $curveSegments; ++$k) {
+            $perc = $k / ($curveSegments - 1);
+            $ptDistance = 0;
+            for ($i = 0; $i < $len; ++$i) {
+                $ptCoord
+                  = pow(1 - $perc, 3) * ($pt1[$i] ?? 0)
+                  + 3 * pow(1 - $perc, 2) * $perc * ($pt3[$i] ?? 0)
+                  + 3 * (1 - $perc) * pow($perc, 2) * ($pt4[$i] ?? 0)
+                  + pow($perc, 3) * ($pt2[$i] ?? 0);
+                $point[$i] = $ptCoord;
+                if ('number' === gettype($lastPoint[$i])) {
+                    $ptDistance += pow(($point[$i] ?? 0) - ($lastPoint[$i] ?? 0), 2);
+                }
+                $lastPoint[$i] = $point[$i] ?? 0;
+            }
+            if ($ptDistance) {
+                $ptDistance = sqrt($ptDistance);
+                $addedLength += $ptDistance;
+            }
+            $lengthData['percents'][$k] = $perc;
+            $lengthData['lengths'][$k] = $addedLength;
+        }
+        $lengthData['addedLength'] = $addedLength;
+
+        return $lengthData;
+    }
+
+    private static function getDistancePerc(int $perc, $bezierLength)
+    {
+        [
+            'addedLength' => $addedLength,
+            'lengths' => $lengths,
+            'percents' => $percents,
+        ] = $bezierLength;
+
+        $length = count($percents);
+        $initPos = floor(($length - 1) * $perc);
+        $lengthPos = $perc * $addedLength;
+        $lPerc = 0;
+
+        if (
+            $initPos === $length - 1
+            || 0 === $initPos
+            || $lengthPos === $lengths[$initPos]
+        ) {
+            return $percents[$initPos];
+        }
+        $dir = ($lengths[$initPos] ?? 0) > $lengthPos ? -1 : 1;
+        $shouldIterate = true;
+
+        while ($shouldIterate) {
+            if (($lengths[$initPos] ?? 0) <= $lengthPos && ($lengths[$initPos + 1] ?? 0) > $lengthPos) {
+                $lPerc
+                  = ($lengthPos - ($lengths[$initPos] ?? 0))
+                  / (($lengths[$initPos + 1] ?? 0) - ($lengths[$initPos] ?? 0));
+                $shouldIterate = false;
+            } else {
+                $initPos += $dir;
+            }
+            if ($initPos < 0 || $initPos >= $length - 1) {
+                // FIX for TypedArrays that don't store floating point values with enough accuracy
+                if ($initPos === $length - 1) {
+                    return $percents[$initPos];
+                }
+                $shouldIterate = false;
+            }
+        }
+
+        return ($percents[$initPos] ?? 0) + (($percents[$initPos + 1] ?? 0) - ($percents[$initPos] ?? 0)) * $lPerc;
+    }
 
     public static function buildBezierData(
         array $pt1,
@@ -272,93 +357,7 @@ class Bezier
 
         return $diffDist > -0.0001 && $diffDist < 0.0001;
     }
-
-    private static function getBezierLength(
-        array $pt1,
-        array $pt2,
-        array $pt3,
-        array $pt4
-    ): array {
-        $curveSegments = Resolution::getDefaultCurveSegments();
-        $ptCoord = null;
-        $perc = 0;
-        $addedLength = 0;
-        $ptDistance = null;
-        $point = [];
-        $lastPoint = [];
-        $lengthData = bezierLengthPool()->newElement();
-        $len = count($pt3);
-
-        for ($k = 0; $k < $curveSegments; ++$k) {
-            $perc = $k / ($curveSegments - 1);
-            $ptDistance = 0;
-            for ($i = 0; $i < $len; ++$i) {
-                $ptCoord
-                  = pow(1 - $perc, 3) * ($pt1[$i] ?? 0)
-                  + 3 * pow(1 - $perc, 2) * $perc * ($pt3[$i] ?? 0)
-                  + 3 * (1 - $perc) * pow($perc, 2) * ($pt4[$i] ?? 0)
-                  + pow($perc, 3) * ($pt2[$i] ?? 0);
-                $point[$i] = $ptCoord;
-                if ('number' === gettype($lastPoint[$i])) {
-                    $ptDistance += pow(($point[$i] ?? 0) - ($lastPoint[$i] ?? 0), 2);
-                }
-                $lastPoint[$i] = $point[$i] ?? 0;
-            }
-            if ($ptDistance) {
-                $ptDistance = sqrt($ptDistance);
-                $addedLength += $ptDistance;
-            }
-            $lengthData['percents'][$k] = $perc;
-            $lengthData['lengths'][$k] = $addedLength;
-        }
-        $lengthData['addedLength'] = $addedLength;
-
-        return $lengthData;
-    }
-
-    private static function getDistancePerc(int $perc, $bezierLength)
-    {
-        [
-            'addedLength' => $addedLength,
-            'lengths' => $lengths,
-            'percents' => $percents,
-        ] = $bezierLength;
-
-        $length = count($percents);
-        $initPos = floor(($length - 1) * $perc);
-        $lengthPos = $perc * $addedLength;
-        $lPerc = 0;
-
-        if (
-            $initPos === $length - 1
-            || 0 === $initPos
-            || $lengthPos === $lengths[$initPos]
-        ) {
-            return $percents[$initPos];
-        }
-        $dir = ($lengths[$initPos] ?? 0) > $lengthPos ? -1 : 1;
-        $shouldIterate = true;
-
-        while ($shouldIterate) {
-            if (($lengths[$initPos] ?? 0) <= $lengthPos && ($lengths[$initPos + 1] ?? 0) > $lengthPos) {
-                $lPerc
-                  = ($lengthPos - ($lengths[$initPos] ?? 0))
-                  / (($lengths[$initPos + 1] ?? 0) - ($lengths[$initPos] ?? 0));
-                $shouldIterate = false;
-            } else {
-                $initPos += $dir;
-            }
-            if ($initPos < 0 || $initPos >= $length - 1) {
-                // FIX for TypedArrays that don't store floating point values with enough accuracy
-                if ($initPos === $length - 1) {
-                    return $percents[$initPos];
-                }
-                $shouldIterate = false;
-            }
-        }
-
-        return ($percents[$initPos] ?? 0) + (($percents[$initPos + 1] ?? 0) - ($percents[$initPos] ?? 0)) * $lPerc;
-    }
+    private static $_bezierSegmentPoints;
 }
 
 class BezierData

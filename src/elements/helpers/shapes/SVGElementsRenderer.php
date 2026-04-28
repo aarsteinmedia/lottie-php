@@ -10,40 +10,46 @@ use function LottiePHP\Utils\toRGBString;
 
 class SVGElementsRenderer
 {
-    private static ?Matrix $_identityMatrix = null;
-    private static ?Matrix $_matrixHelper = null;
+    private static function renderContentTransform(
+        array $_,
+        ?SVGTransformData $itemData,
+        bool|int|null $isFirstFrame
+    ) {
+        if (!$itemData) {
+            throw new \Error('SVGElementsRenderer: Method renderContetTransform is missing data');
+        }
+        if ($isFirstFrame || $itemData->transform['op']->_mdf) {
+            $itemData->transform['container']->setAttribute(
+                'opacity',
+                $itemData->transform['op']->v
+            );
+        }
+        if ($isFirstFrame || $itemData->transform['mProps']->_mdf) {
+            $itemData->transform['container']->setAttribute(
+                'transform',
+                $itemData->transform['mProps']->v->to2dCSS()
+            );
+        }
+    }
 
-    public static function createRenderFunction(array $data)
-    {
-        $ty = ShapeType::tryFrom($data['ty'] ?? '');
+    private static function renderFill(
+        array $_,
+        ?SVGFillStyleData $itemData,
+        bool|int|null $isFirstFrame
+    ) {
+        if (!$itemData) {
+            throw new \Error('SVGElementsRenderer: Method renderFill is missing data');
+        }
+        $styleElem = $itemData->style;
 
-        switch ($ty) {
-            case ShapeType::Fill:
-                return self::renderFill(...);
-
-            case ShapeType::GradientFill:
-                return self::renderGradient(...);
-
-            case ShapeType::GradientStroke:
-                return self::renderGradientStroke(...);
-
-            case ShapeType::Stroke:
-                return self::renderStroke(...);
-
-            case ShapeType::Path:
-            case ShapeType::Ellipse:
-            case ShapeType::Rectangle:
-            case ShapeType::PolygonStar:
-                return self::renderPath(...);
-
-            case ShapeType::Transform:
-                return self::renderContentTransform(...);
-
-            case ShapeType::NoStyle:
-                return self::renderNoop(...);
-
-            default:
-                return null;
+        if ($itemData->c?->v && ($itemData->c->_mdf || $isFirstFrame)) {
+            $styleElem->pElem->setAttribute(
+                'fill',
+                toRGBString($itemData->c->v)
+            );
+        }
+        if ($itemData->o?->_mdf || $isFirstFrame) {
+            $styleElem->pElem->setAttribute('fill-opacity', $itemData->o?->v);
         }
     }
 
@@ -160,49 +166,6 @@ class SVGElementsRenderer
                 }
             }
             // gfill->setAttribute('fy','200');
-        }
-    }
-
-    private static function renderContentTransform(
-        array $_,
-        ?SVGTransformData $itemData,
-        bool|int|null $isFirstFrame
-    ) {
-        if (!$itemData) {
-            throw new \Error('SVGElementsRenderer: Method renderContetTransform is missing data');
-        }
-        if ($isFirstFrame || $itemData->transform['op']->_mdf) {
-            $itemData->transform['container']->setAttribute(
-                'opacity',
-                $itemData->transform['op']->v
-            );
-        }
-        if ($isFirstFrame || $itemData->transform['mProps']->_mdf) {
-            $itemData->transform['container']->setAttribute(
-                'transform',
-                $itemData->transform['mProps']->v->to2dCSS()
-            );
-        }
-    }
-
-    private static function renderFill(
-        array $_,
-        ?SVGFillStyleData $itemData,
-        bool|int|null $isFirstFrame
-    ) {
-        if (!$itemData) {
-            throw new \Error('SVGElementsRenderer: Method renderFill is missing data');
-        }
-        $styleElem = $itemData->style;
-
-        if ($itemData->c?->v && ($itemData->c->_mdf || $isFirstFrame)) {
-            $styleElem->pElem->setAttribute(
-                'fill',
-                toRGBString($itemData->c->v)
-            );
-        }
-        if ($itemData->o?->_mdf || $isFirstFrame) {
-            $styleElem->pElem->setAttribute('fill-opacity', $itemData->o?->v);
         }
     }
 
@@ -347,4 +310,40 @@ class SVGElementsRenderer
             $msElem?->setAttribute('stroke-width', $w?->v ?? 0);
         }
     }
+
+    public static function createRenderFunction(array $data)
+    {
+        $ty = ShapeType::tryFrom($data['ty'] ?? '');
+
+        switch ($ty) {
+            case ShapeType::Fill:
+                return self::renderFill(...);
+
+            case ShapeType::GradientFill:
+                return self::renderGradient(...);
+
+            case ShapeType::GradientStroke:
+                return self::renderGradientStroke(...);
+
+            case ShapeType::Stroke:
+                return self::renderStroke(...);
+
+            case ShapeType::Path:
+            case ShapeType::Ellipse:
+            case ShapeType::Rectangle:
+            case ShapeType::PolygonStar:
+                return self::renderPath(...);
+
+            case ShapeType::Transform:
+                return self::renderContentTransform(...);
+
+            case ShapeType::NoStyle:
+                return self::renderNoop(...);
+
+            default:
+                return null;
+        }
+    }
+    private static ?Matrix $_identityMatrix = null;
+    private static ?Matrix $_matrixHelper = null;
 }

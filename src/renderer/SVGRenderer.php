@@ -65,13 +65,6 @@ class SVGRenderer extends SVGRendererBase
         ];
     }
 
-    public function toSVGString(): string
-    {
-        $xml = $this->svgElement->ownerDocument?->saveXML($this->svgElement);
-
-        return is_string($xml) ? $xml : '';
-    }
-
     public function createComp(
         array $data,
         ?\DOMElement $_container = null,
@@ -87,5 +80,12 @@ class SVGRenderer extends SVGRendererBase
             $this->globalData,
             $this
         );
+    }
+
+    public function toSVGString(): string
+    {
+        $xml = $this->svgElement->ownerDocument?->saveXML($this->svgElement);
+
+        return is_string($xml) ? $xml : '';
     }
 }

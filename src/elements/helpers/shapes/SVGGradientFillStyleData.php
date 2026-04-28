@@ -27,9 +27,9 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
     public ?GradientProperty $g;
     public ?\DOMElement $gf;
     public ?\DOMElement $gr;
-    public ?KeyframedValueProperty $h;
+    public KeyframedValueProperty|ValueProperty|null $h;
     public $it = [];
-    public ?string $maskId;
+    public ?string $maskId = null;
     public ?\DOMElement $ms;
     public ?ValueProperty $o;
     public ?\DOMElement $of;

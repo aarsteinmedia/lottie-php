@@ -13,6 +13,11 @@ class PuckerAndBloatModifier extends ShapeModifier
 {
     public ?ValueProperty $amount;
 
+    public function getValue(...$args)
+    {
+        return $this->processKeys(...$args);
+    }
+
     public function initModifierProperties(
         BaseElement|DynamicPropertyContainer $elem,
         array $data
@@ -25,11 +30,6 @@ class PuckerAndBloatModifier extends ShapeModifier
             $this
         );
         $this->_isAnimated = count($this->amount->effectsSequence) > 0;
-    }
-
-    public function getValue(...$args)
-    {
-        return $this->processKeys(...$args);
     }
 
     public function processPath(ShapePath $path, int $amount)

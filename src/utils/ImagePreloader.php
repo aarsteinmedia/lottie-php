@@ -15,8 +15,88 @@ class ImagePreloader
     public $path = '';
     public $totalFootages = 0;
     public $totalImages = 0;
-    private ?\Closure $_createImageData;
-    private ?\DOMElement $_elementHelper;
+
+    private function _footageLoaded(...$args)
+    {
+        return $this->footageLoaded(...$args);
+    }
+
+    // private function _imageLoaded(...$args)
+    // {
+    //     return $this->imageLoaded(...$args);
+    // }
+
+    // private function _createProxyImage()
+    // {
+    //     $canvas = createTag(RendererType::Canvas);
+
+    //     $canvas->setAttribute('width', '1');
+    //     $canvas->setAttribute('height', '1');
+
+    //     // $ctx = $canvas->getContext('2d');
+
+    //     // if ($ctx) {
+    //     //     $ctx->fillStyle = 'rgba(0,0,0,0)';
+    //     //     $ctx->fillRect(
+    //     //         0,
+    //     //         0,
+    //     //         1,
+    //     //         1
+    //     //     );
+    //     // }
+
+    //     return $canvas;
+    // }
+
+    private function createImgData(array $assetData)
+    {
+        $path = $this->getAssetsPath(
+            $assetData,
+            $this->assetsPath,
+            $this->path
+        );
+        $img = createTag('img');
+
+        // if (!img) {
+        //   throw new Error("${$this->constructor.name}: Could not create image element")
+        // }
+
+        $obj = [
+            'assetData' => $assetData,
+            'img' => $img,
+        ];
+
+        $img->setAttribute('crossOrigin', 'anonymous');
+        $img->setAttribute('src', $path);
+
+        return $obj;
+    }
+
+    private function getAssetsPath(
+        array $assetData,
+        string $assetsPath,
+        string $originalPath
+    ): string {
+        if ($assetData['e'] ?? null) {
+            return $assetData['p'] ?? '';
+        }
+
+        if ($assetsPath) {
+            $imagePath = $assetData['p'] ?? '';
+
+            if (str_contains($imagePath, 'images/')) {
+                $imagePath = explode('/', $imagePath)[1];
+            }
+
+            return "{$assetsPath}{$imagePath}";
+        }
+        $path = $originalPath;
+
+        $path .= $assetData['u'] ?? '';
+        $path .= $assetData['p'] ?? '';
+
+        return $path;
+    }
     // private ?\DOMElement $proxyImage;
 
     // public function __construct()
@@ -180,88 +260,8 @@ class ImagePreloader
     {
         $this->path = $path ?? '';
     }
-
-    private function _footageLoaded(...$args)
-    {
-        return $this->footageLoaded(...$args);
-    }
-
-    // private function _imageLoaded(...$args)
-    // {
-    //     return $this->imageLoaded(...$args);
-    // }
-
-    // private function _createProxyImage()
-    // {
-    //     $canvas = createTag(RendererType::Canvas);
-
-    //     $canvas->setAttribute('width', '1');
-    //     $canvas->setAttribute('height', '1');
-
-    //     // $ctx = $canvas->getContext('2d');
-
-    //     // if ($ctx) {
-    //     //     $ctx->fillStyle = 'rgba(0,0,0,0)';
-    //     //     $ctx->fillRect(
-    //     //         0,
-    //     //         0,
-    //     //         1,
-    //     //         1
-    //     //     );
-    //     // }
-
-    //     return $canvas;
-    // }
-
-    private function createImgData(array $assetData)
-    {
-        $path = $this->getAssetsPath(
-            $assetData,
-            $this->assetsPath,
-            $this->path
-        );
-        $img = createTag('img');
-
-        // if (!img) {
-        //   throw new Error("${$this->constructor.name}: Could not create image element")
-        // }
-
-        $obj = [
-            'assetData' => $assetData,
-            'img' => $img,
-        ];
-
-        $img->setAttribute('crossOrigin', 'anonymous');
-        $img->setAttribute('src', $path);
-
-        return $obj;
-    }
-
-    private function getAssetsPath(
-        array $assetData,
-        string $assetsPath,
-        string $originalPath
-    ): string {
-        if ($assetData['e'] ?? null) {
-            return $assetData['p'] ?? '';
-        }
-
-        if ($assetsPath) {
-            $imagePath = $assetData['p'] ?? '';
-
-            if (str_contains($imagePath, 'images/')) {
-                $imagePath = explode('/', $imagePath)[1];
-            }
-
-            return "{$assetsPath}{$imagePath}";
-        }
-        $path = $originalPath;
-
-        $path .= $assetData['u'] ?? '';
-        $path .= $assetData['p'] ?? '';
-
-        return $path;
-    }
+    private ?\Closure $_createImageData;
+    private ?\DOMElement $_elementHelper;
 
     // private function testImageLoaded(\DOMElement $img)
     // {

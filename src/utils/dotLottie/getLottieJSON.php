@@ -7,33 +7,40 @@ namespace LottiePHP\Utils\DotLottie;
  */
 function getLottieJSON(string $zipBinary): array
 {
-    $unzipped = unzipToMap($zipBinary);
-    $manifest = getManifest($unzipped);
-    $data = [];
-    $animationsFolder = 'animations';
-    $firstId = $manifest['animations'][0]['id'] ?? null;
-    if (($manifest['version'] ?? null) === '2'
-        || (null !== $firstId && isset($unzipped["a/{$firstId}.json"]))) {
-        $animationsFolder = 'a';
-    }
-    foreach ($manifest['animations'] as $animation) {
-        $id = $animation['id'] ?? null;
-        if (null === $id) {
-            continue;
+    try {
+        $unzipped = unzipToMap($zipBinary);
+        $manifest = getManifest($unzipped);
+        $data = [];
+        $animationsFolder = 'animations';
+        $firstId = $manifest['animations'][0]['id'] ?? null;
+        if (($manifest['version'] ?? null) === '2'
+            || (null !== $firstId && isset($unzipped["a/{$firstId}.json"]))) {
+            $animationsFolder = 'a';
         }
-        $path = "{$animationsFolder}/{$id}.json";
-        if (!isset($unzipped[$path])) {
-            throw new \RuntimeException("Missing animation JSON: {$path}");
+        foreach ($manifest['animations'] as $animation) {
+            $id = $animation['id'] ?? null;
+            if (null === $id) {
+                continue;
+            }
+            $path = "{$animationsFolder}/{$id}.json";
+            if (!isset($unzipped[$path])) {
+                throw new \RuntimeException("Missing animation JSON: {$path}");
+            }
+
+            /** @var array<string, mixed> $lottie */
+            $lottie = json_decode(prepareString($unzipped[$path]), true, 512, JSON_THROW_ON_ERROR);
+
+            // decodeExpressionLayers($lottie);
+            resolveAssets($unzipped, $lottie['assets'] ?? null);
+            $data[] = $lottie;
         }
 
-        /** @var array<string, mixed> $lottie */
-        $lottie = json_decode(prepareString($unzipped[$path]), true, 512, JSON_THROW_ON_ERROR);
-        // decodeExpressionLayers($lottie);
-        resolveAssets($unzipped, $lottie['assets'] ?? null);
-        $data[] = $lottie;
-    }
+        return ['data' => $data, 'manifest' => $manifest];
+    } catch (\Throwable $error) {
+        echo $error->getMessage();
 
-    return ['data' => $data, 'manifest' => $manifest];
+        return ['data' => null, 'manifest' => null];
+    }
 }
 
 /** @return array<string, string> */
@@ -90,7 +97,7 @@ function getManifest(array $unzipped): array
 
 function prepareString(string $str): string
 {
-    $str = str_replace('"""', '""', $str);
+    $str = iconv('UTF-8', 'UTF-8//IGNORE', str_replace('"""', '""', $str));
 
     return preg_replace_callback('/(["\'])(.*?)\1/s', static function (array $m): string {
         return $m[1].$m[2].$m[1];

@@ -222,8 +222,8 @@ trait SVGRendererTraits
             $defs->appendChild($maskElement);
             $this->layers = $animData['layers'];
             $this->elements = createSizedArray(count($animData['layers']));
-        } catch (\Throwable $e) {
-            error_log(get_class($this).":\n".$e->getMessage()."\n".$e->getTraceAsString());
+        } catch (\Throwable $error) {
+            echo get_class($this).":\n".$error->getMessage()."\n".$error->getTraceAsString()."\n";
         }
     }
 
@@ -399,8 +399,8 @@ abstract class SVGRendererBase extends BaseRenderer
                     }
                 }
             }
-        } catch (\Throwable $e) {
-            error_log(get_class($this)."\n".$e->getMessage()."\n".$e->getTraceAsString());
+        } catch (\Throwable $error) {
+            echo get_class($this)."\n".$error->getMessage()."\n".$error->getTraceAsString()."\n";
         }
     }
 

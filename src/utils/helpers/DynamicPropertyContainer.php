@@ -63,12 +63,6 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
         return 0; // For type compability
     }
 
-    public function setGroupProperty($_propertyInterface)
-    {
-        // Pass through
-        // throw new Error('Method is not implemented')
-    }
-
     public function offsetExists(mixed $offset): bool
     {
         return is_string($offset) && property_exists($this, $offset);
@@ -97,5 +91,11 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
             return;
         }
         $this->{$offset} = null;
+    }
+
+    public function setGroupProperty($_propertyInterface)
+    {
+        // Pass through
+        // throw new Error('Method is not implemented')
     }
 }

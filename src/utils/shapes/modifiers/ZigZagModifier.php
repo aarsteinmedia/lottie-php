@@ -16,151 +16,6 @@ class ZigZagModifier extends ShapeModifier
     public ?ValueProperty $frequency;
     public ?ValueProperty $pointsType;
 
-    public function initModifierProperties(
-        BaseElement|DynamicPropertyContainer $elem,
-        array $data
-    ) {
-        $this->amplitude = PropertyFactory::getProp(
-            $elem,
-            $data['s'],
-            0,
-            null,
-            $this
-        );
-        $this->frequency = PropertyFactory::getProp(
-            $elem,
-            $data['r'],
-            0,
-            null,
-            $this
-        );
-        $this->pointsType = PropertyFactory::getProp(
-            $elem,
-            $data['pt'],
-            0,
-            null,
-            $this
-        );
-        $this->_isAnimated
-          = count($this->amplitude->effectsSequence) > 0
-          || count($this->frequency->effectsSequence) > 0
-          || count($this->pointsType->effectsSequence) > 0;
-    }
-
-    public function getValue(...$args)
-    {
-        return $this->processKeys(...$args);
-    }
-
-    public function processPath(
-        ShapePath $path,
-        int $amplitude,
-        int $frequency,
-        int $pointType
-    ) {
-        $count = $path->_length;
-        $clonedPath = ShapePool::newElement();
-
-        $clonedPath->c = $path->c;
-
-        if (!$path->c) {
-            --$count;
-        }
-
-        if (0 === $count) {
-            return $clonedPath;
-        }
-
-        $direction = -1;
-        $segment = PolynomialBezier::shapeSegment($path, 0);
-
-        self::zigZagCorner(
-            $clonedPath,
-            $path,
-            0,
-            $amplitude,
-            $frequency,
-            $pointType,
-            $direction
-        );
-
-        for ($i = 0; $i < $count; ++$i) {
-            $direction = self::zigZagSegment(
-                $clonedPath,
-                $segment,
-                $amplitude,
-                $frequency,
-                $pointType,
-                -$direction
-            );
-
-            if ($i === $count - 1 && !${$path}->c) {
-                $segment = null;
-            } else {
-                $segment = PolynomialBezier::shapeSegment($path, ($i + 1) % $count);
-            }
-
-            self::zigZagCorner(
-                $clonedPath,
-                $path,
-                $i + 1,
-                $amplitude,
-                $frequency,
-                $pointType,
-                $direction
-            );
-        }
-
-        return $clonedPath;
-    }
-
-    public function processShapes(bool $_isFirstFrame)
-    {
-        // if (!$this->shapes) {
-        //   throw new Error(`${$this->constructor.name}: shapes is not initialized`)
-        // }
-
-        $amplitude = (int) $this->amplitude?->v;
-        $frequency = max(0, round((int) $this->frequency?->v));
-        $pointType = (int) $this->pointsType?->v;
-
-        if (0 !== $amplitude) {
-            $shapeData = null;
-            $localShapeCollection = null;
-            $shapePaths = null;
-            $length = count($this->shapes);
-
-            for ($i = 0; $i < $length; ++$i) {
-                $shapeData = $this->shapes[$i];
-                $localShapeCollection = $shapeData->localShapeCollection;
-                if (!(!$shapeData->shape?->_mdf && !$this->_mdf && !$_isFirstFrame)) {
-                    $localShapeCollection?->releaseShapes();
-                    if ($shapeData->shape) {
-                        $shapeData->shape->_mdf = true;
-                    }
-
-                    $shapePaths = $shapeData->shape?->paths?->shapes ?? [];
-                    $_length = $shapeData->shape?->paths->_length ?? 0;
-
-                    for ($j = 0; $j < $_length; ++$j) {
-                        $localShapeCollection?->addShape($this->processPath(
-                            $shapePaths[$j],
-                            $amplitude,
-                            $frequency,
-                            $pointType
-                        ));
-                    }
-                }
-                if ($shapeData->shape) {
-                    $shapeData->shape->paths = $shapeData->localShapeCollection;
-                }
-            }
-        }
-        if (0 === count($this->dynamicProperties)) {
-            $this->_mdf = false;
-        }
-    }
-
     private static function getPerpendicularVector(array $pt1, array $pt2)
     {
         $vector = [$pt2[0] - $pt1[0], $pt2[1] - $pt1[1]];
@@ -276,5 +131,150 @@ class ZigZagModifier extends ShapeModifier
         }
 
         return $direction;
+    }
+
+    public function getValue(...$args)
+    {
+        return $this->processKeys(...$args);
+    }
+
+    public function initModifierProperties(
+        BaseElement|DynamicPropertyContainer $elem,
+        array $data
+    ) {
+        $this->amplitude = PropertyFactory::getProp(
+            $elem,
+            $data['s'],
+            0,
+            null,
+            $this
+        );
+        $this->frequency = PropertyFactory::getProp(
+            $elem,
+            $data['r'],
+            0,
+            null,
+            $this
+        );
+        $this->pointsType = PropertyFactory::getProp(
+            $elem,
+            $data['pt'],
+            0,
+            null,
+            $this
+        );
+        $this->_isAnimated
+          = count($this->amplitude->effectsSequence) > 0
+          || count($this->frequency->effectsSequence) > 0
+          || count($this->pointsType->effectsSequence) > 0;
+    }
+
+    public function processPath(
+        ShapePath $path,
+        int $amplitude,
+        int $frequency,
+        int $pointType
+    ) {
+        $count = $path->_length;
+        $clonedPath = ShapePool::newElement();
+
+        $clonedPath->c = $path->c;
+
+        if (!$path->c) {
+            --$count;
+        }
+
+        if (0 === $count) {
+            return $clonedPath;
+        }
+
+        $direction = -1;
+        $segment = PolynomialBezier::shapeSegment($path, 0);
+
+        self::zigZagCorner(
+            $clonedPath,
+            $path,
+            0,
+            $amplitude,
+            $frequency,
+            $pointType,
+            $direction
+        );
+
+        for ($i = 0; $i < $count; ++$i) {
+            $direction = self::zigZagSegment(
+                $clonedPath,
+                $segment,
+                $amplitude,
+                $frequency,
+                $pointType,
+                -$direction
+            );
+
+            if ($i === $count - 1 && !${$path}->c) {
+                $segment = null;
+            } else {
+                $segment = PolynomialBezier::shapeSegment($path, ($i + 1) % $count);
+            }
+
+            self::zigZagCorner(
+                $clonedPath,
+                $path,
+                $i + 1,
+                $amplitude,
+                $frequency,
+                $pointType,
+                $direction
+            );
+        }
+
+        return $clonedPath;
+    }
+
+    public function processShapes(bool $_isFirstFrame)
+    {
+        // if (!$this->shapes) {
+        //   throw new Error(`${$this->constructor.name}: shapes is not initialized`)
+        // }
+
+        $amplitude = (int) $this->amplitude?->v;
+        $frequency = max(0, round((int) $this->frequency?->v));
+        $pointType = (int) $this->pointsType?->v;
+
+        if (0 !== $amplitude) {
+            $shapeData = null;
+            $localShapeCollection = null;
+            $shapePaths = null;
+            $length = count($this->shapes);
+
+            for ($i = 0; $i < $length; ++$i) {
+                $shapeData = $this->shapes[$i];
+                $localShapeCollection = $shapeData->localShapeCollection;
+                if (!(!$shapeData->shape?->_mdf && !$this->_mdf && !$_isFirstFrame)) {
+                    $localShapeCollection?->releaseShapes();
+                    if ($shapeData->shape) {
+                        $shapeData->shape->_mdf = true;
+                    }
+
+                    $shapePaths = $shapeData->shape?->paths?->shapes ?? [];
+                    $_length = $shapeData->shape?->paths->_length ?? 0;
+
+                    for ($j = 0; $j < $_length; ++$j) {
+                        $localShapeCollection?->addShape($this->processPath(
+                            $shapePaths[$j],
+                            $amplitude,
+                            $frequency,
+                            $pointType
+                        ));
+                    }
+                }
+                if ($shapeData->shape) {
+                    $shapeData->shape->paths = $shapeData->localShapeCollection;
+                }
+            }
+        }
+        if (0 === count($this->dynamicProperties)) {
+            $this->_mdf = false;
+        }
     }
 }

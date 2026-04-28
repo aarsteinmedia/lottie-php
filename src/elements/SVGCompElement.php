@@ -13,10 +13,10 @@ use function LottiePHP\Utils\createSizedArray;
 
 class SVGCompElement extends SVGBaseElement
 {
-    use SVGRendererTraits;
-    use RendererTraits;
     use CompTrait;
     use RenderableElementTraits;
+    use RendererTraits;
+    use SVGRendererTraits;
 
     public ?bool $_debug;
     public $completeLayers = false;

@@ -12,12 +12,11 @@ abstract class BaseElement implements \ArrayAccess
 {
     public ?\DOMElement $baseElement = null;
     public ?BaseElement $comp = null;
-    public $renderedFrame = -1;
     public ?array $compInterface;
     public ?array $data;
     public ?array $dynamicProperties;
-    public ?array $finalTransform;
     public ?EffectsManager $effectsManager;
+    public ?array $finalTransform;
     public $frameDuration = 1;
     public ?array $globalData;
     public ?array $itemsData = [];
@@ -25,6 +24,7 @@ abstract class BaseElement implements \ArrayAccess
     public ?string $layerId;
     public ?array $layerInterface = null;
     public ?MaskElement $maskManager;
+    public $renderedFrame = -1;
     public ?array $shapesData = [];
     public $type;
 
@@ -111,28 +111,6 @@ abstract class BaseElement implements \ArrayAccess
         );
     }
 
-    public function setBlendMode()
-    {
-        if (!$this->data) {
-            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
-        }
-        $blendModeValue = getBlendMode($this->data['bm'] ?? 16);
-        $elem = $this->baseElement ?? $this->layerElement;
-
-        if (!$elem) {
-            throw new \Error(get_class($this).': Both baseElement and layerElement are not implemented');
-        }
-        addStyles(
-            $elem,
-            ['mix-blend-mode' => $blendModeValue]
-        );
-    }
-
-    public function sourceRectAtTime()
-    {
-        throw new \Error(get_class($this).': Method sourceRectAtTime is not implemented');
-    }
-
     public function offsetExists(mixed $offset): bool
     {
         return is_string($offset) && property_exists($this, $offset);
@@ -161,5 +139,27 @@ abstract class BaseElement implements \ArrayAccess
             return;
         }
         $this->{$offset} = null;
+    }
+
+    public function setBlendMode()
+    {
+        if (!$this->data) {
+            throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
+        }
+        $blendModeValue = getBlendMode($this->data['bm'] ?? 16);
+        $elem = $this->baseElement ?? $this->layerElement;
+
+        if (!$elem) {
+            throw new \Error(get_class($this).': Both baseElement and layerElement are not implemented');
+        }
+        addStyles(
+            $elem,
+            ['mix-blend-mode' => $blendModeValue]
+        );
+    }
+
+    public function sourceRectAtTime()
+    {
+        throw new \Error(get_class($this).': Method sourceRectAtTime is not implemented');
     }
 }

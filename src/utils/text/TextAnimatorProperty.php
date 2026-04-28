@@ -13,191 +13,6 @@ use LottiePHP\Utils\PropertyFactory;
 use function LottiePHP\Utils\createSizedArray;
 use function LottiePHP\Utils\toRGBString;
 
-function rgbToHSV(
-    int $r,
-    int $g,
-    int $b
-) {
-    $max = max(
-        $r,
-        $g,
-        $b
-    );
-    $min = min(
-        $r,
-        $g,
-        $b
-    );
-    $d = $max - $min;
-    $h = 0;
-    $s = 0 === $max ? 0 : $d / $max;
-    $v = $max / 255;
-
-    switch ($max) {
-        case $min:
-            $h = 0;
-
-            break;
-
-        case $r:
-            $h = $g - $b + $d * ($g < $b ? 6 : 0);
-            $h /= 6 * $d;
-
-            break;
-
-        case $g:
-            $h = $b - $r + $d * 2;
-            $h /= 6 * $d;
-
-            break;
-
-        case $b:
-            $h = $r - $g + $d * 4;
-            $h /= 6 * $d;
-
-            break;
-
-        default:
-            break;
-    }
-
-    return [
-        $h,
-        $s,
-        $v,
-    ];
-}
-function HSVtoRGB(
-    int $h,
-    int $s,
-    int $v
-) {
-    $r = 0;
-    $g = 0;
-    $b = 0;
-    $i = floor($h * 6);
-    $f = $h * 6 - $i;
-    $p = $v * (1 - $s);
-    $q = $v * (1 - $f * $s);
-    $t = $v * (1 - (1 - $f) * $s);
-
-    switch ($i % 6) {
-        case 0:
-            $r = $v;
-            $g = $t;
-            $b = $p;
-
-            break;
-
-        case 1:
-            $r = $q;
-            $g = $v;
-            $b = $p;
-
-            break;
-
-        case 2:
-            $r = $p;
-            $g = $v;
-            $b = $t;
-
-            break;
-
-        case 3:
-            $r = $p;
-            $g = $q;
-            $b = $v;
-
-            break;
-
-        case 4:
-            $r = $t;
-            $g = $p;
-            $b = $v;
-
-            break;
-
-        case 5:
-            $r = $v;
-            $g = $p;
-            $b = $q;
-
-            break;
-
-        default:
-            break;
-    }
-
-    return [
-        $r,
-        $g,
-        $b,
-    ];
-}
-function addBrightnessToRGB(array $color, int $offset)
-{
-    $hsv = rgbToHSV(
-        $color[0] * 255,
-        $color[1] * 255,
-        $color[2] * 255
-    );
-
-    $hsv[2] += $offset;
-    if ($hsv[2] > 1) {
-        $hsv[2] = 1;
-    } elseif ($hsv[2] < 0) {
-        $hsv[2] = 0;
-    }
-
-    return HSVtoRGB(
-        $hsv[0],
-        $hsv[1],
-        $hsv[2]
-    );
-}
-function addHueToRGB(array $color, int $offset)
-{
-    $hsv = rgbToHSV(
-        $color[0] * 255,
-        $color[1] * 255,
-        $color[2] * 255
-    );
-
-    $hsv[0] += $offset / 360;
-    if ($hsv[0] > 1) {
-        --$hsv[0];
-    } elseif ($hsv[0] < 0) {
-        ++$hsv[0];
-    }
-
-    return HSVtoRGB(
-        $hsv[0],
-        $hsv[1],
-        $hsv[2]
-    );
-}
-function addSaturationToRGB(array $color, int $offset)
-{
-    $hsv = rgbToHSV(
-        $color[0] * 255,
-        $color[1] * 255,
-        $color[2] * 255
-    );
-
-    $hsv[1] += $offset;
-    if ($hsv[1] > 1) {
-        $hsv[1] = 1;
-    } elseif ($hsv[1] <= 0) {
-        $hsv[1] = 0;
-    }
-
-    return HSVtoRGB(
-        $hsv[0],
-        $hsv[1],
-        $hsv[2]
-    );
-}
-
 class TextAnimatorProperty extends DynamicPropertyContainer
 {
     public $_frameId = -1;
@@ -205,14 +20,195 @@ class TextAnimatorProperty extends DynamicPropertyContainer
     public $defaultPropsArray = [];
     public $lettersChangedFlag = false;
     public $renderedLetters = [];
-    private array $_animatorsData;
-    private BaseProperty $_elem;
-    private $_hasMaskedPath = false;
-    private $_moreOptions = ['alignment' => []];
-    private $_pathData = [];
-    private RendererType $_renderType;
-    private array $_textData;
-    private Matrix $mHelper;
+
+    private static function addBrightnessToRGB(array $color, int $offset)
+    {
+        $hsv = self::rgbToHSV(
+            $color[0] * 255,
+            $color[1] * 255,
+            $color[2] * 255
+        );
+
+        $hsv[2] += $offset;
+        if ($hsv[2] > 1) {
+            $hsv[2] = 1;
+        } elseif ($hsv[2] < 0) {
+            $hsv[2] = 0;
+        }
+
+        return self::HSVtoRGB(
+            $hsv[0],
+            $hsv[1],
+            $hsv[2]
+        );
+    }
+
+    private static function addHueToRGB(array $color, int $offset)
+    {
+        $hsv = self::rgbToHSV(
+            $color[0] * 255,
+            $color[1] * 255,
+            $color[2] * 255
+        );
+
+        $hsv[0] += $offset / 360;
+        if ($hsv[0] > 1) {
+            --$hsv[0];
+        } elseif ($hsv[0] < 0) {
+            ++$hsv[0];
+        }
+
+        return self::HSVtoRGB(
+            $hsv[0],
+            $hsv[1],
+            $hsv[2]
+        );
+    }
+
+    private static function addSaturationToRGB(array $color, int $offset)
+    {
+        $hsv = self::rgbToHSV(
+            $color[0] * 255,
+            $color[1] * 255,
+            $color[2] * 255
+        );
+
+        $hsv[1] += $offset;
+        if ($hsv[1] > 1) {
+            $hsv[1] = 1;
+        } elseif ($hsv[1] <= 0) {
+            $hsv[1] = 0;
+        }
+
+        return self::HSVtoRGB(
+            $hsv[0],
+            $hsv[1],
+            $hsv[2]
+        );
+    }
+
+    private static function HSVtoRGB(
+        int $h,
+        int $s,
+        int $v
+    ) {
+        $r = 0;
+        $g = 0;
+        $b = 0;
+        $i = floor($h * 6);
+        $f = $h * 6 - $i;
+        $p = $v * (1 - $s);
+        $q = $v * (1 - $f * $s);
+        $t = $v * (1 - (1 - $f) * $s);
+
+        switch ($i % 6) {
+            case 0:
+                $r = $v;
+                $g = $t;
+                $b = $p;
+
+                break;
+
+            case 1:
+                $r = $q;
+                $g = $v;
+                $b = $p;
+
+                break;
+
+            case 2:
+                $r = $p;
+                $g = $v;
+                $b = $t;
+
+                break;
+
+            case 3:
+                $r = $p;
+                $g = $q;
+                $b = $v;
+
+                break;
+
+            case 4:
+                $r = $t;
+                $g = $p;
+                $b = $v;
+
+                break;
+
+            case 5:
+                $r = $v;
+                $g = $p;
+                $b = $q;
+
+                break;
+
+            default:
+                break;
+        }
+
+        return [
+            $r,
+            $g,
+            $b,
+        ];
+    }
+
+    private static function rgbToHSV(
+        int $r,
+        int $g,
+        int $b
+    ) {
+        $max = max(
+            $r,
+            $g,
+            $b
+        );
+        $min = min(
+            $r,
+            $g,
+            $b
+        );
+        $d = $max - $min;
+        $h = 0;
+        $s = 0 === $max ? 0 : $d / $max;
+        $v = $max / 255;
+
+        switch ($max) {
+            case $min:
+                $h = 0;
+
+                break;
+
+            case $r:
+                $h = $g - $b + $d * ($g < $b ? 6 : 0);
+                $h /= 6 * $d;
+
+                break;
+
+            case $g:
+                $h = $b - $r + $d * 2;
+                $h /= 6 * $d;
+
+                break;
+
+            case $b:
+                $h = $r - $g + $d * 4;
+                $h /= 6 * $d;
+
+                break;
+
+            default:
+                break;
+        }
+
+        return [
+            $h,
+            $s,
+            $v,
+        ];
+    }
 
     public function __construct(
         array $textData,
@@ -825,29 +821,29 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             }
                             if ($animatorProps['fh']['propType'] ?? null) {
                                 if (is_array($mult)) {
-                                    $fc = addHueToRGB($fc, (int) $animatorProps['fh']->v * ($mult[0] ?? 1));
+                                    $fc = self::addHueToRGB($fc, (int) $animatorProps['fh']->v * ($mult[0] ?? 1));
                                 } else {
-                                    $fc = addHueToRGB($fc, (int) $animatorProps['fh']->v * $mult);
+                                    $fc = self::addHueToRGB($fc, (int) $animatorProps['fh']->v * $mult);
                                 }
                             }
                             if ($animatorProps['fs']['propType'] ?? null) {
                                 if (is_array($mult)) {
-                                    $fc = addSaturationToRGB(
+                                    $fc = self::addSaturationToRGB(
                                         $fc,
                                         (int) $animatorProps['fs']->v * ($mult[0] ?? 1)
                                     );
                                 } else {
-                                    $fc = addSaturationToRGB($fc, (int) $animatorProps['fs']->v * $mult);
+                                    $fc = self::addSaturationToRGB($fc, (int) $animatorProps['fs']->v * $mult);
                                 }
                             }
                             if ($animatorProps['fb']['propType'] ?? null) {
                                 if (is_array($mult)) {
-                                    $fc = addBrightnessToRGB(
+                                    $fc = self::addBrightnessToRGB(
                                         $fc,
                                         (int) $animatorProps['fb']->v * ($mult[0] ?? 1)
                                     );
                                 } else {
-                                    $fc = addBrightnessToRGB($fc, (int) $animatorProps['fb']->v * $mult);
+                                    $fc = self::addBrightnessToRGB($fc, (int) $animatorProps['fb']->v * $mult);
                                 }
                             }
                         }
@@ -1127,4 +1123,12 @@ class TextAnimatorProperty extends DynamicPropertyContainer
             $this
         );
     }
+    private array $_animatorsData;
+    private BaseElement|BaseProperty $_elem;
+    private $_hasMaskedPath = false;
+    private $_moreOptions = ['alignment' => []];
+    private $_pathData = [];
+    private RendererType $_renderType;
+    private array $_textData;
+    private Matrix $mHelper;
 }

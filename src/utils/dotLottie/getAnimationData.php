@@ -30,7 +30,7 @@ function getAnimationData($input)
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $input);
 
-        if ('application/zip+dotlottie' === $mimeType) {
+        if (str_starts_with($mimeType, 'application/zip')) {
             $isJSON = false;
         }
 
@@ -63,15 +63,15 @@ function getAnimationData($input)
         ['data' => $data, 'manifest' => $manifest] = getLottieJSON($file);
 
         return [
-            'animations' => $data,
+            'animations' => $data ?? [],
             'isDotLottie' => true,
             'manifest' => $manifest,
         ];
     } catch (\Exception $error) {
-        error_log($error->getMessage());
+        echo $error->getMessage();
 
         return [
-            'animations' => null,
+            'animations' => [],
             'isDotLottie' => false,
             'manifest' => null,
         ];

@@ -7,8 +7,6 @@ use LottiePHP\Utils\Enums\ShapeType;
 
 class ShapeModifiers
 {
-    private static $Modifiers = [];
-
     public static function getModifier(
         ShapeType|string $nm,
         ?BaseElement $_elem = null,
@@ -25,4 +23,5 @@ class ShapeModifiers
     {
         self::$Modifiers[$nm] = self::$Modifiers[$nm] ?? $factory;
     }
+    private static $Modifiers = [];
 }

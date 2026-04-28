@@ -9,7 +9,18 @@ return (new Config())
     ->setRiskyAllowed(false)
     ->setRules([
         '@auto' => true,
-        '@PhpCsFixer' => true
+        '@PhpCsFixer' => true,
+        'ordered_class_elements' => [
+            'order' => [
+            'use_trait', 
+            'constant_public', 
+            'property_public',
+            'method_private', 
+            'construct', 
+            'method_public',
+        ],
+        'sort_algorithm' => 'alpha',
+        ]
     ])
     // 💡 by default, Fixer looks for `*.php` files excluding `./vendor/` - here, you can groom this config
     ->setFinder(

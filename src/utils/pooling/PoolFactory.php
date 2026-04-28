@@ -8,12 +8,6 @@ use function LottiePHP\Utils\createSizedArray;
 
 class PoolFactory
 {
-    private $_length = 0;
-    private int $_maxLength;
-    private array $pool;
-    private \Closure $_create;
-    private ?\Closure $_release = null;
-
     public function __construct(
         int $initialLength,
         callable $_create,
@@ -51,4 +45,9 @@ class PoolFactory
         $this->pool[$this->_length] = $element;
         ++$this->_length;
     }
+    private \Closure $_create;
+    private $_length = 0;
+    private int $_maxLength;
+    private ?\Closure $_release = null;
+    private array $pool;
 }

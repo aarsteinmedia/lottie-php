@@ -320,6 +320,11 @@ class TrimModifier extends ShapeModifier
         return $shapeSegments;
     }
 
+    public function getValue(...$args)
+    {
+        return $this->processKeys(...$args);
+    }
+
     public function initModifierProperties(
         BaseElement|DynamicPropertyContainer $elem,
         array $data
@@ -352,11 +357,6 @@ class TrimModifier extends ShapeModifier
           = count($this->s->effectsSequence) > 0
           || count($this->e->effectsSequence) > 0
          || count($this->o->effectsSequence) > 0;
-    }
-
-    public function getValue(...$args)
-    {
-        return $this->processKeys(...$args);
     }
 
     public function processShapes(bool $_isFirstFrame)

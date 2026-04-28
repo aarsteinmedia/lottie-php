@@ -4,8 +4,6 @@ namespace LottiePHP\Animation;
 
 class AnimationManager
 {
-    private static array $registeredAnimations = [];
-
     /**
      * @param array{
      *  path: null|string,
@@ -29,4 +27,5 @@ class AnimationManager
     {
         self::$registeredAnimations[] = ['animation' => $animationItem];
     }
+    private static array $registeredAnimations = [];
 }

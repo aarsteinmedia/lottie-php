@@ -4,15 +4,6 @@ namespace LottiePHP\Utils\Helpers;
 
 class Resolution
 {
-    private static $curveSegments = 150;
-
-    private static $shouldRoundValues = false;
-
-    public static function setDefaultCurveSegments(int $value)
-    {
-        self::$curveSegments = $value;
-    }
-
     public static function getDefaultCurveSegments()
     {
         return self::$curveSegments;
@@ -23,9 +14,9 @@ class Resolution
         return self::$shouldRoundValues;
     }
 
-    public static function setShouldRoundValues(bool $value)
+    public static function setDefaultCurveSegments(int $value)
     {
-        self::$shouldRoundValues = $value;
+        self::$curveSegments = $value;
     }
 
     public static function setQuality(int|string $value)
@@ -54,4 +45,12 @@ class Resolution
 
         self::setShouldRoundValues(self::getDefaultCurveSegments() < 50);
     }
+
+    public static function setShouldRoundValues(bool $value)
+    {
+        self::$shouldRoundValues = $value;
+    }
+    private static $curveSegments = 150;
+
+    private static $shouldRoundValues = false;
 }

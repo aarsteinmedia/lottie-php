@@ -13,11 +13,11 @@ use function LottiePHP\Utils\createNS;
 
 trait SVGBaseTraits
 {
+    public ?bool $_sizeChanged;
     public ?\DOMElement $maskedElement;
     public ?\DOMElement $matteElement;
-    public ?\DOMElement $transformedElement;
     public ?array $matteMasks;
-    public ?bool $_sizeChanged;
+    public ?\DOMElement $transformedElement;
 
     public function createContainerElements()
     {

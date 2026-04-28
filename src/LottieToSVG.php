@@ -11,11 +11,6 @@ use function LottiePHP\Utils\isLottie;
 
 class LottieToSVG
 {
-    public static function loadAnimation(array $params)
-    {
-        return AnimationManager::loadAnimation($params);
-    }
-
     public static function load(string $path)
     {
         try {
@@ -46,10 +41,13 @@ class LottieToSVG
                 'animationData' => $animations[0],
             ]);
         } catch (\Throwable $error) {
-            error_log(
-                $error::class.': '.$error->getMessage()."\n".$error->getTraceAsString()
-            );
+            echo $error::class.': '.$error->getMessage()."\n".$error->getTraceAsString()."\n";
         }
+    }
+
+    public static function loadAnimation(array $params)
+    {
+        return AnimationManager::loadAnimation($params);
     }
 
     public static function renderFirstFrame(string $path, ?array $rendererSettings = []): ?string

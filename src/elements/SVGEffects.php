@@ -12,8 +12,6 @@ use function LottiePHP\Utils\createElementID;
 class SVGEffects
 {
     public array $filters = [];
-    private $idPrefix = 'filter_result_';
-    private static $registeredEffects = [];
 
     public function __construct(RenderableElement $elem)
     {
@@ -78,6 +76,14 @@ class SVGEffects
         return $effects;
     }
 
+    public static function registerEffect(int $id, array $effect, $countsAsEffect = false)
+    {
+        self::$registeredEffects[$id] = [
+            'countsAsEffect' => $countsAsEffect,
+            'effect' => $effect,
+        ];
+    }
+
     public function renderFrame(false|int|null $frame)
     {
         $length = $this->filters;
@@ -86,12 +92,6 @@ class SVGEffects
             $this->filters[$i]->renderFrame($frame);
         }
     }
-
-    public static function registerEffect(int $id, array $effect, $countsAsEffect = false)
-    {
-        self::$registeredEffects[$id] = [
-            'countsAsEffect' => $countsAsEffect,
-            'effect' => $effect,
-        ];
-    }
+    private $idPrefix = 'filter_result_';
+    private static $registeredEffects = [];
 }

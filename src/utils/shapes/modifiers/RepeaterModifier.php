@@ -28,9 +28,6 @@ class RepeaterModifier extends ShapeModifier
     public ?ValueProperty $so;
     public ?Matrix $tMatrix;
     public ?TransformProperty $tr;
-    private ?int $_currentCopies;
-    private $_elements = [];
-    private $_groups = [];
 
     public function addShapeToModifier(SVGShapeData $shapeData)
     {
@@ -100,6 +97,11 @@ class RepeaterModifier extends ShapeModifier
         $this->resetElements($newElements);
 
         return $newElements;
+    }
+
+    public function getValue(...$args)
+    {
+        return $this->processKeys(...$args);
     }
 
     public function init(
@@ -185,11 +187,6 @@ class RepeaterModifier extends ShapeModifier
         $this->sMatrix = new Matrix();
         $this->tMatrix = new Matrix();
         $this->matrix = new Matrix();
-    }
-
-    public function getValue(...$args)
-    {
-        return $this->processKeys(...$args);
     }
 
     public function processShapes(bool $_isFirstFrame)
@@ -524,4 +521,7 @@ class RepeaterModifier extends ShapeModifier
             }
         }
     }
+    private ?int $_currentCopies;
+    private $_elements = [];
+    private $_groups = [];
 }

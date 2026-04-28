@@ -17,8 +17,6 @@ class ShapePath
     public ?array $s;
     public ?array $v;
 
-    private $_pointPool;
-
     public function __construct()
     {
         $this->v = createSizedArray($this->_maxLength);
@@ -188,4 +186,6 @@ class ShapePath
 
         return $newPath;
     }
+
+    private $_pointPool;
 }

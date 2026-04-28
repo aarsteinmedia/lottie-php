@@ -18,8 +18,6 @@ class SVGTextLottieElement extends TextElement
     public ?\DOMElement $textContainer;
     public $textSpans = [];
 
-    private $emptyShapeData = ['shapes' => []];
-
     public function __construct(
         array $data,
         array $globalData,
@@ -366,7 +364,7 @@ class SVGTextLottieElement extends TextElement
         if (!$this->globalData) {
             throw new \Error(get_class($this).': globalData is not implemented');
         }
-        if ($this->data['singleShape'] && !$this->globalData['fontManager']?->chars) {
+        if (($this->data['singleShape'] ?? false) && !$this->globalData['fontManager']?->chars) {
             $this->textContainer = createNS('text');
         }
     }
@@ -461,4 +459,6 @@ class SVGTextLottieElement extends TextElement
 
         return null;
     }
+
+    private $emptyShapeData = ['shapes' => []];
 }

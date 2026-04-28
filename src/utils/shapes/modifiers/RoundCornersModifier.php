@@ -14,6 +14,11 @@ class RoundCornersModifier extends ShapeModifier
 {
     public ?ValueProperty $rd;
 
+    public function getValue(...$args)
+    {
+        return $this->processKeys(...$args);
+    }
+
     public function initModifierProperties(
         BaseElement|DynamicPropertyContainer $elem,
         array $data
@@ -26,11 +31,6 @@ class RoundCornersModifier extends ShapeModifier
             $this
         );
         $this->_isAnimated = count($this->rd->effectsSequence) > 0;
-    }
-
-    public function getValue(...$args)
-    {
-        return $this->processKeys(...$args);
     }
 
     public function processPath(ShapePath $path, int $round)

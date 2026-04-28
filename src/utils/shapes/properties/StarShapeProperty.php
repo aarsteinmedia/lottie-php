@@ -145,15 +145,6 @@ class StarShapeProperty extends ShapeBaseProperty
         $this->paths[0] = $this->v;
     }
 
-    public function convertToPath()
-    {
-        if (1 === $this->data['sy']) {
-            return $this->convertStarToPath();
-        }
-
-        return $this->convertPolygonToPath();
-    }
-
     public function convertStarToPath()
     {
         if (!$this->data) {
@@ -214,6 +205,15 @@ class StarShapeProperty extends ShapeBaseProperty
             $isLong = !$isLong;
             $currentAng += $angle * $dir;
         }
+    }
+
+    public function convertToPath()
+    {
+        if (1 === $this->data['sy']) {
+            return $this->convertStarToPath();
+        }
+
+        return $this->convertPolygonToPath();
     }
 
     public function getValue(?bool $_val)

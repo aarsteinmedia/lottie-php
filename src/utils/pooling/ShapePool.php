@@ -6,24 +6,29 @@ use LottiePHP\Utils\Shapes\ShapePath;
 
 class ShapePool
 {
-    private static ?PoolFactory $_factory = null;
-
-    public static function newElement(): ShapePath
+    private static function _create()
     {
-        if (!self::$_factory) {
-            self::$_factory = new PoolFactory(
-                4,
-                self::_create(...),
-                self::_release(...)
-            );
-        }
-
-        return self::$_factory->newElement();
+        return new ShapePath();
     }
 
-    public static function release(...$args)
+    private static function _release($shapePath)
     {
-        return self::$_factory?->release(...$args);
+        if (!$shapePath instanceof ShapePath) {
+            return;
+        }
+
+        $len = $shapePath->_length;
+
+        for ($i = 0; $i < $len; ++$i) {
+            pointPool()->release($shapePath->v[$i]);
+            pointPool()->release($shapePath->i[$i]);
+            pointPool()->release($shapePath->o[$i]);
+            $shapePath->v[$i] = null;
+            $shapePath->i[$i] = null;
+            $shapePath->o[$i] = null;
+        }
+        $shapePath->_length = 0;
+        $shapePath->c = false;
     }
 
     public static function clone(ShapePath $shape)
@@ -50,28 +55,22 @@ class ShapePool
         return $cloned;
     }
 
-    private static function _create()
+    public static function newElement(): ShapePath
     {
-        return new ShapePath();
-    }
-
-    private static function _release($shapePath)
-    {
-        if (!$shapePath instanceof ShapePath) {
-            return;
+        if (!self::$_factory) {
+            self::$_factory = new PoolFactory(
+                4,
+                self::_create(...),
+                self::_release(...)
+            );
         }
 
-        $len = $shapePath->_length;
-
-        for ($i = 0; $i < $len; ++$i) {
-            pointPool()->release($shapePath->v[$i]);
-            pointPool()->release($shapePath->i[$i]);
-            pointPool()->release($shapePath->o[$i]);
-            $shapePath->v[$i] = null;
-            $shapePath->i[$i] = null;
-            $shapePath->o[$i] = null;
-        }
-        $shapePath->_length = 0;
-        $shapePath->c = false;
+        return self::$_factory->newElement();
     }
+
+    public static function release(...$args)
+    {
+        return self::$_factory?->release(...$args);
+    }
+    private static ?PoolFactory $_factory = null;
 }

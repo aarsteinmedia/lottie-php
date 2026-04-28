@@ -6,8 +6,6 @@ use LottiePHP\Utils\Enums\ArrayType;
 
 class BezierFactory
 {
-    private static $beziers = [];
-
     /**
      * BezierEasing - use bezier curve for transition easing function
      * by Gaëtan Renaudeau 2014 - 2015 – MIT License.
@@ -41,25 +39,115 @@ class BezierFactory
 
         return $bezEasing;
     }
+    private static $beziers = [];
 }
 
 class BezierEasing
 {
+    private function A(int $aA1, int $aA2)
+    {
+        return 1.0 - 3.0 * $aA2 + 3.0 * $aA1;
+    }
+
+    private function B(int $aA1, int $aA2)
+    {
+        return 3.0 * $aA2 - 6.0 * $aA1;
+    }
+
+    private function binarySubdivide(
+        int $aX,
+        int $aAFromProps,
+        int $aBFropProps,
+        int $mX1,
+        int $mX2
+    ) {
+        $aA = $aAFromProps;
+        $aB = $aBFropProps;
+        $currentX = null;
+        $currentT = null;
+        $i = 0;
+
+        do {
+            $currentT = $aA + ($aB - $aA) / 2.0;
+            $currentX = $this->calcBezier(
+                $currentT,
+                $mX1,
+                $mX2
+            ) - $aX;
+            if ($currentX > 0.0) {
+                $aB = $currentT;
+            } else {
+                $aA = $currentT;
+            }
+        } while (
+            abs($currentX) > $this::SUBDIVISION_PRECISION
+            && ++$i < $this::SUBDIVISION_MAX_ITERATIONS
+        );
+
+        return $currentT;
+    }
+
+    private function C(int $aA1)
+    {
+        return 3.0 * $aA1;
+    }
+
+    // Private part
+
     /**
-     * These values are established by empiricism with tests (tradeoff: performance VS precision).
+     * Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
      */
-    private const NEWTON_ITERATIONS = 4;
-    private const NEWTON_MIN_SLOPE = 0.001;
+    private function calcBezier(
+        int $aT,
+        int $aA1,
+        int $aA2
+    ) {
+        return (($this->A($aA1, $aA2) * $aT + $this->B($aA1, $aA2)) * $aT + $this->C($aA1)) * $aT;
+    }
 
-    private const SUBDIVISION_MAX_ITERATIONS = 10;
-    private const SUBDIVISION_PRECISION = 0.0000001;
-    private array $_mSampleValues;
-    private array $_p;
-    private $_precomputed = false;
+    /**
+     * Returns dx/dt given t, x1, and x2, or dy/dt given t, y1, and y2.
+     */
+    private function getSlope(
+        int $aT,
+        int $aA1,
+        int $aA2
+    ) {
+        return
+            3.0 * $this->A($aA1, $aA2) * $aT * $aT
+            + 2.0 * $this->B($aA1, $aA2) * $aT
+            + $this->C($aA1);
+    }
 
-    // private $float32ArraySupported = gettype(Float32Array) === 'function';
-    private $kSplineTableSize = 11;
-    private int $kSampleStepSize;
+    private function newtonRaphsonIterate(
+        int $aX,
+        int $aGuessTFromProps,
+        int $mX1,
+        int $mX2
+    ) {
+        $aGuessT = $aGuessTFromProps;
+
+        for ($i = 0; $i < $this::NEWTON_ITERATIONS; ++$i) {
+            $currentSlope = $this->getSlope(
+                $aGuessT,
+                $mX1,
+                $mX2
+            );
+
+            if (0.0 === $currentSlope) {
+                return $aGuessT;
+            }
+            $currentX = $this->calcBezier(
+                $aGuessT,
+                $mX1,
+                $mX2
+            ) - $aX;
+
+            $aGuessT -= $currentX / $currentSlope;
+        }
+
+        return $aGuessT;
+    }
 
     public function __construct(array $points)
     {
@@ -183,109 +271,20 @@ class BezierEasing
             $mY2 ?? 0
         );
     }
+    private array $_mSampleValues;
+    private array $_p;
+    private $_precomputed = false;
+    private int $kSampleStepSize;
 
-    private function A(int $aA1, int $aA2)
-    {
-        return 1.0 - 3.0 * $aA2 + 3.0 * $aA1;
-    }
-
-    private function B(int $aA1, int $aA2)
-    {
-        return 3.0 * $aA2 - 6.0 * $aA1;
-    }
-
-    private function binarySubdivide(
-        int $aX,
-        int $aAFromProps,
-        int $aBFropProps,
-        int $mX1,
-        int $mX2
-    ) {
-        $aA = $aAFromProps;
-        $aB = $aBFropProps;
-        $currentX = null;
-        $currentT = null;
-        $i = 0;
-
-        do {
-            $currentT = $aA + ($aB - $aA) / 2.0;
-            $currentX = $this->calcBezier(
-                $currentT,
-                $mX1,
-                $mX2
-            ) - $aX;
-            if ($currentX > 0.0) {
-                $aB = $currentT;
-            } else {
-                $aA = $currentT;
-            }
-        } while (
-            abs($currentX) > $this::SUBDIVISION_PRECISION
-            && ++$i < $this::SUBDIVISION_MAX_ITERATIONS
-        );
-
-        return $currentT;
-    }
-
-    private function C(int $aA1)
-    {
-        return 3.0 * $aA1;
-    }
-
-    // Private part
+    // private $float32ArraySupported = gettype(Float32Array) === 'function';
+    private $kSplineTableSize = 11;
 
     /**
-     * Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
+     * These values are established by empiricism with tests (tradeoff: performance VS precision).
      */
-    private function calcBezier(
-        int $aT,
-        int $aA1,
-        int $aA2
-    ) {
-        return (($this->A($aA1, $aA2) * $aT + $this->B($aA1, $aA2)) * $aT + $this->C($aA1)) * $aT;
-    }
+    private const NEWTON_ITERATIONS = 4;
+    private const NEWTON_MIN_SLOPE = 0.001;
 
-    /**
-     * Returns dx/dt given t, x1, and x2, or dy/dt given t, y1, and y2.
-     */
-    private function getSlope(
-        int $aT,
-        int $aA1,
-        int $aA2
-    ) {
-        return
-            3.0 * $this->A($aA1, $aA2) * $aT * $aT
-            + 2.0 * $this->B($aA1, $aA2) * $aT
-            + $this->C($aA1);
-    }
-
-    private function newtonRaphsonIterate(
-        int $aX,
-        int $aGuessTFromProps,
-        int $mX1,
-        int $mX2
-    ) {
-        $aGuessT = $aGuessTFromProps;
-
-        for ($i = 0; $i < $this::NEWTON_ITERATIONS; ++$i) {
-            $currentSlope = $this->getSlope(
-                $aGuessT,
-                $mX1,
-                $mX2
-            );
-
-            if (0.0 === $currentSlope) {
-                return $aGuessT;
-            }
-            $currentX = $this->calcBezier(
-                $aGuessT,
-                $mX1,
-                $mX2
-            ) - $aX;
-
-            $aGuessT -= $currentX / $currentSlope;
-        }
-
-        return $aGuessT;
-    }
+    private const SUBDIVISION_MAX_ITERATIONS = 10;
+    private const SUBDIVISION_PRECISION = 0.0000001;
 }

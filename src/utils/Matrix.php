@@ -23,8 +23,22 @@ namespace LottiePHP\Utils;
 class Matrix
 {
     public array $props;
-    private $_identity = true;
-    private $_identityCalculated = false;
+
+    private function _t(float ...$args): Matrix
+    {
+        return $this->transform(...$args);
+    }
+
+    private function roundMatrixProperty(float $val): float
+    {
+        $v = 10000;
+
+        if ($val < 0.000001 && $val > 0 || $val > -0.000001 && $val < 0) {
+            return round($val * $v) / $v;
+        }
+
+        return $val;
+    }
 
     public function __construct()
     {
@@ -650,20 +664,6 @@ class Matrix
 
         return $this;
     }
-
-    private function _t(float ...$args): Matrix
-    {
-        return $this->transform(...$args);
-    }
-
-    private function roundMatrixProperty(float $val): float
-    {
-        $v = 10000;
-
-        if ($val < 0.000001 && $val > 0 || $val > -0.000001 && $val < 0) {
-            return round($val * $v) / $v;
-        }
-
-        return $val;
-    }
+    private $_identity = true;
+    private $_identityCalculated = false;
 }
