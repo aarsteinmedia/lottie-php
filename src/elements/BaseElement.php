@@ -23,9 +23,12 @@ abstract class BaseElement implements \ArrayAccess
     public ?\DOMElement $layerElement = null;
     public ?string $layerId;
     public ?array $layerInterface = null;
+    public ?\DOMElement $maskedElement;
     public ?MaskElement $maskManager;
+    public ?\DOMElement $matteElement;
     public $renderedFrame = -1;
     public ?array $shapesData = [];
+    public ?\DOMElement $transformedElement;
     public $type;
 
     public function addRenderableComponent(ImageElement|MaskElement|SVGEffects $component)
