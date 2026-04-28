@@ -27,6 +27,10 @@ class PropertyFactory
         }
         $p = null;
 
+        if (!$data) {
+            return new NoProperty();
+        }
+
         $k = $data['k'] ?? null;
         if (is_int($k) || is_float($k)) {
             $p = new ValueProperty(

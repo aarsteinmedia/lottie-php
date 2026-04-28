@@ -31,7 +31,7 @@ class SVGEffects
             $filterManager = null;
 
             ['ty' => $ty] = $elem->data['ef'][$i] ?? ['ty' => null];
-            $Effect = null === $ty || !$this->registeredEffects[$ty] ? null : $this->registeredEffects[$ty]['effect'];
+            $Effect = null === $ty || !(self::$registeredEffects[$ty] ?? null) ? null : self::$registeredEffects[$ty]['effect'];
 
             if ($Effect && $ty && $elem->effectsManager) {
                 $filterManager = new ($Effect)(

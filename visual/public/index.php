@@ -75,7 +75,7 @@ if ($selectedPath && file_exists($selectedPath) && isAllowedAsset($selectedPath)
       <aside class="panel">
         <form method="get" class="form">
           <label class="label" for="file">Asset</label>
-          <select class="select" name="file" id="file" onchange="this.form.submit()">
+          <select autofocus class="select" name="file" id="file" onchange="this.form.submit()">
             <?php foreach ($assets as $asset): ?>
               <option value="<?= h($asset) ?>" <?= $asset === $selected ? 'selected' : '' ?>>
                 <?= h($asset) ?>

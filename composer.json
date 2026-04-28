@@ -6,19 +6,18 @@
       "LottiePHP\\": "src/"
     },
     "files": [
-      "src/effects/index.php",
-      "src/utils/index.php",
-      "src/utils/enums.php",
-      "src/utils/buildShapeString.php",
-      "src/utils/getFontProperties.php",
-      "src/utils/dotLottie/getAnimationData.php",
-      "src/utils/dotLottie/getLottieJSON.php",
-      "src/utils/dotLottie/resolveAssets.php",
-      "src/utils/pooling/bezierLengthPool.php",
-      "src/utils/pooling/domDocumentPool.php",
-      "src/utils/pooling/double.php",
-      "src/utils/pooling/pointPool.php",
-      "src/utils/pooling/segmentLengthPool.php"
+      "src/Utils/index.php",
+      "src/Utils/Enums.php",
+      "src/Utils/buildShapeString.php",
+      "src/Utils/getFontProperties.php",
+      "src/Utils/DotLottie/getAnimationData.php",
+      "src/Utils/DotLottie/getLottieJSON.php",
+      "src/Utils/DotLottie/resolveAssets.php",
+      "src/Utils/Pooling/bezierLengthPool.php",
+      "src/Utils/Pooling/domDocumentPool.php",
+      "src/Utils/Pooling/double.php",
+      "src/Utils/Pooling/pointPool.php",
+      "src/Utils/Pooling/segmentLengthPool.php"
     ]
   },
   "autoload-dev": {
