@@ -4,6 +4,7 @@ namespace LottiePHP\Elements\Helpers;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Properties\BaseProperty;
 
 /**
@@ -15,7 +16,7 @@ abstract class FrameElement extends HierarchyElement
     public $_mdf = false;
     public $displayStartTime = 0;
 
-    public function addDynamicProperty(BaseElement|BaseProperty $prop)
+    public function addDynamicProperty(BaseElement|BaseProperty|DynamicPropertyContainer $prop)
     {
         if (!in_array($prop, $this->dynamicProperties)) {
             array_push($this->dynamicProperties, $prop);

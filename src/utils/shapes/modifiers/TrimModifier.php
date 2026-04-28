@@ -3,10 +3,10 @@
 namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
-use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Bezier;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Pooling\ShapePool;
+use LottiePHP\Utils\Properties\KeyframedValueProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\ShapeCollection;
@@ -16,14 +16,14 @@ use function LottiePHP\Utils\Pooling\segmentsLengthPool;
 
 class TrimModifier extends ShapeModifier
 {
-    public ?ValueProperty $e;
+    public KeyframedValueProperty|ValueProperty|null $e;
 
     public ?int $eValue;
 
     public $m;
     public ?ValueProperty $o;
 
-    public ?ValueProperty $s;
+    public KeyframedValueProperty|ValueProperty|null $s;
 
     public ?int $sValue;
 
@@ -108,12 +108,13 @@ class TrimModifier extends ShapeModifier
     }
 
     public function addShapes(
-        SVGShapeData $shapeData,
+        object $shapeData,
         array $shapeSegment,
         ?ShapePath $shapePathFromProps = null
     ) {
         $shapePath = $shapePathFromProps;
-        ['pathsData' => $pathsData, 'shape' => $shape] = $shapeData;
+        $pathsData = $shapeData->pathsData ?? [];
+        $shape = $shapeData->shape ?? null;
         $shapePaths = $shape?->paths?->shapes ?? [];
         $len = $shape?->paths?->_length ?? 0;
         $j = 0;
@@ -267,8 +268,13 @@ class TrimModifier extends ShapeModifier
         return $shapes;
     }
 
-    public function addShapeToModifier(SVGShapeData $shapeData)
+    public function addShapeToModifier(array|object $shapeData)
     {
+        if (is_array($shapeData)) {
+            $shapeData['pathsData'] = [];
+
+            return;
+        }
         $shapeData->pathsData = [];
     }
 

@@ -3,7 +3,6 @@
 namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
-use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Matrix;
@@ -29,8 +28,14 @@ class RepeaterModifier extends ShapeModifier
     public ?Matrix $tMatrix;
     public ?TransformProperty $tr;
 
-    public function addShapeToModifier(SVGShapeData $shapeData)
+    public function addShapeToModifier(array|object $shapeData)
     {
+        if (is_array($shapeData)) {
+            $shapeData['pathsData'] = [];
+
+            return;
+        }
+        // modifier shape entries are objects (see ShapeModifier::addShape)
         $shapeData->pathsData = [];
     }
 
@@ -42,39 +47,39 @@ class RepeaterModifier extends ShapeModifier
         int $perc,
         ?bool $inv
     ) {
-        if (!$transform['s'] || !$transform['p'] || !$transform['a'] || !$transform['r']) {
+        if (!$transform->s || !$transform->p || !$transform->a || !$transform->r) {
             throw new \Error(get_class($this).': Missing required data from Transform');
         }
         $dir = $inv ? -1 : 1;
-        $scaleX = $transform['s']->v[0] + (1 - $transform['s']->v[0]) * (1 - $perc);
-        $scaleY = $transform['s']->v[1] + (1 - $transform['s']->v[1]) * (1 - $perc);
+        $scaleX = $transform->s->v[0] + (1 - $transform->s->v[0]) * (1 - $perc);
+        $scaleY = $transform->s->v[1] + (1 - $transform->s->v[1]) * (1 - $perc);
 
         $pMatrix->translate(
-            $transform['p']->v[0] * $dir * $perc,
-            $transform['p']->v[1] * $dir * $perc,
-            $transform['p']->v[2]
+            $transform->p->v[0] * $dir * $perc,
+            $transform->p->v[1] * $dir * $perc,
+            $transform->p->v[2]
         );
         $rMatrix->translate(
-            -$transform['a']->v[0],
-            -$transform['a']->v[1],
-            $transform['a']->v[2]
+            -$transform->a->v[0],
+            -$transform->a->v[1],
+            $transform->a->v[2]
         );
         $rMatrix->rotate(-$transform['r']->v * $dir * $perc);
         $rMatrix->translate(
-            $transform['a']->v[0] ?? 0,
-            $transform['a']->v[1] ?? 0,
-            $transform['a']->v[2]
+            $transform->a->v[0] ?? 0,
+            $transform->a->v[1] ?? 0,
+            $transform->a->v[2]
         );
         $sMatrix->translate(
-            -($transform['a']->v[0] ?? 0),
-            -($transform['a']->v[1] ?? 0),
-            $transform['a']->v[2]
+            -($transform->a->v[0] ?? 0),
+            -($transform->a->v[1] ?? 0),
+            $transform->a->v[2]
         );
         $sMatrix->scale($inv ? 1 / $scaleX : $scaleX, $inv ? 1 / $scaleY : $scaleY);
         $sMatrix->translate(
-            $transform['a']->v[0] ?? 0,
-            $transform['a']->v[1] ?? 0,
-            $transform['a']->v[2]
+            $transform->a->v[0] ?? 0,
+            $transform->a->v[1] ?? 0,
+            $transform->a->v[2]
         );
     }
 
@@ -107,11 +112,11 @@ class RepeaterModifier extends ShapeModifier
     public function init(
         BaseElement|DynamicPropertyContainer $elem,
         array $arr,
-        ?int $posFromProps,
+        ?int $posFromProps = 0,
         $elemsData = []
     ) {
         if (!is_array($arr)) {
-            throw new \TypeError(get_class($this).':  Method init, param arr must be array');
+            throw new \TypeError(get_class($this).': Method init, param arr must be array');
         }
         $pos = (int) $posFromProps;
 

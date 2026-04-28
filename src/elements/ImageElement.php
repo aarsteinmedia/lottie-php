@@ -19,7 +19,7 @@ class ImageElement extends SVGBaseElement
     ) {
         parent::__construct();
 
-        if ($data['refId']) {
+        if ($data['refId'] ?? null) {
             $this->assetData = $globalData['getAssetData']($data['refId']) ?? null;
         }
 

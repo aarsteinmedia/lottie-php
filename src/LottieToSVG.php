@@ -5,6 +5,14 @@ namespace LottiePHP;
 require dirname(__DIR__, 1).'/vendor/autoload.php';
 
 use LottiePHP\Animation\AnimationManager;
+use LottiePHP\Utils\Enums\Modifier;
+use LottiePHP\Utils\Shapes\Modifiers\OffsetPathModifier;
+use LottiePHP\Utils\Shapes\Modifiers\PuckerAndBloatModifier;
+use LottiePHP\Utils\Shapes\Modifiers\RepeaterModifier;
+use LottiePHP\Utils\Shapes\Modifiers\RoundCornersModifier;
+use LottiePHP\Utils\Shapes\Modifiers\ShapeModifiers;
+use LottiePHP\Utils\Shapes\Modifiers\TrimModifier;
+use LottiePHP\Utils\Shapes\Modifiers\ZigZagModifier;
 
 use function LottiePHP\Utils\DotLottie\getAnimationData;
 use function LottiePHP\Utils\isLottie;
@@ -14,6 +22,13 @@ class LottieToSVG
     public static function load(string $path)
     {
         try {
+            ShapeModifiers::registerModifier(Modifier::TrimModifier, TrimModifier::class);
+            ShapeModifiers::registerModifier(Modifier::PuckerAndBloatModifier, PuckerAndBloatModifier::class);
+            ShapeModifiers::registerModifier(Modifier::RepeaterModifier, RepeaterModifier::class);
+            ShapeModifiers::registerModifier(Modifier::RoundCornersModifier, RoundCornersModifier::class);
+            ShapeModifiers::registerModifier(Modifier::ZigZagModifier, ZigZagModifier::class);
+            ShapeModifiers::registerModifier(Modifier::OffsetPathModifier, OffsetPathModifier::class);
+
             // Load the resource
             [
                 'animations' => $animations,
@@ -43,11 +58,6 @@ class LottieToSVG
         } catch (\Throwable $error) {
             echo $error::class.': '.$error->getMessage()."\n".$error->getTraceAsString()."\n";
         }
-    }
-
-    public static function loadAnimation(array $params)
-    {
-        return AnimationManager::loadAnimation($params);
     }
 
     public static function renderFirstFrame(string $path, ?array $rendererSettings = []): ?string

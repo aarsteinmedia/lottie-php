@@ -19,7 +19,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public ?array $data = null;
     public $effectsSequence = [];
     public BaseElement $elem;
-    public ?int $frameId;
+    public ?int $frameId = null;
     public ?bool $k;
     public $keyframesMetadata = [];
     public ?bool $kf;
@@ -199,7 +199,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
         return $this->pv;
     }
 
-    public function processEffectsSequence($_val)
+    public function processEffectsSequence($_val = null)
     {
         if (!$this->data) {
             throw new \Error(get_class($this).': data (Shape) is not implemented');

@@ -25,21 +25,20 @@ class ShapeModifier extends DynamicPropertyContainer
         // Adding shape to dynamic properties. It covers the case where a shape has no effects applied, to reset it's _mdf state on every tick.
         $data->sh?->container?->addDynamicProperty($data->sh);
 
-        /** @var SVGShapeData $shapeData */
-        $shapeData = [
+        $shapeData = (object) [
             'data' => $data,
             'localShapeCollection' => ShapeCollectionPool::newShapeCollection(),
             'shape' => $data->sh,
         ];
 
-        array_push($this->shapes, $shapeData);
+        $this->shapes[] = $shapeData;
         $this->addShapeToModifier($shapeData);
         if ($this->_isAnimated) {
             $data->setAsAnimated();
         }
     }
 
-    public function addShapeToModifier(SVGShapeData $_shapeData)
+    public function addShapeToModifier(array|object $_shapeData)
     {
         // Pass through
     }
@@ -47,8 +46,8 @@ class ShapeModifier extends DynamicPropertyContainer
     public function init(
         BaseElement|DynamicPropertyContainer $elem,
         array $data,
-        ?int $_posFromProps,
-        ?array $_elemsData
+        ?int $_posFromProps = null,
+        ?array $_elemsData = null
     ) {
         $this->shapes = [];
         $this->elem = $elem;

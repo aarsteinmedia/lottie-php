@@ -3,25 +3,40 @@
 namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Enums\Modifier;
 use LottiePHP\Utils\Enums\ShapeType;
 
 class ShapeModifiers
 {
+    /**
+     * @var array<string, class-string<ShapeModifier>>
+     */
     public static function getModifier(
         ShapeType|string $nm,
         ?BaseElement $_elem = null,
         ?array $_data = null
     ) {
-        if (!self::$Modifiers[$nm]) {
-            throw new \Error('Invalid modifier');
+        $key = $nm instanceof ShapeType ? $nm->value : $nm;
+
+        if (!isset(self::$Modifiers[$key])) {
+            throw new \Error('Invalid modifier: '.$key);
         }
 
-        return new self::$Modifiers[$nm]();
+        /** @var class-string<ShapeModifier> $class */
+        $class = self::$Modifiers[$key];
+
+        return new $class();
     }
 
-    public static function registerModifier(string $nm, array $factory)
+    /**
+     * @param class-string<ShapeModifier> $factory
+     */
+    public static function registerModifier(Modifier $nm, string $factory): void
     {
-        self::$Modifiers[$nm] = self::$Modifiers[$nm] ?? $factory;
+        $key = $nm->value;
+        self::$Modifiers[$key] = self::$Modifiers[$key] ?? $factory;
     }
-    private static $Modifiers = [];
+
+    /** @var array<string, class-string<ShapeModifier>> */
+    private static array $Modifiers = [];
 }

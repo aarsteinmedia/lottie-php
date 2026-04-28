@@ -30,7 +30,7 @@ abstract class ShapeElement extends RenderableDOMElement
         array_push($this->processedElements, new ProcessedElement($elem, $pos));
     }
 
-    public function addShapeToModifiers(SVGShapeData $data)
+    public function addShapeToModifiers(array|SVGShapeData $data)
     {
         $length = count($this->shapeModifiers);
 
