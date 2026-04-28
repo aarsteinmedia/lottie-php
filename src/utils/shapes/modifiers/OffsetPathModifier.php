@@ -472,9 +472,9 @@ class OffsetPathModifier extends ShapeModifier
     public function processShapes(bool $_isFirstFrame)
     {
         $length = count($this->shapes);
-        $amount = (int) $this->amount?->v;
-        $miterLimit = (int) $this->miterLimit?->v;
-        $lineJoin = (int) $this->lineJoin;
+        $amount = (float) $this->amount?->v;
+        $miterLimit = (float) $this->miterLimit?->v;
+        $lineJoin = (float) $this->lineJoin;
 
         if (0 !== $amount) {
             $shapePaths = null;

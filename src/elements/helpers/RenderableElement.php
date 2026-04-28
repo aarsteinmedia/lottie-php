@@ -51,7 +51,7 @@ abstract class RenderableElement extends FrameElement
         if (!$this->finalTransform) {
             throw new \Error(get_class($this).': finalTransform is not implemented');
         }
-        if ((int) $this->finalTransform['mProp']['o']->v <= 0) {
+        if ((float) $this->finalTransform['mProp']['o']->v <= 0) {
             if (
                 !$this->isTransparent
                 && ($this->globalData['renderConfig']['hideOnTransparent'] ?? false)
@@ -76,14 +76,14 @@ abstract class RenderableElement extends FrameElement
         }
         if (5 === $this->data['ty']) {
             return [
-                'h' => (int) $this->data['textData']['height'],
-                'w' => (int) $this->data['textData']['width'],
+                'h' => (float) $this->data['textData']['height'],
+                'w' => (float) $this->data['textData']['width'],
             ];
         }
 
         return [
-            'h' => (int) $this->data['height'],
-            'w' => (int) $this->data['width'],
+            'h' => (float) $this->data['height'],
+            'w' => (float) $this->data['width'],
         ];
     }
 

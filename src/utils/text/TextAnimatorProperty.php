@@ -562,7 +562,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             $currentLength
                             = ($letters[0]['an'] ?? 0) * 0.5
                             + ($totalLength
-                              - (int) ($this->_pathData['f']->v ?? null)
+                              - (float) ($this->_pathData['f']->v ?? null)
                               - ($letters[0]['an'] ?? 0) * 0.5
                               - ($letters[count($letters) - 1]['an'] ?? 0) * 0.5)
                               * $ind
@@ -963,9 +963,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             case 1:
                                 $matrixHelper->translate(
                                     ($letters[$i]['animatorJustifyOffset'] ?? 0)
-                  + (int) $documentData['justifyOffset']
-                  + ((int) $documentData['boxWidth']
-                                    - (int) $documentData['lineWidths'][$letters[$i]['line'] ?? 0]),
+                  + (float) $documentData['justifyOffset']
+                  + ((float) $documentData['boxWidth']
+                                    - (float) $documentData['lineWidths'][$letters[$i]['line'] ?? 0]),
                                     0,
                                     0
                                 );
@@ -975,9 +975,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             case 2:
                                 $matrixHelper->translate(
                                     ($letters[$i]['animatorJustifyOffset'] ?? 0)
-                  + (int) $documentData['justifyOffset']
-                  + ((int) $documentData['boxWidth']
-                                    - (int) $documentData['lineWidths'][$letters[$i]['line'] ?? 0])
+                  + (float) $documentData['justifyOffset']
+                  + ((float) $documentData['boxWidth']
+                                    - (float) $documentData['lineWidths'][$letters[$i]['line'] ?? 0])
                                     / 2,
                                     0,
                                     0
@@ -989,20 +989,20 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             default:
                                 break;
                         }
-                        $matrixHelper->translate(0, -(int) $documentData['ls']);
+                        $matrixHelper->translate(0, -(float) $documentData['ls']);
                         $matrixHelper->translate(
                             $offf,
                             0,
                             0
                         );
                         $matrixHelper->translate(
-                            $alignment[0] * (int) $letters[$i]['an'] * 0.005,
+                            $alignment[0] * (float) $letters[$i]['an'] * 0.005,
                             $alignment[1] * $yOff * 0.01,
                             0
                         );
                         $xPos
                         += ($letters[$i]['l'] ?? 0)
-                        + $documentData['tr'] * 0.001 * (int) $documentData['finalSize'];
+                        + $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
                     }
                     if (RendererType::HTML === $renderType) {
                         $letterM = $matrixHelper->toCSS();
@@ -1033,8 +1033,8 @@ class TextAnimatorProperty extends DynamicPropertyContainer
 
                 if ($renderedLettersCount <= $i) {
                     $letterValue = new LetterProps(
-                        (int) $letterO,
-                        (int) $letterSw,
+                        (float) $letterO,
+                        (float) $letterSw,
                         $letterSc,
                         $letterFc,
                         $letterM,
@@ -1050,8 +1050,8 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                 $letterValue = $this->renderedLetters[$i]['Props'];
                 $this->lettersChangedFlag
                 = $letterValue->update(
-                    (int) $letterO,
-                    (int) $letterSw,
+                    (float) $letterO,
+                    (float) $letterSw,
                     $letterSc,
                     $letterFc,
                     $letterM, // matrix()-string

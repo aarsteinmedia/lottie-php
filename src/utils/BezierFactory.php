@@ -189,7 +189,7 @@ class BezierEasing
 
         while (
             $currentSample !== $lastSample
-            && (int) $mSampleValues[$currentSample] <= $aX
+            && (float) $mSampleValues[$currentSample] <= $aX
         ) {
             $intervalStart += $this->kSampleStepSize;
 
@@ -199,9 +199,9 @@ class BezierEasing
 
         // Interpolate to provide an initial guess for t
         $dist
-          = ($aX - (int) $mSampleValues[$currentSample])
-          / ((int) $mSampleValues[$currentSample + 1]
-            - (int) $mSampleValues[$currentSample]);
+          = ($aX - (float) $mSampleValues[$currentSample])
+          / ((float) $mSampleValues[$currentSample + 1]
+            - (float) $mSampleValues[$currentSample]);
         $guessForT = $intervalStart + $dist * $this->kSampleStepSize;
 
         $initialSlope = $this->getSlope(

@@ -48,8 +48,8 @@ abstract class TransformElement extends BaseElement
                 0,
                 0
             );
-            $pt = [$pt[0] - (int) $ptNew[0],
-                $pt[1] - (int) $ptNew[1],
+            $pt = [$pt[0] - (float) $ptNew[0],
+                $pt[1] - (float) $ptNew[1],
                 0];
         }
 
@@ -103,7 +103,7 @@ abstract class TransformElement extends BaseElement
                     $this->finalTransform['_localMatMdf'] = true;
                 }
                 if ($this->localTransforms[$i]['_opMdf'] && !$this->finalTransform['_opMdf']) {
-                    $this->finalTransform['localOpacity'] = (int) $this->finalTransform['mProp']['o']->v;
+                    $this->finalTransform['localOpacity'] = (float) $this->finalTransform['mProp']['o']->v;
                     $this->finalTransform['_opMdf'] = true;
                 }
                 ++$i;
@@ -123,10 +123,10 @@ abstract class TransformElement extends BaseElement
             $localMat->multiply($mat);
         }
         if ($this->finalTransform['_opMdf']) {
-            $localOp = (int) $this->finalTransform['localOpacity'];
+            $localOp = (float) $this->finalTransform['localOpacity'];
 
             for ($i = 0; $i < $length; ++$i) {
-                $localOp *= (int) $this->localTransforms[$i]['opacity'] ?? 1 * 0.01;
+                $localOp *= ((float) ($this->localTransforms[$i]['opacity'] ?? 100)) * 0.01;
             }
             $this->finalTransform['localOpacity'] = $localOp;
         }
@@ -175,7 +175,7 @@ abstract class TransformElement extends BaseElement
             $this->finalTransform['_localMatMdf'] = $this->finalTransform['_matMdf'];
         }
         if ($this->finalTransform['_opMdf']) {
-            $this->finalTransform['localOpacity'] = (int) $this->finalTransform['mProp']['o']->v;
+            $this->finalTransform['localOpacity'] = (float) $this->finalTransform['mProp']['o']->v;
         }
     }
 

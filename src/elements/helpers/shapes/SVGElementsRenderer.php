@@ -147,7 +147,7 @@ class SVGElementsRenderer
                 }
                 $ang = atan2($pt2[1] - $pt1[1], $pt2[0] - $pt1[0]);
 
-                $percent = (int) $itemData->h?->v;
+                $percent = (float) $itemData->h?->v;
 
                 if ($percent >= 1) {
                     $percent = 0.99;
@@ -155,8 +155,8 @@ class SVGElementsRenderer
                     $percent = -0.99;
                 }
                 $dist = $rad * $percent;
-                $x = cos($ang + (int) $itemData->a?->v) * $dist + $pt1[0];
-                $y = sin($ang + (int) $itemData->a?->v) * $dist + $pt1[1];
+                $x = cos($ang + (float) $itemData->a?->v) * $dist + $pt1[0];
+                $y = sin($ang + (float) $itemData->a?->v) * $dist + $pt1[1];
 
                 $gfill?->setAttribute('fx', $x);
                 $gfill?->setAttribute('fy', $y);

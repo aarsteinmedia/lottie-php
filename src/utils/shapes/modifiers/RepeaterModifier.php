@@ -226,7 +226,7 @@ class RepeaterModifier extends ShapeModifier
             return $hasReloaded;
         }
 
-        $copies = ceil((int) $this->c?->v);
+        $copies = ceil((float) $this->c?->v);
 
         if (count($this->_groups) < $copies) {
             while (count($this->_groups) < $copies) {
@@ -343,7 +343,7 @@ class RepeaterModifier extends ShapeModifier
             throw new \Error(get_class($this).':  Transformproperty is not set');
         }
 
-        $offset = (int) $this->o?->v;
+        $offset = (float) $this->o?->v;
         $offsetModulo = $offset % 1;
         $roundOffset = $offset > 0 ? floor($offset) : ceil($offset);
         $pProps = $this->pMatrix->props;
@@ -419,9 +419,9 @@ class RepeaterModifier extends ShapeModifier
                 $items[count($items) - 1]['transform']['op']['_mdf'] = true;
                 $items[count($items) - 1]['transform']['op']->v
                     = 1 === $this->_currentCopies
-                      ? (int) ($this->so?->v)
-                      : (int) ($this->so?->v)
-                        + ((int) $this->eo?->v - (int) $this->so?->v)
+                      ? (float) ($this->so?->v)
+                      : (float) ($this->so?->v)
+                        + ((float) $this->eo?->v - (float) $this->so?->v)
                         * ($i / ($this->_currentCopies - 1));
             }
 

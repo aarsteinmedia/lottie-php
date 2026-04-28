@@ -82,9 +82,9 @@ trait RendererTraits
 
             if (!$this->elements[$i] && $layer
               && ($layer['ip'] - $layer['st']
-                <= (int) $val - $layer['st']
+                <= (float) $val - $layer['st']
                 && $layer['op'] - $layer['st']
-                > (int) $val - $layer['st'])
+                > (float) $val - $layer['st'])
             ) {
                 $this->buildItem($i);
             }
@@ -238,7 +238,7 @@ trait RendererTraits
         $this->globalData['imageLoader'] = $this->animationItem->imagePreloader; // null
         $this->globalData['audioController'] = null;
         $this->globalData['frameId'] = 0;
-        $this->globalData['frameRate'] = (int) ($animData['fr'] ?? 60);
+        $this->globalData['frameRate'] = (float) ($animData['fr'] ?? 60);
         $this->globalData['nm'] = $animData['nm'] ?? '';
         $this->globalData['compSize'] = [
             'h' => $animData['h'],

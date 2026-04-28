@@ -18,14 +18,14 @@ class TrimModifier extends ShapeModifier
 {
     public KeyframedValueProperty|ValueProperty|null $e;
 
-    public ?int $eValue;
+    public ?float $eValue;
 
     public $m;
     public ?ValueProperty $o;
 
     public KeyframedValueProperty|ValueProperty|null $s;
 
-    public ?int $sValue;
+    public ?float $sValue;
 
     public function addPaths(array $newPaths, ShapeCollection $localShapeCollection)
     {
@@ -356,8 +356,8 @@ class TrimModifier extends ShapeModifier
             0,
             $this
         );
-        $this->sValue = 0;
-        $this->eValue = 0;
+        $this->sValue = 0.0;
+        $this->eValue = 0.0;
         $this->m = $data['m'];
         $this->_isAnimated
           = count($this->s->effectsSequence) > 0
@@ -371,24 +371,24 @@ class TrimModifier extends ShapeModifier
         $e = 0;
 
         if ($this->_mdf || $_isFirstFrame) {
-            $o = (int) $this->o->v % 360 / 360;
+            $o = fmod((float) $this->o->v, 360.0) / 360.0;
 
             if ($o < 0) {
                 ++$o;
             }
-            if ((int) $this->s?->v > 1) {
+            if ((float) $this->s?->v > 1) {
                 $s = 1 + $o;
-            } elseif ((int) $this->s?->v < 0) {
+            } elseif ((float) $this->s?->v < 0) {
                 $s = 0 + $o;
             } else {
-                $s = (int) $this->s?->v + $o;
+                $s = (float) $this->s?->v + $o;
             }
-            if ((int) $this->e?->v > 1) {
+            if ((float) $this->e?->v > 1) {
                 $e = 1 + $o;
-            } elseif ((int) $this->e?->v < 0) {
+            } elseif ((float) $this->e?->v < 0) {
                 $e = 0 + $o;
             } else {
-                $e = (int) $this->e?->v + $o;
+                $e = (float) $this->e?->v + $o;
             }
 
             if ($s > $e) {
@@ -402,8 +402,8 @@ class TrimModifier extends ShapeModifier
             $this->sValue = $s;
             $this->eValue = $e;
         } else {
-            $s = $this->sValue || 0;
-            $e = $this->eValue || 0;
+            $s = $this->sValue ?? 0.0;
+            $e = $this->eValue ?? 0.0;
         }
         $shapePaths = null;
         $j = 0;
@@ -467,7 +467,7 @@ class TrimModifier extends ShapeModifier
                         $shapeData->pathsData = $pathsData;
                     }
 
-                    $totalModifierLength += (int) $totalShapeLength;
+                    $totalModifierLength += (float) $totalShapeLength;
 
                     if ($shapeData->shape) {
                         $shapeData->shape->_mdf = true;
@@ -495,7 +495,7 @@ class TrimModifier extends ShapeModifier
                             $addedLength,
                             $totalModifierLength
                         );
-                        $addedLength += (int) $shapeData->totalShapeLength;
+                        $addedLength += (float) $shapeData->totalShapeLength;
                     } else {
                         $edges = [[$shapeS, $shapeE]];
                     }
@@ -506,23 +506,23 @@ class TrimModifier extends ShapeModifier
                         $segments = [];
                         if ($shapeE <= 1) {
                             array_push($segments, [
-                                'e' => (int) $shapeData->totalShapeLength * $shapeE,
-                                's' => (int) $shapeData->totalShapeLength * $shapeS,
+                                'e' => (float) $shapeData->totalShapeLength * $shapeE,
+                                's' => (float) $shapeData->totalShapeLength * $shapeS,
                             ]);
                         } elseif ($shapeS >= 1) {
                             array_push($segments, [
-                                'e' => (int) $shapeData->totalShapeLength * ($shapeE - 1),
-                                's' => (int) $shapeData->totalShapeLength * ($shapeS - 1),
+                                'e' => (float) $shapeData->totalShapeLength * ($shapeE - 1),
+                                's' => (float) $shapeData->totalShapeLength * ($shapeS - 1),
                             ]);
                         } else {
                             array_push(
                                 $segments,
                                 [
-                                    'e' => (int) $shapeData->totalShapeLength,
-                                    's' => (int) $shapeData->totalShapeLength * $shapeS,
+                                    'e' => (float) $shapeData->totalShapeLength,
+                                    's' => (float) $shapeData->totalShapeLength * $shapeS,
                                 ],
                                 [
-                                    'e' => (int) $shapeData->totalShapeLength * ($shapeE - 1),
+                                    'e' => (float) $shapeData->totalShapeLength * ($shapeE - 1),
                                     's' => 0,
                                 ]
                             );

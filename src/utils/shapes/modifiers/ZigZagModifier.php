@@ -238,7 +238,7 @@ class ZigZagModifier extends ShapeModifier
         // }
 
         $amplitude = (int) $this->amplitude?->v;
-        $frequency = max(0, round((int) $this->frequency?->v));
+        $frequency = max(0, (int) round((float) $this->frequency?->v));
         $pointType = (int) $this->pointsType?->v;
 
         if (0 !== $amplitude) {

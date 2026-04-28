@@ -105,7 +105,7 @@ class SVGTextLottieElement extends TextElement
         $yPos = 0;
         $isFirstLine = true;
         $trackingOffset
-          = $documentData['tr'] * 0.001 * (int) $documentData['finalSize'];
+          = $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
 
         if ($isSingleShape && !$hasGlyphs && !$documentData['sz']) {
             $tElement = $this->textContainer;
@@ -148,7 +148,7 @@ class SVGTextLottieElement extends TextElement
                     'span' => null,
                 ];
                 $this->textSpans[$i]['span'] = $tSpan;
-                $yPos += (int) $documentData['finalLineHeight'];
+                $yPos += (float) $documentData['finalLineHeight'];
             }
 
             if ($tElement) {
@@ -205,7 +205,7 @@ class SVGTextLottieElement extends TextElement
                 if ($isSingleShape) {
                     if ($letters[$i]['n'] ?? null) {
                         $xPos = -$trackingOffset;
-                        $yPos += (int) $documentData['yOffset'];
+                        $yPos += (float) $documentData['yOffset'];
                         $yPos += $isFirstLine ? 1 : 0;
                         $isFirstLine = false;
                     }

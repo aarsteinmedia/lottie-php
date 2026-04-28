@@ -162,9 +162,9 @@ class StarShapeProperty extends ShapeBaseProperty
                   $this->v->o.length = numPts; */
         $isLong = true;
         $longRad = $this->or->v;
-        $shortRad = (int) $this->ir?->v;
+        $shortRad = (float) $this->ir?->v;
         $longRound = $this->os->v;
-        $shortRound = (int) $this->is?->v;
+        $shortRound = (float) $this->is?->v;
         $longPerimSegment = 2 * M_PI * $longRad / ($numPts * 2);
         $shortPerimSegment = 2 * M_PI * $shortRad / ($numPts * 2);
         $rad = 0;
@@ -185,8 +185,8 @@ class StarShapeProperty extends ShapeBaseProperty
             $ox = 0 === $x && 0 === $y ? 0 : $y / sqrt($x * $x + $y * $y);
             $oy = 0 === $x && 0 === $y ? 0 : -$x / sqrt($x * $x + $y * $y);
 
-            $x += (int) $this->p?->v[0];
-            $y += (int) $this->p?->v[1];
+            $x += (float) $this->p?->v[0];
+            $y += (float) $this->p?->v[1];
             $this->v->setTripleAt(
                 $x,
                 $y,

@@ -365,7 +365,7 @@ abstract class SVGRendererBase extends BaseRenderer
             if (null === $num) {
                 $num = $this->renderedFrame;
             } else {
-                $this->renderedFrame = (int) $num;
+                $this->renderedFrame = (float) $num;
             }
             $this->globalData['frameNum'] = $num;
             ++$this->globalData['frameId'];
@@ -382,7 +382,7 @@ abstract class SVGRendererBase extends BaseRenderer
                 }
 
                 if ($this->completeLayers || $this->elements[$i]) {
-                    $this->elements[$i]?->prepareFrame((int) $num - ($this->layers[$i]['st'] ?? 0));
+                    $this->elements[$i]?->prepareFrame((float) $num - ($this->layers[$i]['st'] ?? 0));
                 }
             }
 

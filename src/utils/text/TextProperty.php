@@ -440,7 +440,7 @@ class TextProperty extends BaseProperty
                     && ($letterData['n'] || ' ' === $letterData['val'] || $i === $len - 1)
                     || 4 === $based && ($letterData['n'] || $i === $len - 1)
                 ) {
-                    if (1 === (int) ($animatorData['s']['rn'] ?? 0)) {
+                    if (1 === (float) ($animatorData['s']['rn'] ?? 0)) {
                         array_push($indexes, $ind);
                     }
                     ++$ind;

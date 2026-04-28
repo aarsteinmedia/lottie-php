@@ -174,7 +174,7 @@ class FontManager
         $parentNode->appendChild($node);
         domDocumentPool()->appendChild($parentNode);
 
-        $width = (int) $node->getAttribute('width');
+        $width = (float) $node->getAttribute('width');
 
         return [
             'node' => $node,
@@ -487,16 +487,16 @@ class FontManager
             $tHelper = $fontData['helper'];
 
             if (' ' === $char) {
-                $doubleSize = (int) $tHelper->measureText("|{$char}|");
-                $singleSize = (int) $tHelper->measureText('||');
+                $doubleSize = (float) $tHelper->measureText("|{$char}|");
+                $singleSize = (float) $tHelper->measureText('||');
 
                 $fontData['cache'][$index] = ($doubleSize - $singleSize) / 100;
             } else {
-                $fontData['cache'][$index] = (int) $tHelper->measureText($char) / 100;
+                $fontData['cache'][$index] = (float) $tHelper->measureText($char) / 100;
             }
         }
 
-        return (int) ($fontData['cache'][$index] ?? 0) * (int) $size;
+        return (float) ($fontData['cache'][$index] ?? 0) * (float) $size;
     }
     private $_warned = false;
     private static $combinedCharacters = [

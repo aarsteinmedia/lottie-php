@@ -177,7 +177,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
             'keyframes' => $keyframes,
             'offsetTime' => $offsetTime,
         ] = (array) $this;
-        $frameNum = (int) $comp?->renderedFrame - $offsetTime;
+        $frameNum = (float) $comp?->renderedFrame - $offsetTime;
         $initTime = ($keyframes[0]['t'] ?? 0) - $offsetTime;
         $length = count($keyframes) - 1;
         $endTime = ($keyframes[$length]['t'] ?? 0) - $offsetTime;
@@ -458,7 +458,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     $keyValue
                       = 1 === $keyData['h']
                         ? ($keyData['s'] ?? [])[$i]
-                        : (int) (($keyData['s'] ?? [])[$i]) + (($endValue[$i] ?? 0) - (int) ($keyData['s'] ?? [])[$i]) * (int) $perc;
+                        : (float) (($keyData['s'] ?? [])[$i]) + (($endValue[$i] ?? 0) - (float) ($keyData['s'] ?? [])[$i]) * (float) $perc;
 
                     if (null !== $keyValue) {
                         if (PropType::MultiDimensional === $propType) {
@@ -519,7 +519,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $multipliedValue = 0;
 
         if ('number' === gettype($val) && PropType::UniDimensional === $this->propType) {
-            $multipliedValue = $val * (int) $this->mult;
+            $multipliedValue = $val * (float) $this->mult;
             if (abs($this->v - $multipliedValue) > 0.00001) {
                 $this->v = $multipliedValue;
                 $this->_mdf = true;
@@ -531,7 +531,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $length = count($this->v);
 
         while ($i < $length) {
-            $multipliedValue = ($val[$i] ?? 0) * (int) $this->mult;
+            $multipliedValue = ($val[$i] ?? 0) * (float) $this->mult;
             if (abs(($this->v[$i] ?? 0) - $multipliedValue) > 0.00001) {
                 $this->v[$i] = $multipliedValue;
                 $this->_mdf = true;

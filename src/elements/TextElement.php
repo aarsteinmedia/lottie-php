@@ -43,9 +43,9 @@ abstract class TextElement extends RenderableDOMElement
         switch ($documentData['j']) {
             case 1:
                 $matrixHelper->translate(
-                    (int) $documentData['justifyOffset']
-          + ((int) $documentData['boxWidth']
-                    - (int) $documentData['lineWidths'][$lineNumber]),
+                    (float) $documentData['justifyOffset']
+          + ((float) $documentData['boxWidth']
+                    - (float) $documentData['lineWidths'][$lineNumber]),
                     0,
                     0
                 );
@@ -54,9 +54,9 @@ abstract class TextElement extends RenderableDOMElement
 
             case 2:
                 $matrixHelper->translate(
-                    (int) $documentData['justifyOffset']
-          + ((int) $documentData['boxWidth']
-                    - (int) $documentData['lineWidths'][$lineNumber])
+                    (float) $documentData['justifyOffset']
+          + ((float) $documentData['boxWidth']
+                    - (float) $documentData['lineWidths'][$lineNumber])
                     / 2,
                     0,
                     0

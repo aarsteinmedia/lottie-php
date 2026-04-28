@@ -153,7 +153,7 @@ class Bezier
                       + pow($perc, 3) * ($pt2[$i] ?? 0);
                     $point[$i] = $ptCoord;
                     if (null !== $lastPoint) {
-                        $ptDistance += pow((int) $point[$i] - (int) $lastPoint[$i], 2);
+                        $ptDistance += pow((float) $point[$i] - (float) $lastPoint[$i], 2);
                     }
                 }
                 $ptDistance = sqrt($ptDistance);
