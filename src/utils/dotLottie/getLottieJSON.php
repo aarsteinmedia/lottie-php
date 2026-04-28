@@ -17,21 +17,27 @@ function getLottieJSON(string $zipBinary): array
             || (null !== $firstId && isset($unzipped["a/{$firstId}.json"]))) {
             $animationsFolder = 'a';
         }
-        foreach ($manifest['animations'] as $animation) {
+        $length = count($manifest['animations'] ?? []);
+        for ($i = 0; $i < $length; ++$i) {
+            $animation = $manifest['animations'][$i];
+
             $id = $animation['id'] ?? null;
             if (null === $id) {
                 continue;
             }
             $path = "{$animationsFolder}/{$id}.json";
+
             if (!isset($unzipped[$path])) {
-                throw new \RuntimeException("Missing animation JSON: {$path}");
+                continue;
+                // throw new \RuntimeException("Missing animation JSON: {$path}");
             }
 
             /** @var array<string, mixed> $lottie */
             $lottie = json_decode(prepareString($unzipped[$path]), true, 512, JSON_THROW_ON_ERROR);
 
             // decodeExpressionLayers($lottie);
-            resolveAssets($unzipped, $lottie['assets'] ?? null);
+            resolveAssets($unzipped, $lottie['assets'] ?? []);
+
             $data[] = $lottie;
         }
 

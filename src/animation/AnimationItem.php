@@ -74,6 +74,8 @@ class AnimationItem
         } else {
             $path = $this->path;
         }
+
+        return $path;
     }
 
     public function getPath()

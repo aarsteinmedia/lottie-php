@@ -286,10 +286,10 @@ class SVGElementsRenderer
             throw new \Error('SVGElementsRenderer: Method renderStroke is missing data');
         }
 
-        $c = $itemData->c;
-        $d = $itemData->d;
-        $o = $itemData->o;
-        $w = $itemData->w;
+        $c = $itemData->c ?? null;
+        $d = $itemData->d ?? null;
+        $o = $itemData->o ?? null;
+        $w = $itemData->w ?? null;
         $msElem = $itemData->style->msElem ?? null;
         $pElem = $itemData->style->pElem ?? null;
 

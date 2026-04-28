@@ -4,14 +4,13 @@ namespace LottiePHP\Utils\DotLottie;
 
 /**
  * @param array<string, string> $unzipped
- * @param array<string, mixed>  $lottie
  */
-function resolveAssets(array $unzipped, array $lottie): void
+function resolveAssets(array $unzipped, array $assets): void
 {
-    $assets = $lottie['assets'] ?? [];
     if (!is_array($assets)) {
         return;
     }
+
     foreach ($assets as $i => $asset) {
         if (!is_array($asset)) {
             continue;

@@ -9,9 +9,88 @@ use function LottiePHP\Utils\Pooling\domDocumentPool;
 
 function addStyles(\DOMElement $el, array $styles)
 {
-    $existing = $el->getAttribute('style');
-    $new = buildStyle($styles);
-    $el->setAttribute('style', $existing ? $existing.'; '.$new : $new);
+    $existing = parseStyle($el->getAttribute('style'));
+
+    $newStyle = buildStyle(array_merge($existing, $styles));
+    $el->setAttribute('style', $newStyle);
+}
+
+function parseStyle(?string $style): array
+{
+    $style = trim((string) $style);
+    if ('' === $style) {
+        return [];
+    }
+    $out = [];
+    $len = strlen($style);
+    $i = 0;
+    $buf = '';
+    $inS = false; // single quotes
+    $inD = false; // double quotes
+    $paren = 0;   // parentheses nesting, e.g. url(...)
+    $flushDecl = function (string $decl) use (&$out): void {
+        $decl = trim($decl);
+        if ('' === $decl) {
+            return;
+        }
+        // Split on the first ":" only
+        $pos = strpos($decl, ':');
+        if (false === $pos) {
+            return;
+        }
+        $prop = trim(substr($decl, 0, $pos));
+        $val = trim(substr($decl, $pos + 1));
+        if ('' === $prop) {
+            return;
+        }
+        $out[strtolower($prop)] = $val;
+    };
+    while ($i < $len) {
+        $ch = $style[$i];
+        if (!$inD && "'" === $ch) {
+            $inS = !$inS;
+            $buf .= $ch;
+            ++$i;
+
+            continue;
+        }
+        if (!$inS && '"' === $ch) {
+            $inD = !$inD;
+            $buf .= $ch;
+            ++$i;
+
+            continue;
+        }
+        if (!$inS && !$inD) {
+            if ('(' === $ch) {
+                ++$paren;
+                $buf .= $ch;
+                ++$i;
+
+                continue;
+            }
+            if (')' === $ch && $paren > 0) {
+                --$paren;
+                $buf .= $ch;
+                ++$i;
+
+                continue;
+            }
+            // End of declaration (ignore semicolons inside quotes/parentheses)
+            if (';' === $ch && 0 === $paren) {
+                $flushDecl($buf);
+                $buf = '';
+                ++$i;
+
+                continue;
+            }
+        }
+        $buf .= $ch;
+        ++$i;
+    }
+    $flushDecl($buf);
+
+    return $out;
 }
 
 function buildStyle(array $styles): string

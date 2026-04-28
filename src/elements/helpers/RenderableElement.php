@@ -54,7 +54,7 @@ abstract class RenderableElement extends FrameElement
         if ((int) $this->finalTransform['mProp']['o']->v <= 0) {
             if (
                 !$this->isTransparent
-                && $this->globalData['renderConfig']['hideOnTransparent']
+                && ($this->globalData['renderConfig']['hideOnTransparent'] ?? false)
             ) {
                 $this->isTransparent = true;
                 $this->hide();

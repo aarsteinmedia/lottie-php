@@ -23,6 +23,8 @@ class SVGTextLottieElement extends TextElement
         array $globalData,
         BaseElement $comp,
     ) {
+        parent::__construct();
+
         $this->renderType = RendererType::SVG;
 
         $this->initElement(
@@ -98,7 +100,7 @@ class SVGTextLottieElement extends TextElement
         $matrixHelper = $this->mHelper;
         $shapeStr = '';
 
-        ['singleShape' => $singleShape, 'isSingleShape' => $isSingleShape] = $this->data;
+        $isSingleShape = $this->data['singleShape'] ?? false;
         $xPos = 0;
         $yPos = 0;
         $isFirstLine = true;
@@ -395,7 +397,7 @@ class SVGTextLottieElement extends TextElement
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
         $this->validateText();
-        if ($this->data['singleShape'] && !$this->_mdf) {
+        if ($this->data['singleShape'] ?? false && !$this->_mdf) {
             return;
         }
         if (!$this->textProperty) {

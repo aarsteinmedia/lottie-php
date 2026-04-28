@@ -105,9 +105,9 @@ class Bezier
         array $pt4
     ) {
         $storedData = [];
-        $bezierName = str_repeat('.', 'p', "{$pt1[0]}_{$pt1[1]}_{$pt2[0]}_{$pt2[1]}_{$pt3[0]}_{$pt3[1]}_{$pt4[0]}_{$pt4[1]}");
+        $bezierName = str_replace('.', 'p', "{$pt1[0]}_{$pt1[1]}_{$pt2[0]}_{$pt2[1]}_{$pt3[0]}_{$pt3[1]}_{$pt4[0]}_{$pt4[1]}");
 
-        if (!$storedData[$bezierName]) {
+        if (!($storedData[$bezierName] ?? null)) {
             $curveSegments = Resolution::getDefaultCurveSegments();
             $ptCoord = [];
             $perc = 0;
@@ -175,7 +175,7 @@ class Bezier
         array $pt4,
         int $startPercFromProps,
         int $endPercFromProps,
-        array $bezierData
+        BezierData $bezierData
     ) {
         if (null === self::$_bezierSegmentPoints) {
             self::$_bezierSegmentPoints = createTypedArray(ArrayType::Float32, 8);
@@ -249,7 +249,7 @@ class Bezier
         array $pt3,
         array $pt4,
         int $percent,
-        array $bezierData
+        BezierData $bezierData
     ) {
         $t1 = self::getDistancePerc($percent, $bezierData) ?? 0;
         $u1 = 1 - $t1;
@@ -305,12 +305,12 @@ class Bezier
     }
 
     public static function pointOnLine2D(
-        int $x1,
-        int $y1,
-        int $x2,
-        int $y2,
-        int $x3,
-        int $y3
+        float $x1,
+        float $y1,
+        float $x2,
+        float $y2,
+        float $x3,
+        float $y3
     ) {
         $det1 = $x1 * $y2 + $y1 * $x3 + $x2 * $y3 - $x3 * $y2 - $y3 * $x1 - $x2 * $y1;
 
@@ -373,10 +373,10 @@ class BezierData
 
 class PointData
 {
-    public int $partialLength;
+    public float $partialLength;
     public array $point;
 
-    public function __construct(int $partial, array $point)
+    public function __construct(float $partial, array $point)
     {
         $this->partialLength = $partial;
         $this->point = $point;

@@ -35,6 +35,7 @@ class ShapeProperty extends ShapeBaseProperty
         if (!$pathData) {
             throw new \Error(get_class($this).': Could now get Path Data');
         }
+        
         // Lottie JSON uses plain arrays for path data.
         // Normalize to a `ShapePath` instance so downstream code can rely on methods/fields.
         if (is_array($pathData) && isset($pathData['i'], $pathData['o'], $pathData['v'])) {

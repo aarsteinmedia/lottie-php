@@ -9,6 +9,7 @@ use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\Properties\BaseProperty;
 use LottiePHP\Utils\PropertyFactory;
+use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\createSizedArray;
 use function LottiePHP\Utils\toRGBString;
@@ -226,11 +227,11 @@ class TextAnimatorProperty extends DynamicPropertyContainer
     public function getMeasures(array $documentData, ?bool $lettersChangedFlag)
     {
         try {
-            $this->{$lettersChangedFlag} = (bool) $lettersChangedFlag;
+            $this->lettersChangedFlag = (bool) $lettersChangedFlag;
             if (
                 !$this->_mdf
                 && !$this->_isFirstFrame
-                && !$lettersChangedFlag
+                && !$this->lettersChangedFlag
                 && (!$this->_hasMaskedPath || !$this->_pathData['m']['_mdf'] ?? null)
             ) {
                 return;
@@ -265,33 +266,40 @@ class TextAnimatorProperty extends DynamicPropertyContainer
             $tanAngle = null;
             $mask = null;
 
-            if ($this->_hasMaskedPath && $this->_pathData['m']) {
+            if ($this->_hasMaskedPath && $this->_pathData['m'] ?? null) {
                 $mask = $this->_pathData['m'];
-                if (!$this->_pathData['n'] || $this->_pathData['_mdf']) {
-                    $paths = $mask->v;
+                if (!($this->_pathData['n'] ?? null) || $this->_pathData['_mdf']) {
+                    $paths = $mask->v ?? null;
 
-                    if ($paths) {
+                    // Some parts of the codebase store mask paths as a ShapePath instance,
+                    // while others wrap it in an array. Normalize to a single ShapePath.
+                    if (is_array($paths)) {
+                        $paths = $paths[0] ?? null;
+                    }
+
+                    if ($paths instanceof ShapePath) {
                         if ($this->_pathData['r']->v ?? null) {
-                            $paths = array_reverse($paths);
+                            $paths = $paths->toReversed();
                         }
                         $pathInfo = [
                             'segments' => [],
                             'tLength' => 0,
                         ];
-                        $len = $paths['_length'] - 1;
+                        $len = ($paths->_length ?? 0) - 1;
                         $bezierData = null;
 
                         $totalLength = 0;
                         for ($i = 0; $i < $len; ++$i) {
-                            if (is_array($paths)) {
-                                continue;
-                            }
                             $bezierData = Bezier::buildBezierData(
                                 $paths->v[$i],
                                 $paths->v[$i + 1],
-                                [($paths['o'][$i][0] ?? 0) - ($paths->v[$i][0] ?? 0), ($paths['o'][$i][1] ?? 0) - ($paths->v[$i][1] ?? 0)],
                                 [
-                                    ($paths['i'][$i + 1][0] ?? 0) - ($paths->v[$i + 1][0] ?? 0), ($paths['i'][$i + 1][1] ?? 0) - ($paths->v[$i + 1][1] ?? 0),
+                                    ($paths->o[$i][0] ?? 0) - ($paths->v[$i][0] ?? 0),
+                                    ($paths->o[$i][1] ?? 0) - ($paths->v[$i][1] ?? 0),
+                                ],
+                                [
+                                    ($paths->i[$i + 1][0] ?? 0) - ($paths->v[$i + 1][0] ?? 0),
+                                    ($paths->i[$i + 1][1] ?? 0) - ($paths->v[$i + 1][1] ?? 0),
                                 ]
                             );
                             $pathInfo['tLength'] += $bezierData['segmentLength'];
@@ -299,12 +307,18 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             $totalLength += $bezierData['segmentLength'];
                         }
                         $i = $len;
-                        if (($mask->v['c'] ?? null) && !is_array($paths)) {
+                        if (($paths->c ?? false) && $len >= 0) {
                             $bezierData = Bezier::buildBezierData(
                                 $paths->v[$i],
                                 $paths->v[0],
-                                [($paths['o'][$i][0] ?? 0) - ($paths->v[$i][0] ?? 0), ($paths['o'][$i][1] ?? 0) - ($paths->v[$i][1] ?? 0)],
-                                [($paths['i'][0][0] ?? 0) - ($paths->v[0][0] ?? 0), ($paths['i'][0][1] ?? 0) - ($paths->v[0][1] ?? 0)]
+                                [
+                                    ($paths->o[$i][0] ?? 0) - ($paths->v[$i][0] ?? 0),
+                                    ($paths->o[$i][1] ?? 0) - ($paths->v[$i][1] ?? 0),
+                                ],
+                                [
+                                    ($paths->i[0][0] ?? 0) - ($paths->v[0][0] ?? 0),
+                                    ($paths->i[0][1] ?? 0) - ($paths->v[0][1] ?? 0),
+                                ]
                             );
                             $pathInfo['tLength'] += $bezierData['segmentLength'];
                             array_push($pathInfo['segments'], $bezierData);
@@ -322,7 +336,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                 // $shouldMeasure = true
                 $segments = $pathInfo['segments'] ?? [];
 
-                if ($currentLength > 0 && $mask->v['c'] ?? null) {
+                if ($currentLength > 0 && (($paths instanceof ShapePath) ? ($paths->c ?? false) : false)) {
                     if ($pathInfo['tLength'] ?? 0 < abs($currentLength)) {
                         $currentLength = -abs($currentLength) % ($pathInfo['tLength'] ?? 0);
                     }
@@ -584,7 +598,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                     ++$segmentInd;
                                     if ($segments[$segmentInd]) {
                                         $points = $segments[$segmentInd]['points'] ?? [];
-                                    } elseif ($mask->v['c'] ?? null) {
+                                    } elseif (($paths instanceof ShapePath) ? ($paths->c ?? false) : false) {
                                         $pointInd = 0;
                                         $segmentInd = 0;
                                         $points = $segments[$segmentInd]['points'] ?? [];
@@ -1028,13 +1042,13 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                     );
                     array_push($this->renderedLetters, $letterValue);
                     ++$renderedLettersCount;
-                    $this->{$lettersChangedFlag} = true;
+                    $this->lettersChangedFlag = true;
 
                     continue;
                 }
 
                 $letterValue = $this->renderedLetters[$i]['Props'];
-                $this->{$lettersChangedFlag}
+                $this->lettersChangedFlag
                 = $letterValue->update(
                     (int) $letterO,
                     (int) $letterSw,
@@ -1042,7 +1056,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                     $letterFc,
                     $letterM, // matrix()-string
                     $letterP
-                ) || $this->{$lettersChangedFlag};
+                ) || $this->lettersChangedFlag;
             }
         } catch (\Exception $e) {
             error_log(get_class($this).' => '.$e->getMessage());

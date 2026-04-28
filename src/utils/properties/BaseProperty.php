@@ -9,7 +9,6 @@ use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\PropType;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
-use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\createTypedArray;
 
@@ -30,7 +29,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?int $frameId;
     public $g;
     public ?int $initFrame = null;
-    public ?bool $k;
+    public ?bool $k = false;
     public $keyframesMetadata = [];
     public ?bool $kf;
     public ?bool $lock;
@@ -292,11 +291,11 @@ abstract class BaseProperty extends DynamicPropertyContainer
             ['__fnct' => $__fnct, 'bezierData' => $bezierData] = $keyframeMetadata;
 
             if ($frameNum >= $nextKeyTime || $frameNum < $keyTime) {
-                $ind = $frameNum >= $nextKeyTime ? count($bezierData['points']) - 1 : 0;
+                $ind = $frameNum >= $nextKeyTime ? count($bezierData->points) - 1 : 0;
 
-                $kLen = count($bezierData['points'][$ind]['point'] ?? []);
+                $kLen = count($bezierData->points[$ind]['point'] ?? []);
                 for ($k = 0; $k < $kLen; ++$k) {
-                    $newValue[$k] = $bezierData['points'][$ind]['point'][$k] ?? 0;
+                    $newValue[$k] = $bezierData->points[$ind]['point'][$k] ?? 0;
                 }
             // $caching._lastKeyframeIndex = -1;
             } else {
@@ -313,7 +312,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     $keyframeMetadata['__fnct'] = $fnc;
                 }
                 $perc = $fnc(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
-                $distanceInLine = $bezierData['segmentLength'] * $perc;
+                $distanceInLine = $bezierData->segmentLength * $perc;
 
                 $segmentPerc = null;
                 $addedLength
@@ -328,17 +327,17 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     ? $caching['_lastPoint']
                     : 0;
                 $shouldInterpolate = true;
-                $jLen = count($bezierData['points']);
+                $jLen = count($bezierData->points);
                 while ($shouldInterpolate) {
-                    $addedLength += $bezierData['points'][$j]['partialLength'] ?? 0;
+                    $addedLength += $bezierData->points[$j]['partialLength'] ?? 0;
                     if (
                         0 === $distanceInLine
                         || 0 === $perc
-                        || $j === count($bezierData['points']) - 1
+                        || $j === count($bezierData->points) - 1
                     ) {
-                        $kLen = count($bezierData['points'][$j]['point'] ?? []);
+                        $kLen = count($bezierData->points[$j]['point'] ?? []);
                         for ($k = 0; $k < $kLen; ++$k) {
-                            $newValue[$k] = $bezierData['points'][$j]['point'][$k] ?? 0;
+                            $newValue[$k] = $bezierData->points[$j]['point'][$k] ?? 0;
                         }
 
                         break;
@@ -347,17 +346,17 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     if (
                         $distanceInLine >= $addedLength
                         && $distanceInLine
-                          < $addedLength + ($bezierData['points'][$j + 1]['partialLength'] ?? 0)
+                          < $addedLength + ($bezierData->points[$j + 1]['partialLength'] ?? 0)
                     ) {
                         $segmentPerc
                           = ($distanceInLine - $addedLength)
-                          / ($bezierData['points'][$j + 1]['partialLength'] ?? 0);
-                        $kLen = count($bezierData['points'][$j]['point'] ?? []);
+                          / ($bezierData->points[$j + 1]['partialLength'] ?? 0);
+                        $kLen = count($bezierData->points[$j]['point'] ?? []);
                         for ($k = 0; $k < $kLen; ++$k) {
                             $newValue[$k]
-                              = ($bezierData['points'][$j]['point'][$k] ?? 0)
-                              + (($bezierData['points'][$j + 1]['point'][$k] ?? 0)
-                                - ($bezierData['points'][$j]['point'][$k] ?? 0))
+                              = ($bezierData->points[$j]['point'][$k] ?? 0)
+                              + (($bezierData->points[$j + 1]['point'][$k] ?? 0)
+                                - ($bezierData->points[$j]['point'][$k] ?? 0))
                                 * $segmentPerc;
                         }
 
@@ -371,7 +370,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                 }
                 $caching['_lastPoint'] = $j;
                 $caching['_lastAddedLength']
-                  = $addedLength - ($bezierData['points'][$j]['partialLength'] ?? 0);
+                  = $addedLength - ($bezierData->points[$j]['partialLength'] ?? 0);
                 $caching['_lastKeyframeIndex'] = $i;
             }
         } else {

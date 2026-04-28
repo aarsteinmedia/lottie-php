@@ -43,8 +43,6 @@ class ImageElement extends SVGBaseElement
 
     public function createContent()
     {
-        $assetPath = '';
-
         if ($this->assetData && $this->globalData['getAssetsPath'] ?? null) {
             $assetPath = $this->globalData['getAssetsPath']($this->assetData);
         }
@@ -56,12 +54,12 @@ class ImageElement extends SVGBaseElement
             $this->innerElem->setAttribute(
                 'preserveAspectRatio',
                 $this->assetData['pr']
-        ?? $this->globalData['renderConfig']['imagePreserveAspectRatio']
-        ?? ''
+                ?? $this->globalData['renderConfig']['imagePreserveAspectRatio']
+                ?? 'xMidYMid meet'
             );
             $this->innerElem->setAttributeNS(
                 Constants::$namespaceXlink,
-                'href',
+                'xlink:href',
                 $assetPath ?? ''
             );
 
