@@ -299,9 +299,7 @@ class SVGElementsRenderer
             $pElem->setAttribute('stroke-dashoffset', $d->dashoffset[0]);
         }
         if ($c && ($c->_mdf || $isFirstFrame)) {
-            $rgb = implode(',', array_map(fn ($color) => floor($color), $c->v));
-
-            $pElem->setAttribute('stroke', "rgb({$rgb})");
+            $pElem->setAttribute('stroke', toRGBString($c->v));
         }
         if ($o?->_mdf || $isFirstFrame) {
             $pElem->setAttribute('stroke-opacity', $o?->v ?? 1);

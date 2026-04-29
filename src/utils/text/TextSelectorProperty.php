@@ -27,7 +27,6 @@ class TextSelectorProperty extends BaseProperty
 
     public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
-        parent::__construct();
         $this->k = false;
         $this->data = $data;
         $this->elem = $elem;
@@ -265,10 +264,10 @@ class TextSelectorProperty extends BaseProperty
         if ($newCharsFlag && 2 === $this->data['r'] && $this->e->v) {
             $this->e->v = $this->_currentTextLength;
         }
-        $divisor = 2 === $this->data['r'] ? 1 : 100 / $this->data['totalChars'];
+        $divisor = 2 === $this->data['r'] ? 1 : 100 / ($this->data['totalChars'] ?? 1);
         $o = $this->o->v / $divisor;
         $s = ($this->s->v ?? 0) / $divisor + $o;
-        $e = $this->e->v / $divisor + $o;
+        $e = $this->e['v'] / $divisor + $o;
 
         if ($s > $e) {
             $_s = $s;
