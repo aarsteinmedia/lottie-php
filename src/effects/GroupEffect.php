@@ -9,7 +9,7 @@ use LottiePHP\Utils\Properties\BaseProperty;
 class GroupEffect extends DynamicPropertyContainer
 {
     public ?array $data;
-    public $effectElements = [];
+    public array $effectElements = [];
     public \Closure $getValue;
     public ?string $type;
 

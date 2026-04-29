@@ -98,7 +98,8 @@ class KeyframedMultidimensionalProperty extends BaseProperty
         $this->k = true;
         $this->kf = true;
         $this->_isFirstFrame = true;
-        $this->mult = $mult ?? 1.0;
+        // See `ValueProperty`: treat 0 as “default multiplier”.
+        $this->mult = $mult ?: 1.0;
         $this->elem = $elem;
         $this->container = $container;
         $this->comp = $elem['comp'];

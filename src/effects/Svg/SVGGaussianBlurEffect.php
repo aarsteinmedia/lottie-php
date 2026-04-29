@@ -44,14 +44,14 @@ class SVGGaussianBlurEffect
         // Empirical value, matching AE's blur appearance.
         $kBlurrinessToSigma = 0.3;
         $sigma
-            = ($this->filterManager->effectElements[0]['p']['v'] ?? 0)
+            = ($this->filterManager->effectElements[0]->p->v ?? 0)
             * $kBlurrinessToSigma;
         // Dimensions mapping:
         //
         //   1 -> horizontal & vertical
         //   2 -> horizontal only
         //   3 -> vertical only
-        $dimensions = (float) $this->filterManager->effectElements[1]['p']['v'];
+        $dimensions = (int) $this->filterManager->effectElements[1]->p->v;
         $sigmaX = 3 === $dimensions ? 0 : $sigma;
         $sigmaY = 2 === $dimensions ? 0 : $sigma;
 
@@ -62,7 +62,7 @@ class SVGGaussianBlurEffect
         //   0 -> off -> duplicate
         //   1 -> on  -> wrap
         $edgeMode
-          = 1 === (float) $this->filterManager->effectElements[2]['p']['v']
+          = 1 === (float) ($this->filterManager->effectElements[2]->p->v ?? 0)
             ? 'wrap'
             : 'duplicate';
 

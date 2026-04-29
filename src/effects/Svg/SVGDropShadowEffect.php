@@ -6,6 +6,8 @@ use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Properties\BaseProperty;
+use LottiePHP\Utils\Properties\MultiDimensionalProperty;
+use LottiePHP\Utils\Properties\ValueProperty;
 
 use function LottiePHP\Utils\createTag;
 use function LottiePHP\Utils\rgbToHex;
@@ -17,6 +19,46 @@ class SVGDropShadowEffect extends SVGComposableEffect
     public \DOMElement $feOffset;
     public GroupEffect $filterManager;
 
+    private function getEffectProp(int $index): MultiDimensionalProperty|ValueProperty|null
+    {
+        $eff = $this->filterManager->effectElements[$index] ?? null;
+        if (!$eff) {
+            return null;
+        }
+
+        // Old shape (arrays): ['p' => ['v' => ..., '_mdf' => ...]]
+        if (is_array($eff)) {
+            $p = $eff['p'] ?? null;
+            if (is_object($p) && ($p instanceof MultiDimensionalProperty || $p instanceof ValueProperty)) {
+                return $p;
+            }
+            if (is_array($p)) {
+                // Best-effort shim (avoid fatal errors); treat as no prop.
+                return null;
+            }
+
+            return null;
+        }
+
+        // New shape (objects): $eff->p is a Property instance.
+        if (is_object($eff) && property_exists($eff, 'p')) {
+            $p = $eff->p;
+            if ($p instanceof MultiDimensionalProperty || $p instanceof ValueProperty) {
+                return $p;
+            }
+        }
+
+        // Some effect classes implement ArrayAccess for '$eff["p"]'.
+        if ($eff instanceof \ArrayAccess) {
+            $p = $eff['p'] ?? null;
+            if ($p instanceof MultiDimensionalProperty || $p instanceof ValueProperty) {
+                return $p;
+            }
+        }
+
+        return null;
+    }
+
     public function __construct(
         \DOMElement $filter,
         GroupEffect $filterManager,
@@ -24,7 +66,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         string $id,
         string $source
     ) {
-        $globalFilterSize = $filterManager->container['globalData']['renderConfig']['filterSize'] ?? 0;
+        $globalFilterSize = $filterManager->container['globalData']['renderConfig']['filterSize'] ?? null;
         $filterSize = $filterManager->data['fs']
           ?? $globalFilterSize ?? [
               'height' => '100%',
@@ -83,13 +125,18 @@ class SVGDropShadowEffect extends SVGComposableEffect
         ) {
             return;
         }
-        if ($forceRender || $this->filterManager->effectElements[4]['p']['_mdf'] ?? null) {
-            $stdDeviation = ($this->filterManager->effectElements[4]['p']['v'] ?? 0) / 4;
+        $blur = $this->getEffectProp(4);
+        if ($forceRender || ($blur?->_mdf ?? null)) {
+            $stdDeviation = (($blur?->v ?? 0) ?: 0) / 4;
 
             $this->feGaussianBlur->setAttribute('stdDeviation', "{$stdDeviation} {$stdDeviation}");
         }
-        if ($forceRender || $this->filterManager->effectElements[0]['p']['_mdf'] ?? null) {
-            $col = $this->filterManager->effectElements[0]['p']['v'] ?? [0, 0, 0];
+        $color = $this->getEffectProp(0);
+        if ($forceRender || ($color?->_mdf ?? null)) {
+            $col = $color?->v ?? [0, 0, 0];
+            if (!is_array($col) || count($col) < 3) {
+                $col = [0, 0, 0];
+            }
 
             $this->feFlood->setAttribute(
                 'flood-color',
@@ -100,20 +147,18 @@ class SVGDropShadowEffect extends SVGComposableEffect
                 )
             );
         }
-        if ($forceRender || $this->filterManager->effectElements[1]['p']['_mdf'] ?? null) {
+        $opacity = $this->getEffectProp(1);
+        if ($forceRender || ($opacity?->_mdf ?? null)) {
             $this->feFlood->setAttribute(
                 'flood-opacity',
-                ($this->filterManager->effectElements[1]['p']['v'] ?? 0) / 255
+                (($opacity?->v ?? 0) ?: 0) / 255
             );
         }
-        if (
-            $forceRender
-            || $this->filterManager->effectElements[2]['p']['_mdf']
-            ?? $this->filterManager->effectElements[3]['p']['_mdf'] ?? null
-        ) {
-            $distance = $this->filterManager->effectElements[3]['p']['v'] ?? null;
-            $angle
-              = (($this->filterManager->effectElements[2]['p']['v'] ?? null) - 90) * Constants::$degToRads;
+        $angleProp = $this->getEffectProp(2);
+        $distanceProp = $this->getEffectProp(3);
+        if ($forceRender || ($angleProp?->_mdf ?? null) || ($distanceProp?->_mdf ?? null)) {
+            $distance = ($distanceProp?->v ?? 0) ?: 0;
+            $angle = ((($angleProp?->v ?? 0) ?: 0) - 90) * Constants::$degToRads;
             $x = $distance * cos($angle);
             $y = $distance * sin($angle);
 

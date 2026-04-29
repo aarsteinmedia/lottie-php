@@ -15,7 +15,10 @@ class ValueProperty extends BaseProperty
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::UniDimensional;
-        $this->mult = $mult ?? 1.0;
+        // In the upstream JS implementation, many call sites pass `0` for `mult`,
+        // relying on `mult || 1` semantics. In PHP, `0 ?? 1` stays `0`, which
+        // would zero out all values. Treat `0` as “no multiplier provided”.
+        $this->mult = $mult ?: 1.0;
         $this->data = $data;
         $k = $data['k'] ?? 0;
         $this->v = ($k * ($this->mult ?? 1));

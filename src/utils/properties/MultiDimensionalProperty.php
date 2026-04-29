@@ -18,7 +18,8 @@ class MultiDimensionalProperty extends BaseProperty
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::MultiDimensional;
-        $this->mult = $mult ?? 1.0;
+        // See `ValueProperty`: treat 0 as “default multiplier”.
+        $this->mult = $mult ?: 1.0;
         $this->data = $data;
         $this->_mdf = false;
         $this->elem = $elem;
