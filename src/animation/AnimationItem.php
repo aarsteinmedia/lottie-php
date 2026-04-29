@@ -11,10 +11,10 @@ use function LottiePHP\Utils\Pooling\domDocumentPool;
 class AnimationItem
 {
     public array $animationData;
-    public $assets = [];
-    public $assetsPath = '';
+    public array $assets = [];
+    public string $assetsPath = '';
     public ImagePreloader $imagePreloader;
-    public $path = '';
+    public string $path = '';
     public ?SVGRenderer $renderer = null;
     public ?\DOMElement $wrapper = null;
 
@@ -52,7 +52,7 @@ class AnimationItem
         return null;
     }
 
-    public function getAssetsPath($assetData)
+    public function getAssetsPath(array $assetData)
     {
         $path = '';
 

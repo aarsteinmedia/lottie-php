@@ -314,7 +314,7 @@ abstract class SVGRendererBase extends BaseRenderer
 {
     use SVGRendererTraits;
 
-    public $destroyed = false;
+    public bool $destroyed = false;
     public array $renderConfig = [];
     public \DOMElement $svgElement;
 

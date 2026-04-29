@@ -169,7 +169,7 @@ class SVGProLevelsFilter
             $cnt += 256 / ($segments - 1);
         }
 
-        return $table.join(' ');
+        return implode(' ', $table);
     }
 
     public function renderFrame(?bool $forceRender)

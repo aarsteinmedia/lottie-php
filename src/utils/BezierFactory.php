@@ -22,7 +22,7 @@ class BezierFactory
         int $d,
         ?string $nm = null
     ) {
-        $str = $nm || str_replace('.', 'p', "bez_{$a}_{$b}_{$c}_{$d}");
+        $str = $nm ?? str_replace('.', 'p', "bez_{$a}_{$b}_{$c}_{$d}");
 
         if (self::$beziers[$str]) {
             return self::$beziers[$str];

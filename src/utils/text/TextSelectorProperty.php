@@ -257,7 +257,7 @@ class TextSelectorProperty extends BaseProperty
         throw new \Error('Method not implemented');
     }
 
-    public function getValue($newCharsFlag = false)
+    public function getValue(?bool $newCharsFlag = false)
     {
         $this->iterateDynamicProperties();
         $this->_mdf = $newCharsFlag || $this->_mdf;

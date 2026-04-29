@@ -195,7 +195,7 @@ class FontManager
             }
         }
 
-        return $enabledFamilies.join(',');
+        return implode(',', $enabledFamilies);
     }
 
     public function __construct()

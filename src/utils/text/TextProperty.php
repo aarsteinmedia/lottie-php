@@ -215,7 +215,7 @@ class TextProperty extends BaseProperty
                         $lineWidth = 0;
                         $newLineFlag = true;
                         $currentHeight
-                          += $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
+                          += $documentData['finalLineHeight'] ?? $documentData['finalSize'] * 1.2;
                     }
                     if ($fontManager['chars']) {
                         $charData = $fontManager->getCharData(
@@ -241,7 +241,7 @@ class TextProperty extends BaseProperty
                             $i = $lastSpaceIndex;
                         }
                         $currentHeight
-                          += $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
+                          += $documentData['finalLineHeight'] ?? $documentData['finalSize'] * 1.2;
                         array_splice(
                             $finalText,
                             $i,
@@ -468,8 +468,8 @@ class TextProperty extends BaseProperty
             }
         }
         $documentData['yOffset']
-          = $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
-        $documentData['ls'] = $documentData['ls'] ?? 0;
+          = $documentData['finalLineHeight'] ?? $documentData['finalSize'] * 1.2;
+        $documentData['ls'] ??= 0;
         $documentData['ascent']
           = (int) $fontData['ascent'] * $documentData['finalSize'] / 100;
     }
@@ -622,13 +622,13 @@ class TextProperty extends BaseProperty
         }
         $this->currentData = $data;
         $this->currentData['boxWidth']
-          = $this->currentData['boxWidth'] || $this->defaultBoxWidth;
+          ??= $this->defaultBoxWidth;
         $this->_mdf = true;
     }
 
     public function setMinimumFontSize(int $_fontValue)
     {
-        $this->minimumFontSize = floor($_fontValue) || 1;
+        $this->minimumFontSize = floor($_fontValue) ?? 1;
         $this->recalculate($this->keysIndex);
         $this->elem->addDynamicProperty($this);
     }

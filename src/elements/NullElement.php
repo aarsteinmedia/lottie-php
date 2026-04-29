@@ -6,7 +6,7 @@ use LottiePHP\Elements\Helpers\FrameElement;
 
 class NullElement extends FrameElement
 {
-    public function __constructor(
+    public function __construct(
         array $data,
         array $globalData,
         BaseElement $comp

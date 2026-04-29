@@ -32,8 +32,17 @@ class ShapePropertyFactory
                 $dataProp = 3 === $type ? $data['pt'] : $data['ks'];
                 $keys = $dataProp['k'] ?? null;
 
-                // When `k` is an array of keyframes, we need the keyframed shape property.
-                if (is_array($keys) && count($keys) > 0 && is_array($keys[0] ?? null)) {
+                // Only treat as keyframed when entries look like keyframes (`t`/`s`).
+                // Static path data is also array-shaped and must stay on ShapeProperty.
+                if (
+                    is_array($keys)
+                    && count($keys) > 0
+                    && is_array($keys[0] ?? null)
+                    && (
+                        array_key_exists('t', $keys[0])
+                        || array_key_exists('s', $keys[0])
+                    )
+                ) {
                     $prop = new KeyframedShapeProperty($elem, $data, $type);
 
                     break;

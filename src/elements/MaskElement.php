@@ -31,7 +31,9 @@ class MaskElement
         $this->element = $element;
         $this->globalData = $globalData;
         $this->masksProperties = $this->data['masksProperties'] ?? [];
+        /** @var \DOMElement $defs */
         ['defs' => $defs] = $this->globalData;
+
         $length = count($this->masksProperties);
 
         $this->viewData = createSizedArray($length);
@@ -40,7 +42,9 @@ class MaskElement
         $count = 0;
         $currentMasks = [];
         $layerId = createElementID();
+        /** @var ?\DOMElement $rect */
         $rect = null;
+        /** @var ?\DOMElement $feMorph */
         $feMorph = null;
         $x = null;
         $maskType = 'clipPath';
@@ -266,7 +270,7 @@ class MaskElement
 
         if ($pathNodes->c && $len > 1) {
             $oVector = implode(',', $pathNodes->o[$i - 1] ?? []);
-            $iVector = implode(',', $pathNodes->v[0] ?? []);
+            $iVector = implode(',', $pathNodes->i[0] ?? []);
             $vVector = implode(',', $pathNodes->v[0] ?? []);
 
             $pathString .= " C{$oVector} {$iVector} {$vVector}";
