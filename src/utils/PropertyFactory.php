@@ -82,8 +82,14 @@ class PropertyFactory
         }
         $p ??= new NoProperty();
 
-        if (count($p['effectsSequence']) > 0) {
-            ($container['addDynamicProperty'] ?? null)($p);
+        // Register animated properties so they get ticked every frame.
+        // Keyframed properties (kf=true) must be added even if they have no effectsSequence.
+        if ((bool) ($p['kf'] ?? false) || count($p['effectsSequence'] ?? []) > 0) {
+            if ($container && isset($container['addDynamicProperty']) && is_callable($container['addDynamicProperty'])) {
+                ($container['addDynamicProperty'])($p);
+            } elseif (is_object($elem) && method_exists($elem, 'addDynamicProperty')) {
+                $elem->addDynamicProperty($p);
+            }
         }
 
         return $p;

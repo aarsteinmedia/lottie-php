@@ -65,14 +65,14 @@ class TransformProperty extends BaseProperty
                 $elem,
                 $positionData['x'],
                 0,
-                0,
+                1,
                 $this
             );
             $this->py = PropertyFactory::getProp(
                 $elem,
                 $positionData['y'],
                 0,
-                0,
+                1,
                 $this
             );
             if (array_key_exists('z', $positionData)) {
@@ -80,7 +80,7 @@ class TransformProperty extends BaseProperty
                     $elem,
                     $positionData['z'],
                     0,
-                    0,
+                    1,
                     $this
                 );
             }
@@ -93,7 +93,7 @@ class TransformProperty extends BaseProperty
                         0],
                 ],
                 1,
-                0,
+                1,
                 $this
             );
         }
@@ -174,7 +174,7 @@ class TransformProperty extends BaseProperty
                     0],
             ],
             1,
-            0,
+            1,
             $this
         );
         $this->s = PropertyFactory::getProp(
@@ -213,7 +213,9 @@ class TransformProperty extends BaseProperty
     public function addDynamicProperty(DynamicPropertyContainer $prop)
     {
         parent::addDynamicProperty($prop);
-        $this->elem->addDynamicProperty($prop);
+        // The element needs to tick the TransformProperty itself so it can
+        // rebuild the composed matrix (`$this->v`) from its child properties.
+        $this->elem->addDynamicProperty($this);
         $this->_isDirty = true;
     }
 

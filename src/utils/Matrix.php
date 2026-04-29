@@ -99,7 +99,7 @@ class Matrix
         if ($this->isIdentity()) {
             return "{$x},{$y}";
         }
-        $_p = $this->props;
+        $_p = &$this->props;
 
         return round(($x * ($_p[0] ?? 0) + $y * ($_p[4] ?? 0) + ($_p[12] ?? 0)) * 100) / 100 .','.round(($x * ($_p[1] ?? 0) + $y * ($_p[5] ?? 0) + ($_p[13] ?? 0)) * 100) / 100;
     }
@@ -566,7 +566,7 @@ class Matrix
         float $o2,
         float $p2
     ): Matrix {
-        $_p = $this->props;
+        $_p = &$this->props;
 
         if (
             1 === $a2

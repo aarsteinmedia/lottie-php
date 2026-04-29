@@ -3,15 +3,15 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Utils\LocationHref;
+use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\Properties\ShapePropertyFactory;
 use LottiePHP\Utils\Shapes\ShapePath;
-use LottiePHP\Utils\Matrix;
 
+use function LottiePHP\Utils\buildShapeString;
 use function LottiePHP\Utils\createElementID;
 use function LottiePHP\Utils\createNS;
 use function LottiePHP\Utils\createSizedArray;
-use function LottiePHP\Utils\buildShapeString;
 
 class MaskElement
 {
@@ -33,6 +33,7 @@ class MaskElement
         $this->element = $element;
         $this->globalData = $globalData;
         $this->masksProperties = $this->data['masksProperties'] ?? [];
+
         /** @var \DOMElement $defs */
         ['defs' => $defs] = $this->globalData;
 
@@ -44,8 +45,10 @@ class MaskElement
         $count = 0;
         $currentMasks = [];
         $layerId = createElementID();
+
         /** @var ?\DOMElement $rect */
         $rect = null;
+
         /** @var ?\DOMElement $feMorph */
         $feMorph = null;
         $x = null;
