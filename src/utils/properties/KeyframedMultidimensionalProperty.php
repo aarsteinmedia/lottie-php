@@ -84,7 +84,7 @@ class KeyframedMultidimensionalProperty extends BaseProperty
                     && 0 === $to[0]
                     && 0 === $to[1]
                     && 0 === $ti[0]
-                    && 0 === $ti[1] && 2 === count($s) || $s[2] === $e[2] && 0 === $to[2] && 0 === $ti[2]
+                    && 0 === $ti[1] && 2 === count($s) || ($s[2] ?? null) === ($e[2] ?? null) && 0 === ($to[2] ?? null) && 0 === ($ti[2] ?? null)
                 ) {
                     $data['k'][$i]['to'] = null;
                     $data['k'][$i]['ti'] = null;

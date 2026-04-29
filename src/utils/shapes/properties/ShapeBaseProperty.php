@@ -27,7 +27,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public ?bool $lock;
     public float $offsetTime = 0;
     public ?BaseProperty $p;
-    public ?ShapeCollection $paths;
+    public array|ShapeCollection|null $paths;
     public ?ShapePath $pv;
     public ?ShapeType $ty;
     public ?ShapePath $v;

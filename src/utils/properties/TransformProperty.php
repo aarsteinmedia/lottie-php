@@ -16,7 +16,7 @@ class TransformProperty extends BaseProperty
     public ?bool $_opMdf;
     public ?array $_transformCachingAtTime;
     public BaseProperty $a;
-    public $appliedTransformations = 0;
+    public int $appliedTransformations = 0;
     public ?bool $autoOriented = false;
     public ?array $data;
     public BaseElement|BaseProperty|null $elem;
@@ -36,12 +36,12 @@ class TransformProperty extends BaseProperty
     public ?ValueProperty $px;
     public KeyframedValueProperty|ValueProperty|null $py;
     public ?ValueProperty $pz;
-    public KeyframedValueProperty|ValueProperty|null $r;
+    public KeyframedValueProperty|MultiDimensionalProperty|ValueProperty|null $r;
     public ?ValueProperty $rx;
     public ?ValueProperty $ry;
     public ?ValueProperty $rz;
     public ?ValueProperty $sa = null;
-    public ?ValueProperty $sk = null;
+    public KeyframedValueProperty|ValueProperty|null $sk = null;
 
     public function __construct(
         BaseElement|BaseProperty $elem,

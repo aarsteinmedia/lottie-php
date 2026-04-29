@@ -8,8 +8,8 @@ use function LottiePHP\Utils\createSizedArray;
 
 class ShapeCollection
 {
-    public $_length = 0;
-    public $_maxLength = 4;
+    public float $_length = 0;
+    public float $_maxLength = 4;
     public array $shapes;
 
     public function __construct()

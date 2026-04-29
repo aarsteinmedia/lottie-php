@@ -138,8 +138,8 @@ abstract class TransformElement extends BaseElement
             throw new \Error(get_class($this).': finalTransform is not initialized ');
         }
 
-        $this->finalTransform['_opMdf'] = (bool) $this->finalTransform['mProp']['o']['_mdf'] || $this->_isFirstFrame;
-        $this->finalTransform['_matMdf'] = (bool) $this->finalTransform['mProp']['_mdf'] || $this->_isFirstFrame;
+        $this->finalTransform['_opMdf'] = (bool) ($this->finalTransform['mProp']['o']['_mdf'] ?? null) || $this->_isFirstFrame;
+        $this->finalTransform['_matMdf'] = (bool) ($this->finalTransform['mProp']['_mdf'] ?? null) || $this->_isFirstFrame;
 
         $finalMat = $this->finalTransform['mat'];
         $length = count($this->hierarchy);
@@ -159,9 +159,11 @@ abstract class TransformElement extends BaseElement
         }
 
         if ($this->finalTransform['_matMdf']) {
-            $mat = $this->finalTransform['mProp']->v->props;
+            $mat = $this->finalTransform['mProp']['v']->props ?? null;
 
-            $finalMat->cloneFromProps($mat);
+            if ($mat) {
+                $finalMat->cloneFromProps($mat);
+            }
             for ($i = 0; $i < $length; ++$i) {
                 if ($this->hierarchy[$i]->finalTransform['mProp']['v'] ?? null) {
                     $matrix = $this->hierarchy[$i]->finalTransform['mProp']['v'];
@@ -176,7 +178,7 @@ abstract class TransformElement extends BaseElement
             $this->finalTransform['_localMatMdf'] = $this->finalTransform['_matMdf'];
         }
         if ($this->finalTransform['_opMdf']) {
-            $this->finalTransform['localOpacity'] = (float) $this->finalTransform['mProp']['o']->v;
+            $this->finalTransform['localOpacity'] = (float) $this->finalTransform['mProp']['o']['v'] ?? 1;
         }
     }
 
