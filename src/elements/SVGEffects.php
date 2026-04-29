@@ -29,18 +29,29 @@ class SVGEffects
             $filterManager = null;
 
             ['ty' => $ty] = $elem->data['ef'][$i] ?? ['ty' => null];
-            $Effect = null === $ty || !(self::$registeredEffects[$ty] ?? null) ? null : self::$registeredEffects[$ty]['effect'];
+
+            $Effect = (null === $ty || !(self::$registeredEffects[$ty] ?? null))
+                ? null
+                : (self::$registeredEffects[$ty]['effect'] ?? null);
 
             if ($Effect && $ty && $elem->effectsManager) {
-                $filterManager = new ($Effect)(
+                $args = [
                     $fil,
-                    $elem->effectsManager['effectElements'][$i],
+                    $elem->effectsManager->effectElements[$i],
                     $elem,
                     "{$this->idPrefix}{$count}",
-                    $source
-                );
+                ];
+
+                // Not all effects accept a `$source` input (e.g. `SVGGaussianBlurEffect`).
+                // Only pass it when the target constructor supports it.
+                $ctor = (new \ReflectionClass($Effect))->getConstructor();
+                if ($ctor && $ctor->getNumberOfParameters() >= 5) {
+                    $args[] = $source;
+                }
+
+                $filterManager = new ($Effect)(...$args);
                 $source = "{$this->idPrefix}{$count}";
-                if ($registeredEffects[$ty]['countsAsEffect'] ?? null) {
+                if (self::$registeredEffects[$ty]['countsAsEffect'] ?? null) {
                     ++$count;
                 }
             }
@@ -68,15 +79,19 @@ class SVGEffects
         $effects = [];
 
         for ($i = 0; $i < $length; ++$i) {
-            if (($this->filters[$i]['type'] ?? null) === $type) {
-                array_push($effects, $this->filters[$i]);
+            $filter = $this->filters[$i];
+            if (is_object($filter) && property_exists($filter, 'type') && $filter->type === $type) {
+                $effects[] = $filter;
             }
         }
 
         return $effects;
     }
 
-    public static function registerEffect(int $id, array $effect, $countsAsEffect = false)
+    /**
+     * @param class-string<\LottiePHP\Effects/EffectOne> $effect
+     */
+    public static function registerEffect(int $id, string $effect, bool $countsAsEffect = false)
     {
         self::$registeredEffects[$id] = [
             'countsAsEffect' => $countsAsEffect,
@@ -86,12 +101,12 @@ class SVGEffects
 
     public function renderFrame(false|int|null $frame)
     {
-        $length = $this->filters;
+        $length = count($this->filters);
 
         for ($i = 0; $i < $length; ++$i) {
             $this->filters[$i]->renderFrame($frame);
         }
     }
-    private $idPrefix = 'filter_result_';
-    private static $registeredEffects = [];
+    private string $idPrefix = 'filter_result_';
+    private static array $registeredEffects = [];
 }

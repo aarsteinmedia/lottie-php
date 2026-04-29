@@ -5,6 +5,16 @@ namespace LottiePHP;
 require dirname(__DIR__, 1).'/vendor/autoload.php';
 
 use LottiePHP\Animation\AnimationManager;
+use LottiePHP\Effects\Svg\SVGDropShadowEffect;
+use LottiePHP\Effects\Svg\SVGFillFilter;
+use LottiePHP\Effects\Svg\SVGGaussianBlurEffect;
+use LottiePHP\Effects\Svg\SVGMatte3Effect;
+use LottiePHP\Effects\Svg\SVGProLevelsFilter;
+use LottiePHP\Effects\Svg\SVGStrokeEffect;
+use LottiePHP\Effects\Svg\SVGTintFilter;
+use LottiePHP\Effects\Svg\SVGTransformEffect;
+use LottiePHP\Effects\Svg\SVGTritoneFilter;
+use LottiePHP\Elements\SVGEffects;
 use LottiePHP\Utils\Enums\Modifier;
 use LottiePHP\Utils\Shapes\Modifiers\OffsetPathModifier;
 use LottiePHP\Utils\Shapes\Modifiers\PuckerAndBloatModifier;
@@ -28,6 +38,52 @@ class LottieToSVG
             ShapeModifiers::registerModifier(Modifier::RoundCornersModifier, RoundCornersModifier::class);
             ShapeModifiers::registerModifier(Modifier::ZigZagModifier, ZigZagModifier::class);
             ShapeModifiers::registerModifier(Modifier::OffsetPathModifier, OffsetPathModifier::class);
+
+            SVGEffects::registerEffect(
+                20,
+                SVGTintFilter::class,
+                true
+            );
+            SVGEffects::registerEffect(
+                21,
+                SVGFillFilter::class,
+                true
+            );
+            SVGEffects::registerEffect(
+                22,
+                SVGStrokeEffect::class,
+                false
+            );
+            SVGEffects::registerEffect(
+                23,
+                SVGTritoneFilter::class,
+                true
+            );
+            SVGEffects::registerEffect(
+                24,
+                SVGProLevelsFilter::class,
+                true
+            );
+            SVGEffects::registerEffect(
+                25,
+                SVGDropShadowEffect::class,
+                true
+            );
+            SVGEffects::registerEffect(
+                28,
+                SVGMatte3Effect::class,
+                false
+            );
+            SVGEffects::registerEffect(
+                29,
+                SVGGaussianBlurEffect::class,
+                true
+            );
+            SVGEffects::registerEffect(
+                35,
+                SVGTransformEffect::class,
+                false
+            );
 
             // Load the resource
             [
