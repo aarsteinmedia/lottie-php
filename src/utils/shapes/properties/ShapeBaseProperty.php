@@ -109,10 +109,10 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                     if ($keyframeMetadata['__fnct']) {
                         $fnc = $keyframeMetadata['__fnct'];
                     } elseif (
-                        'number' === gettype($keyData['o']['x'])
-                        && 'number' === gettype($keyData['o']['y'])
-                        && 'number' === gettype($keyData['i']['x'])
-                        && 'number' === gettype($keyData['i']['y'])
+                        is_numeric($keyData['o']['x'])
+                        && is_numeric($keyData['o']['y'])
+                        && is_numeric($keyData['i']['x'])
+                        && is_numeric($keyData['i']['y'])
                     ) {
                         $fnc = BezierFactory::getBezierEasing(
                             $keyData['o']['x'],
@@ -133,8 +133,8 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
             $keyPropS = $keyData['s'][0] ?? null;
         }
         if (
-            !$keyPropS || 'number' === gettype($keyPropS) || is_array($keyPropS)
-            || 'number' === gettype($keyPropE)
+            !$keyPropS || is_numeric($keyPropS) || is_array($keyPropS)
+            || is_numeric($keyPropE)
         ) {
             return;
         }

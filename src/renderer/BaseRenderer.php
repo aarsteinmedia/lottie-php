@@ -168,7 +168,7 @@ trait RendererTraits
         $pathValue = array_shift($path);
         $element = null;
 
-        if ('number' === gettype($pathValue)) {
+        if (is_numeric($pathValue)) {
             $element = $this->elements[$pathValue];
         } else {
             $length = count($this->elements);

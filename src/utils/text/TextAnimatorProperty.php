@@ -464,7 +464,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         }
                         ['v' => $animVal] = $animatorProps['t'];
 
-                        if ('number' !== gettype($animVal)) {
+                        if (!is_numeric($animVal)) {
                             continue;
                         }
 

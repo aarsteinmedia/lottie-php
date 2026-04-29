@@ -76,7 +76,16 @@ abstract class TransformElement extends BaseElement
                   $this->data['ks'],
                   $this
               )
-              : ['o' => 0],
+              : [
+                  // Keep a compatible shape with TransformProperty's `o` fallback.
+                  // Some lottie files omit `ks`; `o` must still be indexable (`['v']`) by render code.
+                  '_mdf' => false,
+                  'v' => $mat,
+                  'o' => [
+                      '_mdf' => false,
+                      'v' => 1,
+                  ],
+              ],
         ];
 
         if ($this->data['ao'] ?? null) {
@@ -103,7 +112,10 @@ abstract class TransformElement extends BaseElement
                     $this->finalTransform['_localMatMdf'] = true;
                 }
                 if ($this->localTransforms[$i]['_opMdf'] && !$this->finalTransform['_opMdf']) {
-                    $this->finalTransform['localOpacity'] = (float) $this->finalTransform['mProp']['o']->v;
+                    $o = $this->finalTransform['mProp']['o'] ?? null;
+                    $this->finalTransform['localOpacity'] = (float) (
+                        is_object($o) ? ($o->v ?? 1) : (is_array($o) ? ($o['v'] ?? 1) : ($o ?? 1))
+                    );
                     $this->finalTransform['_opMdf'] = true;
                 }
                 ++$i;
@@ -138,7 +150,14 @@ abstract class TransformElement extends BaseElement
             throw new \Error(get_class($this).': finalTransform is not initialized ');
         }
 
-        $this->finalTransform['_opMdf'] = (bool) ($this->finalTransform['mProp']['o']['_mdf'] ?? null) || $this->_isFirstFrame;
+        $o = $this->finalTransform['mProp']['o'] ?? null;
+        $opMdf = false;
+        if (is_object($o)) {
+            $opMdf = (bool) ($o->_mdf ?? false);
+        } elseif (is_array($o)) {
+            $opMdf = (bool) ($o['_mdf'] ?? false);
+        }
+        $this->finalTransform['_opMdf'] = $opMdf || $this->_isFirstFrame;
         $this->finalTransform['_matMdf'] = (bool) ($this->finalTransform['mProp']['_mdf'] ?? null) || $this->_isFirstFrame;
 
         $finalMat = $this->finalTransform['mat'];
@@ -178,7 +197,17 @@ abstract class TransformElement extends BaseElement
             $this->finalTransform['_localMatMdf'] = $this->finalTransform['_matMdf'];
         }
         if ($this->finalTransform['_opMdf']) {
-            $this->finalTransform['localOpacity'] = (float) $this->finalTransform['mProp']['o']['v'] ?? 1;
+            $o = $this->finalTransform['mProp']['o'] ?? null;
+            $opacity = 1;
+            if (is_object($o)) {
+                $opacity = $o->v ?? 1;
+            } elseif (is_array($o)) {
+                $opacity = $o['v'] ?? 1;
+            } elseif (is_int($o) || is_float($o)) {
+                // Some malformed data can pass opacity as a raw number.
+                $opacity = $o;
+            }
+            $this->finalTransform['localOpacity'] = (float) ($opacity ?? 1);
         }
     }
 

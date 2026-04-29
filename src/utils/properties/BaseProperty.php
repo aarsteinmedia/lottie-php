@@ -514,11 +514,11 @@ abstract class BaseProperty extends DynamicPropertyContainer
         return 0;
     }
 
-    public function setVValue($val)
+    public function setVValue(mixed $val)
     {
         $multipliedValue = 0;
 
-        if ('number' === gettype($val) && PropType::UniDimensional === $this->propType) {
+        if (is_numeric($val) && PropType::UniDimensional === $this->propType) {
             $multipliedValue = $val * (float) $this->mult;
             if (abs($this->v - $multipliedValue) > 0.00001) {
                 $this->v = $multipliedValue;
