@@ -32,7 +32,7 @@ class RectShapeProperty extends ShapeBaseProperty
         $this->elem = $elem;
         $this->comp = $elem->comp;
         $this->frameId = -1;
-        $this->d = $data['d'];
+        $this->d = $data['d'] ?? null;
         $this->initDynamicPropertyContainer($elem);
         $this->p = PropertyFactory::getProp(
             $elem,
