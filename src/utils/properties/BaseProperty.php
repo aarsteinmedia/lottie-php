@@ -23,7 +23,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     // Keep it loose to avoid type errors during rendering.
     public mixed $comp = null;
     public array|ValueProperty $e;
-    public $effectsSequence = [];
+    public array $effectsSequence = [];
     public BaseElement|BaseProperty|null $elem;
     public ?int $frameExpressionId;
     public ?int $frameId;

@@ -6,10 +6,12 @@ use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\Properties\ShapePropertyFactory;
 use LottiePHP\Utils\Shapes\ShapePath;
+use LottiePHP\Utils\Matrix;
 
 use function LottiePHP\Utils\createElementID;
 use function LottiePHP\Utils\createNS;
 use function LottiePHP\Utils\createSizedArray;
+use function LottiePHP\Utils\buildShapeString;
 
 class MaskElement
 {
@@ -252,41 +254,24 @@ class MaskElement
         ShapePath $pathNodes,
         array $viewData
     ) {
-        $i = 0;
-        $oVector = '';
-        $iVector = '';
-        $vVector = implode(',', $pathNodes->v[0] ?? []);
-        $pathString = " M{$vVector}";
-
+        // Reuse the same path-string builder as regular SVG shapes,
+        // but with an identity matrix (masks are in local coordinates).
+        static $identityMat = null;
+        if (null === $identityMat) {
+            $identityMat = new Matrix();
+        }
         $len = $pathNodes->_length ?? 0;
-
-        for ($i = 1; $i < $len; ++$i) {
-            $oVector = implode(',', $pathNodes->o[$i - 1] ?? []);
-            $iVector = implode(',', $pathNodes->i[$i] ?? []);
-            $vVector = implode(',', $pathNodes->v[$i] ?? []);
-
-            $pathString .= " C{$oVector} {$iVector} {$vVector}";
-        }
-
-        if ($pathNodes->c && $len > 1) {
-            $oVector = implode(',', $pathNodes->o[$i - 1] ?? []);
-            $iVector = implode(',', $pathNodes->i[0] ?? []);
-            $vVector = implode(',', $pathNodes->v[0] ?? []);
-
-            $pathString .= " C{$oVector} {$iVector} {$vVector}";
-        }
+        $pathString = buildShapeString($pathNodes, $len, (bool) $pathNodes->c, $identityMat);
 
         if ($viewData['lastPath'] !== $pathString) {
             $pathShapeValue = '';
 
-            if ($viewData['elem']) {
-                if ($pathNodes->c) {
-                    $pathShapeValue = ($pathData['inv'] ?? false)
-                      ? $this->solidPath.$pathString
-                      : $pathString;
-                }
-                $viewData['elem']->setAttribute('d', $pathShapeValue);
+            if ($pathNodes->c) {
+                $pathShapeValue = ($pathData['inv'] ?? false)
+                    ? $this->solidPath.$pathString
+                    : $pathString;
             }
+            $viewData['elem']->setAttribute('d', $pathShapeValue);
             $viewData['lastPath'] = $pathString;
         }
     }

@@ -13,15 +13,14 @@ use function LottiePHP\Utils\getFontProperties;
 class TextProperty extends BaseProperty
 {
     public int $_frameId;
-    public $canResize = false;
+    public bool $canResize = false;
     public array $currentData;
     public ?array $data;
-    public $defaultBoxWidth = [0, 0];
-    public $effectsSequence = [];
+    public array $defaultBoxWidth = [0, 0];
     public BaseElement|BaseProperty|null $elem;
     public $keysIndex = 0;
     public $minimumFontSize = 1;
-    public $pv = '';
+    public mixed $pv = '';
     public $v = '';
 
     public function __construct(BaseElement|BaseProperty $elem, array $data)

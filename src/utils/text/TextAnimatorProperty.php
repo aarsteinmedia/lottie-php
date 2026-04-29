@@ -398,7 +398,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
             $letterP = $this->defaultPropsArray;
             $letterO = null;
 
-            if (2 === $documentData['j'] || 1 === $documentData['j']) {
+            if (2 === ($documentData['j'] ?? null) || 1 === ($documentData['j'] ?? null)) {
                 $animatorJustifyOffset = 0;
                 $animatorFirstCharOffset = 0;
                 $justifyOffsetMult = 2 === $documentData['j'] ? -0.5 : -1;
