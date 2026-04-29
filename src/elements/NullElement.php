@@ -31,7 +31,7 @@ class NullElement extends FrameElement
         $this->prepareProperties($num, true);
     }
 
-    public function renderFrame(?int $_frame)
+    public function renderFrame(?int $_frame = null)
     {
         return null;
     }

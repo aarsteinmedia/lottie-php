@@ -148,7 +148,7 @@ class ImagePreloader
 
         $img->setAttributeNS(
             Constants::$namespaceXlink,
-            'href',
+            'xlink:href',
             $path
         );
 

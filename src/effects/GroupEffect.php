@@ -119,7 +119,7 @@ class GroupEffect extends DynamicPropertyContainer
         }
     }
 
-    public function renderFrame(bool|int $_frame)
+    public function renderFrame(bool|int|null $_frame = null)
     {
         throw new \Error(get_class($this).': Method renderFrame is not implemented yet');
     }

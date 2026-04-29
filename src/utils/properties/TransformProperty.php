@@ -34,18 +34,14 @@ class TransformProperty extends BaseProperty
      */
     public Matrix $pre;
     public ?ValueProperty $px;
-    public ?ValueProperty $py;
+    public KeyframedValueProperty|ValueProperty|null $py;
     public ?ValueProperty $pz;
     public KeyframedValueProperty|ValueProperty|null $r;
     public ?ValueProperty $rx;
     public ?ValueProperty $ry;
     public ?ValueProperty $rz;
-    // BaseProperty already defines `$s` (untyped). Keep child untyped to satisfy PHP covariance rules.
-    public $s;
     public ?ValueProperty $sa = null;
     public ?ValueProperty $sk = null;
-    // BaseProperty defines `$v` (untyped). Keep child untyped.
-    public $v;
 
     public function __construct(
         BaseElement|BaseProperty $elem,

@@ -27,7 +27,7 @@ abstract class TransformEffect
         $this->_opMdf = false;
     }
 
-    public function renderFrame(?bool $forceFrame)
+    public function renderFrame(?bool $forceFrame = null)
     {
         $this->_opMdf = false;
         $this->_mdf = false;

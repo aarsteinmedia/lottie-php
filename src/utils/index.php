@@ -181,7 +181,7 @@ function pointEqual(array $p1, array $p2)
     return floatEqual($p1[0], $p2[0]) && floatEqual($p1[1], $p2[1]);
 }
 
-function getBlendMode($mode = 16)
+function getBlendMode(int $mode = 16)
 {
     $blendModeEnums = [
         0 => 'source-over',
@@ -192,6 +192,7 @@ function getBlendMode($mode = 16)
         13 => 'saturation',
         14 => 'color',
         15 => 'luminosity',
+        16 => 'normal',
         2 => 'screen',
         3 => 'overlay',
         4 => 'darken',
@@ -202,7 +203,7 @@ function getBlendMode($mode = 16)
         9 => 'soft-light',
     ];
 
-    return $blendModeEnums[$mode] ?? '';
+    return $blendModeEnums[$mode] ?? 'normal';
 }
 
 function isLottie(array $json)

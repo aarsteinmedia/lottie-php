@@ -25,6 +25,11 @@ trait RendererTraits
     public array $layers = [];
     public array $pendingElements = [];
 
+    public function addPendingElement(BaseElement $element)
+    {
+        array_push($this->pendingElements, $element);
+    }
+
     public function buildAllItems()
     {
         $length = count($this->layers);
@@ -66,15 +71,16 @@ trait RendererTraits
             array_push($hierarchy, $el);
             $el->setAsParent();
 
-            if (null === $this->layers[$i]['parent']) {
-                $element['setHierarchy']($hierarchy);
+            if (null === ($this->layers[$i]['parent'] ?? null)) {
+                // In JS this is a function reference; in PHP call the method.
+                $element->setHierarchy($hierarchy);
                 ++$i;
 
                 continue;
             }
             $this->buildElementParenting(
                 $element,
-                $this->layers[$i]['parent'],
+                $this->layers[$i]['parent'] ?? null,
                 $hierarchy
             );
             ++$i;

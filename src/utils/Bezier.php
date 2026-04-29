@@ -37,7 +37,7 @@ class Bezier
                   + 3 * (1 - $perc) * pow($perc, 2) * ($pt4[$i] ?? 0)
                   + pow($perc, 3) * ($pt2[$i] ?? 0);
                 $point[$i] = $ptCoord;
-                if ('number' === gettype($lastPoint[$i])) {
+                if (is_numeric($lastPoint[$i] ?? null)) {
                     $ptDistance += pow(($point[$i] ?? 0) - ($lastPoint[$i] ?? 0), 2);
                 }
                 $lastPoint[$i] = $point[$i] ?? 0;

@@ -143,7 +143,7 @@ trait SVGBaseTraits
         return $this->baseElement ?? null;
     }
 
-    public function getMatte($matteType = 1): string
+    public function getMatte(int $matteType = 1): string
     {
         $this->matteMasks ??= [];
         if ($this->matteMasks[$matteType] ?? null) {
@@ -169,7 +169,7 @@ trait SVGBaseTraits
                 $useElement = createTag('use');
                 $useElement->setAttributeNS(
                     Constants::$namespaceXlink,
-                    'href',
+                    'xlink:href',
                     "#{$this->layerId}"
                 );
                 $masker->appendChild($useElement);
@@ -227,7 +227,7 @@ trait SVGBaseTraits
                 $useElement = createTag('use');
                 $useElement->setAttributeNS(
                     Constants::$namespaceXlink,
-                    'href',
+                    'xlink:href',
                     "#{$this->layerId}"
                 );
                 $maskGrouper->appendChild($useElement);

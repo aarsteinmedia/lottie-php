@@ -172,7 +172,7 @@ class SVGProLevelsFilter
         return implode(' ', $table);
     }
 
-    public function renderFrame(?bool $forceRender)
+    public function renderFrame(?bool $forceRender = null)
     {
         if (
             !$forceRender && !$this->filterManager->_mdf

@@ -99,7 +99,7 @@ class SVGStrokeEffect
         $this->pathMasker = $groupPath;
     }
 
-    public function renderFrame(?bool $forceRender)
+    public function renderFrame(?bool $forceRender = null)
     {
         // if (!$this->filterManager->effectElements) {
         //   throw new Error("${$this->constructor.name}: Missing Effect element")

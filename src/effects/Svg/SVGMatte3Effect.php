@@ -67,7 +67,7 @@ class SVGMatte3Effect
         $this->initialized = true;
     }
 
-    public function renderFrame(?float $_val)
+    public function renderFrame(?float $_val = null)
     {
         if (!$this->initialized) {
             $this->initialize();

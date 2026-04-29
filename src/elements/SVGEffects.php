@@ -99,7 +99,7 @@ class SVGEffects
         ];
     }
 
-    public function renderFrame(false|int|null $frame)
+    public function renderFrame(false|int|null $frame = null)
     {
         $length = count($this->filters);
 

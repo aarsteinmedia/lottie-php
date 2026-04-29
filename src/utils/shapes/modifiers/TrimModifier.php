@@ -21,7 +21,7 @@ class TrimModifier extends ShapeModifier
     public ?float $eValue;
 
     public $m;
-    public ?ValueProperty $o;
+    public KeyframedValueProperty|ValueProperty|null $o;
 
     public KeyframedValueProperty|ValueProperty|null $s;
 
@@ -535,7 +535,7 @@ class TrimModifier extends ShapeModifier
 
                         $newShapesData = $this->addShapes($shapeData, $segments[0] ?? $emptySegment);
 
-                        if ($segments[0]?->s !== $segments[0]?->e) {
+                        if (($segments[0]['s'] ?? 0) !== ($segments[0]['e'] ?? 0)) {
                             if (count($segments) > 1) {
                                 $lastShapeInCollection
                                   = $shapeData->shape->paths?->shapes[

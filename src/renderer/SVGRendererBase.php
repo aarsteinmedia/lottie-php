@@ -100,7 +100,7 @@ trait SVGRendererTraits
 
             $element->checkParenting();
 
-            if ($element->data['tt']) {
+            if (!empty($element->data['tt'])) {
                 $i = 0;
                 $length = count($this->elements);
 

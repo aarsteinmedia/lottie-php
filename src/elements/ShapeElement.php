@@ -68,7 +68,12 @@ abstract class ShapeElement extends RenderableDOMElement
         $length = count($this->shapes);
 
         for ($i = 0; $i < $length; ++$i) {
-            $this->shapes[$i]['sh']?->reset();
+            $shape = $this->shapes[$i] ?? null;
+            if (is_array($shape)) {
+                ($shape['sh'] ?? null)?->reset();
+            } elseif ($shape instanceof SVGShapeData) {
+                $shape->sh?->reset();
+            }
         }
 
         $len = count($this->shapeModifiers);

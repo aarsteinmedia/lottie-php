@@ -33,7 +33,7 @@ class RoundCornersModifier extends ShapeModifier
         $this->_isAnimated = count($this->rd->effectsSequence) > 0;
     }
 
-    public function processPath(ShapePath $path, int $round)
+    public function processPath(ShapePath $path, float $round)
     {
         $clonedPath = ShapePool::newElement();
 

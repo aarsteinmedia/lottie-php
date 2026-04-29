@@ -289,7 +289,7 @@ class MaskElement
         return $this->viewData[$pos]['prop'] ?? null;
     }
 
-    public function renderFrame(?int $frame)
+    public function renderFrame(?int $frame = null)
     {
         $finalMat = $this->element->finalTransform['mat'] ?? null;
         $length = count($this->masksProperties);

@@ -7,7 +7,7 @@ namespace LottiePHP\Elements\Helpers;
  */
 abstract class HierarchyElement extends TransformElement
 {
-    public $_isParent = false;
+    public bool $_isParent = false;
 
     public function checkParenting()
     {
@@ -21,7 +21,9 @@ abstract class HierarchyElement extends TransformElement
             return;
         }
 
-        $this->comp['buildElementParenting'](
+        // In the JS version this is a method reference on the comp/renderer.
+        // In PHP, treat it as a normal method call (ArrayAccess only exposes properties).
+        $this->comp->buildElementParenting(
             $this,
             $this->data['parent'],
             []

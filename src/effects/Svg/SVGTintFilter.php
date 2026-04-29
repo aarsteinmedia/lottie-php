@@ -50,7 +50,7 @@ class SVGTintFilter extends SVGComposableEffect
         $filter->appendChild($feMerge);
     }
 
-    public function renderFrame(?bool $forceRender)
+    public function renderFrame(?bool $forceRender = null)
     {
         if (
             !$forceRender && !$this->filterManager->_mdf

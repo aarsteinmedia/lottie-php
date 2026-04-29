@@ -289,7 +289,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
             $letters = $documentData['l'];
 
             $pathInfo = null;
-            $currentLength = 0;
+            $currentLength = 0.0;
             $currentPoint = null;
             $segmentLength = 0;
             $shouldMeasure = false;
@@ -545,7 +545,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         }
                         if ($ind !== $letters[$i]['ind'] ?? null) {
                             if ($letters[$ind]) {
-                                $currentLength += (int) ($letters[$ind]['extra'] ?? 0);
+                                $currentLength += (float) ($letters[$ind]['extra'] ?? 0);
                             }
                             $currentLength += ($letters[$i]['an'] ?? 0) / 2;
                             $ind = $letters[$i]['ind'] ?? 0;
@@ -605,7 +605,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                               - ($letters[count($letters) - 1]['an'] ?? 0) * 0.5)
                               * $ind
                               / ($len - 1);
-                            $currentLength += (int) ($this->_pathData['f']->v ?? 0);
+                            $currentLength += (float) ($this->_pathData['f']->v ?? 0);
                         }
                         while ($shouldMeasure) {
                             if (
@@ -690,9 +690,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         if (0 !== $xPos || 0 !== $documentData['j']) {
                             if ($this->_hasMaskedPath) {
                                 if (is_array($mult)) {
-                                    $currentLength += (int) $animatorProps['t']->v * ($mult[0] ?? 1);
+                                    $currentLength += (float) $animatorProps['t']->v * ($mult[0] ?? 1);
                                 } else {
-                                    $currentLength += (int) $animatorProps['t']->v * (int) $mult;
+                                    $currentLength += (float) $animatorProps['t']->v * (int) $mult;
                                 }
 
                                 continue;
@@ -984,7 +984,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         if ($letters[$i + 1] && $ind !== ($letters[$i + 1]['ind'] ?? 0)) {
                             $currentLength += ($letters[$i]['an'] ?? 0) / 2;
                             $currentLength
-                              += $documentData['tr'] * 0.001 * (int) $documentData['finalSize'];
+                              += $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
                         }
                     } else {
                         $matrixHelper->translate(
