@@ -10,8 +10,8 @@ use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\buildShapeString;
 use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createNS;
 use function LottiePHP\Utils\createSizedArray;
+use function LottiePHP\Utils\createTag;
 
 class MaskElement
 {
@@ -72,7 +72,7 @@ class MaskElement
                 || ($properties[$i]['mode'] ?? '') === 'i')
                 && 0 === $count
             ) {
-                $rect = createNS('rect');
+                $rect = createTag('rect');
                 $rect->setAttribute('fill', '#ffffff');
                 $rect->setAttribute('width', $this->element['comp']['data']['w'] ?? 0);
                 $rect->setAttribute('height', $this->element['comp']['data']['h'] ?? 0);
@@ -81,7 +81,7 @@ class MaskElement
                 $rect = null;
             }
 
-            $path = createNS('path');
+            $path = createTag('path');
 
             if (($properties[$i]['mode'] ?? '') === 'n') {
                 $this->viewData[$i] = [
@@ -128,10 +128,10 @@ class MaskElement
                     $this->element
                 );
                 $filterID = createElementID();
-                $expansor = createNS('filter');
+                $expansor = createTag('filter');
 
                 $expansor->setAttribute('id', $filterID);
-                $feMorph = createNS('feMorphology');
+                $feMorph = createTag('feMorphology');
                 $feMorph->setAttribute('operator', 'erode');
                 $feMorph->setAttribute('in', 'SourceGraphic');
                 $feMorph->setAttribute('radius', '0');
@@ -155,12 +155,12 @@ class MaskElement
             ];
             if (($properties[$i]['mode'] ?? '') === 'i') {
                 $jLen = count($currentMasks);
-                $g = createNS('g');
+                $g = createTag('g');
 
                 for ($j = 0; $j < $jLen; ++$j) {
                     $g->appendChild($currentMasks[$j]);
                 }
-                $mask = createNS('mask');
+                $mask = createTag('mask');
 
                 $mask->setAttribute('mask-type', 'alpha');
                 $mask->setAttribute('id', "{$layerId}_{$count}");
@@ -206,7 +206,7 @@ class MaskElement
             }
         }
 
-        $this->maskElement = createNS($maskType);
+        $this->maskElement = createTag($maskType);
 
         $cLen = count($currentMasks);
 

@@ -15,7 +15,7 @@ use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\Properties\GradientProperty;
 
 use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 use function LottiePHP\Utils\Enums\lineCapEnum;
 use function LottiePHP\Utils\Enums\lineJoinEnum;
 
@@ -113,7 +113,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
     public function setGradientData(\DOMElement $pathElement, array $data)
     {
         $gradientId = createElementID();
-        $gfill = createNS(1 === $data['t'] ? 'linearGradient' : 'radialGradient');
+        $gfill = createTag(1 === $data['t'] ? 'linearGradient' : 'radialGradient');
 
         $gfill->setAttribute('id', $gradientId);
         $gfill->setAttribute('spreadMethod', 'pad');
@@ -123,15 +123,16 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $jLen = ($data['g']['p'] ?? 1) * 4;
 
         for ($j = 0; $j < $jLen; $j += 4) {
-            $stop = createNS('stop');
+            $stop = createTag('stop');
             $gfill->appendChild($stop);
             array_push($stops, $stop);
         }
 
         $locationHref = LocationHref::getHref();
+        $ty = ShapeType::tryFrom($data['ty'] ?? '');
 
         $pathElement->setAttribute(
-            ShapeType::GradientFill === $data['ty'] ? 'fill' : 'stroke',
+            ShapeType::GradientFill === $ty ? 'fill' : 'stroke',
             "url({$locationHref}#{$gradientId})"
         );
         $this->gf = $gfill;
@@ -144,8 +145,8 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
             return;
         }
         $stop = null;
-        $mask = createNS('mask');
-        $maskElement = createNS('path');
+        $mask = createTag('mask');
+        $maskElement = createTag('path');
 
         // if (!maskElement || !mask) {
         //   throw new Error("${$this->constructor.name}: Could not create svg element")
@@ -155,7 +156,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $maskId = createElementID();
 
         $mask->setAttribute('id', $maskId);
-        $opFill = createNS(1 === $data['t'] ? 'linearGradient' : 'radialGradient');
+        $opFill = createTag(1 === $data['t'] ? 'linearGradient' : 'radialGradient');
 
         $opFill->setAttribute('id', $opacityId);
         $opFill->setAttribute('spreadMethod', 'pad');
@@ -166,17 +167,18 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
             : count($data['g']['k']['k'] ?? []));
 
         for ($j = ($data['g']['p'] ?? 1) * 4; $j < $jLen; $j += 2) {
-            $stop = createNS('stop');
+            $stop = createTag('stop');
             $stop->setAttribute('stop-color', 'rgb(255,255,255)');
             $opFill->appendChild($stop);
             array_push($this->stops, $stop);
         }
         $locationHref = LocationHref::getHref();
+        $ty = ShapeType::tryFrom($data['ty'] ?? '');
         $maskElement->setAttribute(
-            ShapeType::GradientFill === $data['ty'] ? 'fill' : 'stroke',
+            ShapeType::GradientFill === $ty ? 'fill' : 'stroke',
             "url({$locationHref}#{$opacityId})"
         );
-        if (ShapeType::GradientStroke === $data['ty']) {
+        if (ShapeType::GradientStroke === $ty) {
             $maskElement->setAttribute('stroke-linecap', lineCapEnum($data['lc'] ?? 2));
             $maskElement->setAttribute('stroke-linejoin', lineJoinEnum($data['lj'] ?? 2));
             if (1 === $data['lj']) {

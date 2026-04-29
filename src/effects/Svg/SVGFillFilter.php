@@ -6,7 +6,7 @@ use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Properties\BaseProperty;
 
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 class SVGFillFilter
 {
@@ -20,7 +20,7 @@ class SVGFillFilter
         string $id
     ) {
         $this->filterManager = $filterManager;
-        $feColorMatrix = createNS('feColorMatrix');
+        $feColorMatrix = createTag('feColorMatrix');
 
         $feColorMatrix->setAttribute('type', 'matrix');
         $feColorMatrix->setAttribute('color-interpolation-filters', 'sRGB');

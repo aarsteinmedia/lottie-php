@@ -13,11 +13,15 @@ use LottiePHP\Utils\Helpers\Constants;
 use function LottiePHP\Utils\addClasses;
 use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createNS;
 use function LottiePHP\Utils\createSizedArray;
+use function LottiePHP\Utils\createTag;
 
 trait SVGRendererTraits
 {
+    public bool $destroyed = false;
+    public array $renderConfig = [];
+    public \DOMElement $svgElement;
+
     public function appendElementInPos(BaseElement $element, int $pos)
     {
         $newElement = $element->getBaseElement();
@@ -199,8 +203,8 @@ trait SVGRendererTraits
             $this->globalData['progressiveLoad'] = $this->renderConfig['progressiveLoad'];
             $this->data = $animData;
 
-            $maskElement = createNS('clipPath');
-            $rect = createNS('rect');
+            $maskElement = createTag('clipPath');
+            $rect = createTag('rect');
 
             $rect->setAttribute('width', $animData['w']);
             $rect->setAttribute('height', $animData['h']);
@@ -313,10 +317,6 @@ trait SVGRendererTraits
 abstract class SVGRendererBase extends BaseRenderer
 {
     use SVGRendererTraits;
-
-    public bool $destroyed = false;
-    public array $renderConfig = [];
-    public \DOMElement $svgElement;
 
     public function destroy()
     {

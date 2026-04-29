@@ -6,8 +6,8 @@ use LottiePHP\Utils\Enums\RendererType;
 
 use function LottiePHP\Utils\addClasses;
 use function LottiePHP\Utils\addStyles;
-use function LottiePHP\Utils\createNS;
 use function LottiePHP\Utils\createSizedArray;
+use function LottiePHP\Utils\createTag;
 
 class SVGTextLottieElement extends TextElement
 {
@@ -137,7 +137,7 @@ class SVGTextLottieElement extends TextElement
               ? $documentData['ps'][1] + (int) ($documentData['ascent'])
               : 0;
             for ($i = 0; $i < $len; ++$i) {
-                $tSpan = $this->textSpans[$i]['span'] ?? createNS('tspan');
+                $tSpan = $this->textSpans[$i]['span'] ?? createTag('tspan');
                 $tSpan->textContent = $textContent[$i] ?? '';
                 $tSpan->setAttribute('x', '0');
                 $tSpan->setAttribute('y', $yPos);
@@ -168,7 +168,7 @@ class SVGTextLottieElement extends TextElement
                     $tSpan
                       = ($cachedSpansLength > $i
                         ? $this->textSpans[$i]['span'] ?? null
-                        : createNS($hasGlyphs ? 'g' : 'text')) ?? null;
+                        : createTag($hasGlyphs ? 'g' : 'text')) ?? null;
 
                     if (!$tSpan) {
                         throw new \Error('Could not create tSpan');
@@ -183,7 +183,7 @@ class SVGTextLottieElement extends TextElement
                         }
 
                         if ($hasGlyphs) {
-                            $childSpan = createNS('g');
+                            $childSpan = createTag('g');
 
                             $tSpan->appendChild($childSpan);
 
@@ -367,7 +367,7 @@ class SVGTextLottieElement extends TextElement
             throw new \Error(get_class($this).': globalData is not implemented');
         }
         if (($this->data['singleShape'] ?? false) && !$this->globalData['fontManager']?->chars) {
-            $this->textContainer = createNS('text');
+            $this->textContainer = createTag('text');
         }
     }
 

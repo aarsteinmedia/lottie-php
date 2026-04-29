@@ -139,7 +139,7 @@ class ImagePreloader
             $this->assetsPath,
             $this->path
         );
-        $img = createNS('image');
+        $img = createTag('image');
 
         $obj = [
             'assetData' => $assetData,

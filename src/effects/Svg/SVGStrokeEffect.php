@@ -8,7 +8,7 @@ use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\Properties\BaseProperty;
 
 use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 use function LottiePHP\Utils\toRGBString;
 
 class SVGStrokeEffect
@@ -48,13 +48,13 @@ class SVGStrokeEffect
             $i = $this->filterManager->effectElements[0]['p']['v'] - 1;
             $len = $i + 1;
         }
-        $groupPath = createNS('g');
+        $groupPath = createTag('g');
 
         $groupPath->setAttribute('fill', 'none');
         $groupPath->setAttribute('stroke-linecap', 'round');
         $groupPath->setAttribute('stroke-dashoffset', '1');
         for ($i; $i < $len; ++$i) {
-            $path = createNS('path');
+            $path = createTag('path');
             $groupPath->appendChild($path);
             array_push($this->paths, [
                 'm' => $i,
@@ -62,14 +62,14 @@ class SVGStrokeEffect
             ]);
         }
         if (3 === $this->filterManager->effectElements[10]['p']['v']) {
-            $mask = createNS('mask');
+            $mask = createTag('mask');
             $id = createElementID();
 
             $mask->setAttribute('id', $id);
             $mask->setAttribute('mask-type', 'alpha');
             $mask->appendChild($groupPath);
             $this->elem->globalData['defs']->appendChild($mask);
-            $g = createNS('g');
+            $g = createTag('g');
 
             $locationHref = LocationHref::getHref();
             $g->setAttribute('mask', "url({$locationHref}#{$id})");

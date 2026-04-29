@@ -6,7 +6,7 @@ use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Properties\BaseProperty;
 
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 class SVGTintFilter extends SVGComposableEffect
 {
@@ -22,7 +22,7 @@ class SVGTintFilter extends SVGComposableEffect
         string $source
     ) {
         $this->filterManager = $filterManager;
-        $feColorMatrix = createNS('feColorMatrix');
+        $feColorMatrix = createTag('feColorMatrix');
 
         $feColorMatrix->setAttribute('type', 'matrix');
         $feColorMatrix->setAttribute('color-interpolation-filters', 'linearRGB');
@@ -30,7 +30,7 @@ class SVGTintFilter extends SVGComposableEffect
         $this->linearFilter = $feColorMatrix;
         $feColorMatrix->setAttribute('result', "{$id}_tint_1");
         $filter->appendChild($feColorMatrix);
-        $feColorMatrix = createNS('feColorMatrix');
+        $feColorMatrix = createTag('feColorMatrix');
         $feColorMatrix->setAttribute('type', 'matrix');
         $feColorMatrix->setAttribute('color-interpolation-filters', 'sRGB');
         $feColorMatrix->setAttribute(

@@ -161,6 +161,16 @@ abstract class BaseElement implements \ArrayAccess
         );
     }
 
+    public function setMatte(string $id)
+    {
+        throw new \Error(get_class($this).': Method setMatte is not implemented');
+    }
+
+    public function show()
+    {
+        throw new \Error(get_class($this).': Method show is not implemented');
+    }
+
     public function sourceRectAtTime()
     {
         throw new \Error(get_class($this).': Method sourceRectAtTime is not implemented');

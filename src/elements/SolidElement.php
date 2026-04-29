@@ -2,7 +2,7 @@
 
 namespace LottiePHP\Elements;
 
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 class SolidElement extends ImageElement
 {
@@ -28,7 +28,7 @@ class SolidElement extends ImageElement
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
-        $rect = createNS('rect');
+        $rect = createTag('rect');
 
         $rect->setAttribute('width', $this->data['sw'] ?? 0);
         $rect->setAttribute('height', $this->data['sh'] ?? 0);

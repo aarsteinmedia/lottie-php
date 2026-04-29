@@ -6,8 +6,8 @@ use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Properties\BaseProperty;
 
-use function LottiePHP\Utils\createNS;
 use function LottiePHP\Utils\createSizedArray;
+use function LottiePHP\Utils\createTag;
 
 class SVGProLevelsFilter
 {
@@ -33,7 +33,7 @@ class SVGProLevelsFilter
         //   throw new Error("{$this->constructor.name}: Missing Effect Elements")
         // }
 
-        $feComponentTransfer = createNS('feComponentTransfer');
+        $feComponentTransfer = createTag('feComponentTransfer');
 
         // Red
         if (
@@ -113,7 +113,7 @@ class SVGProLevelsFilter
             ?? $effectElements[7]['p']['k']
             ?? 1 !== $effectElements[7]['p']['v']
         ) {
-            $feComponentTransfer = createNS('feComponentTransfer');
+            $feComponentTransfer = createTag('feComponentTransfer');
             $feComponentTransfer->setAttribute('color-interpolation-filters', 'sRGB');
             $feComponentTransfer->setAttribute('result', $id);
             $filter->appendChild($feComponentTransfer);
@@ -127,7 +127,7 @@ class SVGProLevelsFilter
         string $type,
         \DOMElement $feComponentTransfer
     ) {
-        $feFunc = createNS($type);
+        $feFunc = createTag($type);
 
         $feFunc->setAttribute('type', 'table');
         $feComponentTransfer->appendChild($feFunc);

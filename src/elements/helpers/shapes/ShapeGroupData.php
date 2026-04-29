@@ -2,7 +2,7 @@
 
 namespace LottiePHP\Elements\Helpers\Shapes;
 
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 class ShapeGroupData
 {
@@ -15,6 +15,6 @@ class ShapeGroupData
 
     public function __construct()
     {
-        $this->gr = createNS('g');
+        $this->gr = createTag('g');
     }
 }

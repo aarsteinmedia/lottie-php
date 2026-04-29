@@ -19,15 +19,11 @@ class SVGCompElement extends SVGBaseElement
     use SVGRendererTraits;
 
     public ?bool $_debug;
-    public $completeLayers = false;
+    public bool $completeLayers = false;
     // public function createAudio = SVGRendererBase.prototype.createAudio;
     // public function createCamera = SVGRendererBase.prototype.createCamera;
-    public $currentFrame = 0;
-    public array $elements;
-    public array $layers;
-    public $pendingElements = [];
     // public function setProjectInterface = SVGRendererBase.prototype.setProjectInterface;
-    public $supports3d = true;
+    public bool $supports3d = true;
     public ?KeyframedValueProperty $tm;
 
     public function __construct(

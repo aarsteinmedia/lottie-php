@@ -13,9 +13,18 @@ use LottiePHP\Elements\SVGCompElement;
 use LottiePHP\Elements\SVGShapeElement;
 use LottiePHP\Elements\SVGTextLottieElement;
 use LottiePHP\Utils\FontManager;
+use LottiePHP\Utils\Properties\BaseProperty;
 
+/** @mixin BaseRenderer */
 trait RendererTraits
 {
+    public ?AnimationItem $animationItem;
+    public bool $completeLayers = false;
+    public float $currentFrame = 0;
+    public array $elements = [];
+    public array $layers = [];
+    public array $pendingElements = [];
+
     public function buildAllItems()
     {
         $length = count($this->layers);
@@ -27,7 +36,7 @@ trait RendererTraits
     }
 
     public function buildElementParenting(
-        array $element,
+        BaseElement|BaseProperty $element,
         ?int $parentName,
         array $hierarchy = []
     ) {
@@ -250,13 +259,6 @@ trait RendererTraits
 abstract class BaseRenderer extends FrameElement
 {
     use RendererTraits;
-
-    public ?AnimationItem $animationItem;
-    public $completeLayers = false;
-    public $currentFrame = 0;
-    public $elements = [];
-    public $layers = [];
-    public $pendingElements = [];
 
     public function addPendingElement(BaseElement $element)
     {

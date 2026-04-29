@@ -7,14 +7,14 @@ use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Properties\BaseProperty;
 
 use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 class SVGMatte3Effect
 {
     public BaseElement|BaseProperty $elem;
     public \DOMElement $filterElem;
     public GroupEffect $filterManager;
-    public $initialized = false;
+    public bool $initialized = false;
 
     public function __construct(
         \DOMElement $filterElem,
@@ -24,7 +24,7 @@ class SVGMatte3Effect
         $this->filterManager = $filterManager;
         $this->filterElem = $filterElem;
         $this->elem = $elem;
-        $elem->matteElement = createNS('g');
+        $elem->matteElement = createTag('g');
         if ($elem->layerElement) {
             $elem->matteElement->appendChild($elem->layerElement);
         }
@@ -81,7 +81,7 @@ class SVGMatte3Effect
         if (!$parentNode) {
             return;
         }
-        $children = $parentNode->children;
+        $children = iterator_to_array($parentNode->childNodes);
         $i = 0;
         $length = count($children);
 
@@ -96,7 +96,7 @@ class SVGMatte3Effect
         if ($i <= $length - 2) {
             $nextChild = $children[$i + 1];
         }
-        $useElem = createNS('use');
+        $useElem = createTag('use');
 
         $useElem->setAttribute('href', "#{$symbolId}");
         if ($nextChild) {
@@ -112,7 +112,7 @@ class SVGMatte3Effect
     ) {
         if (!$this->findSymbol($mask)) {
             $symbolId = createElementID();
-            $masker = createNS('mask');
+            $masker = createTag('mask');
 
             if ($mask->layerId) {
                 $masker->id = $mask->layerId;
@@ -123,7 +123,7 @@ class SVGMatte3Effect
             $defs = $elem->globalData['defs'] ?? null;
 
             $defs?->appendChild($masker);
-            $symbol = createNS('symbol');
+            $symbol = createTag('symbol');
 
             $symbol->setAttribute('id', $symbolId);
             $this->replaceInParent($mask, $symbolId);
@@ -132,7 +132,7 @@ class SVGMatte3Effect
             }
 
             $defs?->appendChild($symbol);
-            $useElem = createNS('use');
+            $useElem = createTag('use');
 
             $useElem->setAttribute('href', "#{$symbolId}");
             $masker->appendChild($useElem);
@@ -143,5 +143,5 @@ class SVGMatte3Effect
         $elem->setMatte($mask->layerId ?? '');
     }
 
-    private $_svgMatteSymbols = [];
+    private array $_svgMatteSymbols = [];
 }

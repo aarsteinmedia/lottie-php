@@ -7,7 +7,7 @@ use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Properties\BaseProperty;
 
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 use function LottiePHP\Utils\rgbToHex;
 
 class SVGDropShadowEffect extends SVGComposableEffect
@@ -39,7 +39,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         $filter->setAttribute('height', $filterSize['height']);
         $this->filterManager = $filterManager;
 
-        $feGaussianBlur = createNS('feGaussianBlur');
+        $feGaussianBlur = createTag('feGaussianBlur');
 
         $feGaussianBlur->setAttribute('in', 'SourceAlpha');
         $feGaussianBlur->setAttribute('result', "{$id}_drop_shadow_1");
@@ -47,7 +47,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         $this->feGaussianBlur = $feGaussianBlur;
         $filter->appendChild($feGaussianBlur);
 
-        $feOffset = createNS('feOffset');
+        $feOffset = createTag('feOffset');
 
         $feOffset->setAttribute('dx', 25);
         $feOffset->setAttribute('dy', 0);
@@ -55,7 +55,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         $feOffset->setAttribute('result', "{$id}_drop_shadow_2");
         $this->feOffset = $feOffset;
         $filter->appendChild($feOffset);
-        $feFlood = createNS('feFlood');
+        $feFlood = createTag('feFlood');
 
         $feFlood->setAttribute('flood-color', '#00ff00');
         $feFlood->setAttribute('flood-opacity', '1');
@@ -63,7 +63,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         $this->feFlood = $feFlood;
         $filter->appendChild($feFlood);
 
-        $feComposite = createNS('feComposite');
+        $feComposite = createTag('feComposite');
 
         $feComposite->setAttribute('in', "{$id}_drop_shadow_3");
         $feComposite->setAttribute('in2', "{$id}_drop_shadow_2");

@@ -4,7 +4,7 @@ namespace LottiePHP\Elements;
 
 use LottiePHP\Utils\Helpers\Constants;
 
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 class ImageElement extends SVGBaseElement
 {
@@ -48,7 +48,7 @@ class ImageElement extends SVGBaseElement
         }
 
         if ($this->assetData) {
-            $this->innerElem = createNS('image');
+            $this->innerElem = createTag('image');
             $this->innerElem->setAttribute('width', "{$this->assetData['w']}px");
             $this->innerElem->setAttribute('height', "{$this->assetData['h']}px");
             $this->innerElem->setAttribute(

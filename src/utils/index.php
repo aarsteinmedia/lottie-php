@@ -161,7 +161,7 @@ function createNS(string $type)
     return domDocumentPool()->createElementNS(Constants::$namespaceSVG, $type);
 }
 
-function createTag($type)
+function createTag(string $type)
 {
     return domDocumentPool()->createElement($type);
 }

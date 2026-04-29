@@ -85,7 +85,7 @@ class FontManager
     ) {
         $fontProps = getFontProperties($fontData);
 
-        $tHelper = createNS('text');
+        $tHelper = createTag('text');
 
         addStyles($tHelper, ['font-size' => '100px']);
 

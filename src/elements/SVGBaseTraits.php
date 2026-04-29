@@ -9,7 +9,7 @@ use LottiePHP\Utils\LocationHref;
 
 use function LottiePHP\Utils\addClasses;
 use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 trait SVGBaseTraits
 {
@@ -30,7 +30,7 @@ trait SVGBaseTraits
             throw new \Error(get_class($this).': layerElement is not implemented');
         }
 
-        $this->matteElement = createNS('g');
+        $this->matteElement = createTag('g');
         $this->transformedElement = $this->layerElement;
         $this->maskedElement = $this->layerElement;
         $this->_sizeChanged = false;
@@ -39,7 +39,7 @@ trait SVGBaseTraits
         // If this layer acts as a mask for the following layer
         if ($this->data['td'] ?? 0) {
             $this->matteMasks = [];
-            $gg = createNS('g');
+            $gg = createTag('g');
 
             if ($this->layerId) {
                 $gg->setAttribute('id', $this->layerId);
@@ -68,8 +68,8 @@ trait SVGBaseTraits
          * If collapsed transformations is on, component should not be clipped.
          */
         if (0 === ($this->data['ty'] ?? 0) && !($this->data['hd'] ?? false)) {
-            $cp = createNS('clipPath');
-            $pt = createNS('path');
+            $cp = createTag('clipPath');
+            $pt = createTag('path');
 
             $pt->setAttribute(
                 'd',
@@ -84,7 +84,7 @@ trait SVGBaseTraits
             $locationHref = LocationHref::getHref();
 
             if ($this->checkMasks()) {
-                $cpGroup = createNS('g');
+                $cpGroup = createTag('g');
 
                 $cpGroup->setAttribute('clip-path', "url({$locationHref}#{$clipId})");
                 $cpGroup->appendChild($this->layerElement);
@@ -159,14 +159,14 @@ trait SVGBaseTraits
         switch ($matteType) {
             case 1:
             case 3:
-                $masker = createNS('mask');
+                $masker = createTag('mask');
 
                 $masker->setAttribute('id', $id);
                 $masker->setAttribute(
                     'mask-type',
                     3 === $matteType ? 'luminance' : 'alpha'
                 );
-                $useElement = createNS('use');
+                $useElement = createTag('use');
                 $useElement->setAttributeNS(
                     Constants::$namespaceXlink,
                     'href',
@@ -182,7 +182,7 @@ trait SVGBaseTraits
                 $fil = FiltersFactory::createFilter($filId);
                 $this->globalData['defs']?->appendChild($fil);
                 $fil->appendChild(FiltersFactory::createAlphaToLuminanceFilter());
-                $gg = createNS('g');
+                $gg = createTag('g');
                 $gg->appendChild($useElement);
                 $masker->appendChild($gg);
                 $locationHref = LocationHref::getHref();
@@ -191,26 +191,26 @@ trait SVGBaseTraits
                 break;
 
             case 2:
-                $maskGroup = createNS('mask');
+                $maskGroup = createTag('mask');
 
                 $maskGroup->setAttribute('id', $id);
                 $maskGroup->setAttribute('mask-type', 'alpha');
-                $maskGrouper = createNS('g');
+                $maskGrouper = createTag('g');
 
                 $maskGroup->appendChild($maskGrouper);
                 $filId = createElementID();
                 $fil = FiltersFactory::createFilter($filId);
-                $feCTr = createNS('feComponentTransfer');
+                $feCTr = createTag('feComponentTransfer');
 
                 $feCTr->setAttribute('in', 'SourceGraphic');
                 $fil->appendChild($feCTr);
-                $feFunc = createNS('feFuncA');
+                $feFunc = createTag('feFuncA');
 
                 $feFunc->setAttribute('type', 'table');
                 $feFunc->setAttribute('tableValues', '1.0 0.0');
                 $feCTr->appendChild($feFunc);
                 $this->globalData['defs']?->appendChild($fil);
-                $alphaRect = createNS('rect');
+                $alphaRect = createTag('rect');
 
                 $alphaRect->setAttribute('width', $this->comp['data']['w'] ?? 0);
                 $alphaRect->setAttribute('height', $this->comp['data']['h'] ?? 0);
@@ -224,7 +224,7 @@ trait SVGBaseTraits
 
                 $maskGrouper->setAttribute('filter', "url({$locationHref}#{$filId})");
                 $maskGrouper->appendChild($alphaRect);
-                $useElement = createNS('use');
+                $useElement = createTag('use');
                 $useElement->setAttributeNS(
                     Constants::$namespaceXlink,
                     'href',
@@ -234,7 +234,7 @@ trait SVGBaseTraits
                 if (!FeatureSupport::$maskType) {
                     $maskGroup->setAttribute('mask-type', 'luminance');
                     $fil->appendChild(FiltersFactory::createAlphaToLuminanceFilter());
-                    $gg = createNS('g');
+                    $gg = createTag('g');
                     $maskGrouper->appendChild($alphaRect);
                     if ($this->layerElement) {
                         $gg->appendChild($this->layerElement);
@@ -251,7 +251,7 @@ trait SVGBaseTraits
 
     public function initRendererElement()
     {
-        $this->layerElement = createNS('g');
+        $this->layerElement = createTag('g');
     }
 
     public function renderElement()

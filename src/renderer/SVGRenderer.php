@@ -6,6 +6,7 @@ use LottiePHP\Animation\AnimationItem;
 use LottiePHP\Elements\SVGCompElement;
 
 use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 class SVGRenderer extends SVGRendererBase
 {
@@ -22,10 +23,10 @@ class SVGRenderer extends SVGRendererBase
 
         $this->animationItem->wrapper->appendChild($this->svgElement);
 
-        $defs = createNS('defs');
+        $defs = createTag('defs');
         $this->svgElement->appendChild($defs);
 
-        $mask = createNS('g');
+        $mask = createTag('g');
         $this->svgElement->appendChild($mask);
         $this->layerElement = $mask;
 

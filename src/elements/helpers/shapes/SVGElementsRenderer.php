@@ -67,7 +67,8 @@ class SVGElementsRenderer
         $pt2 = $itemData->e?->v ?? [0, 0];
 
         if ($itemData->o?->_mdf || $isFirstFrame) {
-            $attr = ShapeType::GradientFill === $styleData['ty'] ? 'fill-opacity' : 'stroke-opacity';
+            $styleTy = ShapeType::tryFrom($styleData['ty'] ?? '');
+            $attr = ShapeType::GradientFill === $styleTy ? 'fill-opacity' : 'stroke-opacity';
 
             $itemData->style?->pElem->setAttribute($attr, $itemData->o?->v);
         }

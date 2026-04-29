@@ -2,20 +2,20 @@
 
 namespace LottiePHP\Effects\Svg;
 
-use function LottiePHP\Utils\createNS;
+use function LottiePHP\Utils\createTag;
 
 abstract class SVGComposableEffect
 {
     public function createMergeNode(string $resultId, array $ins)
     {
-        $feMerge = createNS('feMerge');
+        $feMerge = createTag('feMerge');
 
         $feMerge->setAttribute('result', $resultId);
         $feMergeNode = null;
         $length = count($ins);
 
         for ($i = 0; $i < $length; ++$i) {
-            $feMergeNode = createNS('feMergeNode');
+            $feMergeNode = createTag('feMergeNode');
             $feMergeNode->setAttribute('in', $ins[$i]);
             $feMerge->appendChild($feMergeNode);
             $feMerge->appendChild($feMergeNode);

@@ -221,7 +221,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         throw new \Error('Method not implemented');
     }
 
-    public function interpolateValue(int $frameNum, $caching = [])
+    public function interpolateValue(int $frameNum, array $caching = [])
     {
         ['offsetTime' => $offsetTime, 'pv' => $pv] = (array) $this;
         $newValue = [
