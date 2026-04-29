@@ -4,13 +4,11 @@ namespace LottiePHP\Effects;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Properties\BaseProperty;
-use LottiePHP\Utils\Properties\MultiDimensionalProperty;
-use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
 
 abstract class EffectOne
 {
-    public MultiDimensionalProperty|ValueProperty|null $p;
+    public ?BaseProperty $p;
 
     public function __construct(
         array $data,

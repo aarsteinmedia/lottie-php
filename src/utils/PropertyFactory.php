@@ -30,7 +30,12 @@ class PropertyFactory
         }
 
         if (is_array($data) && array_key_exists('sid', $data) && $data['sid']) {
-            $data = ($elem->globalData['slotManager']?->getProp ?? null)($data);
+            $slotManager = $elem->globalData['slotManager'] ?? null;
+            if (is_object($slotManager) && method_exists($slotManager, 'getProp')) {
+                $data = $slotManager->getProp($data);
+            } elseif (is_object($slotManager) && isset($slotManager->getProp) && is_callable($slotManager->getProp)) {
+                $data = ($slotManager->getProp)($data);
+            }
         }
         $p = null;
 

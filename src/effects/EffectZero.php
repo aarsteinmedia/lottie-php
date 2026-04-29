@@ -4,12 +4,11 @@ namespace LottiePHP\Effects;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Properties\BaseProperty;
-use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
 
 abstract class EffectZero implements \ArrayAccess
 {
-    public ?ValueProperty $p;
+    public ?BaseProperty $p;
 
     public function __construct(
         array $data,
