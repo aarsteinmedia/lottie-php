@@ -137,6 +137,7 @@ abstract class TransformElement extends BaseElement
         if (!$this->finalTransform) {
             throw new \Error(get_class($this).': finalTransform is not initialized ');
         }
+
         $this->finalTransform['_opMdf'] = (bool) $this->finalTransform['mProp']['o']['_mdf'] || $this->_isFirstFrame;
         $this->finalTransform['_matMdf'] = (bool) $this->finalTransform['mProp']['_mdf'] || $this->_isFirstFrame;
 
@@ -148,7 +149,7 @@ abstract class TransformElement extends BaseElement
         // Checking if any of the transformation matrices in the hierarchy chain has changed.
         if (!$this->finalTransform['_matMdf']) {
             while ($i < $length) {
-                if ($this->hierarchy[$i]->finalTransform['mProp']['_mdf']) {
+                if ($this->hierarchy[$i]->finalTransform['mProp']['_mdf'] ?? null) {
                     $this->finalTransform['_matMdf'] = true;
 
                     break;
@@ -162,8 +163,8 @@ abstract class TransformElement extends BaseElement
 
             $finalMat->cloneFromProps($mat);
             for ($i = 0; $i < $length; ++$i) {
-                if ($this->hierarchy[$i]->finalTransform['mProp']->v) {
-                    $matrix = $this->hierarchy[$i]->finalTransform['mProp']->v ?? null;
+                if ($this->hierarchy[$i]->finalTransform['mProp']['v'] ?? null) {
+                    $matrix = $this->hierarchy[$i]->finalTransform['mProp']['v'];
 
                     if ($matrix) {
                         $finalMat->multiply($matrix);
