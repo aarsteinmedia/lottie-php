@@ -17,15 +17,15 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public ?array $_cachingAtTime;
     public ?BaseElement $comp;
     public ?array $data = null;
-    public $effectsSequence = [];
+    public array $effectsSequence = [];
     public BaseElement $elem;
     public ?int $frameId = null;
     public ?bool $k;
-    public $keyframesMetadata = [];
+    public array $keyframesMetadata = [];
     public ?bool $kf;
     public ?ShapeCollection $localShapeCollection;
     public ?bool $lock;
-    public $offsetTime = 0;
+    public float $offsetTime = 0;
     public ?BaseProperty $p;
     public ?ShapeCollection $paths;
     public ?ShapePath $pv;
@@ -48,9 +48,9 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public function interpolateShape(
         int $frameNum,
         ShapePath $previousValue,
-        $caching = []
+        array $caching = []
     ) {
-        $iterationIndex = $caching['lastIndex'] || 0;
+        $iterationIndex = $caching['lastIndex'] ?? 0;
         $keyPropS = null;
         $keyPropE = null;
         $isHold = null;
@@ -126,7 +126,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                       = ($fnc(($frameNum - ($keyData['t'] - $this->offsetTime))
                         / ($nextKeyData['t']
                           - $this->offsetTime
-                          - ($keyData['t'] - $this->offsetTime))) || 0);
+                          - ($keyData['t'] - $this->offsetTime))) ?? 0);
                 }
                 $keyPropE = $nextKeyData['s'] ? $nextKeyData['s'][0] : $keyData['e'][0];
             }
@@ -139,7 +139,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
             return;
         }
 
-        $jLen = $previousValue['_length'];
+        $jLen = $previousValue->_length;
         $kLen = count($keyPropS['i'][0] ?? []);
 
         $caching['lastIndex'] = $iterationIndex;
@@ -147,13 +147,13 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
         for ($j = 0; $j < $jLen; ++$j) {
             for ($k = 0; $k < $kLen; ++$k) {
                 $vertexValue = ($isHold
-                  ? $keyPropS['i'][$j][$k]
-                  : ($keyPropS['i'][$j][$k] ?? 0) + (($keyPropE['i'][$j][$k] ?? 0) - ($keyPropS['i'][$j][$k] ?? 0)) * $perc) ?? 0;
-                $previousValue['i'][$j][$k] = $vertexValue;
+                  ? $keyPropS->i[$j][$k]
+                  : ($keyPropS->i[$j][$k] ?? 0) + (($keyPropE->i[$j][$k] ?? 0) - ($keyPropS->i[$j][$k] ?? 0)) * $perc) ?? 0;
+                $previousValue->i[$j][$k] = $vertexValue;
                 $vertexValue = ($isHold
-                  ? $keyPropS['o'][$j][$k]
-                  : ($keyPropS['o'][$j][$k] ?? 0) + (($keyPropE['o'][$j][$k] ?? 0) - ($keyPropS['o'][$j][$k] ?? 0)) * $perc) ?? 0;
-                $previousValue['o'][$j][$k] = $vertexValue;
+                  ? $keyPropS->o[$j][$k]
+                  : ($keyPropS->o[$j][$k] ?? 0) + (($keyPropE->o[$j][$k] ?? 0) - ($keyPropS->o[$j][$k] ?? 0)) * $perc) ?? 0;
+                $previousValue->o[$j][$k] = $vertexValue;
                 $vertexValue = ($isHold
                   ? $keyPropS->v[$j][$k]
                   : ($keyPropS->v[$j][$k] ?? 0) + (($keyPropE->v[$j][$k] ?? 0) - ($keyPropS->v[$j][$k] ?? 0)) * $perc) ?? 0;
@@ -266,10 +266,10 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
 
     public function shapesEqual(ShapePath $shape1, ShapePath $shape2)
     {
-        if ($shape1->_length !== $shape2->_length || $shape1->c !== $shape2->c) {
+        if ($shape1->_length !== $shape2->_length ?? $shape1->c !== $shape2->c) {
             return false;
         }
-        $len = $shape1->_length || 0;
+        $len = $shape1->_length ?? 0;
 
         for ($i = 0; $i < $len; ++$i) {
             if (

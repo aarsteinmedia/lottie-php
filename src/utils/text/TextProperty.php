@@ -232,7 +232,7 @@ class TextProperty extends BaseProperty
                               $finalText[$i] ?? '',
                               $documentData['f'],
                               $documentData['finalSize']
-                          ) || 0;
+                          ) ?? 0;
                     }
                     if ($lineWidth + $cLength > $boxWidth && ' ' !== $finalText[$i]) {
                         if (-1 === $lastSpaceIndex) {
@@ -469,7 +469,7 @@ class TextProperty extends BaseProperty
         }
         $documentData['yOffset']
           = $documentData['finalLineHeight'] || $documentData['finalSize'] * 1.2;
-        $documentData['ls'] = $documentData['ls'] || 0;
+        $documentData['ls'] = $documentData['ls'] ?? 0;
         $documentData['ascent']
           = (int) $fontData['ascent'] * $documentData['finalSize'] / 100;
     }

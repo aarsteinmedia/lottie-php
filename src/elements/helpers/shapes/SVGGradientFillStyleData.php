@@ -163,7 +163,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $jLen
           = ($data['g']['k']['k'][0]['s'] ?? null
             ? count($data['g']['k']['k'][0]['s'] ?? [])
-            : count($data['g']['k']['k'] ?? [])) || 0;
+            : count($data['g']['k']['k'] ?? []));
 
         for ($j = ($data['g']['p'] ?? 1) * 4; $j < $jLen; $j += 2) {
             $stop = createNS('stop');

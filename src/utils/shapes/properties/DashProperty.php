@@ -39,7 +39,7 @@ class DashProperty extends DynamicPropertyContainer
             $dataLength > 0 ? $dataLength - 1 : 0
         );
         $this->initDynamicPropertyContainer($container);
-        $len = $dataLength || 0;
+        $len = $dataLength ?? 0;
         $prop = null;
 
         for ($i = 0; $i < $len; ++$i) {
@@ -50,7 +50,7 @@ class DashProperty extends DynamicPropertyContainer
                 0,
                 $this
             );
-            $this->k = $prop['k'] || $this->k;
+            $this->k = $prop['k'] ?? $this->k;
             $this->dataProps[$i] = [
                 'n' => $data[$i]['n'] ?? 'd',
                 'p' => $prop,

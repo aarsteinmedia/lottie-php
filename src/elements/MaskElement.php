@@ -18,7 +18,7 @@ class MaskElement
     public ?array $globalData;
     public ?\DOMElement $maskElement = null;
     public ?array $masksProperties = [];
-    public $solidPath = '';
+    public string $solidPath = '';
     public array $storedData = [];
     public array $viewData;
 
@@ -223,8 +223,8 @@ class MaskElement
     {
         $path = 'M0,0 ';
 
-        $w = $this->globalData['compSize']['w'] || 0;
-        $h = $this->globalData['compSize']['h'] || 0;
+        $w = $this->globalData['compSize']['w'] ?? 0;
+        $h = $this->globalData['compSize']['h'] ?? 0;
 
         $path .= " h{$w}";
         $path .= " v{$h}";
@@ -254,7 +254,7 @@ class MaskElement
         $vVector = implode(',', $pathNodes->v[0] ?? []);
         $pathString = " M{$vVector}";
 
-        $len = $pathNodes->_length || 0;
+        $len = $pathNodes->_length ?? 0;
 
         for ($i = 1; $i < $len; ++$i) {
             $oVector = implode(',', $pathNodes->o[$i - 1] ?? []);

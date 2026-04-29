@@ -261,7 +261,7 @@ class TextSelectorProperty extends BaseProperty
     {
         $this->iterateDynamicProperties();
         $this->_mdf = $newCharsFlag || $this->_mdf;
-        $this->_currentTextLength = count($this->elem->textProperty->currentData['l'] ?? []) || 0;
+        $this->_currentTextLength = count($this->elem->textProperty->currentData['l'] ?? []);
         if ($newCharsFlag && 2 === $this->data['r'] && $this->e->v) {
             $this->e->v = $this->_currentTextLength;
         }

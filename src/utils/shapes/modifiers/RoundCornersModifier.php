@@ -165,7 +165,7 @@ class RoundCornersModifier extends ShapeModifier
                     }
 
                     $shapePaths = $shapeData->shape?->paths?->shapes ?? [];
-                    $jLen = $shapeData->shape?->paths?->_length || 0;
+                    $jLen = $shapeData->shape?->paths?->_length ?? 0;
 
                     for ($j = 0; $j < $jLen; ++$j) {
                         $localShapeCollection?->addShape($this->processPath($shapePaths[$j], $rd));

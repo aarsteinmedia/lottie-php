@@ -40,7 +40,7 @@
     "dev": "phpunit-watcher watch",
     "lint": "php-cs-fixer fix --dry-run --diff src",
     "lint:fix": "php-cs-fixer fix src",
-    "visual:up": "docker compose up --build -d && docker compose ps",
+    "visual:up": "docker compose up --build -d && docker compose ps && open -a Firefox 'http://localhost:8000'",
     "visual:down": "docker compose down",
     "visual:logs": "docker compose logs -f --tail=200",
     "visual:sh": "docker compose exec visual sh"

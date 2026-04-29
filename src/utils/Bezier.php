@@ -63,7 +63,7 @@ class Bezier
         ] = $bezierLength;
 
         $length = count($percents);
-        $initPos = floor(($length - 1) * $perc);
+        $initPos = (int) floor(($length - 1) * $perc);
         $lengthPos = $perc * $addedLength;
         $lPerc = 0;
 
@@ -277,7 +277,7 @@ class Bezier
         $pathO = $shapeData->o;
         $pathI = $shapeData->i;
         $i = 0;
-        $len = $shapeData->_length || 0;
+        $len = $shapeData->_length ?? 0;
         ['lengths' => $lengths] = $segmentsLength;
         $totalLength = 0;
 

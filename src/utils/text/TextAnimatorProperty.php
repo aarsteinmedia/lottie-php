@@ -16,11 +16,11 @@ use function LottiePHP\Utils\toRGBString;
 
 class TextAnimatorProperty extends DynamicPropertyContainer
 {
-    public $_frameId = -1;
-    public $_isFirstFrame = true;
-    public $defaultPropsArray = [];
-    public $lettersChangedFlag = false;
-    public $renderedLetters = [];
+    public int $_frameId = -1;
+    public bool $_isFirstFrame = true;
+    public array $defaultPropsArray = [];
+    public bool $lettersChangedFlag = false;
+    public array $renderedLetters = [];
 
     private static function addBrightnessToRGB(array $color, int $offset)
     {
@@ -302,9 +302,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                     ($paths->i[$i + 1][1] ?? 0) - ($paths->v[$i + 1][1] ?? 0),
                                 ]
                             );
-                            $pathInfo['tLength'] += $bezierData['segmentLength'];
+                            $pathInfo['tLength'] += $bezierData->segmentLength;
                             array_push($pathInfo['segments'], $bezierData);
-                            $totalLength += $bezierData['segmentLength'];
+                            $totalLength += $bezierData->segmentLength;
                         }
                         $i = $len;
                         if (($paths->c ?? false) && $len >= 0) {
@@ -320,9 +320,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                     ($paths->i[0][1] ?? 0) - ($paths->v[0][1] ?? 0),
                                 ]
                             );
-                            $pathInfo['tLength'] += $bezierData['segmentLength'];
+                            $pathInfo['tLength'] += $bezierData->segmentLength;
                             array_push($pathInfo['segments'], $bezierData);
-                            $totalLength += $bezierData['segmentLength'];
+                            $totalLength += $bezierData->segmentLength;
                         }
                         $this->_pathData['pi'] = $pathInfo;
                     }
@@ -364,7 +364,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
             $len = count($letters ?? []);
             $xPos = 0;
             $yPos = 0;
-            $yOff = ($documentData['finalSize'] || 0) * 1.2 * 0.714;
+            $yOff = ($documentData['finalSize'] ?? 0) * 1.2 * 0.714;
             $isFirstLine = true;
             $animatorProps = null;
             $animatorSelector = null;
@@ -465,13 +465,13 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                 $elemOpacity = 1;
                 if ($letters[$i]['n'] ?? null) {
                     $xPos = 0;
-                    $yPos += $documentData['yOffset'] || 0;
+                    $yPos += $documentData['yOffset'] ?? 0;
                     $yPos += $isFirstLine ? 1 : 0;
                     $currentLength = $initPathPos;
                     $isFirstLine = false;
                     if ($this->_hasMaskedPath) {
-                        $segmentInd = $initSegmentInd || 0;
-                        $pointInd = $initPointInd || 0;
+                        $segmentInd = $initSegmentInd ?? 0;
+                        $pointInd = $initPointInd ?? 0;
                         $points = $segments[$segmentInd]['points'] ?? [];
                         $prevPoint = $points[$pointInd - 1];
                         $currentPoint = $points[$pointInd];
@@ -1063,7 +1063,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
         }
     }
 
-    public function getValue($_flag)
+    public function getValue(?bool $_flag)
     {
         if ($this->_elem['globalData']['frameId'] ?? null === $this->_frameId) {
             return 0;
@@ -1140,9 +1140,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
     }
     private array $_animatorsData;
     private BaseElement|BaseProperty $_elem;
-    private $_hasMaskedPath = false;
-    private $_moreOptions = ['alignment' => []];
-    private $_pathData = [];
+    private bool $_hasMaskedPath = false;
+    private array $_moreOptions = ['alignment' => []];
+    private array $_pathData = [];
     private RendererType $_renderType;
     private array $_textData;
     private Matrix $mHelper;

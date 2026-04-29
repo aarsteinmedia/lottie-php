@@ -66,7 +66,7 @@ trait CompTrait
         if (!$this->tm || ($this->tm->_placeholder ?? false)) {
             $this->renderedFrame = $val / (float) $this->data['sr'];
         } else {
-            $timeRemapped = $this->tm->v || 0;
+            $timeRemapped = $this->tm->v ?? 0;
 
             if ($timeRemapped === $this->data['op']) {
                 $timeRemapped = $this->data['op'] - 1;

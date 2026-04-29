@@ -433,7 +433,7 @@ class SVGTextLottieElement extends TextElement
                     $textSpan?->setAttribute('opacity', $renderedLetter->o ?? 1);
                 }
                 if ($renderedLetter?->_mdf['sw']) {
-                    $textSpan?->setAttribute('stroke-width', $renderedLetter->sw || 0);
+                    $textSpan?->setAttribute('stroke-width', $renderedLetter->sw ?? 0);
                 }
                 if ($renderedLetter?->_mdf['sc']) {
                     $textSpan?->setAttribute('stroke', $renderedLetter->sc);

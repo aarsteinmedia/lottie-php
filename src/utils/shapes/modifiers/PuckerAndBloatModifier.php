@@ -102,7 +102,7 @@ class PuckerAndBloatModifier extends ShapeModifier
                         $shapePath = $shapePaths[$j] ?? null;
 
                         if ($shapePath) {
-                            $localShapeCollection?->addShape($this->processPath($shapePath, $amount || 0));
+                            $localShapeCollection?->addShape($this->processPath($shapePath, $amount ?? 0));
                         }
                     }
                 }

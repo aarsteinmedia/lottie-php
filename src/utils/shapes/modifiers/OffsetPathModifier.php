@@ -491,7 +491,7 @@ class OffsetPathModifier extends ShapeModifier
                     }
 
                     $shapePaths = $shapeData->shape?->paths?->shapes;
-                    $jLen = $shapeData->shape?->paths?->_length || 0;
+                    $jLen = $shapeData->shape?->paths?->_length ?? 0;
 
                     for ($j = 0; $j < $jLen; ++$j) {
                         $shapePath = $shapePaths[$j] ?? null;

@@ -369,7 +369,7 @@ abstract class SVGRendererBase extends BaseRenderer
             }
             $this->globalData['frameNum'] = $num;
             ++$this->globalData['frameId'];
-            $this->globalData['projectInterface']['currentFrame'] = $num || 0;
+            $this->globalData['projectInterface']['currentFrame'] = $num ?? 0;
             $this->globalData['_mdf'] = false;
             $length = count($this->layers);
 

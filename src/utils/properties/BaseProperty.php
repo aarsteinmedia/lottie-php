@@ -240,7 +240,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
             'propType' => $propType,
         ] = (array) $this;
         $keyframes ??= [];
-        $iterationIndex = $caching['lastIndex'] || 0;
+        $iterationIndex = $caching['lastIndex'] ?? 0;
         $i = $iterationIndex;
         $len = count($keyframes) - 1;
         $shouldInterpolate = true;
