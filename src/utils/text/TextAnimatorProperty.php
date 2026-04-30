@@ -636,7 +636,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 if ($pointInd >= count($points)) {
                                     $pointInd = 0;
                                     ++$segmentInd;
-                                    if ($segments[$segmentInd]) {
+                                    if ($segments[$segmentInd] ?? null) {
                                         $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
                                     } elseif (($paths instanceof ShapePath) ? ($paths->c ?? false) : false) {
                                         $pointInd = 0;
@@ -981,7 +981,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             0
                         );
                         $currentLength -= $alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005;
-                        if ($letters[$i + 1] && $ind !== ($letters[$i + 1]['ind'] ?? 0)) {
+                        if (($letters[$i + 1] ?? null) && $ind !== ($letters[$i + 1]['ind'] ?? 0)) {
                             $currentLength += ($letters[$i]['an'] ?? 0) / 2;
                             $currentLength
                               += $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
