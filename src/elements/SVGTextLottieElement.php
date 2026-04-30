@@ -91,7 +91,31 @@ class SVGTextLottieElement extends TextElement
         $this->layerElement->setAttribute('aria-label', $documentData['t']);
 
         $letters = $documentData['l'];
-        $hasGlyphs = (bool) $this->globalData['fontManager']?->chars ?? null;
+        $hasGlyphs = (bool) ($this->globalData['fontManager']?->chars ?? null);
+        // Some optimized exports include font metadata but omit `chars` glyph data.
+        // If we can't resolve *any* glyph for this layer, fall back to SVG <text>/<tspan>.
+        if ($hasGlyphs) {
+            $fontFamily = $this->globalData['fontManager']?->getFontByName($documentData['f'])['fFamily'] ?? null;
+            $hasRenderableGlyph = false;
+            foreach (($documentData['finalText'] ?? []) as $ch) {
+                if ('' === $ch || ' ' === $ch || "\r" === $ch) {
+                    continue;
+                }
+                $charData = $this->globalData['fontManager']?->getCharData(
+                    $ch,
+                    $documentData['fStyle'] ?? null,
+                    $fontFamily
+                );
+                if (!empty($charData['data']['shapes'] ?? null)) {
+                    $hasRenderableGlyph = true;
+
+                    break;
+                }
+            }
+            if (!$hasRenderableGlyph) {
+                $hasGlyphs = false;
+            }
+        }
 
         $len = count($letters);
 
@@ -106,6 +130,11 @@ class SVGTextLottieElement extends TextElement
         $isFirstLine = true;
         $trackingOffset
           = $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
+
+        // If we decided to fall back to <text>/<tspan> at runtime, make sure the container exists.
+        if ($isSingleShape && !$hasGlyphs && !$documentData['sz'] && !$this->textContainer) {
+            $this->textContainer = createTag('text');
+        }
 
         if ($isSingleShape && !$hasGlyphs && !$documentData['sz']) {
             $tElement = $this->textContainer;
@@ -223,7 +252,7 @@ class SVGTextLottieElement extends TextElement
                 if ($hasGlyphs) {
                     $charData = $this->globalData['fontManager']?->getCharData(
                         $documentData['finalText'][$i] ?? '',
-                        $fontData['fStyle'] ?? null,
+                        $documentData['fStyle'] ?? null,
                         $this->globalData['fontManager']->getFontByName($documentData['f'])['fFamily']
                     );
                     $glyphElement = null;

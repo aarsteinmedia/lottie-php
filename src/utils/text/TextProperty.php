@@ -18,10 +18,10 @@ class TextProperty extends BaseProperty
     public ?array $data;
     public array $defaultBoxWidth = [0, 0];
     public BaseElement|BaseProperty|null $elem;
-    public $keysIndex = 0;
-    public $minimumFontSize = 1;
+    public int $keysIndex = 0;
+    public float $minimumFontSize = 1;
     public mixed $pv = '';
-    public $v = '';
+    public mixed $v = '';
 
     public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
@@ -67,7 +67,7 @@ class TextProperty extends BaseProperty
         $newData = $this->data['d']['k'][0]['s'] ?? null;
 
         if ($newData) {
-            $this->copyData($this->currentData, $newData);
+            $this->currentData = $this->copyData($this->currentData, $newData);
         }
 
         if (!$this->searchProperty()) {
@@ -150,7 +150,7 @@ class TextProperty extends BaseProperty
         $this->elem->addDynamicProperty($this);
     }
 
-    public function completeTextData(array $documentData)
+    public function completeTextData(array &$documentData)
     {
         $documentData['__complete'] = true;
         ['fontManager' => $fontManager] = $this->elem->globalData ?? [];
@@ -216,7 +216,7 @@ class TextProperty extends BaseProperty
                         $currentHeight
                           += $documentData['finalLineHeight'] ?? $documentData['finalSize'] * 1.2;
                     }
-                    if ($fontManager['chars']) {
+                    if ($fontManager->chars) {
                         $charData = $fontManager->getCharData(
                             $finalText[$i] ?? '',
                             $fontData['fStyle'],
@@ -473,7 +473,7 @@ class TextProperty extends BaseProperty
           = (int) $fontData['ascent'] * $documentData['finalSize'] / 100;
     }
 
-    public function copyData(array $obj, array $data)
+    public function copyData(array $obj, array $data): array
     {
         $keys = array_keys($data);
         $length = count($keys);

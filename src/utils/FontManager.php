@@ -10,8 +10,8 @@ class FontManager
 {
     public ?array $chars = null;
     public array $fonts = [];
-    public $isLoaded = false;
-    public $typekitLoaded = 0;
+    public bool $isLoaded = false;
+    public int $typekitLoaded = 0;
 
     private function checkLoadedFonts(): void
     {

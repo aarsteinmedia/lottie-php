@@ -543,8 +543,8 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             }
                             $currentLine = $letters[$i]['line'] ?? 0;
                         }
-                        if ($ind !== $letters[$i]['ind'] ?? null) {
-                            if ($letters[$ind]) {
+                        if ($ind !== ($letters[$i]['ind'] ?? null)) {
+                            if ($letters[$ind] ?? null) {
                                 $currentLength += (float) ($letters[$ind]['extra'] ?? 0);
                             }
                             $currentLength += ($letters[$i]['an'] ?? 0) / 2;

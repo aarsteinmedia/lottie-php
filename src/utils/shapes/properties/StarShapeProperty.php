@@ -8,7 +8,6 @@ use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 use LottiePHP\Utils\Pooling\ShapePool;
 use LottiePHP\Utils\Properties\BaseProperty;
 use LottiePHP\Utils\PropertyFactory;
-use LottiePHP\Utils\Shapes\ShapeCollection;
 
 class StarShapeProperty extends ShapeBaseProperty
 {

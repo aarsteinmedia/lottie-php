@@ -30,7 +30,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public $g;
     public ?int $initFrame = null;
     public ?bool $k = false;
-    public $keyframesMetadata = [];
+    public array $keyframesMetadata = [];
     public ?bool $kf;
     public ?bool $lock = false;
     public ?\Closure $loopIn;
@@ -45,7 +45,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?\Closure $smooth;
     public ?int $textIndex;
     public ?int $textTotal;
-    public $v;
+    public mixed $v;
     public array|int|null $value;
     public array|int|null $vel;
     public ?bool $x;

@@ -23,6 +23,30 @@ class RectShapeProperty extends ShapeBaseProperty
     public ValueProperty $r;
     public KeyframedMultidimensionalProperty|MultiDimensionalProperty $s;
 
+    // ShapePath stores in/out tangents as relative vectors (Lottie JSON semantics),
+    // not absolute positions. buildShapeString() will add them to vertices.
+    private function setTripleAtRelative(
+        float $vX,
+        float $vY,
+        float $oXAbs,
+        float $oYAbs,
+        float $iXAbs,
+        float $iYAbs,
+        int $pos,
+        bool $replace = true
+    ): void {
+        $this->v?->setTripleAt(
+            $vX,
+            $vY,
+            $oXAbs - $vX,
+            $oYAbs - $vY,
+            $iXAbs - $vX,
+            $iYAbs - $vY,
+            $pos,
+            $replace
+        );
+    }
+
     public function __construct(BaseElement|BaseProperty $elem, array $data)
     {
         $this->v = ShapePool::newElement();
@@ -86,28 +110,26 @@ class RectShapeProperty extends ShapeBaseProperty
         }
 
         if (2 === $this->d || 1 === $this->d) {
-            $this->v?->setTripleAt(
+            $this->setTripleAtRelative(
                 $p0 + $v0,
                 $p1 - $v1 + $round,
                 $p0 + $v0,
                 $p1 - $v1 + $round,
                 $p0 + $v0,
                 $p1 - $v1 + $cPoint,
-                0,
-                true
+                0
             );
-            $this->v?->setTripleAt(
+            $this->setTripleAtRelative(
                 $p0 + $v0,
                 $p1 + $v1 - $round,
                 $p0 + $v0,
                 $p1 + $v1 - $cPoint,
                 $p0 + $v0,
                 $p1 + $v1 - $round,
-                1,
-                true
+                1
             );
             if (0 === $round) {
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 + $v1,
                     $p0 - $v0 + $cPoint,
@@ -116,7 +138,7 @@ class RectShapeProperty extends ShapeBaseProperty
                     $p1 + $v1,
                     2
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 - $v1,
                     $p0 - $v0,
@@ -126,179 +148,162 @@ class RectShapeProperty extends ShapeBaseProperty
                     3
                 );
             } else {
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 + $v0 - $round,
                     $p1 + $v1,
                     $p0 + $v0 - $round,
                     $p1 + $v1,
                     $p0 + $v0 - $cPoint,
                     $p1 + $v1,
-                    2,
-                    true
+                    2
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0 + $round,
                     $p1 + $v1,
                     $p0 - $v0 + $cPoint,
                     $p1 + $v1,
                     $p0 - $v0 + $round,
                     $p1 + $v1,
-                    3,
-                    true
+                    3
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 + $v1 - $round,
                     $p0 - $v0,
                     $p1 + $v1 - $round,
                     $p0 - $v0,
                     $p1 + $v1 - $cPoint,
-                    4,
-                    true
+                    4
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 - $v1 + $round,
                     $p0 - $v0,
                     $p1 - $v1 + $cPoint,
                     $p0 - $v0,
                     $p1 - $v1 + $round,
-                    5,
-                    true
+                    5
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0 + $round,
                     $p1 - $v1,
                     $p0 - $v0 + $round,
                     $p1 - $v1,
                     $p0 - $v0 + $cPoint,
                     $p1 - $v1,
-                    6,
-                    true
+                    6
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 + $v0 - $round,
                     $p1 - $v1,
                     $p0 + $v0 - $cPoint,
                     $p1 - $v1,
                     $p0 + $v0 - $round,
                     $p1 - $v1,
-                    7,
-                    true
+                    7
                 );
             }
         } else {
-            $this->v?->setTripleAt(
+            $this->setTripleAtRelative(
                 $p0 + $v0,
                 $p1 - $v1 + $round,
                 $p0 + $v0,
                 $p1 - $v1 + $cPoint,
                 $p0 + $v0,
                 $p1 - $v1 + $round,
-                0,
-                true
+                0
             );
             if (0 === $round) {
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 - $v1,
                     $p0 - $v0 + $cPoint,
                     $p1 - $v1,
                     $p0 - $v0,
                     $p1 - $v1,
-                    1,
-                    true
+                    1
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 + $v1,
                     $p0 - $v0,
                     $p1 + $v1 - $cPoint,
                     $p0 - $v0,
                     $p1 + $v1,
-                    2,
-                    true
+                    2
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 + $v0,
                     $p1 + $v1,
                     $p0 + $v0 - $cPoint,
                     $p1 + $v1,
                     $p0 + $v0,
                     $p1 + $v1,
-                    3,
-                    true
+                    3
                 );
             } else {
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 + $v0 - $round,
                     $p1 - $v1,
                     $p0 + $v0 - $round,
                     $p1 - $v1,
                     $p0 + $v0 - $cPoint,
                     $p1 - $v1,
-                    1,
-                    true
+                    1
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0 + $round,
                     $p1 - $v1,
                     $p0 - $v0 + $cPoint,
                     $p1 - $v1,
                     $p0 - $v0 + $round,
                     $p1 - $v1,
-                    2,
-                    true
+                    2
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 - $v1 + $round,
                     $p0 - $v0,
                     $p1 - $v1 + $round,
                     $p0 - $v0,
                     $p1 - $v1 + $cPoint,
-                    3,
-                    true
+                    3
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 + $v1 - $round,
                     $p0 - $v0,
                     $p1 + $v1 - $cPoint,
                     $p0 - $v0,
                     $p1 + $v1 - $round,
-                    4,
-                    true
+                    4
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 - $v0 + $round,
                     $p1 + $v1,
                     $p0 - $v0 + $round,
                     $p1 + $v1,
                     $p0 - $v0 + $cPoint,
                     $p1 + $v1,
-                    5,
-                    true
+                    5
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 + $v0 - $round,
                     $p1 + $v1,
                     $p0 + $v0 - $cPoint,
                     $p1 + $v1,
                     $p0 + $v0 - $round,
                     $p1 + $v1,
-                    6,
-                    true
+                    6
                 );
-                $this->v?->setTripleAt(
+                $this->setTripleAtRelative(
                     $p0 + $v0,
                     $p1 + $v1 - $round,
                     $p0 + $v0,
                     $p1 + $v1 - $round,
                     $p0 + $v0,
                     $p1 + $v1 - $cPoint,
-                    7,
-                    true
+                    7
                 );
             }
         }
