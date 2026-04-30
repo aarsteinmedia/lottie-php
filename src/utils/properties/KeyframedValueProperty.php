@@ -4,6 +4,7 @@ namespace LottiePHP\Utils\Properties;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
 class KeyframedValueProperty extends BaseProperty
@@ -19,6 +20,9 @@ class KeyframedValueProperty extends BaseProperty
     ) {
         $this->initDynamicPropertyContainer($container ?? $elem);
         $this->propType = PropType::UniDimensional;
+        // Ensure a deterministic "init frame" so caching and initial values are numeric.
+        // Otherwise `getValueAtCurrentTime()` can skip interpolation and leave nulls.
+        $this->initFrame ??= Constants::$initialDefaultFrame;
         $this->keyframes = $data['k'];
         $this->keyframesMetadata = [];
         $this->offsetTime = is_object($elem)

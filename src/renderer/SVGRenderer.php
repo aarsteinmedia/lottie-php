@@ -46,6 +46,9 @@ class SVGRenderer extends SVGRendererBase
 
         $this->renderConfig = [
             'contentVisibility' => $config['contentVisibility'] ?? 'visible',
+            // When true, emit `data-lottie-*` attributes on layer <g> nodes for debugging.
+            // Defaults to false to keep SVG output clean.
+            'debugAttributes' => (bool) ($config['debugAttributes'] ?? false),
             'filterSize' => [
                 'height' => $config['filterSize']['height'] ?? '100%',
                 'width' => $config['filterSize']['width'] ?? '100%',

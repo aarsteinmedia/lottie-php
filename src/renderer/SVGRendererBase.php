@@ -200,6 +200,7 @@ trait SVGRendererTraits
             $defs = $this->globalData['defs'];
 
             $this->setupGlobalData($animData, $defs);
+            $this->globalData['renderConfig'] = $this->renderConfig;
             $this->globalData['progressiveLoad'] = $this->renderConfig['progressiveLoad'];
             $this->data = $animData;
 

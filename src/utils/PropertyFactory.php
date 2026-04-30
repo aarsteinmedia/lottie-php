@@ -89,8 +89,18 @@ class PropertyFactory
 
         // Register animated properties so they get ticked every frame.
         // Keyframed properties (kf=true) must be added even if they have no effectsSequence.
+        //
+        // Important: `$container` can be an object (e.g. TransformProperty) that composes child
+        // properties into a derived value. Prefer registering the dynamic property on the
+        // container when possible, otherwise the container won't recompute its composed value.
         if ((bool) ($p['kf'] ?? false) || count($p['effectsSequence'] ?? []) > 0) {
-            if ($container && isset($container['addDynamicProperty']) && is_callable($container['addDynamicProperty'])) {
+            if (is_object($container) && method_exists($container, 'addDynamicProperty')) {
+                $container->addDynamicProperty($p);
+            } elseif (
+                $container
+                && isset($container['addDynamicProperty'])
+                && is_callable($container['addDynamicProperty'])
+            ) {
                 ($container['addDynamicProperty'])($p);
             } elseif (is_object($elem) && method_exists($elem, 'addDynamicProperty')) {
                 $elem->addDynamicProperty($p);

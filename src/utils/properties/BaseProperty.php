@@ -531,6 +531,12 @@ abstract class BaseProperty extends DynamicPropertyContainer
         }
         $multipliedValue = 0;
 
+        // Some Lottie exports encode unidimensional keyframes as single-item arrays (`s: [x]`).
+        // Normalize that here so uni-dimensional properties update correctly.
+        if (PropType::UniDimensional === $this->propType && is_array($val) && 1 === count($val) && is_numeric($val[0] ?? null)) {
+            $val = $val[0];
+        }
+
         if (is_numeric($val) && PropType::UniDimensional === $this->propType) {
             $multipliedValue = $val * (float) $this->mult;
             if (abs($this->v - $multipliedValue) > 0.00001) {

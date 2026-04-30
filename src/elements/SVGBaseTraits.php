@@ -43,7 +43,35 @@ trait SVGBaseTraits
             if ($this->layerId ?? null) {
                 $gg->setAttribute('id', $this->layerId);
             }
+            $debugAttrs = (bool) ($this->globalData['renderConfig']['debugAttributes'] ?? false);
+            // Put layer debug mapping on the wrapper too (this wrapper is what the matte <use>
+            // references, and it is where transforms are applied for track mattes).
+            if ($debugAttrs) {
+                if ($this->data['ind'] ?? null) {
+                    $gg->setAttribute('data-lottie-ind', (string) $this->data['ind']);
+                }
+                if ($this->data['nm'] ?? null) {
+                    $gg->setAttribute('data-lottie-nm', (string) $this->data['nm']);
+                }
+                if (array_key_exists('ty', $this->data ?? [])) {
+                    $gg->setAttribute('data-lottie-ty', (string) ($this->data['ty'] ?? ''));
+                }
+                if ($this->data['refId'] ?? null) {
+                    $gg->setAttribute('data-lottie-refId', (string) $this->data['refId']);
+                }
+                $gg->setAttribute('data-lottie-matte-src', '1');
+            }
             $gg->appendChild($this->layerElement);
+
+            // Track matte sources are referenced via the wrapper `<g id="$layerId">` in `<defs>`
+            // (see `getMatte()` using `<use href="#$layerId">`). Apply transforms to the wrapper,
+            // not the inner layer element, otherwise parenting transforms (scale/rotation) won't
+            // affect the actual matte geometry.
+            // But DO NOT render the matte source into the main scene graph: it should only
+            // exist in `<defs>` and be referenced by the following layer via `<mask><use/></mask>`.
+            $this->baseElement = null;
+            $this->transformedElement = $gg;
+            $this->maskedElement = $gg;
 
             $layerElementParent = $gg;
             $this->globalData['defs']->appendChild($gg);
@@ -60,6 +88,23 @@ trait SVGBaseTraits
         }
         if ($this->data['cl'] ?? null) {
             addClasses($this->layerElement, [$this->data['cl']]);
+        }
+        $debugAttrs = (bool) ($this->globalData['renderConfig']['debugAttributes'] ?? false);
+        // Debug aid: keep a stable mapping from SVG nodes to Lottie layers.
+        // Disabled by default; enable via rendererSettings.debugAttributes=true.
+        if ($debugAttrs) {
+            if ($this->data['ind'] ?? null) {
+                $this->layerElement->setAttribute('data-lottie-ind', (string) $this->data['ind']);
+            }
+            if ($this->data['nm'] ?? null) {
+                $this->layerElement->setAttribute('data-lottie-nm', (string) $this->data['nm']);
+            }
+            if (array_key_exists('ty', $this->data ?? [])) {
+                $this->layerElement->setAttribute('data-lottie-ty', (string) ($this->data['ty'] ?? ''));
+            }
+            if ($this->data['refId'] ?? null) {
+                $this->layerElement->setAttribute('data-lottie-refId', (string) $this->data['refId']);
+            }
         }
 
         /*
@@ -161,10 +206,10 @@ trait SVGBaseTraits
                 $masker = createTag('mask');
 
                 $masker->setAttribute('id', $id);
-                $masker->setAttribute(
-                    'mask-type',
-                    3 === $matteType ? 'luminance' : 'alpha'
-                );
+                // Track mattes should behave like alpha masks (as in Lottie-web's SVG renderer).
+                // Without this, some viewers fall back to luminance masking which can make
+                // colored mattes (e.g. the 404 globe) hide content unexpectedly.
+                $masker->setAttribute('mask-type', 3 === $matteType ? 'luminance' : 'alpha');
                 $useElement = createTag('use');
                 $useElement->setAttribute(
                     'href',
@@ -175,7 +220,6 @@ trait SVGBaseTraits
                 if (FeatureSupport::$maskType || 1 !== $matteType) {
                     break;
                 }
-                $masker->setAttribute('mask-type', 'luminance');
                 $filId = createElementID();
                 $fil = FiltersFactory::createFilter($filId);
                 $this->globalData['defs']?->appendChild($fil);
