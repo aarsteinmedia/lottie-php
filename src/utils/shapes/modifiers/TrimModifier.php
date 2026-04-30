@@ -405,6 +405,28 @@ class TrimModifier extends ShapeModifier
             $s = $this->sValue ?? 0.0;
             $e = $this->eValue ?? 0.0;
         }
+
+        // Fast path: full trim range means no trim should be applied.
+        // Use an epsilon because these are floats (avoid `===` issues).
+        $eps = 1e-6;
+        $isFullForward = abs($s - 0.0) < $eps && abs($e - 1.0) < $eps;
+        $isFullBackward = abs($s - 1.0) < $eps && abs($e - 0.0) < $eps;
+        if ($isFullForward || $isFullBackward) {
+            $length = count($this->shapes);
+            for ($i = 0; $i < $length; ++$i) {
+                $shape = $this->shapes[$i]->shape ?? null;
+                if ($shape) {
+                    $shape->_mdf = true;
+                    // Restore the original (untrimmed) paths collection.
+                    $shape->paths = $shape->localShapeCollection ?? $shape->paths;
+                }
+                if ($this->_mdf) {
+                    $this->shapes[$i]->pathsData = [];
+                }
+            }
+
+            return;
+        }
         $shapePaths = null;
         $j = 0;
         $jLen = 0;
@@ -415,7 +437,7 @@ class TrimModifier extends ShapeModifier
 
         $length = count($this->shapes);
 
-        if ($e === $s) {
+        if (abs((float) $e - (float) $s) < $eps) {
             for ($i = 0; $i < $length; ++$i) {
                 $this->shapes[$i]?->localShapeCollection?->releaseShapes();
 
@@ -430,7 +452,7 @@ class TrimModifier extends ShapeModifier
                     $this->shapes[$i]->pathsData = [];
                 }
             }
-        } elseif (!(1 === $e && 0 === $s || 0 === $e && 1 === $s)) {
+        } else {
             $segments = [];
             $shapeData = null;
             $localShapeCollection = null;
@@ -460,7 +482,7 @@ class TrimModifier extends ShapeModifier
                                 continue;
                             }
                             $pathData = Bezier::getSegmentsLength($shapePaths->shapes[$j]);
-                            array_push($pathData, $pathData);
+                            $pathsData[] = $pathData;
                             $totalShapeLength += $pathData['totalLength'];
                         }
                         $shapeData->totalShapeLength = $totalShapeLength;
@@ -560,18 +582,6 @@ class TrimModifier extends ShapeModifier
                         }
                     }
                     $shapeData->shape->paths = $localShapeCollection;
-                }
-            }
-        } elseif ($this->_mdf) {
-            for ($i = 0; $i < $length; ++$i) {
-                // Releasign Trim Cached paths data when no trim applied in case shapes are modified inbetween.
-                // Don't remove $this even if it's losing cached info.
-                $this->shapes[$i]->pathsData = [];
-
-                $shape = $this->shapes[$i]->shape;
-
-                if ($shape) {
-                    $shape->_mdf = true;
                 }
             }
         }

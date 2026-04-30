@@ -519,7 +519,7 @@ class RepeaterModifier extends ShapeModifier
         for ($i = 0; $i < $length; ++$i) {
             $elements[$i]->_processed = false;
 
-            $it = $elements[$i]->it;
+            $it = $elements[$i]->it ?? null;
 
             if (ShapeType::Group === $elements[$i]?->ty && $it) {
                 $this->resetElements($it);
@@ -527,6 +527,6 @@ class RepeaterModifier extends ShapeModifier
         }
     }
     private ?int $_currentCopies;
-    private $_elements = [];
-    private $_groups = [];
+    private array $_elements = [];
+    private array $_groups = [];
 }

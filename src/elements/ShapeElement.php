@@ -9,25 +9,42 @@ use LottiePHP\Elements\Helpers\Shapes\SVGShapeData;
 abstract class ShapeElement extends RenderableDOMElement
 {
     public ?int $_length;
-    public $processedElements = [];
-    public $shapeModifiers = [];
-    public $shapes = [];
+    public array $processedElements = [];
+    public array $shapeModifiers = [];
+    public array $shapes = [];
+
+    private function processedKey(array $elem): string
+    {
+        // Many shape items have a stable `ix` index. Use it to avoid collisions between
+        // different items that happen to have identical array contents.
+        $ty = (string) ($elem['ty'] ?? '');
+        if (isset($elem['ix']) && (is_int($elem['ix']) || is_string($elem['ix']))) {
+            return "{$ty}:ix:{$elem['ix']}";
+        }
+        if (isset($elem['nm']) && is_string($elem['nm']) && '' !== $elem['nm']) {
+            return "{$ty}:nm:{$elem['nm']}";
+        }
+
+        // Fallback: JSON-encode (can collide, but better than strict array equality).
+        return "{$ty}:json:".md5(json_encode($elem));
+    }
 
     public function addProcessedElement(array $elem, int $pos)
     {
+        $key = $this->processedKey($elem);
         $i = count($this->processedElements);
 
         while ($i) {
             --$i;
             $processedElement = $this->processedElements[$i];
 
-            if ($processedElement->elem === $elem) {
+            if ($processedElement->key === $key) {
                 $processedElement->pos = $pos;
 
                 return;
             }
         }
-        array_push($this->processedElements, new ProcessedElement($elem, $pos));
+        array_push($this->processedElements, new ProcessedElement($key, $pos));
     }
 
     public function addShapeToModifiers(array|SVGShapeData $data)
@@ -91,12 +108,16 @@ abstract class ShapeElement extends RenderableDOMElement
 
     public function searchProcessedElement($elem)
     {
+        if (!is_array($elem)) {
+            return 0;
+        }
+        $key = $this->processedKey($elem);
         $length = count($this->processedElements);
         $i = 0;
 
         while ($i < $length) {
             $processedElement = $this->processedElements[$i];
-            if ($processedElement->elem === $elem) {
+            if ($processedElement->key === $key) {
                 return $processedElement->pos;
             }
             ++$i;

@@ -475,9 +475,10 @@ class SVGShapeElement extends ShapeElement
         for ($i = $length - 1; $i >= 0; --$i) {
             $processedPos = $this->searchProcessedElement($arr[$i]);
 
-            if ($processedPos) {
+            if ($processedPos && isset($prevViewData[$processedPos - 1])) {
                 $itemsData[$i] = $prevViewData[$processedPos - 1];
             } else {
+                $processedPos = 0;
                 $arr[$i]['_shouldRender'] = $shouldRender;
             }
 

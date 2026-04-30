@@ -4,12 +4,12 @@ namespace LottiePHP\Elements\Helpers\Shapes;
 
 class ProcessedElement
 {
-    public array $elem;
+    public string $key;
     public int $pos;
 
-    public function __construct(array $element, int $position)
+    public function __construct(string $key, int $position)
     {
-        $this->elem = $element;
+        $this->key = $key;
         $this->pos = $position;
     }
 }
