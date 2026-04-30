@@ -126,23 +126,22 @@ class StarShapeProperty extends ShapeBaseProperty
 
             $x += $this->p->v[0];
             $y += $this->p->v[1];
+            // ShapePath stores in/out tangents as relative vectors (Lottie JSON semantics),
+            // not absolute positions. buildShapeString() will add them to vertices.
+            $tX = $ox * $perimSegment * $roundness * $dir;
+            $tY = $oy * $perimSegment * $roundness * $dir;
             $this->v?->setTripleAt(
                 $x,
                 $y,
-                $x - $ox * $perimSegment * $roundness * $dir,
-                $y - $oy * $perimSegment * $roundness * $dir,
-                $x + $ox * $perimSegment * $roundness * $dir,
-                $y + $oy * $perimSegment * $roundness * $dir,
+                -$tX,
+                -$tY,
+                $tX,
+                $tY,
                 $i,
                 true
             );
             $currentAng += $angle * $dir;
         }
-
-        /** @var ShapeCollection $emptyCollection */
-        $emptyCollection = [];
-        $this->paths = $emptyCollection;
-        $this->paths[0] = $this->v;
     }
 
     public function convertStarToPath()
@@ -187,13 +186,16 @@ class StarShapeProperty extends ShapeBaseProperty
 
             $x += (float) $this->p?->v[0];
             $y += (float) $this->p?->v[1];
+            // Store tangents as relative vectors (Lottie semantics).
+            $tX = $ox * $perimSegment * $roundness * $dir;
+            $tY = $oy * $perimSegment * $roundness * $dir;
             $this->v->setTripleAt(
                 $x,
                 $y,
-                $x - $ox * $perimSegment * $roundness * $dir,
-                $y - $oy * $perimSegment * $roundness * $dir,
-                $x + $ox * $perimSegment * $roundness * $dir,
-                $y + $oy * $perimSegment * $roundness * $dir,
+                -$tX,
+                -$tY,
+                $tX,
+                $tY,
                 $i,
                 true
             );

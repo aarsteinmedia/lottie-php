@@ -35,4 +35,16 @@ class NullElement extends FrameElement
     {
         return null;
     }
+
+    public function setMatte(?string $id)
+    {
+        // Null layers don't render DOM output; track mattes have no effect.
+        return null;
+    }
+
+    public function getMatte(?int $id)
+    {
+        // Null layers don't render DOM output; track mattes have no effect.
+        return null;
+    }
 }

@@ -119,7 +119,7 @@ class LottieToSVG
     public static function renderFirstFrame(string $path, ?array $rendererSettings = []): ?string
     {
         $anim = self::load($path);
-        if (!$anim || !$anim->renderer) {
+        if (!$anim?->renderer) {
             return null;
         }
 

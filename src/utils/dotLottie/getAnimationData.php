@@ -2,7 +2,7 @@
 
 namespace LottiePHP\Utils\DotLottie;
 
-function getAnimationData($input)
+function getAnimationData(mixed $input)
 {
     try {
         if (!$input || 'string' !== gettype($input) && 'object' !== gettype($input)) {
