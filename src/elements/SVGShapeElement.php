@@ -461,12 +461,15 @@ class SVGShapeElement extends ShapeElement
         \DOMElement $container,
         int $level,
         array $transformers,
-        bool $shouldRenderFromProps
+        bool $shouldRenderFromProps,
+        array $styles = []
     ) {
         $shouldRender = $shouldRenderFromProps;
         // Make a clone of transfomers
         $ownTransformers = [...$transformers];
-        $ownStyles = [];
+        // Inherit styles from parent groups. This is required when a group contains
+        // a nested group with paths, while fill/stroke styles are siblings of that nested group.
+        $ownStyles = [...$styles];
         $ownModifiers = [];
         $currentTransform = null;
         $Modifier = null;
@@ -539,7 +542,8 @@ class SVGShapeElement extends ShapeElement
                         $itemsData[$i]['gr'] ?? null,
                         $level + 1,
                         $ownTransformers,
-                        $shouldRender
+                        $shouldRender,
+                        $ownStyles
                     );
 
                     if ($arr[$i]['_shouldRender'] ?? null && ($itemsData[$i]['gr']?->parentNode ?? null) !== $container) {

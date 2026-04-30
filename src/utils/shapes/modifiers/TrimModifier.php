@@ -408,10 +408,15 @@ class TrimModifier extends ShapeModifier
 
         // Fast path: full trim range means no trim should be applied.
         // Use an epsilon because these are floats (avoid `===` issues).
+        //
+        // Important: when an offset (`o`) is applied, `s`/`e` get shifted and may no longer be (0,1),
+        // even though the span still covers the full path. Detect that by span ~= 1.
         $eps = 1e-6;
+        $span = (float) $e - (float) $s;
+        $isFullSpan = abs($span - 1.0) < $eps;
         $isFullForward = abs($s - 0.0) < $eps && abs($e - 1.0) < $eps;
         $isFullBackward = abs($s - 1.0) < $eps && abs($e - 0.0) < $eps;
-        if ($isFullForward || $isFullBackward) {
+        if ($isFullSpan || $isFullForward || $isFullBackward) {
             $length = count($this->shapes);
             for ($i = 0; $i < $length; ++$i) {
                 $shape = $this->shapes[$i]->shape ?? null;

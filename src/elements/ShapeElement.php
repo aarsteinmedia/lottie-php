@@ -15,17 +15,10 @@ abstract class ShapeElement extends RenderableDOMElement
 
     private function processedKey(array $elem): string
     {
-        // Many shape items have a stable `ix` index. Use it to avoid collisions between
-        // different items that happen to have identical array contents.
         $ty = (string) ($elem['ty'] ?? '');
-        if (isset($elem['ix']) && (is_int($elem['ix']) || is_string($elem['ix']))) {
-            return "{$ty}:ix:{$elem['ix']}";
-        }
-        if (isset($elem['nm']) && is_string($elem['nm']) && '' !== $elem['nm']) {
-            return "{$ty}:nm:{$elem['nm']}";
-        }
 
-        // Fallback: JSON-encode (can collide, but better than strict array equality).
+        // Use a content hash. `ix`/`nm` are not globally unique within a layer's shape tree,
+        // and can cause incorrect cross-group reuse (leading to missing paths).
         return "{$ty}:json:".md5(json_encode($elem));
     }
 

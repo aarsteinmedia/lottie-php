@@ -24,7 +24,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public array $keyframesMetadata = [];
     public ?bool $kf;
     public ?ShapeCollection $localShapeCollection;
-    public ?bool $lock;
+    public ?bool $lock = false;
     public float $offsetTime = 0;
     public ?BaseProperty $p;
     public array|ShapeCollection|null $paths;
@@ -96,7 +96,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
             }
             $keyframeMetadata = $this->keyframesMetadata[$i] ?? [];
 
-            $isHold = 1 === $keyData['h'];
+            $isHold = 1 === ($keyData['h'] ?? 0);
             $iterationIndex = $i;
             if (!$isHold) {
                 if ($frameNum >= $nextKeyData['t'] - $this->offsetTime) {
@@ -106,7 +106,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                 } else {
                     $fnc = null;
 
-                    if ($keyframeMetadata['__fnct']) {
+                    if (isset($keyframeMetadata['__fnct']) && $keyframeMetadata['__fnct']) {
                         $fnc = $keyframeMetadata['__fnct'];
                     } elseif (
                         is_numeric($keyData['o']['x'])
@@ -132,11 +132,14 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
             }
             $keyPropS = $keyData['s'][0] ?? null;
         }
-        if (
-            !$keyPropS || is_numeric($keyPropS) || is_array($keyPropS)
-            || is_numeric($keyPropE)
-        ) {
+        // Lottie keyframed shapes are represented as arrays in PHP, shaped like:
+        // ['i' => [[x,y]...], 'o' => [[x,y]...], 'v' => [[x,y]...], 'c' => bool]
+        if (!$keyPropS || !is_array($keyPropS)) {
             return;
+        }
+        if (!$isHold && (!is_array($keyPropE) || !$keyPropE)) {
+            // If we can't interpolate, fall back to hold.
+            $isHold = true;
         }
 
         $jLen = $previousValue->_length;
@@ -147,16 +150,16 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
         for ($j = 0; $j < $jLen; ++$j) {
             for ($k = 0; $k < $kLen; ++$k) {
                 $vertexValue = ($isHold
-                  ? $keyPropS->i[$j][$k]
-                  : ($keyPropS->i[$j][$k] ?? 0) + (($keyPropE->i[$j][$k] ?? 0) - ($keyPropS->i[$j][$k] ?? 0)) * $perc) ?? 0;
+                  ? ($keyPropS['i'][$j][$k] ?? 0)
+                  : ($keyPropS['i'][$j][$k] ?? 0) + (($keyPropE['i'][$j][$k] ?? 0) - ($keyPropS['i'][$j][$k] ?? 0)) * $perc) ?? 0;
                 $previousValue->i[$j][$k] = $vertexValue;
                 $vertexValue = ($isHold
-                  ? $keyPropS->o[$j][$k]
-                  : ($keyPropS->o[$j][$k] ?? 0) + (($keyPropE->o[$j][$k] ?? 0) - ($keyPropS->o[$j][$k] ?? 0)) * $perc) ?? 0;
+                  ? ($keyPropS['o'][$j][$k] ?? 0)
+                  : ($keyPropS['o'][$j][$k] ?? 0) + (($keyPropE['o'][$j][$k] ?? 0) - ($keyPropS['o'][$j][$k] ?? 0)) * $perc) ?? 0;
                 $previousValue->o[$j][$k] = $vertexValue;
                 $vertexValue = ($isHold
-                  ? $keyPropS->v[$j][$k]
-                  : ($keyPropS->v[$j][$k] ?? 0) + (($keyPropE->v[$j][$k] ?? 0) - ($keyPropS->v[$j][$k] ?? 0)) * $perc) ?? 0;
+                  ? ($keyPropS['v'][$j][$k] ?? 0)
+                  : ($keyPropS['v'][$j][$k] ?? 0) + (($keyPropE['v'][$j][$k] ?? 0) - ($keyPropS['v'][$j][$k] ?? 0)) * $perc) ?? 0;
                 $previousValue->v[$j][$k] = $vertexValue;
             }
         }
