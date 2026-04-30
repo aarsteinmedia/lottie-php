@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 
 class LottieToSVGTest extends TestCase {
   public function test(): void {
-    $generatedSVG = LottieToSVG::renderFirstFrame(dirname(__DIR__, 1) . '/assets/6555.json');
+    $generatedSVG = LottieToSVG::renderFirstFrame(dirname(__DIR__, 1) . '/assets/1729.json');
 
-    $targetSVG = file_get_contents(dirname(__DIR__, 1) . '/assets/6555.svg');
+    $targetSVG = file_get_contents(dirname(__DIR__, 1) . '/assets/1729.svg');
 
     $this->assertEquals($targetSVG, $generatedSVG);
   }
