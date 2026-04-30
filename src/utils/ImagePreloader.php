@@ -3,7 +3,6 @@
 namespace LottiePHP\Utils;
 
 use LottiePHP\Utils\Enums\RendererType;
-use LottiePHP\Utils\Helpers\Constants;
 
 class ImagePreloader
 {
@@ -146,9 +145,8 @@ class ImagePreloader
             'img' => $img,
         ];
 
-        $img->setAttributeNS(
-            Constants::$namespaceXlink,
-            'xlink:href',
+        $img->setAttribute(
+            'href',
             $path
         );
 

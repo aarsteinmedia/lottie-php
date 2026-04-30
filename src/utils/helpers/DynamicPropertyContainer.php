@@ -15,11 +15,11 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
      */
     public mixed $container = null;
     public ?array $data;
-    public $dynamicProperties = [];
+    public array $dynamicProperties = [];
     public ?bool $hd;
     public ?array $keyframes;
     public ?int $propertyIndex;
-    public false|PropType|null $propType;
+    public false|PropType|null $propType = null;
 
     public function addDynamicProperty(DynamicPropertyContainer $prop)
     {

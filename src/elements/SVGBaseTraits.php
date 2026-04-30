@@ -4,7 +4,6 @@ namespace LottiePHP\Elements;
 
 use LottiePHP\Utils\FeatureSupport;
 use LottiePHP\Utils\FiltersFactory;
-use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\LocationHref;
 
 use function LottiePHP\Utils\addClasses;
@@ -167,9 +166,8 @@ trait SVGBaseTraits
                     3 === $matteType ? 'luminance' : 'alpha'
                 );
                 $useElement = createTag('use');
-                $useElement->setAttributeNS(
-                    Constants::$namespaceXlink,
-                    'xlink:href',
+                $useElement->setAttribute(
+                    'href',
                     "#{$this->layerId}"
                 );
                 $masker->appendChild($useElement);
@@ -225,9 +223,8 @@ trait SVGBaseTraits
                 $maskGrouper->setAttribute('filter', "url({$locationHref}#{$filId})");
                 $maskGrouper->appendChild($alphaRect);
                 $useElement = createTag('use');
-                $useElement->setAttributeNS(
-                    Constants::$namespaceXlink,
-                    'xlink:href',
+                $useElement->setAttribute(
+                    'href',
                     "#{$this->layerId}"
                 );
                 $maskGrouper->appendChild($useElement);

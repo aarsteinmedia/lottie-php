@@ -18,7 +18,9 @@ abstract class FrameElement extends HierarchyElement
 
     public function addDynamicProperty(BaseElement|BaseProperty|DynamicPropertyContainer $prop)
     {
-        if (!in_array($prop, $this->dynamicProperties)) {
+        // Use strict identity checks: loose object comparison can recurse deeply
+        // when properties contain back-references to their owning element/container.
+        if (!in_array($prop, $this->dynamicProperties, true)) {
             array_push($this->dynamicProperties, $prop);
         }
     }

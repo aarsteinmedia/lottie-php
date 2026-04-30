@@ -57,9 +57,9 @@ class ImageElement extends SVGBaseElement
                 ?? $this->globalData['renderConfig']['imagePreserveAspectRatio']
                 ?? 'xMidYMid meet'
             );
-            $this->innerElem->setAttributeNS(
-                Constants::$namespaceXlink,
-                'xlink:href',
+            $this->innerElem->setAttribute(
+                // Constants::$namespaceXlink,
+                'href', // 'xlink:href',
                 $assetPath ?? ''
             );
 

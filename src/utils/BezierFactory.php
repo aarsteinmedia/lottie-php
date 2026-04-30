@@ -16,15 +16,15 @@ class BezierFactory
      * spline.get(x) returns the easing value | x must be in [0, 1] range.
      */
     public static function getBezierEasing(
-        int $a,
-        int $b,
-        int $c,
-        int $d,
+        float $a,
+        float $b,
+        float $c,
+        float $d,
         ?string $nm = null
     ) {
         $str = $nm ?? str_replace('.', 'p', "bez_{$a}_{$b}_{$c}_{$d}");
 
-        if (self::$beziers[$str]) {
+        if (self::$beziers[$str] ?? null) {
             return self::$beziers[$str];
         }
 
@@ -39,27 +39,27 @@ class BezierFactory
 
         return $bezEasing;
     }
-    private static $beziers = [];
+    private static array $beziers = [];
 }
 
 class BezierEasing
 {
-    private function A(int $aA1, int $aA2)
+    private function A(float $aA1, float $aA2)
     {
         return 1.0 - 3.0 * $aA2 + 3.0 * $aA1;
     }
 
-    private function B(int $aA1, int $aA2)
+    private function B(float $aA1, float $aA2)
     {
         return 3.0 * $aA2 - 6.0 * $aA1;
     }
 
     private function binarySubdivide(
-        int $aX,
-        int $aAFromProps,
-        int $aBFropProps,
-        int $mX1,
-        int $mX2
+        float $aX,
+        float $aAFromProps,
+        float $aBFropProps,
+        float $mX1,
+        float $mX2
     ) {
         $aA = $aAFromProps;
         $aB = $aBFropProps;
@@ -87,7 +87,7 @@ class BezierEasing
         return $currentT;
     }
 
-    private function C(int $aA1)
+    private function C(float $aA1)
     {
         return 3.0 * $aA1;
     }
@@ -98,9 +98,9 @@ class BezierEasing
      * Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
      */
     private function calcBezier(
-        int $aT,
-        int $aA1,
-        int $aA2
+        float $aT,
+        float $aA1,
+        float $aA2
     ) {
         return (($this->A($aA1, $aA2) * $aT + $this->B($aA1, $aA2)) * $aT + $this->C($aA1)) * $aT;
     }
@@ -109,9 +109,9 @@ class BezierEasing
      * Returns dx/dt given t, x1, and x2, or dy/dt given t, y1, and y2.
      */
     private function getSlope(
-        int $aT,
-        int $aA1,
-        int $aA2
+        float $aT,
+        float $aA1,
+        float $aA2
     ) {
         return
             3.0 * $this->A($aA1, $aA2) * $aT * $aT
@@ -120,10 +120,10 @@ class BezierEasing
     }
 
     private function newtonRaphsonIterate(
-        int $aX,
-        int $aGuessTFromProps,
-        int $mX1,
-        int $mX2
+        float $aX,
+        float $aGuessTFromProps,
+        float $mX1,
+        float $mX2
     ) {
         $aGuessT = $aGuessTFromProps;
 
@@ -177,7 +177,7 @@ class BezierEasing
     /**
      * GetTForX chose the fastest heuristic to determine the percentage value precisely from a given X projection.
      */
-    public function _getTForX(int $aX)
+    public function _getTForX(float $aX)
     {
         $mX1 = $this->_p[0];
         $mX2 = $this->_p[2];
@@ -244,7 +244,7 @@ class BezierEasing
         }
     }
 
-    public function get(int $x)
+    public function get(float $x)
     {
         $mX1 = $this->_p[0];
         $mY1 = $this->_p[1];
@@ -273,11 +273,11 @@ class BezierEasing
     }
     private array $_mSampleValues;
     private array $_p;
-    private $_precomputed = false;
-    private int $kSampleStepSize;
+    private bool $_precomputed = false;
+    private float $kSampleStepSize;
 
     // private $float32ArraySupported = gettype(Float32Array) === 'function';
-    private $kSplineTableSize = 11;
+    private int $kSplineTableSize = 11;
 
     /**
      * These values are established by empiricism with tests (tradeoff: performance VS precision).

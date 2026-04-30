@@ -135,7 +135,7 @@ class TextSelectorProperty extends BaseProperty
             $y1,
             $x2,
             $y2
-        )->get;
+        )->get(...);
 
         $mult = 0;
         $s = $this->finalS;

@@ -203,12 +203,12 @@ abstract class BaseProperty extends DynamicPropertyContainer
         return $this->pv;
     }
 
-    public function getValueAtTime($_val1, $_val2)
+    public function getValueAtTime(float $_val1, float $_val2)
     {
         throw new \Error(get_class($this).': Method getValueAtTime is not implemented');
     }
 
-    public function getVelocityAtTime(int $_frameNum): array|int
+    public function getVelocityAtTime(float $_frameNum): array|int
     {
         throw new \Error(get_class($this).': Method getVelocityAtTime is not implemented');
     }
@@ -221,7 +221,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         throw new \Error('Method not implemented');
     }
 
-    public function interpolateValue(int $frameNum, array $caching = [])
+    public function interpolateValue(float $frameNum, array $caching = [])
     {
         ['offsetTime' => $offsetTime, 'pv' => $pv] = (array) $this;
         $newValue = [
@@ -318,7 +318,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                         $keyData['i']['x'],
                         $keyData['i']['y'],
                         $keyData['n']
-                    )->get;
+                    )->get(...);
                     $keyframeMetadata['__fnct'] = $fnc;
                 }
                 $perc = $fnc(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
@@ -414,7 +414,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                 }
             } else {
                 for ($i = 0; $i < $len; ++$i) {
-                    if (1 !== $keyData['h']) {
+                    if (1 !== ($keyData['h'] ?? null)) {
                         if ($frameNum >= $nextKeyTime) {
                             $perc = 1;
                         } elseif ($frameNum < $keyTime) {
@@ -422,7 +422,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                         } else {
                             if ('array' === gettype($keyData['o']['x'])) {
                                 $keyframeMetadata['__fnct'] ??= [];
-                                if ($keyframeMetadata['__fnct'][$i]) {
+                                if ($keyframeMetadata['__fnct'][$i] ?? null) {
                                     $fnc = $keyframeMetadata['__fnct'][$i];
                                 } elseif (
                                     is_array($keyData['o']['y'])
@@ -442,10 +442,10 @@ abstract class BaseProperty extends DynamicPropertyContainer
                                         $outY ?? 0,
                                         $inX ?? 0,
                                         $inY ?? 0
-                                    )->get;
+                                    )->get(...);
                                     $keyframeMetadata['__fnct'][$i] = $fnc;
                                 }
-                            } elseif ($keyframeMetadata['__fnct']) {
+                            } elseif ($keyframeMetadata['__fnct'] ?? null) {
                                 $fnc = $keyframeMetadata['__fnct'];
                             } else {
                                 $outX = $keyData['o']['x'];
@@ -457,7 +457,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                                     $outY,
                                     $inX,
                                     $inY
-                                )->get;
+                                )->get(...);
                                 $keyData['keyframeMetadata'] = $fnc;
                             }
                             $perc = ($fnc)(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
@@ -466,7 +466,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
 
                     $endValue = $nextKeyData['s'] ?? $keyData['e'];
                     $keyValue
-                      = 1 === $keyData['h']
+                      = 1 === ($keyData['h'] ?? null)
                         ? ($keyData['s'] ?? [])[$i]
                         : (float) (($keyData['s'] ?? [])[$i]) + (($endValue[$i] ?? 0) - (float) ($keyData['s'] ?? [])[$i]) * (float) $perc;
 

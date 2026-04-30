@@ -308,8 +308,8 @@ class TransformProperty extends BaseProperty
             }
             if ($this->appliedTransformations < 2 && $this->s) {
                 $this->v->scale(
-                    $this->s->v[0],
-                    $this->s->v[1],
+                    $this->s->v[0] ?? 1.0,
+                    $this->s->v[1] ?? 1.0,
                     $this->s->v[2] ?? 1.0
                 );
             }

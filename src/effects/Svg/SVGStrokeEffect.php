@@ -175,6 +175,7 @@ class SVGStrokeEffect
                     * $this->filterManager->effectElements[9]['p']['v']
                     * 0.01;
                 }
+
                 $path?->setAttribute('stroke-dasharray', $dasharrayValue);
             }
         }

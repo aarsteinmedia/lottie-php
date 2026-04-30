@@ -32,7 +32,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
     public ?ShapeType $ty;
     public ?ShapePath $v;
 
-    public function getValueAtTime(int $_frameNumFromProps, ?int $_num): ?ShapePath
+    public function getValueAtTime(float $_frameNumFromProps, ?float $_num): ?ShapePath
     {
         throw new \Error(get_class($this).': Method getShapeValueAtTime is not implemented');
     }
@@ -119,7 +119,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                             $keyData['o']['y'],
                             $keyData['i']['x'],
                             $keyData['i']['y']
-                        )->get;
+                        )->get(...);
                         $keyframeMetadata['__fnct'] = $fnc;
                     }
                     $perc

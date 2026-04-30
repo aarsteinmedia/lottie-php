@@ -16,11 +16,11 @@ class DashProperty extends DynamicPropertyContainer
 {
     public array $dashArray;
     public array $dashoffset;
-    public $dashStr = '';
+    public string $dashStr = '';
     public array $dataProps;
     public BaseElement|BaseProperty $elem;
-    public $frameId = -1;
-    public $k = false;
+    public int $frameId = -1;
+    public bool $k = false;
     public RendererType $renderer;
 
     public function __construct(
@@ -43,16 +43,26 @@ class DashProperty extends DynamicPropertyContainer
         $prop = null;
 
         for ($i = 0; $i < $len; ++$i) {
+            $entry = $data[$i] ?? null;
+            $entryValue = null;
+            $entryName = 'd';
+            if (is_array($entry)) {
+                $entryValue = $entry['v'] ?? null;
+                $entryName = $entry['n'] ?? $entryName;
+            } elseif (is_object($entry)) {
+                $entryValue = $entry->v ?? null;
+                $entryName = $entry->n ?? $entryName;
+            }
             $prop = PropertyFactory::getProp(
                 $elem,
-                $data[$i]->v ?? null,
+                $entryValue,
                 0,
                 0,
                 $this
             );
             $this->k = $prop['k'] ?? $this->k;
             $this->dataProps[$i] = [
-                'n' => $data[$i]['n'] ?? 'd',
+                'n' => $entryName,
                 'p' => $prop,
             ];
         }
@@ -62,7 +72,7 @@ class DashProperty extends DynamicPropertyContainer
         $this->_isAnimated = $this->k;
     }
 
-    public function getValue(?bool $forceRender)
+    public function getValue(?bool $forceRender = null)
     {
         if ($this->elem->globalData['frameId'] === $this->frameId && !$forceRender) {
             return 0;
