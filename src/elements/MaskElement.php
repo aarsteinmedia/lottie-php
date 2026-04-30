@@ -267,13 +267,9 @@ class MaskElement
         $pathString = buildShapeString($pathNodes, $len, (bool) $pathNodes->c, $identityMat);
 
         if ($viewData['lastPath'] !== $pathString) {
-            $pathShapeValue = '';
-
-            if ($pathNodes->c) {
-                $pathShapeValue = ($pathData['inv'] ?? false)
-                    ? $this->solidPath.$pathString
-                    : $pathString;
-            }
+            $pathShapeValue = ($pathData['inv'] ?? false)
+                ? $this->solidPath.$pathString
+                : $pathString;
             $viewData['elem']->setAttribute('d', $pathShapeValue);
             $viewData['lastPath'] = $pathString;
         }
@@ -297,7 +293,9 @@ class MaskElement
         for ($i = 0; $i < $length; ++$i) {
             $shapePath = $this->viewData[$i]['prop']->v ?? null;
 
-            if ($shapePath && ($this->viewData[$i]['prop']['_mdf'] ?? $frame)) {
+            // Always attempt to draw: `drawPath` caches by comparing against `lastPath`.
+            // This ensures masks are rendered at least once (frame 0) even if `_mdf` is false.
+            if ($shapePath) {
                 $this->drawPath(
                     $this->masksProperties[$i] ?? null,
                     $shapePath,

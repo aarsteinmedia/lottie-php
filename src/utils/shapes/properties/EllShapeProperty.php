@@ -90,6 +90,15 @@ class EllShapeProperty extends ShapeBaseProperty
         $_v->o[2][1] = $p1 + $s1;
         $_v->o[3][0] = $_cw ? $p0 - $s0 : $p0 + $s0;
         $_v->o[3][1] = $p1 - $s1 * $this->_cPoint;
+
+        // Normalize tangents to Lottie semantics: in/out tangents are stored as
+        // relative vectors to the vertex, not absolute points.
+        for ($i = 0; $i < 4; ++$i) {
+            $_v->i[$i][0] -= $_v->v[$i][0];
+            $_v->i[$i][1] -= $_v->v[$i][1];
+            $_v->o[$i][0] -= $_v->v[$i][0];
+            $_v->o[$i][1] -= $_v->v[$i][1];
+        }
     }
 
     public function getValue(?bool $_flag)
