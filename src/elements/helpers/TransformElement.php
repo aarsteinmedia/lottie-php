@@ -149,8 +149,10 @@ abstract class TransformElement extends BaseElement
         if (!$this->finalTransform) {
             throw new \Error(get_class($this).': finalTransform is not initialized ');
         }
-
-        $o = $this->finalTransform['mProp']['o'] ?? null;
+        $mProp = $this->finalTransform['mProp'] ?? null;
+        $o = is_object($mProp)
+            ? ($mProp->o ?? null)
+            : (is_array($mProp) ? ($mProp['o'] ?? null) : null);
         $opMdf = false;
         if (is_object($o)) {
             $opMdf = (bool) ($o->_mdf ?? false);
@@ -158,7 +160,10 @@ abstract class TransformElement extends BaseElement
             $opMdf = (bool) ($o['_mdf'] ?? false);
         }
         $this->finalTransform['_opMdf'] = $opMdf || $this->_isFirstFrame;
-        $this->finalTransform['_matMdf'] = (bool) ($this->finalTransform['mProp']['_mdf'] ?? null) || $this->_isFirstFrame;
+        $this->finalTransform['_matMdf'] = (
+            (is_object($mProp) ? (bool) ($mProp->_mdf ?? false) : (bool) ($mProp['_mdf'] ?? false))
+            || $this->_isFirstFrame
+        );
 
         $finalMat = $this->finalTransform['mat'];
         $length = count($this->hierarchy);
@@ -168,7 +173,12 @@ abstract class TransformElement extends BaseElement
         // Checking if any of the transformation matrices in the hierarchy chain has changed.
         if (!$this->finalTransform['_matMdf']) {
             while ($i < $length) {
-                if ($this->hierarchy[$i]->finalTransform['mProp']['_mdf'] ?? null) {
+                $hMProp = $this->hierarchy[$i]->finalTransform['mProp'] ?? null;
+                if (
+                    is_object($hMProp)
+                        ? ($hMProp->_mdf ?? null)
+                        : (is_array($hMProp) ? ($hMProp['_mdf'] ?? null) : null)
+                ) {
                     $this->finalTransform['_matMdf'] = true;
 
                     break;
@@ -178,14 +188,21 @@ abstract class TransformElement extends BaseElement
         }
 
         if ($this->finalTransform['_matMdf']) {
-            $mat = $this->finalTransform['mProp']['v']->props ?? null;
+            $mPropV = is_object($mProp)
+                ? ($mProp->v ?? null)
+                : (is_array($mProp) ? ($mProp['v'] ?? null) : null);
+            $mat = $mPropV?->props ?? null;
 
             if ($mat) {
                 $finalMat->cloneFromProps($mat);
             }
             for ($i = 0; $i < $length; ++$i) {
-                if ($this->hierarchy[$i]->finalTransform['mProp']['v'] ?? null) {
-                    $matrix = $this->hierarchy[$i]->finalTransform['mProp']['v'];
+                $hMProp = $this->hierarchy[$i]->finalTransform['mProp'] ?? null;
+                $hMatrix = is_object($hMProp)
+                    ? ($hMProp->v ?? null)
+                    : (is_array($hMProp) ? ($hMProp['v'] ?? null) : null);
+                if ($hMatrix) {
+                    $matrix = $hMatrix;
 
                     if ($matrix) {
                         $finalMat->multiply($matrix);
@@ -197,7 +214,9 @@ abstract class TransformElement extends BaseElement
             $this->finalTransform['_localMatMdf'] = $this->finalTransform['_matMdf'];
         }
         if ($this->finalTransform['_opMdf']) {
-            $o = $this->finalTransform['mProp']['o'] ?? null;
+            $o = is_object($mProp)
+                ? ($mProp->o ?? null)
+                : (is_array($mProp) ? ($mProp['o'] ?? null) : null);
             $opacity = 1;
             if (is_object($o)) {
                 $opacity = $o->v ?? 1;

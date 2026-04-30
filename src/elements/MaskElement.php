@@ -315,7 +315,11 @@ class MaskElement
             }
             if (
                 ($this->viewData[$i]['invRect'] ?? null)
-                && ($this->element->finalTransform['mProp']['_mdf'] ?? $frame)
+                && (
+                    (is_object($this->element->finalTransform['mProp'] ?? null)
+                        ? (($this->element->finalTransform['mProp'] ?? null)->_mdf ?? $frame)
+                        : (($this->element->finalTransform['mProp']['_mdf'] ?? null) ?? $frame))
+                )
             ) {
                 ($this->viewData[$i]['invRect'] ?? null)?->setAttribute(
                     'transform',

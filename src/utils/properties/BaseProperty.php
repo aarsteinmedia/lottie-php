@@ -32,7 +32,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?bool $k = false;
     public $keyframesMetadata = [];
     public ?bool $kf;
-    public ?bool $lock;
+    public ?bool $lock = false;
     public ?\Closure $loopIn;
     public ?\Closure $loopOut;
     public ?float $mult;
@@ -41,7 +41,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?array $propertyGroup;
     public mixed $pv; // array|float|ShapePath|null|string
     public $s;
-    public ?array $sh;
+    public ?array $sh = null;
     public ?\Closure $smooth;
     public ?int $textIndex;
     public ?int $textTotal;
@@ -281,7 +281,17 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $keyTime = $keyData['t'] - $offsetTime;
         $endValue = null;
 
-        if ($keyData['to'] && $keyData['s']) {
+        // Fast-path exact boundary frames to avoid unnecessary easing work.
+        // Many Lottie keyframes omit optional fields; returning start/end values here
+        // matches the upstream behavior and prevents downstream type issues.
+        if ($frameNum <= $keyTime) {
+            return $keyData['s'] ?? $newValue;
+        }
+        if ($frameNum >= $nextKeyTime) {
+            return $nextKeyData['s'] ?? $keyData['e'] ?? $keyData['s'] ?? $newValue;
+        }
+
+        if (($keyData['to'] ?? null) && ($keyData['s'] ?? null)) {
             $keyframeMetadata['bezierData'] ??= Bezier::buildBezierData(
                 $keyData['s'],
                 $nextKeyData['s'] ?? $keyData['e'],
@@ -516,6 +526,9 @@ abstract class BaseProperty extends DynamicPropertyContainer
 
     public function setVValue(mixed $val)
     {
+        if (null === $val) {
+            return;
+        }
         $multipliedValue = 0;
 
         if (is_numeric($val) && PropType::UniDimensional === $this->propType) {
@@ -528,7 +541,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
             return;
         }
         $i = 0;
-        $length = count($this->v);
+        $length = is_array($this->v) ? count($this->v) : 0;
 
         while ($i < $length) {
             $multipliedValue = ($val[$i] ?? 0) * (float) $this->mult;

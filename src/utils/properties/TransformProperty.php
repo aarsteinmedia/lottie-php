@@ -294,7 +294,8 @@ class TransformProperty extends BaseProperty
 
         $this->iterateDynamicProperties();
 
-        if ($this->_mdf || $forceRender) {
+        $shouldRender = $this->_mdf || $forceRender || -1 === $this->frameId;
+        if ($shouldRender) {
             // $frameRate
 
             $this->v->cloneFromProps($this->pre->props);

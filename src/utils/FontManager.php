@@ -93,7 +93,7 @@ class FontManager
         $tHelper->setAttribute('font-style', $fontProps['style']);
         $tHelper->setAttribute('font-weight', $fontProps['weight']);
         $tHelper->textContent = '1';
-        if ($fontData['fClass']) {
+        if ($fontData['fClass'] ?? null) {
             addStyles($tHelper, ['font-family' => 'inherit']);
             addClasses($tHelper, [$fontData['fClass']]);
         } else {

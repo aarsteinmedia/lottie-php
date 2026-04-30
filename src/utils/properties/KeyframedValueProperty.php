@@ -17,10 +17,13 @@ class KeyframedValueProperty extends BaseProperty
         ?float $mult = null,
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
+        $this->initDynamicPropertyContainer($container ?? $elem);
         $this->propType = PropType::UniDimensional;
         $this->keyframes = $data['k'];
         $this->keyframesMetadata = [];
-        $this->offsetTime = $elem['data']['st'] ?? 0;
+        $this->offsetTime = is_object($elem)
+            ? ($elem->data['st'] ?? 0)
+            : ($elem['data']['st'] ?? 0);
         $this->frameId = -1;
         $this->_caching = [
             '_lastKeyframeIndex' => -1,
@@ -35,10 +38,20 @@ class KeyframedValueProperty extends BaseProperty
         $this->mult = $mult ?: 1.0;
         $this->elem = $elem;
         $this->container = $container;
-        $this->comp = $elem['comp'];
+        $this->comp = is_object($elem) ? ($elem->comp ?? null) : ($elem['comp'] ?? null);
         $this->v = $this->initFrame;
         $this->pv = $this->initFrame;
+        // Drive evaluation through BaseProperty::processEffectsSequence().
+        $this->effectsSequence = [fn ($_) => $this->getValueAtCurrentTime()];
         $this->_isFirstFrame = true;
+
+        // Keyframed properties are animated; register with container so it ticks each frame.
+        $containerRef = $container ?? $elem;
+        if (is_object($containerRef) && method_exists($containerRef, 'addDynamicProperty')) {
+            $containerRef->addDynamicProperty($this);
+        } elseif (is_array($containerRef) && isset($containerRef['addDynamicProperty']) && is_callable($containerRef['addDynamicProperty'])) {
+            ($containerRef['addDynamicProperty'])($this);
+        }
     }
 
     public function effectsSequence(...$args)

@@ -41,7 +41,7 @@ trait SVGBaseTraits
             $this->matteMasks = [];
             $gg = createTag('g');
 
-            if ($this->layerId) {
+            if ($this->layerId ?? null) {
                 $gg->setAttribute('id', $this->layerId);
             }
             $gg->appendChild($this->layerElement);
@@ -56,10 +56,10 @@ trait SVGBaseTraits
         } else {
             $this->baseElement = $this->layerElement;
         }
-        if (isset($this->data['ln'])) {
+        if ($this->data['ln'] ?? null) {
             $this->layerElement->setAttribute('id', $this->data['ln']);
         }
-        if (isset($this->data['cl'])) {
+        if ($this->data['cl'] ?? null) {
             addClasses($this->layerElement, [$this->data['cl']]);
         }
 

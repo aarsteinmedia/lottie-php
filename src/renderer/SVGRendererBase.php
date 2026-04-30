@@ -175,7 +175,7 @@ trait SVGRendererTraits
             if ($this->renderConfig['height']) {
                 $this->svgElement->setAttribute('height', $this->renderConfig['height']);
             }
-            if ($this->renderConfig['className']) {
+            if ($this->renderConfig['className'] ?? null) {
                 addClasses($this->svgElement, [$this->renderConfig['className']]);
             }
             if ($this->renderConfig['id']) {

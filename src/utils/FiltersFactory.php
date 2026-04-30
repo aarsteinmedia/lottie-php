@@ -18,11 +18,13 @@ class FiltersFactory
         return $feColorMatrix;
     }
 
-    public static function createFilter(string $filId, $skipCoordinates = false)
+    public static function createFilter(string $filId, ?bool $skipCoordinates = false)
     {
         $fil = createTag('filter');
 
-        $fil->setAttribute('id', $filId);
+        if ($filId) {
+            $fil->setAttribute('id', $filId);
+        }
         if (!$skipCoordinates) {
             $fil->setAttribute('filterUnits', 'objectBoundingBox');
             $fil->setAttribute('x', '0%');
