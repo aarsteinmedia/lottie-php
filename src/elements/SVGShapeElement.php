@@ -125,7 +125,8 @@ class SVGShapeElement extends ShapeElement
             $this->layerElement,
             0,
             [],
-            true
+            true,
+            []
         );
         $this->filterUniqueShapes();
 
@@ -390,7 +391,8 @@ class SVGShapeElement extends ShapeElement
             $this->layerElement,
             0,
             [],
-            true
+            true,
+            []
         );
         $this->filterUniqueShapes();
         $dLength = count($this->dynamicProperties);
@@ -470,6 +472,7 @@ class SVGShapeElement extends ShapeElement
         // Inherit styles from parent groups. This is required when a group contains
         // a nested group with paths, while fill/stroke styles are siblings of that nested group.
         $ownStyles = [...$styles];
+        $inheritedStylesCount = count($ownStyles);
         $ownModifiers = [];
         $currentTransform = null;
         $Modifier = null;
@@ -635,6 +638,11 @@ class SVGShapeElement extends ShapeElement
         $sLen = count($ownStyles);
 
         for ($i = 0; $i < $sLen; ++$i) {
+            // Only close styles created at this recursion level.
+            // Inherited styles must remain open because we traverse siblings backwards.
+            if ($i < $inheritedStylesCount) {
+                continue;
+            }
             $ownStyle = $ownStyles[$i];
 
             if ($ownStyle) {

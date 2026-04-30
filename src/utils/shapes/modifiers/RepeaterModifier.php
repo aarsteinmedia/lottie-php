@@ -88,17 +88,21 @@ class RepeaterModifier extends ShapeModifier
         $length = count($elements);
 
         for ($i = 0; $i < $length; ++$i) {
-            $elements[$i]->_shouldRender = $renderFlag;
-            if (ShapeType::Group === $elements[$i]?->ty) {
-                $this->changeGroupRender($elements[$i]?->it, $renderFlag);
+            if (!is_array($elements[$i])) {
+                continue;
+            }
+            $elements[$i]['_shouldRender'] = $renderFlag;
+            if (ShapeType::Group === ShapeType::tryFrom($elements[$i]['ty'] ?? null)) {
+                $this->changeGroupRender($elements[$i]['it'] ?? [], $renderFlag);
             }
         }
     }
 
     public function cloneElements(array $elements): array
     {
-        $newElements = json_decode(json_encode($elements));
-
+        // Avoid JSON-based deep cloning: it can explode memory for large repeaters.
+        // PHP arrays are copy-on-write; a shallow assignment is enough until mutated.
+        $newElements = $elements;
         $this->resetElements($newElements);
 
         return $newElements;
@@ -121,7 +125,10 @@ class RepeaterModifier extends ShapeModifier
         $pos = (int) $posFromProps;
 
         $this->elem = $elem;
-        $this->arr = $arr;
+        // Keep a reference to the live shape array. Repeaters expand the shape tree,
+        // and the expansion must persist across `reloadShapes()` calls to avoid
+        // infinite expansion loops / OOM.
+        $this->arr = &$arr;
         $this->pos = $pos;
         $this->elemsData = $elemsData;
         $this->_currentCopies = 0;
@@ -130,9 +137,27 @@ class RepeaterModifier extends ShapeModifier
         $this->frameId = -1;
         $this->initDynamicPropertyContainer($elem);
         $this->initModifierProperties($elem, $arr[$pos]);
-        while ($pos > 0) {
-            --$pos;
-            array_unshift($this->_elements, $arr[$pos]);
+        // Detect already-inserted groups for this repeater (prevents re-expanding on every reload).
+        if (!isset($arr[$this->pos]['_rpIdSelf']) || !is_string($arr[$this->pos]['_rpIdSelf'])) {
+            $seed = [
+                'ix' => $arr[$this->pos]['ix'] ?? null,
+                'nm' => $arr[$this->pos]['nm'] ?? null,
+                'c' => $arr[$this->pos]['c']['k'] ?? null,
+                'o' => $arr[$this->pos]['o']['k'] ?? null,
+            ];
+            $arr[$this->pos]['_rpIdSelf'] = md5(json_encode($seed));
+        }
+        $rpId = (string) $arr[$this->pos]['_rpIdSelf'];
+        $inserted = 0;
+        while (isset($arr[$inserted]) && is_array($arr[$inserted]) && (($arr[$inserted]['_rpId'] ?? null) === $rpId)) {
+            $this->_groups[] = $arr[$inserted];
+            ++$inserted;
+        }
+        $this->_currentCopies = count($this->_groups);
+
+        // Original elements are those between the already-inserted groups and the repeater itself.
+        for ($k = $this->pos - 1; $k >= $inserted; --$k) {
+            array_unshift($this->_elements, $arr[$k]);
         }
         if (count($this->dynamicProperties) > 0) {
             $this->k = true;
@@ -212,13 +237,16 @@ class RepeaterModifier extends ShapeModifier
             $i = 0;
             $dir = 1;
             while ($cont) {
-                $items = $this->elemsData[$i]?->it ?? [];
+                $items = is_array($this->elemsData[$i] ?? null) ? ($this->elemsData[$i]['it'] ?? []) : [];
                 // if (!items) {
                 //   continue
                 // }
                 // itemsTransform = items[count($items) - 1].transform.mProps.v.props
-                $items[count($items) - 1]->transform->mProps->_mdf = false;
-                $items[count($items) - 1]->transform->op->_mdf = false;
+                $last = $items[count($items) - 1] ?? null;
+                if (is_object($last) && isset($last->transform['mProps'], $last->transform['op'])) {
+                    $last->transform['mProps']->_mdf = false;
+                    $last->transform['op']->_mdf = false;
+                }
                 --$cont;
                 $i += $dir;
             }
@@ -226,76 +254,87 @@ class RepeaterModifier extends ShapeModifier
             return $hasReloaded;
         }
 
-        $copies = ceil((float) $this->c?->v);
+        $copies = (int) ceil((float) ($this->c?->v ?? 0));
+        // Safety: avoid runaway memory in still SVG rendering.
+        $maxCopies = (int) ($this->elem?->globalData['renderConfig']['maxRepeaterCopies'] ?? 150);
+        $maxExpandCopies = (int) ($this->elem?->globalData['renderConfig']['maxRepeaterExpandCopies'] ?? 25);
+        if ($copies > $maxCopies) {
+            $copies = $maxCopies;
+        } elseif ($copies < 0) {
+            $copies = 0;
+        }
+        // Expanding large repeaters requires duplicating the shape tree and is too memory-hungry
+        // for our still SVG renderer. Degrade gracefully by not expanding.
+        if ($copies > $maxExpandCopies) {
+            $this->_currentCopies = 1;
+
+            return false;
+        }
 
         if (count($this->_groups) < $copies) {
             while (count($this->_groups) < $copies) {
                 $group = [
                     'it' => $this->cloneElements($this->_elements),
                     'ty' => 'gr',
+                    '_rpId' => $rpId,
                 ];
 
-                array_push(
-                    $group['it'],
-                    [
-                        'a' => [
-                            'a' => 0,
-                            'ix' => 1,
-                            'k' => [0, 0],
-                        ],
-                        'nm' => 'Transform',
-                        'o' => [
-                            'a' => 0,
-                            'ix' => 7,
-                            'k' => 100,
-                        ],
-                        'p' => [
-                            'a' => 0,
-                            'ix' => 2,
-                            'k' => [0, 0],
-                        ],
-                        'r' => [
-                            'a' => 1,
-                            'ix' => 6,
-                            'k' => [
-                                [
-                                    'e' => 0,
-                                    's' => 0,
-                                    't' => 0,
-                                ], [
-                                    'e' => 0,
-                                    's' => 0,
-                                    't' => 1,
-                                ],
+                $group['it'][] = [
+                    'a' => [
+                        'a' => 0,
+                        'ix' => 1,
+                        'k' => [0, 0],
+                    ],
+                    'nm' => 'Transform',
+                    'o' => [
+                        'a' => 0,
+                        'ix' => 7,
+                        'k' => 100,
+                    ],
+                    'p' => [
+                        'a' => 0,
+                        'ix' => 2,
+                        'k' => [0, 0],
+                    ],
+                    'r' => [
+                        'a' => 1,
+                        'ix' => 6,
+                        'k' => [
+                            [
+                                'e' => 0,
+                                's' => 0,
+                                't' => 0,
+                            ],
+                            [
+                                'e' => 0,
+                                's' => 0,
+                                't' => 1,
                             ],
                         ],
-                        's' => [
-                            'a' => 0,
-                            'ix' => 3,
-                            'k' => [100, 100],
-                        ],
-                        'sa' => [
-                            'a' => 0,
-                            'ix' => 5,
-                            'k' => 0,
-                        ],
-                        'sk' => [
-                            'a' => 0,
-                            'ix' => 4,
-                            'k' => 0,
-                        ],
-                        'ty' => ShapeType::Transform,
-                    ]
-                );
+                    ],
+                    's' => [
+                        'a' => 0,
+                        'ix' => 3,
+                        'k' => [100, 100],
+                    ],
+                    'sa' => [
+                        'a' => 0,
+                        'ix' => 5,
+                        'k' => 0,
+                    ],
+                    'sk' => [
+                        'a' => 0,
+                        'ix' => 4,
+                        'k' => 0,
+                    ],
+                    'ty' => ShapeType::Transform,
+                ];
 
-                array_splice($this->arr, 0, 0, $group);
-                array_splice($this->_groups, 0, 0, $group);
-
-                if ($this->_currentCopies) {
-                    ++$this->_currentCopies;
-                } else {
-                    $this->_currentCopies = 1;
-                }
+                // Insert new groups at the start; this is what lottie-web does and
+                // matches our "already inserted groups" detection.
+                array_unshift($this->arr, $group);
+                $this->_groups[] = $group;
+                ++$this->_currentCopies;
             }
             $this->elem?->reloadShapes();
             $hasReloaded = true;
@@ -307,12 +346,12 @@ class RepeaterModifier extends ShapeModifier
         for ($i = 0; $i <= $length - 1; ++$i) {
             $shouldRender = $cont < $copies;
             if ($this->_groups[$i]) {
-                $this->_groups[$i]->_shouldRender = $shouldRender;
+                $this->_groups[$i]['_shouldRender'] = $shouldRender;
             }
 
-            $this->changeGroupRender($this->_groups[$i]?->it ?? [], $shouldRender);
+            $this->changeGroupRender($this->_groups[$i]['it'] ?? [], $shouldRender);
             if (!$shouldRender) {
-                $elems = $this->elemsData[$i]?->it ?? [];
+                $elems = is_array($this->elemsData[$i] ?? null) ? ($this->elemsData[$i]['it'] ?? []) : [];
                 $transformData = $elems[count($elems) - 1];
 
                 if ($transformData) {
@@ -512,17 +551,20 @@ class RepeaterModifier extends ShapeModifier
         return $hasReloaded;
     }
 
-    public function resetElements(array $elements)
+    public function resetElements(array &$elements): void
     {
         $length = count($elements);
 
         for ($i = 0; $i < $length; ++$i) {
-            $elements[$i]->_processed = false;
+            if (!is_array($elements[$i])) {
+                continue;
+            }
+            $elements[$i]['_processed'] = false;
 
-            $it = $elements[$i]->it ?? null;
+            $it = $elements[$i]['it'] ?? null;
 
-            if (ShapeType::Group === $elements[$i]?->ty && $it) {
-                $this->resetElements($it);
+            if (ShapeType::Group === ShapeType::tryFrom($elements[$i]['ty'] ?? null) && $it) {
+                $this->resetElements($elements[$i]['it']);
             }
         }
     }
