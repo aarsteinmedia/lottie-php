@@ -70,7 +70,7 @@ class AnimationItem
             ) {
                 $imagePath = explode('/', $imagePath)[1];
             }
-            $path = $this->assetsPath.($imagePath || '');
+            $path = $this->assetsPath.($imagePath ?: '');
         } else {
             $path = $this->path;
         }

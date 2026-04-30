@@ -5,7 +5,7 @@ namespace LottiePHP\Utils\DotLottie;
 /**
  * @param array<string, string> $unzipped
  */
-function resolveAssets(array $unzipped, array $assets): void
+function resolveAssets(array $unzipped, array &$assets): void
 {
     if (!is_array($assets)) {
         return;
