@@ -516,7 +516,7 @@ class TextProperty extends BaseProperty
         return $this->data['d']['k'][$this->keysIndex]['s'] ?? null;
     }
 
-    public function getValue($_finalValue = null)
+    public function getValue(?bool $_finalValue = null)
     {
         // if (!$this->data) {
         //   throw new \Error(get_class($this) . ": data (TextData) is not implemented")

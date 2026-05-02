@@ -35,7 +35,7 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
         $this->_isAnimated = true;
     }
 
-    public function getValue(?bool $_flag)
+    public function getValue(?bool $flag = null)
     {
         throw new \Error(get_class($this).': Method getValue is not implemented');
     }
@@ -48,7 +48,7 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
         $this->_isAnimated = false;
     }
 
-    public function iterateDynamicProperties(): int
+    public function iterateDynamicProperties(?bool $flag = null): int
     {
         $this->_mdf = false;
         $length = count($this->dynamicProperties);

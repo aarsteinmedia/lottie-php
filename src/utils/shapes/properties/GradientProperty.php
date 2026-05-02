@@ -89,7 +89,7 @@ class GradientProperty extends DynamicPropertyContainer
         return true;
     }
 
-    public function getValue(?bool $forceRender)
+    public function getValue(?bool $forceRender = null)
     {
         $this->prop->getValue();
         $this->_mdf = false;

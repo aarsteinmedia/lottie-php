@@ -108,9 +108,9 @@ class RepeaterModifier extends ShapeModifier
         return $newElements;
     }
 
-    public function getValue(...$args)
+    public function getValue(?bool $flag = null)
     {
-        return $this->processKeys(...$args);
+        return $this->processKeys($flag);
     }
 
     public function init(
@@ -270,6 +270,8 @@ class RepeaterModifier extends ShapeModifier
 
             return false;
         }
+
+        $rpId = (string) $this->arr[$this->pos]['_rpIdSelf'];
 
         if (count($this->_groups) < $copies) {
             while (count($this->_groups) < $copies) {

@@ -22,8 +22,8 @@ class SVGNoStyleData extends DynamicPropertyContainer
         $this->style = $styleObj;
     }
 
-    public function getValue(...$args)
+    public function getValue(?bool $flag = false)
     {
-        return $this->iterateDynamicProperties(...$args);
+        return $this->iterateDynamicProperties($flag);
     }
 }

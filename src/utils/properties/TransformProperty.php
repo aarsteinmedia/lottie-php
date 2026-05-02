@@ -282,7 +282,7 @@ class TransformProperty extends BaseProperty
         throw new \Error(get_class($this).': Method autoOrient not implemented');
     }
 
-    public function getValue($forceRender = false)
+    public function getValue(?bool $forceRender = false)
     {
         if ($this->elem->globalData['frameId'] === $this->frameId) {
             return 0;

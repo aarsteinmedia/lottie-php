@@ -53,9 +53,9 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         );
     }
 
-    public function getValue(...$args)
+    public function getValue(?bool $flag = false)
     {
-        return $this->iterateDynamicProperties(...$args);
+        return $this->iterateDynamicProperties($flag);
     }
 
     public function initGradientData(

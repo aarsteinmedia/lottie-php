@@ -485,7 +485,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         return $newValue;
     }
 
-    public function processEffectsSequence()
+    public function processEffectsSequence(?bool $flag = null)
     {
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');

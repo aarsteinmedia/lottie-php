@@ -101,7 +101,7 @@ class EllShapeProperty extends ShapeBaseProperty
         }
     }
 
-    public function getValue(?bool $_flag)
+    public function getValue(?bool $flag = null)
     {
         if ($this->elem?->globalData['frameId'] === $this->frameId) {
             return 0;

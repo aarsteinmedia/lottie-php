@@ -217,7 +217,7 @@ class StarShapeProperty extends ShapeBaseProperty
         return $this->convertPolygonToPath();
     }
 
-    public function getValue(?bool $_val)
+    public function getValue(?bool $_val = null)
     {
         if (($this->elem?->globalData['frameId'] ?? null) === $this->frameId) {
             return 0;

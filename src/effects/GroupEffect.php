@@ -10,7 +10,6 @@ class GroupEffect extends DynamicPropertyContainer
 {
     public ?array $data;
     public array $effectElements = [];
-    public \Closure $getValue;
     public ?string $type;
 
     public function __construct(
@@ -18,12 +17,16 @@ class GroupEffect extends DynamicPropertyContainer
         BaseElement|BaseProperty $element,
         array $layer
     ) {
-        $this->getValue = $this->iterateDynamicProperties(...);
         $this->init(
             $data,
             $element,
             $layer
         );
+    }
+
+    public function getValue(?bool $flag = null)
+    {
+        return $this->iterateDynamicProperties($flag);
     }
 
     public function init(

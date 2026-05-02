@@ -141,8 +141,8 @@ class KeyframedMultidimensionalProperty extends BaseProperty
         return $this->getValueAtCurrentTime(...$args);
     }
 
-    public function getValue(...$args)
+    public function getValue(?bool $flag = null)
     {
-        return $this->processEffectsSequence(...$args);
+        return $this->processEffectsSequence($flag);
     }
 }

@@ -75,7 +75,7 @@ class ShapeModifier extends DynamicPropertyContainer
         throw new \Error(get_class($this).': Method isAnimatedWithShape is not implemented');
     }
 
-    public function processKeys()
+    public function processKeys(?bool $flag = null)
     {
         if ($this->elem?->globalData['frameId'] ?? null === $this->frameId) {
             return 0;

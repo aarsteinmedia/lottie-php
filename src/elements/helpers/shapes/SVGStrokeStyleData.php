@@ -54,8 +54,8 @@ class SVGStrokeStyleData extends SVGFillStyleData
         $this->_isAnimated = (bool) $this->_isAnimated;
     }
 
-    public function getValue(...$args)
+    public function getValue(?bool $flag = null)
     {
-        return $this->iterateDynamicProperties(...$args);
+        return $this->iterateDynamicProperties($flag);
     }
 }

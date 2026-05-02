@@ -14,9 +14,9 @@ class RoundCornersModifier extends ShapeModifier
 {
     public ?ValueProperty $rd;
 
-    public function getValue(...$args)
+    public function getValue(?bool $flag = null)
     {
-        return $this->processKeys(...$args);
+        return $this->processKeys($flag);
     }
 
     public function initModifierProperties(
