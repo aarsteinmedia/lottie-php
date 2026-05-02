@@ -1089,7 +1089,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                     continue;
                 }
 
-                $letterValue = $this->renderedLetters[$i]['Props'];
+                $letterValue = $this->renderedLetters[$i];
                 $this->lettersChangedFlag
                 = $letterValue->update(
                     (float) $letterO,

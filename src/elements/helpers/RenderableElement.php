@@ -25,9 +25,22 @@ abstract class RenderableElement extends FrameElement
         if (!$this->data || !$this->globalData) {
             return;
         }
+        // Embedded shape payloads (font glyph outlines from `chars`, mini shape trees, etc.)
+        // omit layer timing (`ip` / `op`). Defaults collapse to a zero-length window so the
+        // layer never passes the range test below and stays hidden (display:none).
+        if (!array_key_exists('ip', $this->data) && !array_key_exists('op', $this->data)) {
+            if (!$this->isInRange) {
+                $this->globalData['_mdf'] = true;
+                $this->_mdf = true;
+                $this->isInRange = true;
+                $this->show();
+            }
+
+            return;
+        }
         if (
-            $this->data['ip'] - $this->data['st'] <= $num
-            && $this->data['op'] - $this->data['st'] > $num
+            ($this->data['ip'] ?? 0) - ($this->data['st'] ?? 0) <= $num
+            && ($this->data['op'] ?? 0) - ($this->data['st'] ?? 0) > $num
         ) {
             if (!$this->isInRange) {
                 $this->globalData['_mdf'] = true;

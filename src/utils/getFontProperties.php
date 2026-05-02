@@ -32,6 +32,26 @@ function getFontProperties(array $fontData)
 
                 break;
 
+            case 'semibold':
+            case 'semi-bold':
+            case 'demibold':
+            case 'demi':
+                $fWeight = '600';
+
+                break;
+
+            case 'extrabold':
+            case 'extra-bold':
+                $fWeight = '800';
+
+                break;
+
+            case 'ultralight':
+            case 'ultra-light':
+                $fWeight = '200';
+
+                break;
+
             case 'regular':
             case 'normal':
                 $fWeight = '400';

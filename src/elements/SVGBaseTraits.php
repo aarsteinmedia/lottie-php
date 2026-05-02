@@ -110,14 +110,25 @@ trait SVGBaseTraits
         /*
          * Clipping compositions to hide content that exceeds boundaries.
          * If collapsed transformations is on, component should not be clipped.
+         *
+         * Only real precomposition layers (ty === 0) carry `ty`. Embedded shape payloads such as
+         * font glyph outlines omit `ty`; treating them as ty 0 would apply this clip with w/h = 0
+         * and hide all paths (degenerate clip rect).
          */
-        if (0 === ($this->data['ty'] ?? 0) && !($this->data['hd'] ?? false)) {
+        if (
+            array_key_exists('ty', $this->data)
+            && 0 === (int) ($this->data['ty'] ?? 0)
+            && !($this->data['hd'] ?? false)
+        ) {
             $cp = createTag('clipPath');
             $pt = createTag('path');
 
+            $w = $this->data['w'] ?? 0;
+            $h = $this->data['h'] ?? 0;
+
             $pt->setAttribute(
                 'd',
-                "M0,0 L{$this->data['w']},0 L{$this->data['w']},{$this->data['h']} L0,{$this->data['h']}z"
+                "M0,0 L{$w},0 L{$w},{$h} L0,{$h}z"
             );
             $clipId = createElementID();
 

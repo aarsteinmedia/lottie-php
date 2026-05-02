@@ -18,6 +18,78 @@ class SVGTextLottieElement extends TextElement
     public ?\DOMElement $textContainer;
     public $textSpans = [];
 
+    /**
+     * @param array[] $items
+     *
+     * @return array[]
+     */
+    private function ensureShapeGroupPaint(array $items, array $fc): array
+    {
+        foreach ($items as $i => $item) {
+            if (($item['ty'] ?? '') === 'gr' && isset($item['it']) && is_array($item['it'])) {
+                $items[$i]['it'] = $this->ensureShapeGroupPaint($item['it'], $fc);
+            }
+        }
+        $hasPaint = false;
+        foreach ($items as $item) {
+            if (in_array($item['ty'] ?? '', ['fl', 'st', 'gf', 'gs'], true)) {
+                $hasPaint = true;
+
+                break;
+            }
+        }
+        // `searchShapes` walks `it` from last index to first. Append the fill so reverse order
+        // processes the fill before the path; unshifting would leave the path with no style.
+        if (!$hasPaint) {
+            $items[] = $this->syntheticGlyphFill($fc);
+        }
+
+        return $items;
+    }
+
+    /**
+     * Font `chars` outlines are often a single path with no fl/st in the group. The SVG shape
+     * renderer only accumulates path geometry into style elements, so with no fill the path
+     * string is never written. Mirror After Effects by prepending a fill that matches the text
+     * layer color.
+     *
+     * @param array[] $shapes
+     *
+     * @return array[]
+     */
+    private function injectGlyphFillsIfMissing(array $shapes, array $fc): array
+    {
+        foreach ($shapes as $i => $node) {
+            if (($node['ty'] ?? '') === 'gr' && isset($node['it']) && is_array($node['it'])) {
+                $shapes[$i]['it'] = $this->ensureShapeGroupPaint($node['it'], $fc);
+            }
+        }
+
+        return $shapes;
+    }
+
+    private function syntheticGlyphFill(array $fc): array
+    {
+        $r = $fc[0] ?? 0;
+        $g = $fc[1] ?? 0;
+        $b = $fc[2] ?? 0;
+
+        return [
+            'ty' => 'fl',
+            'nm' => 'glyph-fill',
+            'c' => [
+                'a' => 0,
+                'k' => [$r, $g, $b, 1],
+            ],
+            'o' => [
+                'a' => 0,
+                'k' => 100,
+            ],
+            'r' => 1,
+            'hd' => false,
+        ];
+    }
+
     public function __construct(
         array $data,
         array $globalData,
@@ -103,7 +175,7 @@ class SVGTextLottieElement extends TextElement
                 }
                 $charData = $this->globalData['fontManager']?->getCharData(
                     $ch,
-                    $documentData['fStyle'] ?? null,
+                    $fontData['fStyle'] ?? null,
                     $fontFamily
                 );
                 if (!empty($charData['data']['shapes'] ?? null)) {
@@ -252,7 +324,7 @@ class SVGTextLottieElement extends TextElement
                 if ($hasGlyphs) {
                     $charData = $this->globalData['fontManager']?->getCharData(
                         $documentData['finalText'][$i] ?? '',
-                        $documentData['fStyle'] ?? null,
+                        $fontData['fStyle'] ?? null,
                         $this->globalData['fontManager']->getFontByName($documentData['f'])['fFamily']
                     );
                     $glyphElement = null;
@@ -268,10 +340,17 @@ class SVGTextLottieElement extends TextElement
                         $data = $this->emptyShapeData;
 
                         if ($charData['data']['shapes'] ?? null) {
-                            $data = $this->buildShapeData(
-                                $charData['data'],
-                                (int) $documentData['finalSize']
-                            );
+                            $raw = $charData['data'];
+                            if (!empty($documentData['fc'])) {
+                                $raw['shapes'] = $this->injectGlyphFillsIfMissing(
+                                    $raw['shapes'],
+                                    $documentData['fc']
+                                );
+                            }
+                            // Scale is applied on childSpan (finalSize/100), not via shape `tr.s.k`,
+                            // so we avoid mutating shared font cache data and wrong `it` items after
+                            // synthetic fill injection.
+                            $data = $raw;
                         }
                         $glyphElement = new SVGShapeElement(
                             $data,
@@ -299,12 +378,14 @@ class SVGTextLottieElement extends TextElement
                         $this->textSpans[$i]['childSpan']?->appendChild($glyphElement->layerElement);
                     }
 
-                    // when using animated shapes, the layer will be scaled instead of replacing the internal scale
-                    // $this might have issues with strokes and might need a different solution
-                    if ($charData['t'] ?? 0 === 1) {
-                        $scale = ((int) $documentData['finalSize']) / 100;
-                        $this->textSpans[$i]['childSpan']?->setAttribute('transform', "scale({$scale},{$scale})");
-                    }
+                    // Glyph outlines use ~100 design units per em (same basis as `chars[].w`). Map to
+                    // document pixels — lottie-web does this for t===1 comps; plain path glyphs often
+                    // omit an inner `tr`, so buildShapeData cannot set scale on the last `it` item.
+                    $glyphScale = ((float) ($documentData['finalSize'] ?? 100)) / 100.0;
+                    $this->textSpans[$i]['childSpan']?->setAttribute(
+                        'transform',
+                        sprintf('scale(%s,%s)', $glyphScale, $glyphScale)
+                    );
 
                     continue;
                 }
