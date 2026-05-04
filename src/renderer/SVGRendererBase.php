@@ -361,6 +361,7 @@ abstract class SVGRendererBase extends BaseRenderer
             ) {
                 return;
             }
+
             $num = $numFromProps;
 
             if (null === $num) {

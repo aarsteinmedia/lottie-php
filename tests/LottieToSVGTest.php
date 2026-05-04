@@ -17,7 +17,7 @@ class LottieToSVGTest extends TestCase {
   public function test(): void {
     $testFile = 'loopOut-star.json';
 
-    $generatedSVG = LottieToSVG::renderFirstFrame(dirname(__DIR__, 1) . "/assets/{$testFile}");
+    $generatedSVG = LottieToSVG::renderFrame(dirname(__DIR__, 1) . "/assets/{$testFile}", [], 10);
 
     $targetSVG = file_get_contents(dirname(__DIR__, 1) . "/assets/" . replace_extension($testFile, 'svg'));
 

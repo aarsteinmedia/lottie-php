@@ -17,6 +17,8 @@ class AnimationItem
     public string $path = '';
     public ?SVGRenderer $renderer = null;
     public ?\DOMElement $wrapper = null;
+    public int $totalFrames = 0;
+    public int $frameRate = 60;
 
     public function __construct()
     {
@@ -25,10 +27,15 @@ class AnimationItem
 
     public function checkLoaded() {}
 
+    public function getDuration(?bool $isFrame = null) {
+        return $isFrame ? $this->totalFrames : $this->totalFrames / $this->frameRate;
+    }
+
     public function configAnimation(array $animationData)
     {
         try {
             $this->animationData = $animationData;
+            $this->totalFrames = floor(($this->animationData['op'] ?? 1) - ($this->animationData['ip'] ?? 0));
             $this->renderer->configAnimation($animationData);
             $this->assets = $animationData['assets'];
             $this->renderer->searchExtraCompositions($animationData['assets']);

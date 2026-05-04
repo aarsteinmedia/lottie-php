@@ -116,7 +116,7 @@ class LottieToSVG
         }
     }
 
-    public static function renderFirstFrame(string $path, ?array $rendererSettings = []): ?string
+    public static function renderFrame(string $path, ?array $rendererSettings = [], ?int $frame = 0): ?string
     {
         $anim = self::load($path);
         if (!$anim?->renderer) {
@@ -134,7 +134,7 @@ class LottieToSVG
         }
 
         $anim->renderer->initItems();
-        $anim->renderer->renderFrame(0);
+        $anim->renderer->renderFrame($frame);
 
         return method_exists($anim->renderer, 'toSVGString')
             ? $anim->renderer->toSVGString()
