@@ -365,7 +365,7 @@ abstract class SVGRendererBase extends BaseRenderer
                 return;
             }
 
-            // Use mid frame as default setting
+            // Use mid frame as default setting.
             $num = $this->totalFrames / 2;
 
             // If frame is set, use this, and fallback to last frame
