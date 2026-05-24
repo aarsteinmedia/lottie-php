@@ -41,11 +41,6 @@ abstract class BaseElement implements \ArrayAccess
         throw new \Error(get_class($this).': Method buildAllItems is not implemented');
     }
 
-    public function checkLayers(?float $_frame)
-    {
-        throw new \Error(get_class($this).': Method checkLayers is not implemented');
-    }
-
     public function checkMasks()
     {
         if (!$this->data) {

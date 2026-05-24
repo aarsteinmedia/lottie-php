@@ -19,7 +19,6 @@ use LottiePHP\Utils\Properties\BaseProperty;
 trait RendererTraits
 {
     public ?AnimationItem $animationItem;
-    public bool $completeLayers = false;
     public float $currentFrame = 0;
     public array $elements = [];
     public array $layers = [];
@@ -85,27 +84,6 @@ trait RendererTraits
             );
             ++$i;
         }
-    }
-
-    public function checkLayers(?float $val)
-    {
-        $this->completeLayers = true;
-        $length = count($this->layers);
-
-        for ($i = $length - 1; $i >= 0; --$i) {
-            $layer = $this->layers[$i];
-
-            if (!$this->elements[$i] && $layer
-              && ($layer['ip'] - $layer['st']
-                <= (float) $val - $layer['st']
-                && $layer['op'] - $layer['st']
-                > (float) $val - $layer['st'])
-            ) {
-                $this->buildItem($i);
-            }
-            $this->completeLayers = $this->elements[$i] ? $this->completeLayers : false;
-        }
-        $this->checkPendingElements();
     }
 
     public function createFootage(array $data)
@@ -188,31 +166,9 @@ trait RendererTraits
         return $element->getElementByPath($path);
     }
 
-    public function includeLayers(array $newLayers)
-    {
-        $this->completeLayers = false;
-        $length = count($newLayers);
-        $jLen = count($this->layers);
-
-        for ($i = 0; $i < $length; ++$i) {
-            $j = 0;
-
-            while ($j < $jLen) {
-                if ($this->layers[$j]['id'] === $newLayers[$i]['id']) {
-                    $this->layers[$j] = $newLayers[$i];
-
-                    break;
-                }
-                ++$j;
-            }
-        }
-    }
-
     public function initItems()
     {
-        if (!$this->globalData['progressiveLoad']) {
-            $this->buildAllItems();
-        }
+        $this->buildAllItems();
     }
 
     public function searchExtraCompositions(array $assets)

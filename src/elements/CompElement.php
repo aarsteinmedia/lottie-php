@@ -9,7 +9,6 @@ abstract class CompElement extends RenderableDOMElement
 {
     use CompTrait;
 
-    public ?bool $completeLayers;
     public $currentFrame = 0;
     public $elements = [];
     public $layers = [];

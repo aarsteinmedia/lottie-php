@@ -19,7 +19,6 @@ class SVGCompElement extends SVGBaseElement
     use SVGRendererTraits;
 
     public ?bool $_debug;
-    public bool $completeLayers = false;
     // public function createAudio = SVGRendererBase.prototype.createAudio;
     // public function createCamera = SVGRendererBase.prototype.createCamera;
     // public function setProjectInterface = SVGRendererBase.prototype.setProjectInterface;

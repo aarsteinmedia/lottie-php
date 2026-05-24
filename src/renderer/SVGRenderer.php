@@ -37,7 +37,6 @@ class SVGRenderer extends SVGRendererBase
             'frameNum' => 0,
             'frameId' => 0,
             '_mdf' => true,
-            'progressiveLoad' => false,
             'projectInterface' => [
                 'currentFrame' => 0,
                 'registerComposition' => static function (): void {},
@@ -65,7 +64,6 @@ class SVGRenderer extends SVGRendererBase
             'viewBoxOnly' => $config['viewBoxOnly'] ?? false,
             'className' => $config['className'] ?? null,
             'id' => $config['id'] ?? null,
-            'progressiveLoad' => $config['progressiveLoad'] ?? false,
         ];
     }
 

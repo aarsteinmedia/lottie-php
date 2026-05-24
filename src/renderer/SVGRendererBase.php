@@ -18,7 +18,6 @@ use function LottiePHP\Utils\createTag;
 
 trait SVGRendererTraits
 {
-    public bool $destroyed = false;
     public array $renderConfig = [];
     public \DOMElement $svgElement;
     public $totalFrames = 1;
@@ -204,7 +203,6 @@ trait SVGRendererTraits
 
             $this->setupGlobalData($animData, $defs);
             $this->globalData['renderConfig'] = $this->renderConfig;
-            $this->globalData['progressiveLoad'] = $this->renderConfig['progressiveLoad'];
             $this->data = $animData;
 
             $maskElement = createTag('clipPath');
@@ -322,30 +320,6 @@ abstract class SVGRendererBase extends BaseRenderer
 {
     use SVGRendererTraits;
 
-    public function destroy()
-    {
-        if (!$this->animationItem) {
-            throw new \Error(get_class($this).": Can't access animationItem");
-        }
-        if (!$this->globalData) {
-            throw new \Error(get_class($this).": Can't access globalData");
-        }
-
-        if ($this->animationItem->wrapper) {
-            $this->animationItem->wrapper->textContent = '';
-        }
-        $this->layerElement = null;
-        $this->globalData['defs'] = null;
-        $length = count($this->layers);
-
-        for ($i = 0; $i < $length; ++$i) {
-            $this->elements[$i]?->destroy();
-        }
-        $this->elements = [];
-        $this->destroyed = true;
-        $this->animationItem = null;
-    }
-
     public function hide()
     {
         if (!$this->layerElement) {
@@ -360,7 +334,6 @@ abstract class SVGRendererBase extends BaseRenderer
             if (
                 !$this->globalData
                 || $this->renderedFrame === $numFromProps
-                || $this->destroyed
             ) {
                 return;
             }
@@ -381,27 +354,20 @@ abstract class SVGRendererBase extends BaseRenderer
             $this->globalData['_mdf'] = false;
             $length = count($this->layers);
 
-            if (!$this->completeLayers) {
-                $this->checkLayers($num);
-            }
             for ($i = $length - 1; $i >= 0; --$i) {
-                if ('boolean' === gettype($this->elements[$i])) {
+                if (!is_object($this->elements[$i] ?? null)) {
                     continue;
                 }
 
-                if ($this->completeLayers || $this->elements[$i]) {
-                    $this->elements[$i]?->prepareFrame((float) $num - ($this->layers[$i]['st'] ?? 0));
-                }
+                $this->elements[$i]->prepareFrame((float) $num - ($this->layers[$i]['st'] ?? 0));
             }
 
             for ($i = 0; $i < $length; ++$i) {
-                if ('boolean' === gettype($this->elements[$i])) {
+                if (!is_object($this->elements[$i] ?? null)) {
                     continue;
                 }
 
-                if ($this->completeLayers || $this->elements[$i]) {
-                    $this->elements[$i]?->renderFrame();
-                }
+                $this->elements[$i]->renderFrame();
             }
         } catch (\Throwable $error) {
             echo get_class($this)."\n".$error->getMessage()."\n".$error->getTraceAsString()."\n";
