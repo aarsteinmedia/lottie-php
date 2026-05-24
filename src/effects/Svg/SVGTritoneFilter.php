@@ -63,9 +63,9 @@ class SVGTritoneFilter
         ) {
             return;
         }
-        $color1 = $this->filterManager->effectElements[0]['p']['v'] ?? [0, 0, 0];
-        $color2 = $this->filterManager->effectElements[1]['p']['v'] ?? [0, 0, 0];
-        $color3 = $this->filterManager->effectElements[2]['p']['v'] ?? [0, 0, 0];
+        $color1 = EffectProp::value($this->filterManager, 0, [0, 0, 0]);
+        $color2 = EffectProp::value($this->filterManager, 1, [0, 0, 0]);
+        $color3 = EffectProp::value($this->filterManager, 2, [0, 0, 0]);
         $tableR = "{$color3[0]} {$color2[0]} {$color1[0]}";
         $tableG = "{$color3[1]} {$color2[1]} {$color1[1]}";
         $tableB = "{$color3[2]} {$color2[2]} {$color1[2]}";

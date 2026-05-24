@@ -58,9 +58,9 @@ class SVGTintFilter extends SVGComposableEffect
         ) {
             return;
         }
-        $colorBlack = $this->filterManager->effectElements[0]['p']['v'] ?? [0, 0, 0];
-        $colorWhite = $this->filterManager->effectElements[1]['p']['v'] ?? [255, 255, 255];
-        $opacity = ($this->filterManager->effectElements[2]['p']['v'] ?? 100) / 100;
+        $colorBlack = EffectProp::value($this->filterManager, 0, [0, 0, 0]);
+        $colorWhite = EffectProp::value($this->filterManager, 1, [255, 255, 255]);
+        $opacity = EffectProp::value($this->filterManager, 2, 100) / 100;
 
         $this->linearFilter->setAttribute(
             'values',

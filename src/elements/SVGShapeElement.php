@@ -372,9 +372,13 @@ class SVGShapeElement extends ShapeElement
 
     public function reloadShapes()
     {
+        if ($this->_reloadingShapes) {
+            return;
+        }
         if (!$this->layerElement) {
             throw new \Error(get_class($this).': Could not access layerElement');
         }
+        $this->_reloadingShapes = true;
         // if (!$this->shapesData) {
         //   throw new \Error(get_class($this) . ": Could not access shapesData")
         // }
@@ -401,6 +405,7 @@ class SVGShapeElement extends ShapeElement
             $this->dynamicProperties[$i]?->getValue();
         }
         $this->renderModifiers();
+        $this->_reloadingShapes = false;
     }
 
     public function renderInnerContent()
@@ -608,6 +613,8 @@ class SVGShapeElement extends ShapeElement
                     if ($processedPos) {
                         $Modifier = $itemsData[$i];
                         $Modifier->closed = true;
+                        $Modifier->pos = $i;
+                        $Modifier->syncGroupsFromArray();
                         array_push($ownModifiers, $Modifier);
 
                         break;
@@ -677,4 +684,6 @@ class SVGShapeElement extends ShapeElement
             $shapes[$i]?->setAsAnimated();
         }
     }
+
+    private bool $_reloadingShapes = false;
 }

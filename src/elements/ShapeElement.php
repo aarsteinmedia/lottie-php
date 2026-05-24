@@ -13,31 +13,21 @@ abstract class ShapeElement extends RenderableDOMElement
     public array $shapeModifiers = [];
     public array $shapes = [];
 
-    private function processedKey(array $elem): string
-    {
-        $ty = (string) ($elem['ty'] ?? '');
-
-        // Use a content hash. `ix`/`nm` are not globally unique within a layer's shape tree,
-        // and can cause incorrect cross-group reuse (leading to missing paths).
-        return "{$ty}:json:".md5(json_encode($elem));
-    }
-
     public function addProcessedElement(array $elem, int $pos)
     {
-        $key = $this->processedKey($elem);
         $i = count($this->processedElements);
 
         while ($i) {
             --$i;
             $processedElement = $this->processedElements[$i];
 
-            if ($processedElement->key === $key) {
+            if ($processedElement->elem === $elem) {
                 $processedElement->pos = $pos;
 
                 return;
             }
         }
-        array_push($this->processedElements, new ProcessedElement($key, $pos));
+        array_push($this->processedElements, new ProcessedElement($elem, $pos));
     }
 
     public function addShapeToModifiers(array|SVGShapeData $data)
@@ -104,13 +94,12 @@ abstract class ShapeElement extends RenderableDOMElement
         if (!is_array($elem)) {
             return 0;
         }
-        $key = $this->processedKey($elem);
         $length = count($this->processedElements);
         $i = 0;
 
         while ($i < $length) {
             $processedElement = $this->processedElements[$i];
-            if ($processedElement->key === $key) {
+            if ($processedElement->elem === $elem) {
                 return $processedElement->pos;
             }
             ++$i;

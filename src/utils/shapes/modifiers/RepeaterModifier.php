@@ -154,6 +154,7 @@ class RepeaterModifier extends ShapeModifier
             ++$inserted;
         }
         $this->_currentCopies = count($this->_groups);
+        $this->syncGroupsFromArray();
 
         // Original elements are those between the already-inserted groups and the repeater itself.
         for ($k = $this->pos - 1; $k >= $inserted; --$k) {
@@ -224,6 +225,7 @@ class RepeaterModifier extends ShapeModifier
         if (!$this->data) {
             throw new \Error(get_class($this).':  data (Shape) is not implemented');
         }
+        $this->syncGroupsFromArray();
 
         $items = null;
         $itemsTransform = null;
@@ -329,13 +331,13 @@ class RepeaterModifier extends ShapeModifier
                         'ix' => 4,
                         'k' => 0,
                     ],
-                    'ty' => ShapeType::Transform,
+                    'ty' => ShapeType::Transform->value,
                 ];
 
                 // Insert new groups at the start; this is what lottie-web does and
                 // matches our "already inserted groups" detection.
                 array_unshift($this->arr, $group);
-                $this->_groups[] = $group;
+                array_unshift($this->_groups, $group);
                 ++$this->_currentCopies;
             }
             $this->elem?->reloadShapes();
@@ -451,14 +453,21 @@ class RepeaterModifier extends ShapeModifier
         $j = 0;
 
         while ($cont) {
+            if (!isset($this->elemsData[$i])) {
+                --$cont;
+                $i += $dir;
+
+                continue;
+            }
             $items = $this->elemsData[$i]?->it ?? [];
-            $itemsTransform = $items[count($items) - 1]?->transform->mProps->v->props ?? [];
+            $lastItem = $items[count($items) - 1] ?? null;
+            $itemsTransform = $lastItem?->transform->mProps->v->props ?? [];
             $jLen = count($itemsTransform);
 
-            if ($items[count($items) - 1]) {
-                $items[count($items) - 1]['transform']['mProps']->_mdf = true;
-                $items[count($items) - 1]['transform']['op']['_mdf'] = true;
-                $items[count($items) - 1]['transform']['op']->v
+            if ($lastItem && isset($lastItem->transform)) {
+                $lastItem->transform['mProps']->_mdf = true;
+                $lastItem->transform['op']['_mdf'] = true;
+                $lastItem->transform['op']->v
                     = 1 === $this->_currentCopies
                       ? (float) ($this->so?->v)
                       : (float) ($this->so?->v)
@@ -568,6 +577,31 @@ class RepeaterModifier extends ShapeModifier
             if (ShapeType::Group === ShapeType::tryFrom($elements[$i]['ty'] ?? null) && $it) {
                 $this->resetElements($elements[$i]['it']);
             }
+        }
+    }
+
+    public function syncGroupsFromArray(): void
+    {
+        if (null === $this->pos || !isset($this->arr[$this->pos])) {
+            return;
+        }
+        if (!isset($this->arr[$this->pos]['_rpIdSelf']) || !is_string($this->arr[$this->pos]['_rpIdSelf'])) {
+            return;
+        }
+        $rpId = $this->arr[$this->pos]['_rpIdSelf'];
+        $groups = [];
+        $inserted = 0;
+        while (
+            isset($this->arr[$inserted])
+            && is_array($this->arr[$inserted])
+            && (($this->arr[$inserted]['_rpId'] ?? null) === $rpId)
+        ) {
+            $groups[] = $this->arr[$inserted];
+            ++$inserted;
+        }
+        if (count($groups) > 0) {
+            $this->_groups = $groups;
+            $this->_currentCopies = count($groups);
         }
     }
     private ?int $_currentCopies;

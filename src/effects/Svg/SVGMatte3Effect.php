@@ -51,7 +51,7 @@ class SVGMatte3Effect
 
     public function initialize()
     {
-        $ind = $this->filterManager->effectElements[0]['p']['v'] ?? null;
+        $ind = EffectProp::value($this->filterManager, 0);
         $elements = $this->elem->comp?->elements ?? [];
         $i = 0;
         $length = count($elements);

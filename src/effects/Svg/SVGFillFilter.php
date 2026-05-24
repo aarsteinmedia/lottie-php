@@ -40,8 +40,8 @@ class SVGFillFilter
         ) {
             return;
         }
-        $color = $this->filterManager->effectElements[2]['p']['v'] ?? [0, 0, 0];
-        $opacity = $this->filterManager->effectElements[6]['p']['v'] ?? 1;
+        $color = EffectProp::value($this->filterManager, 2, [0, 0, 0]);
+        $opacity = EffectProp::value($this->filterManager, 6, 1);
 
         $this->matrixFilter->setAttribute(
             'values',
