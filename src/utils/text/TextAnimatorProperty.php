@@ -615,6 +615,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 $perc
                                 = ($currentLength + $animatorOffset - $segmentLength)
                                 / $this->getPartialLength($currentPoint);
+
                                 $prevPt = $this->getPoint($prevPoint);
                                 $curPt = $this->getPoint($currentPoint);
                                 $xPathPos

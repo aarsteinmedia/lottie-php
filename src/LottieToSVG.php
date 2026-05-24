@@ -116,7 +116,7 @@ class LottieToSVG
         }
     }
 
-    public static function renderFrame(string $path, ?array $rendererSettings = [], ?int $frame = 0): ?string
+    public static function renderFrame(string $path, ?array $rendererSettings = [], ?int $frame = null): ?string
     {
         $anim = self::load($path);
         if (!$anim?->renderer) {

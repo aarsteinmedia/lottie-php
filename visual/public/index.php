@@ -44,7 +44,7 @@ $svg = null;
 $error = null;
 if ($selectedPath && file_exists($selectedPath) && isAllowedAsset($selectedPath)) {
     try {
-        $svg = LottieToSVG::renderFrame($selectedPath, [], 10);
+        $svg = LottieToSVG::renderFrame($selectedPath);
         if (!$svg) {
             $error = 'Renderer returned no SVG output.';
         }

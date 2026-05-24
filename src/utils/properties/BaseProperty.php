@@ -251,7 +251,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
             $keyData = $keyframes[$i] ?? [];
             $nextKeyData = $keyframes[$i + 1] ?? [];
             if ($i === $len - 1 && $frameNum >= $nextKeyData['t'] - $offsetTime) {
-                if ($keyData['h']) {
+                if ($keyData['h'] ?? null) {
                     $keyData = $nextKeyData;
                 }
                 $iterationIndex = 0;

@@ -21,6 +21,7 @@ trait SVGRendererTraits
     public bool $destroyed = false;
     public array $renderConfig = [];
     public \DOMElement $svgElement;
+    public $totalFrames = 1;
 
     public function appendElementInPos(BaseElement $element, int $pos)
     {
@@ -138,6 +139,8 @@ trait SVGRendererTraits
             if (!$this->svgElement) {
                 throw new \Error(get_class($this).": Can't access svgElement");
             }
+
+            $this->totalFrames = $animData['totalFrames'] ?? 1;
 
             $this->svgElement->setAttribute('xmlns', Constants::$namespaceXlink);
             if ($this->renderConfig['viewBoxSize']) {
@@ -362,13 +365,16 @@ abstract class SVGRendererBase extends BaseRenderer
                 return;
             }
 
-            $num = $numFromProps;
+            // Use mid frame as default setting
+            $num = $this->totalFrames / 2;
 
-            if (null === $num) {
-                $num = $this->renderedFrame;
-            } else {
-                $this->renderedFrame = (float) $num;
+            // If frame is set, use this, and fallback to last frame
+            if (null !== $numFromProps) {
+                $num = min($numFromProps, $this->totalFrames - 1);
             }
+
+            $this->renderedFrame = (float) $num;
+
             $this->globalData['frameNum'] = $num;
             ++$this->globalData['frameId'];
             $this->globalData['projectInterface']['currentFrame'] = $num ?? 0;
@@ -388,17 +394,13 @@ abstract class SVGRendererBase extends BaseRenderer
                 }
             }
 
-            // For still rendering we must draw at least once (frame 0),
-            // even if no dynamic properties report _mdf changes.
-            if ($this->globalData['_mdf'] || 0 === (int) $num) {
-                for ($i = 0; $i < $length; ++$i) {
-                    if ('boolean' === gettype($this->elements[$i])) {
-                        continue;
-                    }
+            for ($i = 0; $i < $length; ++$i) {
+                if ('boolean' === gettype($this->elements[$i])) {
+                    continue;
+                }
 
-                    if ($this->completeLayers || $this->elements[$i]) {
-                        $this->elements[$i]?->renderFrame();
-                    }
+                if ($this->completeLayers || $this->elements[$i]) {
+                    $this->elements[$i]?->renderFrame();
                 }
             }
         } catch (\Throwable $error) {

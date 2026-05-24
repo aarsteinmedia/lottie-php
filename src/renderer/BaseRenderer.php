@@ -87,7 +87,7 @@ trait RendererTraits
         }
     }
 
-    public function checkLayers(?int $val)
+    public function checkLayers(?float $val)
     {
         $this->completeLayers = true;
         $length = count($this->layers);

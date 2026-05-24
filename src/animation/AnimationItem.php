@@ -13,12 +13,12 @@ class AnimationItem
     public array $animationData;
     public array $assets = [];
     public string $assetsPath = '';
+    public int $frameRate = 60;
     public ImagePreloader $imagePreloader;
     public string $path = '';
     public ?SVGRenderer $renderer = null;
-    public ?\DOMElement $wrapper = null;
     public int $totalFrames = 0;
-    public int $frameRate = 60;
+    public ?\DOMElement $wrapper = null;
 
     public function __construct()
     {
@@ -27,15 +27,12 @@ class AnimationItem
 
     public function checkLoaded() {}
 
-    public function getDuration(?bool $isFrame = null) {
-        return $isFrame ? $this->totalFrames : $this->totalFrames / $this->frameRate;
-    }
-
     public function configAnimation(array $animationData)
     {
         try {
             $this->animationData = $animationData;
             $this->totalFrames = floor(($this->animationData['op'] ?? 1) - ($this->animationData['ip'] ?? 0));
+            $animationData['totalFrames'] = $this->totalFrames;
             $this->renderer->configAnimation($animationData);
             $this->assets = $animationData['assets'];
             $this->renderer->searchExtraCompositions($animationData['assets']);
@@ -83,6 +80,11 @@ class AnimationItem
         }
 
         return $path;
+    }
+
+    public function getDuration(?bool $isFrame = null)
+    {
+        return $isFrame ? $this->totalFrames : $this->totalFrames / $this->frameRate;
     }
 
     public function getPath()
