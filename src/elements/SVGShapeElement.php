@@ -18,6 +18,7 @@ use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\Properties\TransformPropertyFactory;
+use LottiePHP\Utils\Shapes\Modifiers\ShapeModifier;
 use LottiePHP\Utils\Shapes\Modifiers\ShapeModifiers;
 use LottiePHP\Utils\Shapes\Properties\ShapePropertyFactory;
 
@@ -55,6 +56,29 @@ class SVGShapeElement extends ShapeElement
             return;
         }
         error_log('[LottiePHP][SVGShapeElement] '.$message);
+    }
+
+    private function rebindShapeModifiers(): void
+    {
+        if (!$this->_reloadingShapes) {
+            return;
+        }
+        foreach ($this->shapeModifiers as $modifier) {
+            $modifier->shapes = [];
+            $modifier->closed = false;
+        }
+        foreach ($this->shapes as $shapeData) {
+            if ($shapeData instanceof SVGShapeData) {
+                $this->addShapeToModifiers($shapeData);
+            }
+        }
+    }
+
+    private function registerShapeModifier(ShapeModifier $modifier, bool $isNew): void
+    {
+        if ($isNew || !in_array($modifier, $this->shapeModifiers, true)) {
+            array_push($this->shapeModifiers, $modifier);
+        }
     }
 
     public function __construct(
@@ -382,6 +406,7 @@ class SVGShapeElement extends ShapeElement
         // if (!$this->shapesData) {
         //   throw new \Error(get_class($this) . ": Could not access shapesData")
         // }
+        $this->shapeModifiers = [];
         $this->_isFirstFrame = true;
         $length = count($this->itemsData);
 
@@ -399,6 +424,7 @@ class SVGShapeElement extends ShapeElement
             []
         );
         $this->filterUniqueShapes();
+        $this->rebindShapeModifiers();
         $dLength = count($this->dynamicProperties);
 
         for ($i = 0; $i < $dLength; ++$i) {
@@ -599,11 +625,12 @@ class SVGShapeElement extends ShapeElement
                     if ($processedPos) {
                         $Modifier = $itemsData[$i];
                         $Modifier->closed = false;
+                        $this->registerShapeModifier($Modifier, false);
                     } else {
                         $Modifier = ShapeModifiers::getModifier($shapeType ?? ShapeType::Unknown);
                         $Modifier->init($this, $arr[$i]);
                         $itemsData[$i] = $Modifier;
-                        array_push($this->shapeModifiers, $Modifier);
+                        $this->registerShapeModifier($Modifier, true);
                     }
                     array_push($ownModifiers, $Modifier);
 
@@ -615,6 +642,7 @@ class SVGShapeElement extends ShapeElement
                         $Modifier->closed = true;
                         $Modifier->pos = $i;
                         $Modifier->syncGroupsFromArray();
+                        $this->registerShapeModifier($Modifier, false);
                         array_push($ownModifiers, $Modifier);
 
                         break;
@@ -627,7 +655,7 @@ class SVGShapeElement extends ShapeElement
                         $i,
                         $itemsData
                     );
-                    array_push($this->shapeModifiers, $Modifier);
+                    $this->registerShapeModifier($Modifier, true);
 
                     $shouldRender = false;
                     array_push($ownModifiers, $Modifier);

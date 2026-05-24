@@ -28,6 +28,21 @@ class RepeaterModifier extends ShapeModifier
     public ?Matrix $tMatrix;
     public ?TransformProperty $tr;
 
+    private function getGroupItems(int $index): array
+    {
+        $group = $this->elemsData[$index] ?? null;
+
+        if (is_array($group)) {
+            return $group['it'] ?? [];
+        }
+
+        if (is_object($group) && isset($group->it) && is_array($group->it)) {
+            return $group->it;
+        }
+
+        return [];
+    }
+
     public function addShapeToModifier(array|object $shapeData)
     {
         if (is_array($shapeData)) {
@@ -57,29 +72,29 @@ class RepeaterModifier extends ShapeModifier
         $pMatrix->translate(
             $transform->p->v[0] * $dir * $perc,
             $transform->p->v[1] * $dir * $perc,
-            $transform->p->v[2]
+            $transform->p->v[2] ?? 0
         );
         $rMatrix->translate(
             -$transform->a->v[0],
             -$transform->a->v[1],
-            $transform->a->v[2]
+            $transform->a->v[2] ?? 0
         );
         $rMatrix->rotate(-$transform['r']->v * $dir * $perc);
         $rMatrix->translate(
             $transform->a->v[0] ?? 0,
             $transform->a->v[1] ?? 0,
-            $transform->a->v[2]
+            $transform->a->v[2] ?? 0
         );
         $sMatrix->translate(
             -($transform->a->v[0] ?? 0),
             -($transform->a->v[1] ?? 0),
-            $transform->a->v[2]
+            $transform->a->v[2] ?? 0
         );
         $sMatrix->scale($inv ? 1 / $scaleX : $scaleX, $inv ? 1 / $scaleY : $scaleY);
         $sMatrix->translate(
             $transform->a->v[0] ?? 0,
             $transform->a->v[1] ?? 0,
-            $transform->a->v[2]
+            $transform->a->v[2] ?? 0
         );
     }
 
@@ -100,9 +115,12 @@ class RepeaterModifier extends ShapeModifier
 
     public function cloneElements(array $elements): array
     {
-        // Avoid JSON-based deep cloning: it can explode memory for large repeaters.
-        // PHP arrays are copy-on-write; a shallow assignment is enough until mutated.
-        $newElements = $elements;
+        // Deep-clone so each repeated group has distinct shape array identities.
+        // Shallow copies break processed-element tracking and shape modifiers.
+        $newElements = json_decode(json_encode($elements), true);
+        if (!is_array($newElements)) {
+            $newElements = $elements;
+        }
         $this->resetElements($newElements);
 
         return $newElements;
@@ -239,7 +257,7 @@ class RepeaterModifier extends ShapeModifier
             $i = 0;
             $dir = 1;
             while ($cont) {
-                $items = is_array($this->elemsData[$i] ?? null) ? ($this->elemsData[$i]['it'] ?? []) : [];
+                $items = $this->getGroupItems($i);
                 // if (!items) {
                 //   continue
                 // }
@@ -273,6 +291,15 @@ class RepeaterModifier extends ShapeModifier
             return false;
         }
 
+        if (!isset($this->arr[$this->pos]['_rpIdSelf']) || !is_string($this->arr[$this->pos]['_rpIdSelf'])) {
+            $seed = [
+                'ix' => $this->arr[$this->pos]['ix'] ?? null,
+                'nm' => $this->arr[$this->pos]['nm'] ?? null,
+                'c' => $this->arr[$this->pos]['c']['k'] ?? null,
+                'o' => $this->arr[$this->pos]['o']['k'] ?? null,
+            ];
+            $this->arr[$this->pos]['_rpIdSelf'] = md5(json_encode($seed));
+        }
         $rpId = (string) $this->arr[$this->pos]['_rpIdSelf'];
 
         if (count($this->_groups) < $copies) {
@@ -355,7 +382,7 @@ class RepeaterModifier extends ShapeModifier
 
             $this->changeGroupRender($this->_groups[$i]['it'] ?? [], $shouldRender);
             if (!$shouldRender) {
-                $elems = is_array($this->elemsData[$i] ?? null) ? ($this->elemsData[$i]['it'] ?? []) : [];
+                $elems = $this->getGroupItems($i);
                 $transformData = $elems[count($elems) - 1];
 
                 if ($transformData) {
@@ -453,18 +480,14 @@ class RepeaterModifier extends ShapeModifier
         $j = 0;
 
         while ($cont) {
-            if (!isset($this->elemsData[$i])) {
-                --$cont;
-                $i += $dir;
-
-                continue;
-            }
-            $items = $this->elemsData[$i]?->it ?? [];
+            $items = $this->getGroupItems($i);
             $lastItem = $items[count($items) - 1] ?? null;
-            $itemsTransform = $lastItem?->transform->mProps->v->props ?? [];
+            $itemsTransform = is_object($lastItem)
+                ? ($lastItem->transform['mProps']->v->props ?? [])
+                : [];
             $jLen = count($itemsTransform);
 
-            if ($lastItem && isset($lastItem->transform)) {
+            if (is_object($lastItem) && isset($lastItem->transform['mProps'], $lastItem->transform['op'])) {
                 $lastItem->transform['mProps']->_mdf = true;
                 $lastItem->transform['op']['_mdf'] = true;
                 $lastItem->transform['op']->v

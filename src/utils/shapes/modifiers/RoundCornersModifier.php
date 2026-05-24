@@ -10,9 +10,41 @@ use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\ShapePath;
 
+use function LottiePHP\Utils\pathPointsEqual;
+
 class RoundCornersModifier extends ShapeModifier
 {
     public ?ValueProperty $rd;
+
+    private static function isSharpCorner(array $vertex, array $out, array $in): bool
+    {
+        if (pathPointsEqual($out, [0, 0]) && pathPointsEqual($in, [0, 0])) {
+            return true;
+        }
+
+        return pathPointsEqual($vertex, $out) && pathPointsEqual($vertex, $in);
+    }
+
+    private static function setTripleAtAbsolute(
+        ShapePath $path,
+        float $vX,
+        float $vY,
+        float $oX,
+        float $oY,
+        float $iX,
+        float $iY,
+        int $index
+    ): void {
+        $path->setTripleAt(
+            $vX,
+            $vY,
+            $oX - $vX,
+            $oY - $vY,
+            $iX - $vX,
+            $iY - $vY,
+            $index
+        );
+    }
 
     public function getValue(?bool $flag = null)
     {
@@ -57,12 +89,7 @@ class RoundCornersModifier extends ShapeModifier
             $currentV = $path->v[$i];
             $currentO = $path->o[$i];
             $currentI = $path->i[$i];
-            if (
-                ($currentV[0] ?? null) === $currentO[0]
-                && $currentV[1] === $currentO[1]
-                && $currentV[0] === $currentI[0]
-                && $currentV[1] === $currentI[1]
-            ) {
+            if (self::isSharpCorner($currentV, $currentO, $currentI)) {
                 if ((0 === $i || $i === $len - 1) && !$path->c) {
                     $clonedPath->setTripleAt(
                         $currentV[0],
@@ -92,7 +119,8 @@ class RoundCornersModifier extends ShapeModifier
                     $vY = $iY;
                     $oX = $vX - ($vX - $currentV[0]) * Constants::$roundCorner;
                     $oY = $vY - ($vY - $currentV[1]) * Constants::$roundCorner;
-                    $clonedPath->setTripleAt(
+                    self::setTripleAtAbsolute(
+                        $clonedPath,
                         $vX,
                         $vY,
                         $oX,
@@ -117,7 +145,8 @@ class RoundCornersModifier extends ShapeModifier
                     $vY = $oY;
                     $iX = $vX - ($vX - $currentV[0]) * Constants::$roundCorner;
                     $iY = $vY - ($vY - $currentV[1]) * Constants::$roundCorner;
-                    $clonedPath->setTripleAt(
+                    self::setTripleAtAbsolute(
+                        $clonedPath,
                         $vX,
                         $vY,
                         $oX,
@@ -150,7 +179,7 @@ class RoundCornersModifier extends ShapeModifier
         $length = count($this->shapes);
         $rd = $this->rd?->v;
 
-        if (0 !== $rd) {
+        if (0 != $rd) {
             $shapeData = null;
             $shapePaths = null;
             $localShapeCollection = null;

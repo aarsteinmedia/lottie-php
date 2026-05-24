@@ -54,10 +54,10 @@ class ZigZagModifier extends ShapeModifier
         $outputBezier->setTripleAt(
             $px,
             $py,
-            $px + cos($angO) * $outAmplitude,
-            $py - sin($angO) * $outAmplitude,
-            $px + cos($angI) * $inAmplitude,
-            $py - sin($angI) * $inAmplitude,
+            cos($angO) * $outAmplitude,
+            -sin($angO) * $outAmplitude,
+            cos($angI) * $inAmplitude,
+            -sin($angI) * $inAmplitude,
             $outputBezier->length()
         );
     }
@@ -211,7 +211,7 @@ class ZigZagModifier extends ShapeModifier
                 -$direction
             );
 
-            if ($i === $count - 1 && !${$path}->c) {
+            if ($i === $count - 1 && !$path->c) {
                 $segment = null;
             } else {
                 $segment = PolynomialBezier::shapeSegment($path, ($i + 1) % $count);
@@ -241,7 +241,7 @@ class ZigZagModifier extends ShapeModifier
         $frequency = max(0, (int) round((float) $this->frequency?->v));
         $pointType = (int) $this->pointsType?->v;
 
-        if (0 !== $amplitude) {
+        if (0 != $amplitude) {
             $shapeData = null;
             $localShapeCollection = null;
             $shapePaths = null;

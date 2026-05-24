@@ -247,6 +247,10 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
 
     public function reset()
     {
+        // Keep modifier output (paths no longer the base local collection).
+        if ($this->paths !== $this->localShapeCollection) {
+            return;
+        }
         $this->paths = $this->localShapeCollection;
     }
 

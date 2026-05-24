@@ -82,7 +82,7 @@ abstract class ShapeElement extends RenderableDOMElement
         for ($i = $len - 1; $i >= 0; --$i) {
             $shouldBreakProcess = $this->shapeModifiers[$i]->processShapes((bool) $this->_isFirstFrame);
             // workaround to fix cases where a repeater resets the shape so the following processes get called twice
-            // TODO: find a better solution for $this
+            // TODO: find a better solution for this
             if ($shouldBreakProcess) {
                 break;
             }

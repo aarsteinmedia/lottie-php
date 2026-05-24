@@ -128,7 +128,7 @@ class RectShapeProperty extends ShapeBaseProperty
                 $p1 + $v1 - $round,
                 1
             );
-            if (0 === $round) {
+            if (0 == $round) {
                 $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 + $v1,
@@ -213,7 +213,7 @@ class RectShapeProperty extends ShapeBaseProperty
                 $p1 - $v1 + $round,
                 0
             );
-            if (0 === $round) {
+            if (0 == $round) {
                 $this->setTripleAtRelative(
                     $p0 - $v0,
                     $p1 - $v1,
