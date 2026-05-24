@@ -12,6 +12,11 @@ use function LottiePHP\Utils\isLottie;
 
 class LottieToSVG
 {
+    public static function clearCache(): void
+    {
+        self::$loadCache = [];
+    }
+
     public static function load(string $path): ?AnimationItem
     {
         RenderBootstrap::ensureInitialized();
@@ -41,27 +46,79 @@ class LottieToSVG
         ]);
     }
 
-    public static function renderFrame(string $path, ?array $rendererSettings = [], ?int $frame = null): ?string
+    /**
+     * Load an animation, reusing a cached instance when the file path and mtime are unchanged.
+     */
+    public static function loadCached(string $path): ?AnimationItem
     {
+        $resolved = realpath($path) ?: $path;
+        $mtime = @filemtime($path) ?: 0;
+        $cached = self::$loadCache[$resolved] ?? null;
+
+        if ($cached && $cached['mtime'] === $mtime) {
+            return $cached['anim'];
+        }
+
         $anim = self::load($path);
+        if ($anim) {
+            self::$loadCache[$resolved] = [
+                'mtime' => $mtime,
+                'anim' => $anim,
+            ];
+        }
+
+        return $anim;
+    }
+
+    public static function renderFrame(
+        string $path,
+        ?array $rendererSettings = [],
+        ?int $frame = null,
+        bool $force = false
+    ): ?string {
+        $useCache = [] === ($rendererSettings ?? []);
+
+        $anim = $useCache
+            ? self::loadCached($path)
+            : self::load($path);
+
         if (!$anim?->renderer) {
             return null;
         }
 
-        if ($rendererSettings) {
+        if (!$useCache && $rendererSettings) {
             $anim->setParams([
                 'animationData' => $anim->animationData ?? null,
                 'path' => null,
                 'assetsPath' => null,
                 'rendererSettings' => $rendererSettings,
             ]);
+            $anim->renderer->itemsInitialized = false;
+        }
+
+        return self::renderFrameFromAnimation($anim, $frame, $force);
+    }
+
+    /**
+     * Render one frame from an already-loaded animation (avoids JSON/DOM setup per call).
+     */
+    public static function renderFrameFromAnimation(
+        AnimationItem $anim,
+        ?int $frame = null,
+        bool $force = false
+    ): ?string {
+        if (!$anim->renderer) {
+            return null;
         }
 
         $anim->renderer->initItems();
-        $anim->renderer->renderFrame($frame);
+        $anim->renderer->renderFrame($frame, $force);
 
         return method_exists($anim->renderer, 'toSVGString')
             ? $anim->renderer->toSVGString()
             : null;
     }
+
+    /** @var array<string, array{mtime: int, anim: AnimationItem}> */
+    private static array $loadCache = [];
 }

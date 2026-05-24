@@ -37,6 +37,7 @@ class SVGRenderer extends SVGRendererBase
             'frameNum' => 0,
             'frameId' => 0,
             '_mdf' => true,
+            'stillFrame' => true,
             'projectInterface' => [
                 'currentFrame' => 0,
             ],
@@ -111,7 +112,10 @@ class SVGRenderer extends SVGRendererBase
 
     public function toSVGString(): string
     {
-        $xml = $this->svgElement->ownerDocument?->saveXML($this->svgElement);
+        $xml = $this->svgElement->ownerDocument?->saveXML(
+            $this->svgElement,
+            LIBXML_NOXMLDECL
+        );
 
         return is_string($xml) ? $xml : '';
     }

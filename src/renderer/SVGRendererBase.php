@@ -313,12 +313,9 @@ abstract class SVGRendererBase extends BaseRenderer
         addStyles($this->layerElement, ['display' => 'none']);
     }
 
-    public function renderFrame(?int $numFromProps = null)
+    public function renderFrame(?int $numFromProps = null, bool $force = false)
     {
-        if (
-            !$this->globalData
-            || $this->renderedFrame === $numFromProps
-        ) {
+        if (!$this->globalData) {
             return;
         }
 
@@ -326,6 +323,10 @@ abstract class SVGRendererBase extends BaseRenderer
 
         if (null !== $numFromProps) {
             $num = min($numFromProps, $this->totalFrames - 1);
+        }
+
+        if (!$force && (float) $this->renderedFrame === (float) $num) {
+            return;
         }
 
         $this->renderedFrame = (float) $num;

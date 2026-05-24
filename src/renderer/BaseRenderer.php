@@ -21,6 +21,7 @@ trait RendererTraits
     public ?AnimationItem $animationItem;
     public float $currentFrame = 0;
     public array $elements = [];
+    public bool $itemsInitialized = false;
     public array $layers = [];
     public array $pendingElements = [];
 
@@ -168,7 +169,12 @@ trait RendererTraits
 
     public function initItems()
     {
+        if ($this->itemsInitialized) {
+            return;
+        }
+
         $this->buildAllItems();
+        $this->itemsInitialized = true;
     }
 
     public function setupGlobalData(
