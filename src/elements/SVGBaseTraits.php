@@ -2,7 +2,6 @@
 
 namespace LottiePHP\Elements;
 
-use LottiePHP\Utils\FeatureSupport;
 use LottiePHP\Utils\FiltersFactory;
 use LottiePHP\Utils\LocationHref;
 
@@ -206,10 +205,6 @@ trait SVGBaseTraits
         }
         $layerId = $this->layerId;
         $id = "{$layerId}_{$matteType}";
-        $filId = null;
-        $fil = null;
-        $useElement = null;
-        $gg = null;
 
         switch ($matteType) {
             case 1:
@@ -228,18 +223,6 @@ trait SVGBaseTraits
                 );
                 $masker->appendChild($useElement);
                 $this->globalData['defs']?->appendChild($masker);
-                if (FeatureSupport::$maskType || 1 !== $matteType) {
-                    break;
-                }
-                $filId = createElementID();
-                $fil = FiltersFactory::createFilter($filId);
-                $this->globalData['defs']?->appendChild($fil);
-                $fil->appendChild(FiltersFactory::createAlphaToLuminanceFilter());
-                $gg = createTag('g');
-                $gg->appendChild($useElement);
-                $masker->appendChild($gg);
-                $locationHref = LocationHref::getHref();
-                $gg->setAttribute('filter', "url({$locationHref}#{$filId})");
 
                 break;
 
@@ -283,17 +266,6 @@ trait SVGBaseTraits
                     "#{$this->layerId}"
                 );
                 $maskGrouper->appendChild($useElement);
-                if (!FeatureSupport::$maskType) {
-                    $maskGroup->setAttribute('mask-type', 'luminance');
-                    $fil->appendChild(FiltersFactory::createAlphaToLuminanceFilter());
-                    $gg = createTag('g');
-                    $maskGrouper->appendChild($alphaRect);
-                    if ($this->layerElement) {
-                        $gg->appendChild($this->layerElement);
-                    }
-
-                    $maskGrouper->appendChild($gg);
-                }
                 $this->globalData['defs']?->appendChild($maskGroup);
         }
         $this->matteMasks[$matteType] = $id;

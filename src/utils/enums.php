@@ -22,30 +22,6 @@ enum Modifier: string
     case ZigZagModifier = 'zz';
 }
 
-enum PlayMode: string
-{
-    case Bounce = 'bounce';
-    case Normal = 'normal';
-}
-
-enum PlayerEvents: string
-{
-    case Complete = 'complete';
-    case Destroyed = 'destroyed';
-    case Error = 'error';
-    case Frame = 'frame';
-    case Freeze = 'freeze';
-    case Load = 'load';
-    case Loop = 'loop';
-    case Next = 'next';
-    case Pause = 'pause';
-    case Play = 'play';
-    case Previous = 'previous';
-    case Ready = 'ready';
-    case Rendered = 'rendered';
-    case Stop = 'stop';
-}
-
 enum PreserveAspectRatio: string
 {
     case Contain = 'xMidYMid meet';

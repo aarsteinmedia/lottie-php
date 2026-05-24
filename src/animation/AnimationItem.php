@@ -4,7 +4,6 @@ namespace LottiePHP\Animation;
 
 use LottiePHP\Renderer\SVGRenderer;
 use LottiePHP\Utils\DataManager;
-use LottiePHP\Utils\ImagePreloader;
 
 use function LottiePHP\Utils\Pooling\domDocumentPool;
 
@@ -14,18 +13,10 @@ class AnimationItem
     public array $assets = [];
     public string $assetsPath = '';
     public int $frameRate = 60;
-    public ImagePreloader $imagePreloader;
     public string $path = '';
     public ?SVGRenderer $renderer = null;
     public int $totalFrames = 0;
     public ?\DOMElement $wrapper = null;
-
-    public function __construct()
-    {
-        $this->imagePreloader = new ImagePreloader();
-    }
-
-    public function checkLoaded() {}
 
     public function configAnimation(array $animationData)
     {
@@ -90,22 +81,6 @@ class AnimationItem
     public function getPath()
     {
         return $this->path;
-    }
-
-    public function imagesLoaded()
-    {
-        $this->trigger('loaded_images');
-        $this->checkLoaded();
-    }
-
-    public function preloadImages()
-    {
-        $this->imagePreloader->setAssetsPath($this->assetsPath);
-        $this->imagePreloader->setPath($this->path);
-        $this->imagePreloader->loadAssets(
-            $this->animationData['assets'],
-            $this->imagesLoaded(...)
-        );
     }
 
     public function renderFrame()
@@ -190,8 +165,6 @@ class AnimationItem
     {
         DataManager::completeAnimation($data, $this->configAnimation(...));
     }
-
-    public function trigger(string $name) {}
 
     protected ?string $fileName = null;
 }

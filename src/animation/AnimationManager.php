@@ -7,14 +7,15 @@ class AnimationManager
     /**
      * @param array{
      *  path: null|string,
-     *  assetsPath: null|string
+     *  assetsPath: null|string,
+     *  animationData: null|array,
+     *  rendererSettings?: array
      * } $params
      */
     public static function loadAnimation(array $params)
     {
         try {
             $animItem = new AnimationItem();
-            self::setupAnimation($animItem);
             $animItem->setParams($params);
 
             return $animItem;
@@ -22,10 +23,4 @@ class AnimationManager
             echo $e->getMessage();
         }
     }
-
-    public static function setupAnimation(AnimationItem $animationItem)
-    {
-        self::$registeredAnimations[] = ['animation' => $animationItem];
-    }
-    private static array $registeredAnimations = [];
 }
