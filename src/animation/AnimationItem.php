@@ -18,17 +18,13 @@ class AnimationItem
     public int $totalFrames = 0;
     public ?\DOMElement $wrapper = null;
 
-    public function configAnimation(array $animationData)
+    public function configAnimation(array $animationData): void
     {
-        try {
-            $this->animationData = $animationData;
-            $this->totalFrames = floor(($this->animationData['op'] ?? 1) - ($this->animationData['ip'] ?? 0));
-            $animationData['totalFrames'] = $this->totalFrames;
-            $this->renderer->configAnimation($animationData);
-            $this->assets = $animationData['assets'];
-        } catch (\Exception $e) {
-            echo $e->getMessage();
-        }
+        $this->animationData = $animationData;
+        $this->totalFrames = floor(($this->animationData['op'] ?? 1) - ($this->animationData['ip'] ?? 0));
+        $animationData['totalFrames'] = $this->totalFrames;
+        $this->renderer->configAnimation($animationData);
+        $this->assets = $animationData['assets'];
     }
 
     public function getAssetData(?string $id)
@@ -82,85 +78,73 @@ class AnimationItem
         return $this->path;
     }
 
-    public function renderFrame()
-    {
-        try {
-            $this->renderer->renderFrame();
-        } catch (\Exception $e) {
-            echo $e->getMessage();
-        }
-    }
-
     /**
      * @param array{
      *  path: null|string,
      *  assetsPath: null|string,
-     *  animationData: null|array
+     *  animationData: null|array,
+     *  rendererSettings?: array
      * } $params
      */
     public function setParams(array $params): void
     {
-        try {
-            $this->wrapper = domDocumentPool()->createElement('div');
-            domDocumentPool()->appendChild($this->wrapper);
+        $this->wrapper = domDocumentPool()->createElement('div');
+        domDocumentPool()->appendChild($this->wrapper);
 
-            $this->renderer = new SVGRenderer(
-                $this,
-                $params['rendererSettings'] ?? [],
+        $this->renderer = new SVGRenderer(
+            $this,
+            $params['rendererSettings'] ?? [],
+        );
+
+        if (!empty($params['assetsPath'])) {
+            $this->assetsPath = $params['assetsPath'];
+        }
+
+        if (!empty($params['animationData'])) {
+            ['animationData' => $animationData] = $params;
+
+            $this->setupAnimation($animationData);
+
+            return;
+        }
+
+        $path = $params['path'] ?? null;
+
+        if (!$path) {
+            return;
+        }
+
+        if (str_contains($path, '\\')) {
+            $this->path = substr(
+                $path,
+                0,
+                max(0, strrpos($path, '\\') + 1)
             );
-
-            if (!empty($params['assetsPath'])) {
-                $this->assetsPath = $params['assetsPath'];
-            }
-
-            if (!empty($params['animationData'])) {
-                ['animationData' => $animationData] = $params;
-
-                $this->setupAnimation($animationData);
-
-                return;
-            }
-
-            $path = $params['path'] ?? null;
-
-            if (!$path) {
-                return;
-            }
-
-            if (str_contains($path, '\\')) {
-                $this->path = substr(
-                    $path,
-                    0,
-                    max(0, strrpos($path, '\\') + 1)
-                );
-            } else {
-                $this->path = substr(
-                    $path,
-                    0,
-                    max(0, strrpos($path, '/') + 1)
-                );
-            }
-            $this->fileName = substr(
+        } else {
+            $this->path = substr(
                 $path,
                 0,
                 max(0, strrpos($path, '/') + 1)
             );
-            $this->fileName = substr(
-                $this->fileName,
-                0,
-                max(0, strrpos($this->fileName, '.json'))
-            );
-
-            DataManager::loadAnimation(
-                $path,
-                $this->configAnimation(...)
-            );
-        } catch (\Exception $e) {
-            echo $e->getMessage();
         }
+        $this->fileName = substr(
+            $path,
+            0,
+            max(0, strrpos($path, '/') + 1)
+        );
+        $this->fileName = substr(
+            $this->fileName,
+            0,
+            max(0, strrpos($this->fileName, '.json'))
+        );
+
+        DataManager::loadAnimation(
+            $path,
+            $this->configAnimation(...)
+        );
     }
 
-    public function setupAnimation(array $data)
+    public function setupAnimation(array $data): void
     {
         DataManager::completeAnimation($data, $this->configAnimation(...));
     }

@@ -12,15 +12,11 @@ class AnimationManager
      *  rendererSettings?: array
      * } $params
      */
-    public static function loadAnimation(array $params)
+    public static function loadAnimation(array $params): AnimationItem
     {
-        try {
-            $animItem = new AnimationItem();
-            $animItem->setParams($params);
+        $animItem = new AnimationItem();
+        $animItem->setParams($params);
 
-            return $animItem;
-        } catch (\Exception $e) {
-            echo $e->getMessage();
-        }
+        return $animItem;
     }
 }

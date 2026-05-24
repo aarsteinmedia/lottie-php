@@ -93,7 +93,7 @@ class SVGEffects
      */
     public static function registerEffect(int $id, string $effect, bool $countsAsEffect = false)
     {
-        self::$registeredEffects[$id] = [
+        self::$registeredEffects[$id] ??= [
             'countsAsEffect' => $countsAsEffect,
             'effect' => $effect,
         ];

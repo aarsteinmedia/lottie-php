@@ -434,7 +434,6 @@ class SVGTextLottieElement extends TextElement
 
                         $this->textSpans[$i]['glyph'] = $glyphElement;
                     }
-                    $glyphElement->_debug = true;
                     $glyphElement->prepareFrame(0);
                     $glyphElement->renderFrame();
                     if ($glyphElement->layerElement) {

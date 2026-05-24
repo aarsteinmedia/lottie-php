@@ -7,47 +7,41 @@ namespace LottiePHP\Utils\DotLottie;
  */
 function getLottieJSON(string $zipBinary): array
 {
-    try {
-        $unzipped = unzipToMap($zipBinary);
-        $manifest = getManifest($unzipped);
-        $data = [];
-        $animationsFolder = 'animations';
-        $firstId = $manifest['animations'][0]['id'] ?? null;
-        if (($manifest['version'] ?? null) === '2'
-            || (null !== $firstId && isset($unzipped["a/{$firstId}.json"]))) {
-            $animationsFolder = 'a';
-        }
-        $length = count($manifest['animations'] ?? []);
-        for ($i = 0; $i < $length; ++$i) {
-            $animation = $manifest['animations'][$i];
-
-            $id = $animation['id'] ?? null;
-            if (null === $id) {
-                continue;
-            }
-            $path = "{$animationsFolder}/{$id}.json";
-
-            if (!isset($unzipped[$path])) {
-                continue;
-                // throw new \RuntimeException("Missing animation JSON: {$path}");
-            }
-
-            /** @var array<string, mixed> $lottie */
-            $lottie = json_decode(prepareString($unzipped[$path]), true, 512, JSON_THROW_ON_ERROR);
-
-            if (isset($lottie['assets']) && is_array($lottie['assets'])) {
-                resolveAssets($unzipped, $lottie['assets']);
-            }
-
-            $data[] = $lottie;
-        }
-
-        return ['data' => $data, 'manifest' => $manifest];
-    } catch (\Throwable $error) {
-        echo $error->getMessage();
-
-        return ['data' => null, 'manifest' => null];
+    $unzipped = unzipToMap($zipBinary);
+    $manifest = getManifest($unzipped);
+    $data = [];
+    $animationsFolder = 'animations';
+    $firstId = $manifest['animations'][0]['id'] ?? null;
+    if (($manifest['version'] ?? null) === '2'
+        || (null !== $firstId && isset($unzipped["a/{$firstId}.json"]))) {
+        $animationsFolder = 'a';
     }
+    $length = count($manifest['animations'] ?? []);
+    for ($i = 0; $i < $length; ++$i) {
+        $animation = $manifest['animations'][$i];
+
+        $id = $animation['id'] ?? null;
+        if (null === $id) {
+            continue;
+        }
+        $path = "{$animationsFolder}/{$id}.json";
+
+        if (!isset($unzipped[$path])) {
+            continue;
+            // throw new \RuntimeException("Missing animation JSON: {$path}");
+        }
+
+        /** @var array<string, mixed> $lottie */
+        $lottie = json_decode(prepareString($unzipped[$path]), true, 512, JSON_THROW_ON_ERROR);
+
+        if (isset($lottie['assets']) && is_array($lottie['assets'])) {
+            resolveAssets($unzipped, $lottie['assets']);
+        }
+
+        $data[] = $lottie;
+    }
+
+    return ['data' => $data, 'manifest' => $manifest];
 }
 
 /** @return array<string, string> */

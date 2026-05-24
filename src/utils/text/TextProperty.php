@@ -30,9 +30,6 @@ class TextProperty extends BaseProperty
         $this->kf = false;
         $this->_isFirstFrame = true;
         $this->_mdf = false;
-        if ($data['d']['sid'] ?? null) {
-            $data['d'] = $elem['globalData']['slotManager']?->getProp($data['d']);
-        }
         $this->data = $data;
         $this->elem = $elem;
         $this->comp = $this->elem->comp;

@@ -23,10 +23,6 @@ class ImageElement extends SVGBaseElement
             $this->assetData = $globalData['getAssetData']($data['refId']) ?? null;
         }
 
-        if ($this->assetData['sid'] ?? null) {
-            $this->assetData = $globalData['slotManager']?->getProp($this->assetData) ?? [];
-        }
-
         $this->initElement(
             $data,
             $globalData,

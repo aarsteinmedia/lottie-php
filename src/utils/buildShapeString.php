@@ -5,6 +5,15 @@ namespace LottiePHP\Utils;
 use LottiePHP\Utils\Shapes\ShapePath;
 
 /**
+ * Path tangent convention for this renderer:
+ *
+ * - ShapePath / modifiers store Lottie-relative tangents (offset from each vertex).
+ * - JSON glyph exports may use absolute control points; call normalizePathDataTangents()
+ *   when importing raw ks.k arrays (fonts, text glyphs).
+ * - PolynomialBezier::shapeSegment() and buildShapeString() both add vertex + tangent.
+ */
+
+/**
  * @param null|array{0: float|int, 1: float|int} $a
  * @param null|array{0: float|int, 1: float|int} $b
  */

@@ -261,779 +261,281 @@ class TextAnimatorProperty extends DynamicPropertyContainer
 
     public function getMeasures(array $documentData, ?bool $lettersChangedFlag)
     {
-        try {
-            $this->lettersChangedFlag = (bool) $lettersChangedFlag;
-            if (
-                !$this->_mdf
-                && !$this->_isFirstFrame
-                && !$this->lettersChangedFlag
-                && (!$this->_hasMaskedPath || !$this->_pathData['m']['_mdf'] ?? null)
-            ) {
-                return;
-            }
-            $this->_isFirstFrame = false;
-            $alignment = $this->_moreOptions['alignment']['v'];
-            $animators = $this->_animatorsData;
-            $textData = $this->_textData;
-            $matrixHelper = $this->mHelper;
-            $renderedLettersCount = count($this->renderedLetters);
-            $xPos = null;
-            $yPos = null;
-            $i = 0;
-            $len = 0;
-            $letters = $documentData['l'];
+        $this->lettersChangedFlag = (bool) $lettersChangedFlag;
+        if (
+            !$this->_mdf
+            && !$this->_isFirstFrame
+            && !$this->lettersChangedFlag
+            && (!$this->_hasMaskedPath || !$this->_pathData['m']['_mdf'] ?? null)
+        ) {
+            return;
+        }
+        $this->_isFirstFrame = false;
+        $alignment = $this->_moreOptions['alignment']['v'];
+        $animators = $this->_animatorsData;
+        $textData = $this->_textData;
+        $matrixHelper = $this->mHelper;
+        $renderedLettersCount = count($this->renderedLetters);
+        $xPos = null;
+        $yPos = null;
+        $i = 0;
+        $len = 0;
+        $letters = $documentData['l'];
 
-            $pathInfo = null;
-            $currentLength = 0.0;
-            $currentPoint = null;
-            $segmentLength = 0;
-            $shouldMeasure = false;
-            $pointInd = 0;
-            $segmentInd = 0;
-            $prevPoint = null;
-            $points = null;
-            $segments = [];
-            $partialLength = 0;
-            $totalLength = 0;
-            $perc = 0;
-            $tanAngle = null;
-            $mask = null;
+        $pathInfo = null;
+        $currentLength = 0.0;
+        $currentPoint = null;
+        $segmentLength = 0;
+        $shouldMeasure = false;
+        $pointInd = 0;
+        $segmentInd = 0;
+        $prevPoint = null;
+        $points = null;
+        $segments = [];
+        $partialLength = 0;
+        $totalLength = 0;
+        $perc = 0;
+        $tanAngle = null;
+        $mask = null;
 
-            if ($this->_hasMaskedPath && $this->_pathData['m'] ?? null) {
-                $mask = $this->_pathData['m'];
-                if (!($this->_pathData['n'] ?? null) || $this->_pathData['_mdf']) {
-                    $paths = $mask->v ?? null;
+        if ($this->_hasMaskedPath && $this->_pathData['m'] ?? null) {
+            $mask = $this->_pathData['m'];
+            if (!($this->_pathData['n'] ?? null) || $this->_pathData['_mdf']) {
+                $paths = $mask->v ?? null;
 
-                    // Some parts of the codebase store mask paths as a ShapePath instance,
-                    // while others wrap it in an array. Normalize to a single ShapePath.
-                    if (is_array($paths)) {
-                        $paths = $paths[0] ?? null;
-                    }
-
-                    if ($paths instanceof ShapePath) {
-                        if ($this->_pathData['r']->v ?? null) {
-                            $paths = $paths->toReversed();
-                        }
-                        $pathInfo = [
-                            'closed' => (bool) ($paths->c ?? false),
-                            'segments' => [],
-                            'tLength' => 0,
-                        ];
-                        $len = ($paths->_length ?? 0) - 1;
-                        $bezierData = null;
-
-                        $totalLength = 0;
-                        for ($i = 0; $i < $len; ++$i) {
-                            // ShapePath stores relative Lottie tangents; buildBezierData adds them to vertices.
-                            $bezierData = Bezier::buildBezierData(
-                                $paths->v[$i],
-                                $paths->v[$i + 1],
-                                [
-                                    $paths->o[$i][0] ?? 0,
-                                    $paths->o[$i][1] ?? 0,
-                                ],
-                                [
-                                    $paths->i[$i + 1][0] ?? 0,
-                                    $paths->i[$i + 1][1] ?? 0,
-                                ]
-                            );
-                            $pathInfo['tLength'] += $bezierData->segmentLength;
-                            array_push($pathInfo['segments'], $bezierData);
-                            $totalLength += $bezierData->segmentLength;
-                        }
-                        $i = $len;
-                        if (($paths->c ?? false) && $len >= 0) {
-                            $bezierData = Bezier::buildBezierData(
-                                $paths->v[$i],
-                                $paths->v[0],
-                                [
-                                    $paths->o[$i][0] ?? 0,
-                                    $paths->o[$i][1] ?? 0,
-                                ],
-                                [
-                                    $paths->i[0][0] ?? 0,
-                                    $paths->i[0][1] ?? 0,
-                                ]
-                            );
-                            $pathInfo['tLength'] += $bezierData->segmentLength;
-                            array_push($pathInfo['segments'], $bezierData);
-                            $totalLength += $bezierData->segmentLength;
-                        }
-                        $this->_pathData['pi'] = $pathInfo;
-                    }
-                }
-                $pathInfo = $this->_pathData['pi'];
-
-                $currentLength = $this->_pathData['f']->v ?? 0;
-                $segmentInd = 0;
-                $pointInd = 1;
-                $segmentLength = 0;
-                // $shouldMeasure = true
-                $segments = $pathInfo['segments'] ?? [];
-                $pathClosed = (bool) ($pathInfo['closed'] ?? false);
-
-                if ($currentLength < 0 && $pathClosed) {
-                    $pathLength = (float) ($pathInfo['tLength'] ?? 0);
-                    if ($pathLength > 0 && $pathLength < abs($currentLength)) {
-                        $currentLength = -fmod(abs($currentLength), $pathLength);
-                    }
-                    $segmentInd = count($segments) - 1;
-                    $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                    $pointInd = max(0, count($points) - 1);
-
-                    while ($currentLength < 0 && $points) {
-                        $currentLength += $this->getPartialLength($points[$pointInd] ?? null);
-                        --$pointInd;
-                        if ($pointInd < 0) {
-                            --$segmentInd;
-                            if ($segmentInd < 0) {
-                                break;
-                            }
-                            $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                            $pointInd = max(0, count($points) - 1);
-                        }
-                    }
+                // Some parts of the codebase store mask paths as a ShapePath instance,
+                // while others wrap it in an array. Normalize to a single ShapePath.
+                if (is_array($paths)) {
+                    $paths = $paths[0] ?? null;
                 }
 
-                $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                $prevPoint = $points[$pointInd - 1];
-                $currentPoint = $points[$pointInd];
-                $partialLength = $this->getPartialLength($currentPoint);
-            }
-
-            $len = count($letters ?? []);
-            $xPos = 0;
-            $yPos = 0;
-            $yOff = ($documentData['finalSize'] ?? 0) * 1.2 * 0.714;
-            $isFirstLine = true;
-            $animatorProps = null;
-            $animatorSelector = null;
-            $j = 0;
-            $letterValue = null;
-
-            $jLen = count($animators);
-
-            $mult = null;
-            $ind = -1;
-            $offf = null;
-            $xPathPos = 0;
-            $yPathPos = 0;
-            $initPathPos = $currentLength;
-            $initSegmentInd = $segmentInd;
-            $initPointInd = $pointInd;
-            $currentLine = -1;
-            $elemOpacity = null;
-            $sc = [0,
-                0,
-                0];
-            $sw = 0;
-            $fc = [0,
-                0,
-                0];
-            $k = 0;
-            $letterSw = null;
-            $letterSc = null;
-            $letterFc = null;
-            $letterM = '';
-            $letterP = $this->defaultPropsArray;
-            $letterO = null;
-
-            if (2 === ($documentData['j'] ?? null) || 1 === ($documentData['j'] ?? null)) {
-                $animatorJustifyOffset = 0;
-                $animatorFirstCharOffset = 0;
-                $justifyOffsetMult = 2 === $documentData['j'] ? -0.5 : -1;
-                $lastIndex = 0;
-                $isNewLine = true;
-
-                for ($i = 0; $i < $len; ++$i) {
-                    if ($letters[$i]['n']) {
-                        if ($animatorJustifyOffset) {
-                            $animatorJustifyOffset += $animatorFirstCharOffset;
-                        }
-                        while ($lastIndex < $i) {
-                            $letters[$lastIndex]['animatorJustifyOffset'] = $animatorJustifyOffset;
-                            ++$lastIndex;
-                        }
-                        $animatorJustifyOffset = 0;
-                        $isNewLine = true;
-
-                        continue;
+                if ($paths instanceof ShapePath) {
+                    if ($this->_pathData['r']->v ?? null) {
+                        $paths = $paths->toReversed();
                     }
-                    for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
-                        $trackingProp = $animatorProps['t'] ?? null;
-                        if (!$trackingProp || !($trackingProp['propType'] ?? (is_object($trackingProp) ? ($trackingProp->propType ?? false) : false))) {
-                            continue;
-                        }
-                        $animVal = is_array($trackingProp) ? ($trackingProp['v'] ?? null) : $trackingProp->v;
+                    $pathInfo = [
+                        'closed' => (bool) ($paths->c ?? false),
+                        'segments' => [],
+                        'tLength' => 0,
+                    ];
+                    $len = ($paths->_length ?? 0) - 1;
+                    $bezierData = null;
 
-                        if (!is_numeric($animVal)) {
-                            continue;
-                        }
-
-                        if ($isNewLine && 2 === $documentData['j']) {
-                            $animatorFirstCharOffset += $animVal * $justifyOffsetMult;
-                        }
-                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
-                        $mult = $animatorSelector?->getMult(
-                            $letters[$i]['anIndexes'][$j] ?? 0,
-                            $textData['a'][$j]['s']['totalChars'] ?? 0
+                    $totalLength = 0;
+                    for ($i = 0; $i < $len; ++$i) {
+                        // ShapePath stores relative Lottie tangents; buildBezierData adds them to vertices.
+                        $bezierData = Bezier::buildBezierData(
+                            $paths->v[$i],
+                            $paths->v[$i + 1],
+                            [
+                                $paths->o[$i][0] ?? 0,
+                                $paths->o[$i][1] ?? 0,
+                            ],
+                            [
+                                $paths->i[$i + 1][0] ?? 0,
+                                $paths->i[$i + 1][1] ?? 0,
+                            ]
                         );
-
-                        if (null !== $mult) {
-                            if (is_array($mult)) {
-                                $animatorJustifyOffset
-                                  += $animVal * ($mult[0] ?? 1) * $justifyOffsetMult;
-                            } else {
-                                $animatorJustifyOffset
-                                  += $animVal * $mult * $justifyOffsetMult;
-                            }
-                        }
+                        $pathInfo['tLength'] += $bezierData->segmentLength;
+                        array_push($pathInfo['segments'], $bezierData);
+                        $totalLength += $bezierData->segmentLength;
                     }
-                    $isNewLine = false;
-                }
-                if ($animatorJustifyOffset) {
-                    $animatorJustifyOffset += $animatorFirstCharOffset;
-                }
-                while ($lastIndex < $i) {
-                    $letters[$lastIndex]['animatorJustifyOffset'] = $animatorJustifyOffset;
-                    ++$lastIndex;
+                    $i = $len;
+                    if (($paths->c ?? false) && $len >= 0) {
+                        $bezierData = Bezier::buildBezierData(
+                            $paths->v[$i],
+                            $paths->v[0],
+                            [
+                                $paths->o[$i][0] ?? 0,
+                                $paths->o[$i][1] ?? 0,
+                            ],
+                            [
+                                $paths->i[0][0] ?? 0,
+                                $paths->i[0][1] ?? 0,
+                            ]
+                        );
+                        $pathInfo['tLength'] += $bezierData->segmentLength;
+                        array_push($pathInfo['segments'], $bezierData);
+                        $totalLength += $bezierData->segmentLength;
+                    }
+                    $this->_pathData['pi'] = $pathInfo;
                 }
             }
+            $pathInfo = $this->_pathData['pi'];
+
+            $currentLength = $this->_pathData['f']->v ?? 0;
+            $segmentInd = 0;
+            $pointInd = 1;
+            $segmentLength = 0;
+            // $shouldMeasure = true
+            $segments = $pathInfo['segments'] ?? [];
+            $pathClosed = (bool) ($pathInfo['closed'] ?? false);
+
+            if ($currentLength < 0 && $pathClosed) {
+                $pathLength = (float) ($pathInfo['tLength'] ?? 0);
+                if ($pathLength > 0 && $pathLength < abs($currentLength)) {
+                    $currentLength = -fmod(abs($currentLength), $pathLength);
+                }
+                $segmentInd = count($segments) - 1;
+                $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
+                $pointInd = max(0, count($points) - 1);
+
+                while ($currentLength < 0 && $points) {
+                    $currentLength += $this->getPartialLength($points[$pointInd] ?? null);
+                    --$pointInd;
+                    if ($pointInd < 0) {
+                        --$segmentInd;
+                        if ($segmentInd < 0) {
+                            break;
+                        }
+                        $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
+                        $pointInd = max(0, count($points) - 1);
+                    }
+                }
+            }
+
+            $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
+            $prevPoint = $points[$pointInd - 1];
+            $currentPoint = $points[$pointInd];
+            $partialLength = $this->getPartialLength($currentPoint);
+        }
+
+        $len = count($letters ?? []);
+        $xPos = 0;
+        $yPos = 0;
+        $yOff = ($documentData['finalSize'] ?? 0) * 1.2 * 0.714;
+        $isFirstLine = true;
+        $animatorProps = null;
+        $animatorSelector = null;
+        $j = 0;
+        $letterValue = null;
+
+        $jLen = count($animators);
+
+        $mult = null;
+        $ind = -1;
+        $offf = null;
+        $xPathPos = 0;
+        $yPathPos = 0;
+        $initPathPos = $currentLength;
+        $initSegmentInd = $segmentInd;
+        $initPointInd = $pointInd;
+        $currentLine = -1;
+        $elemOpacity = null;
+        $sc = [0,
+            0,
+            0];
+        $sw = 0;
+        $fc = [0,
+            0,
+            0];
+        $k = 0;
+        $letterSw = null;
+        $letterSc = null;
+        $letterFc = null;
+        $letterM = '';
+        $letterP = $this->defaultPropsArray;
+        $letterO = null;
+
+        if (2 === ($documentData['j'] ?? null) || 1 === ($documentData['j'] ?? null)) {
+            $animatorJustifyOffset = 0;
+            $animatorFirstCharOffset = 0;
+            $justifyOffsetMult = 2 === $documentData['j'] ? -0.5 : -1;
+            $lastIndex = 0;
+            $isNewLine = true;
 
             for ($i = 0; $i < $len; ++$i) {
-                $matrixHelper->reset();
-                $elemOpacity = 1;
-                if ($letters[$i]['n'] ?? null) {
-                    $xPos = 0;
-                    $yPos += $documentData['yOffset'] ?? 0;
-                    $yPos += $isFirstLine ? 1 : 0;
-                    $currentLength = $initPathPos;
-                    $isFirstLine = false;
-                    if ($this->_hasMaskedPath) {
-                        $segmentInd = $initSegmentInd ?? 0;
-                        $pointInd = $initPointInd ?? 0;
-                        $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                        $prevPoint = $points[$pointInd - 1];
-                        $currentPoint = $points[$pointInd];
-                        $partialLength = $this->getPartialLength($currentPoint);
-                        $segmentLength = 0;
+                if ($letters[$i]['n']) {
+                    if ($animatorJustifyOffset) {
+                        $animatorJustifyOffset += $animatorFirstCharOffset;
                     }
-                    $letterM = '';
-                    $letterFc = '';
-                    $letterSw = '';
-                    $letterO = '';
-                    $letterP = $this->defaultPropsArray;
-                } else {
-                    if ($this->_hasMaskedPath) {
-                        if ($currentLine !== $letters[$i]['line'] ?? null) {
-                            switch ($documentData['j']) {
-                                case 1:
-                                    $currentLength
-                                    += $totalLength - ($documentData['lineWidths'][$letters[$i]['line'] ?? 0] ?? 0);
+                    while ($lastIndex < $i) {
+                        $letters[$lastIndex]['animatorJustifyOffset'] = $animatorJustifyOffset;
+                        ++$lastIndex;
+                    }
+                    $animatorJustifyOffset = 0;
+                    $isNewLine = true;
 
-                                    break;
+                    continue;
+                }
+                for ($j = 0; $j < $jLen; ++$j) {
+                    $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+                    $trackingProp = $animatorProps['t'] ?? null;
+                    if (!$trackingProp || !($trackingProp['propType'] ?? (is_object($trackingProp) ? ($trackingProp->propType ?? false) : false))) {
+                        continue;
+                    }
+                    $animVal = is_array($trackingProp) ? ($trackingProp['v'] ?? null) : $trackingProp->v;
 
-                                case 2:
-                                    $currentLength
-                                      += ($totalLength - ($documentData['lineWidths'][$letters[$i]['line'] ?? 0] ?? 0)) / 2;
-
-                                    break;
-
-                                case null:
-                                default:
-                                    break;
-                            }
-                            $currentLine = $letters[$i]['line'] ?? 0;
-                        }
-                        if ($ind !== ($letters[$i]['ind'] ?? null)) {
-                            if ($ind >= 0 && ($letters[$ind] ?? null)) {
-                                $currentLength += (float) ($letters[$ind]['extra'] ?? 0);
-                            }
-                            $currentLength += ($letters[$i]['an'] ?? 0) / 2;
-                            $ind = $letters[$i]['ind'] ?? 0;
-                        }
-                        $currentLength += $alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005;
-                        $animatorOffset = 0;
-
-                        for ($j = 0; $j < $jLen; ++$j) {
-                            $animatorProps = ($animators[$j] ?? null)?->a ?? [];
-                            if ($animatorProps['p']['propType'] ?? null) {
-                                $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
-                                $mult = $animatorSelector?->getMult(
-                                    $letters[$i]['anIndexes'][$j] ?? 0,
-                                    $textData['a'][$j]['s']['totalChars'] ?? 0
-                                );
-                                if (!$mult) {
-                                    continue;
-                                }
-                                if (is_array($animatorProps['p']->v)) {
-                                    if (is_array($mult)) {
-                                        $animatorOffset += $animatorProps['p']->v[0] * ($mult[0] ?? 1);
-                                    } else {
-                                        $animatorOffset += $animatorProps['p']->v[0] * $mult;
-                                    }
-                                }
-                            }
-                            if (!$animatorProps['a']['propType'] ?? null) {
-                                continue;
-                            }
-                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
-                            $mult = $animatorSelector?->getMult(
-                                (int) ($letters[$i]['anIndexes'][$j] ?? 0),
-                                $textData['a'][$j]['s']['totalChars'] ?? 0
-                            );
-                            if (!$mult) {
-                                continue;
-                            }
-                            if (!is_array($animatorProps['a']->v)) {
-                                continue;
-                            }
-                            if (is_array($mult)) {
-                                $animatorOffset += ($animatorProps['a']->v[0] ?? 0) * ($mult[0] ?? 1);
-
-                                continue;
-                            }
-                            $animatorOffset += ($animatorProps['a']->v[0] ?? 0) * $mult;
-                        }
-                        $shouldMeasure = true;
-
-                        // Force alignment only works with a single line for now
-                        if ($this->_pathData['a']->v ?? null) {
-                            $currentLength
-                            = ($letters[0]['an'] ?? 0) * 0.5
-                            + ($totalLength
-                              - (float) ($this->_pathData['f']->v ?? null)
-                              - ($letters[0]['an'] ?? 0) * 0.5
-                              - ($letters[count($letters) - 1]['an'] ?? 0) * 0.5)
-                              * $ind
-                              / max(1, $len - 1);
-                            $currentLength += (float) ($this->_pathData['f']->v ?? 0);
-                            // Each letter gets an absolute path offset; restart the walk from the start.
-                            $segmentInd = 0;
-                            $pointInd = 1;
-                            $segmentLength = 0.0;
-                            $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                            $prevPoint = $points[$pointInd - 1] ?? null;
-                            $currentPoint = $points[$pointInd] ?? null;
-                            $partialLength = $this->getPartialLength($currentPoint);
-                        }
-                        while ($shouldMeasure) {
-                            if (
-                                $segmentLength + $partialLength >= $currentLength + $animatorOffset
-                                || !$points
-                            ) {
-                                $pointPartialLength = $this->getPartialLength($currentPoint);
-                                $perc = $pointPartialLength > 0
-                                    ? ($currentLength + $animatorOffset - $segmentLength)
-                                    / $pointPartialLength
-                                    : 0.0;
-
-                                $prevPt = $this->getPoint($prevPoint);
-                                $curPt = $this->getPoint($currentPoint);
-                                $xPathPos
-                                = ($prevPt[0] ?? 0)
-                                + (($curPt[0] ?? 0) - ($prevPt[0] ?? 0))
-                                * $perc;
-                                $yPathPos
-                                = ($prevPt[1] ?? 0)
-                                + (($curPt[1] ?? 0) - ($prevPt[1] ?? 0))
-                                * $perc;
-                                $matrixHelper->translate(
-                                    -$alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005,
-                                    -($alignment[1] * $yOff) * 0.01
-                                );
-                                $shouldMeasure = false;
-                            } elseif (count($points) > 0) {
-                                $segmentLength += $this->getPartialLength($currentPoint);
-                                ++$pointInd;
-                                if ($pointInd >= count($points)) {
-                                    $pointInd = 0;
-                                    ++$segmentInd;
-                                    if ($segments[$segmentInd] ?? null) {
-                                        $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                                    } elseif ($pathClosed) {
-                                        $pointInd = 0;
-                                        $segmentInd = 0;
-                                        $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                                    } else {
-                                        $segmentLength -= $this->getPartialLength($currentPoint);
-                                        $points = null;
-                                    }
-                                }
-                                if ($points) {
-                                    $prevPoint = $currentPoint;
-                                    $currentPoint = $points[$pointInd];
-                                    $partialLength = $this->getPartialLength($currentPoint);
-                                }
-                            }
-                        }
-                        $offf = ($letters[$i]['an'] ?? 0) / 2 - ($letters[$i]['add'] ?? 0);
-                        $matrixHelper->translate(
-                            -$offf,
-                            0,
-                            0
-                        );
-                    } else {
-                        $offf = ($letters[$i]['an'] ?? 0) / 2 - ($letters[$i]['add'] ?? 0);
-                        $matrixHelper->translate(
-                            -$offf,
-                            0,
-                            0
-                        );
-
-                        // Grouping alignment
-                        $matrixHelper->translate(
-                            -$alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005,
-                            -$alignment[1] * $yOff * 0.01,
-                            0
-                        );
+                    if (!is_numeric($animVal)) {
+                        continue;
                     }
 
-                    for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
-                        if (!$animatorProps['t']['propType'] ?? null) {
-                            continue;
-                        }
-                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
-                        $mult = $animatorSelector?->getMult(
-                            (int) ($letters[$i]['anIndexes'][$j] ?? 0),
-                            $textData['a'][$j]['s']['totalChars'] ?? 0
-                        );
-                        // This condition is to prevent applying tracking to first character in each line. Might be better to use a boolean "isNewLine"
-                        if (0 !== $xPos || 0 !== $documentData['j']) {
-                            if ($this->_hasMaskedPath) {
-                                if (is_array($mult)) {
-                                    $currentLength += (float) $animatorProps['t']->v * ($mult[0] ?? 1);
-                                } else {
-                                    $currentLength += (float) $animatorProps['t']->v * (int) $mult;
-                                }
-
-                                continue;
-                            }
-
-                            if (is_array($mult)) {
-                                $xPos += (int) $animatorProps['t']->v * ($mult[0] ?? 1);
-
-                                continue;
-                            }
-                            $xPos += (int) $animatorProps['t']->v * (int) $mult;
-                        }
+                    if ($isNewLine && 2 === $documentData['j']) {
+                        $animatorFirstCharOffset += $animVal * $justifyOffsetMult;
                     }
-                    if ($documentData['strokeWidthAnim']) {
-                        $sw = $documentData['sw'] ?? 0;
-                    }
-                    if ($documentData['strokeColorAnim']) {
-                        if ($documentData['sc']) {
-                            $sc = [
-                                $documentData['sc'][0],
-                                $documentData['sc'][1],
-                                $documentData['sc'][2],
-                            ];
+                    $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
+                    $mult = $animatorSelector?->getMult(
+                        $letters[$i]['anIndexes'][$j] ?? 0,
+                        $textData['a'][$j]['s']['totalChars'] ?? 0
+                    );
+
+                    if (null !== $mult) {
+                        if (is_array($mult)) {
+                            $animatorJustifyOffset
+                              += $animVal * ($mult[0] ?? 1) * $justifyOffsetMult;
                         } else {
-                            $sc = [
-                                0,
-                                0,
-                                0,
-                            ];
+                            $animatorJustifyOffset
+                              += $animVal * $mult * $justifyOffsetMult;
                         }
                     }
-                    if ($documentData['fillColorAnim'] && $documentData['fc']) {
-                        $fc = [
-                            (int) $documentData['fc'][0],
-                            (int) $documentData['fc'][1],
-                            (int) $documentData['fc'][2],
-                        ];
-                    }
-                    for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
-                        if ($animatorProps['a']['propType'] ?? null) {
-                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
-                            $mult = $animatorSelector?->getMult(
-                                $letters[$i]['anIndexes'][$j] ?? 0,
-                                $textData['a'][$j]['s']['totalChars'] ?? 0
-                            );
-                            if (!$mult || !is_array($animatorProps['a']->v)) {
-                                continue;
-                            }
+                }
+                $isNewLine = false;
+            }
+            if ($animatorJustifyOffset) {
+                $animatorJustifyOffset += $animatorFirstCharOffset;
+            }
+            while ($lastIndex < $i) {
+                $letters[$lastIndex]['animatorJustifyOffset'] = $animatorJustifyOffset;
+                ++$lastIndex;
+            }
+        }
 
-                            if (is_array($mult)) {
-                                $matrixHelper->translate(
-                                    -($animatorProps['a']->v[0] ?? 0) * ($mult[0] ?? 1),
-                                    -($animatorProps['a']->v[1] ?? 0) * ($mult[1] ?? 1),
-                                    ($animatorProps['a']->v[2] ?? 0) * ($mult[2] ?? 1)
-                                );
-
-                                continue;
-                            }
-                            $matrixHelper->translate(
-                                -($animatorProps['a']->v[0] ?? 0) * $mult,
-                                -($animatorProps['a']->v[1] ?? 0) * $mult,
-                                ($animatorProps['a']->v[2] ?? 0) * $mult
-                            );
-                        }
-                    }
-                    for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
-                        if ($animatorProps['s']['propType'] ?? null) {
-                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
-                            $mult = $animatorSelector?->getMult(
-                                $letters[$i]['anIndexes'][$j] ?? 0,
-                                $textData['a'][$j]['s']['totalChars'] ?? 0
-                            );
-                            if (!$mult || !is_array($animatorProps['s']->v)) {
-                                continue;
-                            }
-                            if (is_array($mult)) {
-                                $matrixHelper->scale(
-                                    1 + (($animatorProps['s']->v[0] ?? 0) - 1) * ($mult[0] ?? 1),
-                                    1 + (($animatorProps['s']->v[1] ?? 0) - 1) * ($mult[1] ?? 1),
-                                    1
-                                );
-
-                                continue;
-                            }
-                            $matrixHelper->scale(
-                                1 + (($animatorProps['s']->v[0] ?? 0) - 1) * $mult,
-                                1 + (($animatorProps['s']->v[1] ?? 0) - 1) * $mult,
-                                1
-                            );
-                        }
-                    }
-
-                    for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
-                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
-                        $mult = $animatorSelector?->getMult(
-                            $letters[$i]['anIndexes'][$j] ?? 0,
-                            $textData['a'][$j]['s']['totalChars'] ?? null
-                        );
-                        if (!$mult) {
-                            continue;
-                        }
-                        if ($animatorProps['sk']['propType']) {
-                            if (is_array($mult)) {
-                                $matrixHelper->skewFromAxis(
-                                    -(int) $animatorProps['sk']->v * ($mult[0] ?? 1),
-                                    (int) ($animatorProps['sa']->v ?? 0) * ($mult[1] ?? 1)
-                                );
-                            } else {
-                                $matrixHelper->skewFromAxis(
-                                    -(int) $animatorProps['sk']->v * $mult,
-                                    (int) ($animatorProps['sa']->v ?? 0) * $mult
-                                );
-                            }
-                        }
-                        if ($animatorProps['r']['propType'] ?? null) {
-                            if (is_array($mult)) {
-                                $matrixHelper->rotateZ(-(int) $animatorProps['r']->v * ($mult[2] ?? 1));
-                            } else {
-                                $matrixHelper->rotateZ(-(int) $animatorProps['r']->v * $mult);
-                            }
-                        }
-                        if ($animatorProps['ry']['propType'] ?? null) {
-                            if (is_array($mult)) {
-                                $matrixHelper->rotateY((int) $animatorProps['ry']->v * ($mult[1] ?? 1));
-                            } else {
-                                $matrixHelper->rotateY((int) $animatorProps['ry']->v * $mult);
-                            }
-                        }
-                        if ($animatorProps['rx']['propType'] ?? null) {
-                            if (is_array($mult)) {
-                                $matrixHelper->rotateX((int) $animatorProps['rx']->v * ($mult[0] ?? 1));
-                            } else {
-                                $matrixHelper->rotateX((int) $animatorProps['rx']->v * $mult);
-                            }
-                        }
-                        if ($animatorProps['o']['propType'] ?? null) {
-                            if (is_array($mult)) {
-                                $elemOpacity
-                                += ((int) $animatorProps['o']->v * ($mult[0] ?? 1) - $elemOpacity) * ($mult[0] ?? 1);
-                            } else {
-                                $elemOpacity
-                                += ((int) $animatorProps['o']->v * $mult - $elemOpacity) * $mult;
-                            }
-                        }
-                        if ($documentData['strokeWidthAnim'] && ($animatorProps['sw']['propType'] ?? null)) {
-                            if (is_array($mult)) {
-                                $sw += (int) $animatorProps['sw']->v * ($mult[0] ?? 1);
-                            } else {
-                                $sw += (int) $animatorProps['sw']->v * $mult;
-                            }
-                        }
-                        if (
-                            $documentData['strokeColorAnim']
-                            && ($animatorProps['sc']['propType'] ?? null)
-                            && is_array($animatorProps['sc']->v)
-                        ) {
-                            for ($k = 0; $k < 3; ++$k) {
-                                if (is_array($mult)) {
-                                    $sc[$k] += (($animatorProps['sc']->v[$k] ?? 0) - ($sc[$k] ?? 0)) * ($mult[0] ?? 1);
-                                } else {
-                                    $sc[$k] += (($animatorProps['sc']->v[$k] ?? 0) - ($sc[$k] ?? 0)) * $mult;
-                                }
-                            }
-                        }
-                        if ($documentData['fillColorAnim'] && $documentData['fc']) {
-                            if ($animatorProps['fc']['propType'] ?? null) {
-                                for ($k = 0; $k < 3; ++$k) {
-                                    if (!is_array($animatorProps['fc']->v)) {
-                                        continue;
-                                    }
-                                    if (is_array($mult)) {
-                                        $fc[$k] += (($animatorProps['fc']->v[$k] ?? 0) - ($fc[$k] ?? 0)) * ($mult[0] ?? 1);
-                                    } else {
-                                        $fc[$k] += (($animatorProps['fc']->v[$k] ?? 0) - ($fc[$k] ?? 0)) * $mult;
-                                    }
-                                }
-                            }
-                            if ($animatorProps['fh']['propType'] ?? null) {
-                                if (is_array($mult)) {
-                                    $fc = self::addHueToRGB($fc, (int) $animatorProps['fh']->v * ($mult[0] ?? 1));
-                                } else {
-                                    $fc = self::addHueToRGB($fc, (int) $animatorProps['fh']->v * $mult);
-                                }
-                            }
-                            if ($animatorProps['fs']['propType'] ?? null) {
-                                if (is_array($mult)) {
-                                    $fc = self::addSaturationToRGB(
-                                        $fc,
-                                        (int) $animatorProps['fs']->v * ($mult[0] ?? 1)
-                                    );
-                                } else {
-                                    $fc = self::addSaturationToRGB($fc, (int) $animatorProps['fs']->v * $mult);
-                                }
-                            }
-                            if ($animatorProps['fb']['propType'] ?? null) {
-                                if (is_array($mult)) {
-                                    $fc = self::addBrightnessToRGB(
-                                        $fc,
-                                        (int) $animatorProps['fb']->v * ($mult[0] ?? 1)
-                                    );
-                                } else {
-                                    $fc = self::addBrightnessToRGB($fc, (int) $animatorProps['fb']->v * $mult);
-                                }
-                            }
-                        }
-                    }
-
-                    for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
-
-                        if ($animatorProps['p']['propType'] ?? null) {
-                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
-                            $mult = $animatorSelector?->getMult(
-                                $letters[$i]['anIndexes'][$j] ?? 0,
-                                $textData['a'][$j]['s']['totalChars'] ?? 0
-                            );
-                            if (!$mult || !is_array($animatorProps['p']->v)) {
-                                continue;
-                            }
-                            if ($this->_hasMaskedPath) {
-                                if (is_array($mult)) {
-                                    $matrixHelper->translate(
-                                        0,
-                                        $animatorProps['p']->v[1] * $mult[0],
-                                        -$animatorProps['p']->v[2] * $mult[1]
-                                    );
-                                } else {
-                                    $matrixHelper->translate(
-                                        0,
-                                        $animatorProps['p']->v[1] * $mult,
-                                        -$animatorProps['p']->v[2] * $mult
-                                    );
-                                }
-                            } elseif (is_array($mult)) {
-                                $matrixHelper->translate(
-                                    $animatorProps['p']->v[0] * $mult[0],
-                                    $animatorProps['p']->v[1] * $mult[1],
-                                    -$animatorProps['p']->v[2] * $mult[2]
-                                );
-                            } else {
-                                $matrixHelper->translate(
-                                    $animatorProps['p']->v[0] * $mult,
-                                    $animatorProps['p']->v[1] * $mult,
-                                    -$animatorProps['p']->v[2] * $mult
-                                );
-                            }
-                        }
-                    }
-                    if ($documentData['strokeWidthAnim']) {
-                        $letterSw = $sw < 0 ? 0 : $sw;
-                    }
-                    if ($documentData['strokeColorAnim']) {
-                        $letterSc = toRGBString($sc);
-                    }
-                    if ($documentData['fillColorAnim'] && $documentData['fc']) {
-                        $letterFc = toRGBString($fc);
-                    }
-
-                    if ($this->_hasMaskedPath) {
-                        $matrixHelper->translate(0, -(int) $documentData['ls']);
-
-                        $matrixHelper->translate(
-                            0,
-                            $alignment[1] * $yOff * 0.01 + $yPos,
-                            0
-                        );
-                        if ($this->_pathData['p']->v ?? null) {
-                            $prevPt = $this->getPoint($prevPoint);
-                            $curPt = $this->getPoint($currentPoint);
-                            $dx = ($curPt[0] ?? 0) - ($prevPt[0] ?? 0);
-                            $dy = ($curPt[1] ?? 0) - ($prevPt[1] ?? 0);
-                            // Use atan2 so rotation follows path direction on all arcs (incl. vertical tangents).
-                            $rot = atan2($dy, $dx) * 180 / M_PI;
-                            $matrixHelper->rotate(-$rot * M_PI / 180);
-                        }
-                        $matrixHelper->translate(
-                            $xPathPos,
-                            $yPathPos,
-                            0
-                        );
-                        $currentLength -= $alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005;
-                        if (($letters[$i + 1] ?? null) && $ind !== ($letters[$i + 1]['ind'] ?? 0)) {
-                            $currentLength += ($letters[$i]['an'] ?? 0) / 2;
-                            $currentLength
-                              += $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
-                        }
-                    } else {
-                        $matrixHelper->translate(
-                            $xPos,
-                            $yPos,
-                            0
-                        );
-
-                        if ($documentData['ps']) {
-                            $matrixHelper->translate(
-                                $documentData['ps'][0],
-                                $documentData['ps'][1] + (int) $documentData['ascent'],
-                                0
-                            );
-                        }
-
+        for ($i = 0; $i < $len; ++$i) {
+            $matrixHelper->reset();
+            $elemOpacity = 1;
+            if ($letters[$i]['n'] ?? null) {
+                $xPos = 0;
+                $yPos += $documentData['yOffset'] ?? 0;
+                $yPos += $isFirstLine ? 1 : 0;
+                $currentLength = $initPathPos;
+                $isFirstLine = false;
+                if ($this->_hasMaskedPath) {
+                    $segmentInd = $initSegmentInd ?? 0;
+                    $pointInd = $initPointInd ?? 0;
+                    $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
+                    $prevPoint = $points[$pointInd - 1];
+                    $currentPoint = $points[$pointInd];
+                    $partialLength = $this->getPartialLength($currentPoint);
+                    $segmentLength = 0;
+                }
+                $letterM = '';
+                $letterFc = '';
+                $letterSw = '';
+                $letterO = '';
+                $letterP = $this->defaultPropsArray;
+            } else {
+                if ($this->_hasMaskedPath) {
+                    if ($currentLine !== $letters[$i]['line'] ?? null) {
                         switch ($documentData['j']) {
                             case 1:
-                                $matrixHelper->translate(
-                                    ($letters[$i]['animatorJustifyOffset'] ?? 0)
-                  + (float) $documentData['justifyOffset']
-                  + ((float) $documentData['boxWidth']
-                                    - (float) $documentData['lineWidths'][$letters[$i]['line'] ?? 0]),
-                                    0,
-                                    0
-                                );
+                                $currentLength
+                                += $totalLength - ($documentData['lineWidths'][$letters[$i]['line'] ?? 0] ?? 0);
 
                                 break;
 
                             case 2:
-                                $matrixHelper->translate(
-                                    ($letters[$i]['animatorJustifyOffset'] ?? 0)
-                  + (float) $documentData['justifyOffset']
-                  + ((float) $documentData['boxWidth']
-                                    - (float) $documentData['lineWidths'][$letters[$i]['line'] ?? 0])
-                                    / 2,
-                                    0,
-                                    0
-                                );
+                                $currentLength
+                                  += ($totalLength - ($documentData['lineWidths'][$letters[$i]['line'] ?? 0] ?? 0)) / 2;
 
                                 break;
 
@@ -1041,54 +543,548 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             default:
                                 break;
                         }
-                        $matrixHelper->translate(0, -(float) $documentData['ls']);
-                        $matrixHelper->translate(
-                            $offf,
-                            0,
-                            0
-                        );
-                        $matrixHelper->translate(
-                            $alignment[0] * (float) $letters[$i]['an'] * 0.005,
-                            $alignment[1] * $yOff * 0.01,
-                            0
-                        );
-                        $xPos
-                        += ($letters[$i]['l'] ?? 0)
-                        + $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
+                        $currentLine = $letters[$i]['line'] ?? 0;
                     }
-                    $letterM = $matrixHelper->to2dCSS();
-                    $letterO = $elemOpacity;
-                }
+                    if ($ind !== ($letters[$i]['ind'] ?? null)) {
+                        if ($ind >= 0 && ($letters[$ind] ?? null)) {
+                            $currentLength += (float) ($letters[$ind]['extra'] ?? 0);
+                        }
+                        $currentLength += ($letters[$i]['an'] ?? 0) / 2;
+                        $ind = $letters[$i]['ind'] ?? 0;
+                    }
+                    $currentLength += $alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005;
+                    $animatorOffset = 0;
 
-                if ($renderedLettersCount <= $i) {
-                    $letterValue = new LetterProps(
-                        (float) $letterO,
-                        (float) $letterSw,
-                        $letterSc,
-                        $letterFc,
-                        $letterM,
-                        $letterP
+                    for ($j = 0; $j < $jLen; ++$j) {
+                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+                        if ($animatorProps['p']['propType'] ?? null) {
+                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
+                            $mult = $animatorSelector?->getMult(
+                                $letters[$i]['anIndexes'][$j] ?? 0,
+                                $textData['a'][$j]['s']['totalChars'] ?? 0
+                            );
+                            if (!$mult) {
+                                continue;
+                            }
+                            if (is_array($animatorProps['p']->v)) {
+                                if (is_array($mult)) {
+                                    $animatorOffset += $animatorProps['p']->v[0] * ($mult[0] ?? 1);
+                                } else {
+                                    $animatorOffset += $animatorProps['p']->v[0] * $mult;
+                                }
+                            }
+                        }
+                        if (!$animatorProps['a']['propType'] ?? null) {
+                            continue;
+                        }
+                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
+                        $mult = $animatorSelector?->getMult(
+                            (int) ($letters[$i]['anIndexes'][$j] ?? 0),
+                            $textData['a'][$j]['s']['totalChars'] ?? 0
+                        );
+                        if (!$mult) {
+                            continue;
+                        }
+                        if (!is_array($animatorProps['a']->v)) {
+                            continue;
+                        }
+                        if (is_array($mult)) {
+                            $animatorOffset += ($animatorProps['a']->v[0] ?? 0) * ($mult[0] ?? 1);
+
+                            continue;
+                        }
+                        $animatorOffset += ($animatorProps['a']->v[0] ?? 0) * $mult;
+                    }
+                    $shouldMeasure = true;
+
+                    // Force alignment only works with a single line for now
+                    if ($this->_pathData['a']->v ?? null) {
+                        $currentLength
+                        = ($letters[0]['an'] ?? 0) * 0.5
+                        + ($totalLength
+                          - (float) ($this->_pathData['f']->v ?? null)
+                          - ($letters[0]['an'] ?? 0) * 0.5
+                          - ($letters[count($letters) - 1]['an'] ?? 0) * 0.5)
+                          * $ind
+                          / max(1, $len - 1);
+                        $currentLength += (float) ($this->_pathData['f']->v ?? 0);
+                        // Each letter gets an absolute path offset; restart the walk from the start.
+                        $segmentInd = 0;
+                        $pointInd = 1;
+                        $segmentLength = 0.0;
+                        $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
+                        $prevPoint = $points[$pointInd - 1] ?? null;
+                        $currentPoint = $points[$pointInd] ?? null;
+                        $partialLength = $this->getPartialLength($currentPoint);
+                    }
+                    while ($shouldMeasure) {
+                        if (
+                            $segmentLength + $partialLength >= $currentLength + $animatorOffset
+                            || !$points
+                        ) {
+                            $pointPartialLength = $this->getPartialLength($currentPoint);
+                            $perc = $pointPartialLength > 0
+                                ? ($currentLength + $animatorOffset - $segmentLength)
+                                / $pointPartialLength
+                                : 0.0;
+
+                            $prevPt = $this->getPoint($prevPoint);
+                            $curPt = $this->getPoint($currentPoint);
+                            $xPathPos
+                            = ($prevPt[0] ?? 0)
+                            + (($curPt[0] ?? 0) - ($prevPt[0] ?? 0))
+                            * $perc;
+                            $yPathPos
+                            = ($prevPt[1] ?? 0)
+                            + (($curPt[1] ?? 0) - ($prevPt[1] ?? 0))
+                            * $perc;
+                            $matrixHelper->translate(
+                                -$alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005,
+                                -($alignment[1] * $yOff) * 0.01
+                            );
+                            $shouldMeasure = false;
+                        } elseif (count($points) > 0) {
+                            $segmentLength += $this->getPartialLength($currentPoint);
+                            ++$pointInd;
+                            if ($pointInd >= count($points)) {
+                                $pointInd = 0;
+                                ++$segmentInd;
+                                if ($segments[$segmentInd] ?? null) {
+                                    $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
+                                } elseif ($pathClosed) {
+                                    $pointInd = 0;
+                                    $segmentInd = 0;
+                                    $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
+                                } else {
+                                    $segmentLength -= $this->getPartialLength($currentPoint);
+                                    $points = null;
+                                }
+                            }
+                            if ($points) {
+                                $prevPoint = $currentPoint;
+                                $currentPoint = $points[$pointInd];
+                                $partialLength = $this->getPartialLength($currentPoint);
+                            }
+                        }
+                    }
+                    $offf = ($letters[$i]['an'] ?? 0) / 2 - ($letters[$i]['add'] ?? 0);
+                    $matrixHelper->translate(
+                        -$offf,
+                        0,
+                        0
                     );
-                    array_push($this->renderedLetters, $letterValue);
-                    ++$renderedLettersCount;
-                    $this->lettersChangedFlag = true;
+                } else {
+                    $offf = ($letters[$i]['an'] ?? 0) / 2 - ($letters[$i]['add'] ?? 0);
+                    $matrixHelper->translate(
+                        -$offf,
+                        0,
+                        0
+                    );
 
-                    continue;
+                    // Grouping alignment
+                    $matrixHelper->translate(
+                        -$alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005,
+                        -$alignment[1] * $yOff * 0.01,
+                        0
+                    );
                 }
 
-                $letterValue = $this->renderedLetters[$i];
-                $this->lettersChangedFlag
-                = $letterValue->update(
+                for ($j = 0; $j < $jLen; ++$j) {
+                    $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+                    if (!$animatorProps['t']['propType'] ?? null) {
+                        continue;
+                    }
+                    $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
+                    $mult = $animatorSelector?->getMult(
+                        (int) ($letters[$i]['anIndexes'][$j] ?? 0),
+                        $textData['a'][$j]['s']['totalChars'] ?? 0
+                    );
+                    // This condition is to prevent applying tracking to first character in each line. Might be better to use a boolean "isNewLine"
+                    if (0 !== $xPos || 0 !== $documentData['j']) {
+                        if ($this->_hasMaskedPath) {
+                            if (is_array($mult)) {
+                                $currentLength += (float) $animatorProps['t']->v * ($mult[0] ?? 1);
+                            } else {
+                                $currentLength += (float) $animatorProps['t']->v * (int) $mult;
+                            }
+
+                            continue;
+                        }
+
+                        if (is_array($mult)) {
+                            $xPos += (int) $animatorProps['t']->v * ($mult[0] ?? 1);
+
+                            continue;
+                        }
+                        $xPos += (int) $animatorProps['t']->v * (int) $mult;
+                    }
+                }
+                if ($documentData['strokeWidthAnim']) {
+                    $sw = $documentData['sw'] ?? 0;
+                }
+                if ($documentData['strokeColorAnim']) {
+                    if ($documentData['sc']) {
+                        $sc = [
+                            $documentData['sc'][0],
+                            $documentData['sc'][1],
+                            $documentData['sc'][2],
+                        ];
+                    } else {
+                        $sc = [
+                            0,
+                            0,
+                            0,
+                        ];
+                    }
+                }
+                if ($documentData['fillColorAnim'] && $documentData['fc']) {
+                    $fc = [
+                        (int) $documentData['fc'][0],
+                        (int) $documentData['fc'][1],
+                        (int) $documentData['fc'][2],
+                    ];
+                }
+                for ($j = 0; $j < $jLen; ++$j) {
+                    $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+                    if ($animatorProps['a']['propType'] ?? null) {
+                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
+                        $mult = $animatorSelector?->getMult(
+                            $letters[$i]['anIndexes'][$j] ?? 0,
+                            $textData['a'][$j]['s']['totalChars'] ?? 0
+                        );
+                        if (!$mult || !is_array($animatorProps['a']->v)) {
+                            continue;
+                        }
+
+                        if (is_array($mult)) {
+                            $matrixHelper->translate(
+                                -($animatorProps['a']->v[0] ?? 0) * ($mult[0] ?? 1),
+                                -($animatorProps['a']->v[1] ?? 0) * ($mult[1] ?? 1),
+                                ($animatorProps['a']->v[2] ?? 0) * ($mult[2] ?? 1)
+                            );
+
+                            continue;
+                        }
+                        $matrixHelper->translate(
+                            -($animatorProps['a']->v[0] ?? 0) * $mult,
+                            -($animatorProps['a']->v[1] ?? 0) * $mult,
+                            ($animatorProps['a']->v[2] ?? 0) * $mult
+                        );
+                    }
+                }
+                for ($j = 0; $j < $jLen; ++$j) {
+                    $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+                    if ($animatorProps['s']['propType'] ?? null) {
+                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
+                        $mult = $animatorSelector?->getMult(
+                            $letters[$i]['anIndexes'][$j] ?? 0,
+                            $textData['a'][$j]['s']['totalChars'] ?? 0
+                        );
+                        if (!$mult || !is_array($animatorProps['s']->v)) {
+                            continue;
+                        }
+                        if (is_array($mult)) {
+                            $matrixHelper->scale(
+                                1 + (($animatorProps['s']->v[0] ?? 0) - 1) * ($mult[0] ?? 1),
+                                1 + (($animatorProps['s']->v[1] ?? 0) - 1) * ($mult[1] ?? 1),
+                                1
+                            );
+
+                            continue;
+                        }
+                        $matrixHelper->scale(
+                            1 + (($animatorProps['s']->v[0] ?? 0) - 1) * $mult,
+                            1 + (($animatorProps['s']->v[1] ?? 0) - 1) * $mult,
+                            1
+                        );
+                    }
+                }
+
+                for ($j = 0; $j < $jLen; ++$j) {
+                    $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+                    $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
+                    $mult = $animatorSelector?->getMult(
+                        $letters[$i]['anIndexes'][$j] ?? 0,
+                        $textData['a'][$j]['s']['totalChars'] ?? null
+                    );
+                    if (!$mult) {
+                        continue;
+                    }
+                    if ($animatorProps['sk']['propType']) {
+                        if (is_array($mult)) {
+                            $matrixHelper->skewFromAxis(
+                                -(int) $animatorProps['sk']->v * ($mult[0] ?? 1),
+                                (int) ($animatorProps['sa']->v ?? 0) * ($mult[1] ?? 1)
+                            );
+                        } else {
+                            $matrixHelper->skewFromAxis(
+                                -(int) $animatorProps['sk']->v * $mult,
+                                (int) ($animatorProps['sa']->v ?? 0) * $mult
+                            );
+                        }
+                    }
+                    if ($animatorProps['r']['propType'] ?? null) {
+                        if (is_array($mult)) {
+                            $matrixHelper->rotateZ(-(int) $animatorProps['r']->v * ($mult[2] ?? 1));
+                        } else {
+                            $matrixHelper->rotateZ(-(int) $animatorProps['r']->v * $mult);
+                        }
+                    }
+                    if ($animatorProps['ry']['propType'] ?? null) {
+                        if (is_array($mult)) {
+                            $matrixHelper->rotateY((int) $animatorProps['ry']->v * ($mult[1] ?? 1));
+                        } else {
+                            $matrixHelper->rotateY((int) $animatorProps['ry']->v * $mult);
+                        }
+                    }
+                    if ($animatorProps['rx']['propType'] ?? null) {
+                        if (is_array($mult)) {
+                            $matrixHelper->rotateX((int) $animatorProps['rx']->v * ($mult[0] ?? 1));
+                        } else {
+                            $matrixHelper->rotateX((int) $animatorProps['rx']->v * $mult);
+                        }
+                    }
+                    if ($animatorProps['o']['propType'] ?? null) {
+                        if (is_array($mult)) {
+                            $elemOpacity
+                            += ((int) $animatorProps['o']->v * ($mult[0] ?? 1) - $elemOpacity) * ($mult[0] ?? 1);
+                        } else {
+                            $elemOpacity
+                            += ((int) $animatorProps['o']->v * $mult - $elemOpacity) * $mult;
+                        }
+                    }
+                    if ($documentData['strokeWidthAnim'] && ($animatorProps['sw']['propType'] ?? null)) {
+                        if (is_array($mult)) {
+                            $sw += (int) $animatorProps['sw']->v * ($mult[0] ?? 1);
+                        } else {
+                            $sw += (int) $animatorProps['sw']->v * $mult;
+                        }
+                    }
+                    if (
+                        $documentData['strokeColorAnim']
+                        && ($animatorProps['sc']['propType'] ?? null)
+                        && is_array($animatorProps['sc']->v)
+                    ) {
+                        for ($k = 0; $k < 3; ++$k) {
+                            if (is_array($mult)) {
+                                $sc[$k] += (($animatorProps['sc']->v[$k] ?? 0) - ($sc[$k] ?? 0)) * ($mult[0] ?? 1);
+                            } else {
+                                $sc[$k] += (($animatorProps['sc']->v[$k] ?? 0) - ($sc[$k] ?? 0)) * $mult;
+                            }
+                        }
+                    }
+                    if ($documentData['fillColorAnim'] && $documentData['fc']) {
+                        if ($animatorProps['fc']['propType'] ?? null) {
+                            for ($k = 0; $k < 3; ++$k) {
+                                if (!is_array($animatorProps['fc']->v)) {
+                                    continue;
+                                }
+                                if (is_array($mult)) {
+                                    $fc[$k] += (($animatorProps['fc']->v[$k] ?? 0) - ($fc[$k] ?? 0)) * ($mult[0] ?? 1);
+                                } else {
+                                    $fc[$k] += (($animatorProps['fc']->v[$k] ?? 0) - ($fc[$k] ?? 0)) * $mult;
+                                }
+                            }
+                        }
+                        if ($animatorProps['fh']['propType'] ?? null) {
+                            if (is_array($mult)) {
+                                $fc = self::addHueToRGB($fc, (int) $animatorProps['fh']->v * ($mult[0] ?? 1));
+                            } else {
+                                $fc = self::addHueToRGB($fc, (int) $animatorProps['fh']->v * $mult);
+                            }
+                        }
+                        if ($animatorProps['fs']['propType'] ?? null) {
+                            if (is_array($mult)) {
+                                $fc = self::addSaturationToRGB(
+                                    $fc,
+                                    (int) $animatorProps['fs']->v * ($mult[0] ?? 1)
+                                );
+                            } else {
+                                $fc = self::addSaturationToRGB($fc, (int) $animatorProps['fs']->v * $mult);
+                            }
+                        }
+                        if ($animatorProps['fb']['propType'] ?? null) {
+                            if (is_array($mult)) {
+                                $fc = self::addBrightnessToRGB(
+                                    $fc,
+                                    (int) $animatorProps['fb']->v * ($mult[0] ?? 1)
+                                );
+                            } else {
+                                $fc = self::addBrightnessToRGB($fc, (int) $animatorProps['fb']->v * $mult);
+                            }
+                        }
+                    }
+                }
+
+                for ($j = 0; $j < $jLen; ++$j) {
+                    $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+
+                    if ($animatorProps['p']['propType'] ?? null) {
+                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
+                        $mult = $animatorSelector?->getMult(
+                            $letters[$i]['anIndexes'][$j] ?? 0,
+                            $textData['a'][$j]['s']['totalChars'] ?? 0
+                        );
+                        if (!$mult || !is_array($animatorProps['p']->v)) {
+                            continue;
+                        }
+                        if ($this->_hasMaskedPath) {
+                            if (is_array($mult)) {
+                                $matrixHelper->translate(
+                                    0,
+                                    $animatorProps['p']->v[1] * $mult[0],
+                                    -$animatorProps['p']->v[2] * $mult[1]
+                                );
+                            } else {
+                                $matrixHelper->translate(
+                                    0,
+                                    $animatorProps['p']->v[1] * $mult,
+                                    -$animatorProps['p']->v[2] * $mult
+                                );
+                            }
+                        } elseif (is_array($mult)) {
+                            $matrixHelper->translate(
+                                $animatorProps['p']->v[0] * $mult[0],
+                                $animatorProps['p']->v[1] * $mult[1],
+                                -$animatorProps['p']->v[2] * $mult[2]
+                            );
+                        } else {
+                            $matrixHelper->translate(
+                                $animatorProps['p']->v[0] * $mult,
+                                $animatorProps['p']->v[1] * $mult,
+                                -$animatorProps['p']->v[2] * $mult
+                            );
+                        }
+                    }
+                }
+                if ($documentData['strokeWidthAnim']) {
+                    $letterSw = $sw < 0 ? 0 : $sw;
+                }
+                if ($documentData['strokeColorAnim']) {
+                    $letterSc = toRGBString($sc);
+                }
+                if ($documentData['fillColorAnim'] && $documentData['fc']) {
+                    $letterFc = toRGBString($fc);
+                }
+
+                if ($this->_hasMaskedPath) {
+                    $matrixHelper->translate(0, -(int) $documentData['ls']);
+
+                    $matrixHelper->translate(
+                        0,
+                        $alignment[1] * $yOff * 0.01 + $yPos,
+                        0
+                    );
+                    if ($this->_pathData['p']->v ?? null) {
+                        $prevPt = $this->getPoint($prevPoint);
+                        $curPt = $this->getPoint($currentPoint);
+                        $dx = ($curPt[0] ?? 0) - ($prevPt[0] ?? 0);
+                        $dy = ($curPt[1] ?? 0) - ($prevPt[1] ?? 0);
+                        // Use atan2 so rotation follows path direction on all arcs (incl. vertical tangents).
+                        $rot = atan2($dy, $dx) * 180 / M_PI;
+                        $matrixHelper->rotate(-$rot * M_PI / 180);
+                    }
+                    $matrixHelper->translate(
+                        $xPathPos,
+                        $yPathPos,
+                        0
+                    );
+                    $currentLength -= $alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005;
+                    if (($letters[$i + 1] ?? null) && $ind !== ($letters[$i + 1]['ind'] ?? 0)) {
+                        $currentLength += ($letters[$i]['an'] ?? 0) / 2;
+                        $currentLength
+                          += $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
+                    }
+                } else {
+                    $matrixHelper->translate(
+                        $xPos,
+                        $yPos,
+                        0
+                    );
+
+                    if ($documentData['ps']) {
+                        $matrixHelper->translate(
+                            $documentData['ps'][0],
+                            $documentData['ps'][1] + (int) $documentData['ascent'],
+                            0
+                        );
+                    }
+
+                    switch ($documentData['j']) {
+                        case 1:
+                            $matrixHelper->translate(
+                                ($letters[$i]['animatorJustifyOffset'] ?? 0)
+                  + (float) $documentData['justifyOffset']
+                  + ((float) $documentData['boxWidth']
+                                - (float) $documentData['lineWidths'][$letters[$i]['line'] ?? 0]),
+                                0,
+                                0
+                            );
+
+                            break;
+
+                        case 2:
+                            $matrixHelper->translate(
+                                ($letters[$i]['animatorJustifyOffset'] ?? 0)
+                  + (float) $documentData['justifyOffset']
+                  + ((float) $documentData['boxWidth']
+                                - (float) $documentData['lineWidths'][$letters[$i]['line'] ?? 0])
+                                / 2,
+                                0,
+                                0
+                            );
+
+                            break;
+
+                        case null:
+                        default:
+                            break;
+                    }
+                    $matrixHelper->translate(0, -(float) $documentData['ls']);
+                    $matrixHelper->translate(
+                        $offf,
+                        0,
+                        0
+                    );
+                    $matrixHelper->translate(
+                        $alignment[0] * (float) $letters[$i]['an'] * 0.005,
+                        $alignment[1] * $yOff * 0.01,
+                        0
+                    );
+                    $xPos
+                    += ($letters[$i]['l'] ?? 0)
+                    + $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
+                }
+                $letterM = $matrixHelper->to2dCSS();
+                $letterO = $elemOpacity;
+            }
+
+            if ($renderedLettersCount <= $i) {
+                $letterValue = new LetterProps(
                     (float) $letterO,
                     (float) $letterSw,
                     $letterSc,
                     $letterFc,
-                    $letterM, // matrix()-string
+                    $letterM,
                     $letterP
-                ) || $this->lettersChangedFlag;
+                );
+                array_push($this->renderedLetters, $letterValue);
+                ++$renderedLettersCount;
+                $this->lettersChangedFlag = true;
+
+                continue;
             }
-        } catch (\Exception $e) {
-            error_log(get_class($this).' => '.$e->getMessage());
+
+            $letterValue = $this->renderedLetters[$i];
+            $this->lettersChangedFlag
+            = $letterValue->update(
+                (float) $letterO,
+                (float) $letterSw,
+                $letterSc,
+                $letterFc,
+                $letterM, // matrix()-string
+                $letterP
+            ) || $this->lettersChangedFlag;
         }
     }
 

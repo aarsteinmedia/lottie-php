@@ -182,9 +182,6 @@ trait RendererTraits
             throw new \Error(get_class($this).': animationItem is not implemented');
         }
         $this->globalData['fontManager'] = new FontManager();
-        // Slot manager is used for runtime text/image replacement in players.
-        // For a still frame renderer we can omit it safely.
-        $this->globalData['slotManager'] = null;
         $this->globalData['fontManager']->addChars($animData['chars'] ?? []);
         $this->globalData['fontManager']->addFonts($animData['fonts'] ?? [], $fontsContainer);
 

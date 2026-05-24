@@ -119,112 +119,108 @@ trait SVGRendererTraits
 
     public function configAnimation(array $animData)
     {
-        try {
-            if (!$this->animationItem) {
-                throw new \Error(get_class($this).": Can't access animationItem");
-            }
-            if (!$this->globalData) {
-                throw new \Error(get_class($this).": Can't access globalData");
-            }
-            if (!$this->renderConfig) {
-                throw new \Error(get_class($this).": Can't access renderConfig");
-            }
-            if (!$this->svgElement) {
-                throw new \Error(get_class($this).": Can't access svgElement");
-            }
+        if (!$this->animationItem) {
+            throw new \Error(get_class($this).": Can't access animationItem");
+        }
+        if (!$this->globalData) {
+            throw new \Error(get_class($this).": Can't access globalData");
+        }
+        if (!$this->renderConfig) {
+            throw new \Error(get_class($this).": Can't access renderConfig");
+        }
+        if (!$this->svgElement) {
+            throw new \Error(get_class($this).": Can't access svgElement");
+        }
 
-            $this->totalFrames = $animData['totalFrames'] ?? 1;
+        $this->totalFrames = $animData['totalFrames'] ?? 1;
 
-            $this->svgElement->setAttribute('xmlns', Constants::$namespaceXlink);
-            if ($this->renderConfig['viewBoxSize']) {
-                $this->svgElement->setAttribute(
-                    'viewBox',
-                    $this->renderConfig['viewBoxSize']
-                );
-            } else {
-                $this->svgElement->setAttribute('viewBox', "0 0 {$animData['w']} {$animData['h']}");
-            }
+        $this->svgElement->setAttribute('xmlns', Constants::$namespaceXlink);
+        if ($this->renderConfig['viewBoxSize']) {
+            $this->svgElement->setAttribute(
+                'viewBox',
+                $this->renderConfig['viewBoxSize']
+            );
+        } else {
+            $this->svgElement->setAttribute('viewBox', "0 0 {$animData['w']} {$animData['h']}");
+        }
 
-            if (!$this->renderConfig['viewBoxOnly']) {
-                $this->svgElement->setAttribute('width', $animData['w']);
-                $this->svgElement->setAttribute('height', $animData['h']);
+        if (!$this->renderConfig['viewBoxOnly']) {
+            $this->svgElement->setAttribute('width', $animData['w']);
+            $this->svgElement->setAttribute('height', $animData['h']);
+            addStyles(
+                $this->svgElement,
+                [
+                    'width' => '100%',
+                    'height' => '100%',
+                    'transform' => 'translate3d(0,0,0)',
+                ]
+            );
+            if ($this->renderConfig['contentVisibility']) {
                 addStyles(
                     $this->svgElement,
                     [
-                        'width' => '100%',
-                        'height' => '100%',
-                        'transform' => 'translate3d(0,0,0)',
+                        'contentVisibility' => $this->renderConfig['contentVisibility'],
                     ]
                 );
-                if ($this->renderConfig['contentVisibility']) {
-                    addStyles(
-                        $this->svgElement,
-                        [
-                            'contentVisibility' => $this->renderConfig['contentVisibility'],
-                        ]
-                    );
-                }
             }
-            if ($this->renderConfig['width']) {
-                $this->svgElement->setAttribute('width', $this->renderConfig['width']);
-            }
-            if ($this->renderConfig['height']) {
-                $this->svgElement->setAttribute('height', $this->renderConfig['height']);
-            }
-            if ($this->renderConfig['className'] ?? null) {
-                addClasses($this->svgElement, [$this->renderConfig['className']]);
-            }
-            if ($this->renderConfig['id']) {
-                $this->svgElement->setAttribute('id', $this->renderConfig['id']);
-            }
-            if (null !== $this->renderConfig['focusable']) {
-                $this->svgElement->setAttribute(
-                    'focusable',
-                    $this->renderConfig['focusable']
-                );
-            }
-            if ($this->renderConfig['preserveAspectRatio']) {
-                $this->svgElement->setAttribute(
-                    'preserveAspectRatio',
-                    $this->renderConfig['preserveAspectRatio']
-                );
-            }
-
-            $this->animationItem->wrapper?->appendChild($this->svgElement);
-
-            // Mask animation
-            $defs = $this->globalData['defs'];
-
-            $this->setupGlobalData($animData, $defs);
-            $this->globalData['renderConfig'] = $this->renderConfig;
-            $this->data = $animData;
-
-            $maskElement = createTag('clipPath');
-            $rect = createTag('rect');
-
-            $rect->setAttribute('width', $animData['w']);
-            $rect->setAttribute('height', $animData['h']);
-            $rect->setAttribute('x', 0);
-            $rect->setAttribute('y', 0);
-
-            $maskId = createElementID();
-
-            $maskElement->setAttribute('id', $maskId);
-            $maskElement->appendChild($rect);
-
-            $locationHref = ''; // getLocationHref();
-
-            $this->layerElement?->setAttribute(
-                'clip-path',
-                "url({$locationHref}#{$maskId})"
-            );
-
-            $defs->appendChild($maskElement);
-            $this->layers = $animData['layers'];
-            $this->elements = createSizedArray(count($animData['layers']));
-        } catch (\Throwable $error) {
-            echo get_class($this).":\n".$error->getMessage()."\n".$error->getTraceAsString()."\n";
         }
+        if ($this->renderConfig['width']) {
+            $this->svgElement->setAttribute('width', $this->renderConfig['width']);
+        }
+        if ($this->renderConfig['height']) {
+            $this->svgElement->setAttribute('height', $this->renderConfig['height']);
+        }
+        if ($this->renderConfig['className'] ?? null) {
+            addClasses($this->svgElement, [$this->renderConfig['className']]);
+        }
+        if ($this->renderConfig['id']) {
+            $this->svgElement->setAttribute('id', $this->renderConfig['id']);
+        }
+        if (null !== $this->renderConfig['focusable']) {
+            $this->svgElement->setAttribute(
+                'focusable',
+                $this->renderConfig['focusable']
+            );
+        }
+        if ($this->renderConfig['preserveAspectRatio']) {
+            $this->svgElement->setAttribute(
+                'preserveAspectRatio',
+                $this->renderConfig['preserveAspectRatio']
+            );
+        }
+
+        $this->animationItem->wrapper?->appendChild($this->svgElement);
+
+        // Mask animation
+        $defs = $this->globalData['defs'];
+
+        $this->setupGlobalData($animData, $defs);
+        $this->globalData['renderConfig'] = $this->renderConfig;
+        $this->data = $animData;
+
+        $maskElement = createTag('clipPath');
+        $rect = createTag('rect');
+
+        $rect->setAttribute('width', $animData['w']);
+        $rect->setAttribute('height', $animData['h']);
+        $rect->setAttribute('x', 0);
+        $rect->setAttribute('y', 0);
+
+        $maskId = createElementID();
+
+        $maskElement->setAttribute('id', $maskId);
+        $maskElement->appendChild($rect);
+
+        $locationHref = ''; // getLocationHref();
+
+        $this->layerElement?->setAttribute(
+            'clip-path',
+            "url({$locationHref}#{$maskId})"
+        );
+
+        $defs->appendChild($maskElement);
+        $this->layers = $animData['layers'];
+        $this->elements = createSizedArray(count($animData['layers']));
     }
 
     public function createImage(array $data): ImageElement
@@ -319,47 +315,41 @@ abstract class SVGRendererBase extends BaseRenderer
 
     public function renderFrame(?int $numFromProps = null)
     {
-        try {
-            if (
-                !$this->globalData
-                || $this->renderedFrame === $numFromProps
-            ) {
-                return;
+        if (
+            !$this->globalData
+            || $this->renderedFrame === $numFromProps
+        ) {
+            return;
+        }
+
+        $num = $this->totalFrames / 2;
+
+        if (null !== $numFromProps) {
+            $num = min($numFromProps, $this->totalFrames - 1);
+        }
+
+        $this->renderedFrame = (float) $num;
+
+        $this->globalData['frameNum'] = $num;
+        ++$this->globalData['frameId'];
+        $this->globalData['projectInterface']['currentFrame'] = $num ?? 0;
+        $this->globalData['_mdf'] = false;
+        $length = count($this->layers);
+
+        for ($i = $length - 1; $i >= 0; --$i) {
+            if (!is_object($this->elements[$i] ?? null)) {
+                continue;
             }
 
-            // Use mid frame as default setting.
-            $num = $this->totalFrames / 2;
+            $this->elements[$i]->prepareFrame((float) $num - ($this->layers[$i]['st'] ?? 0));
+        }
 
-            // If frame is set, use this, and fallback to last frame
-            if (null !== $numFromProps) {
-                $num = min($numFromProps, $this->totalFrames - 1);
+        for ($i = 0; $i < $length; ++$i) {
+            if (!is_object($this->elements[$i] ?? null)) {
+                continue;
             }
 
-            $this->renderedFrame = (float) $num;
-
-            $this->globalData['frameNum'] = $num;
-            ++$this->globalData['frameId'];
-            $this->globalData['projectInterface']['currentFrame'] = $num ?? 0;
-            $this->globalData['_mdf'] = false;
-            $length = count($this->layers);
-
-            for ($i = $length - 1; $i >= 0; --$i) {
-                if (!is_object($this->elements[$i] ?? null)) {
-                    continue;
-                }
-
-                $this->elements[$i]->prepareFrame((float) $num - ($this->layers[$i]['st'] ?? 0));
-            }
-
-            for ($i = 0; $i < $length; ++$i) {
-                if (!is_object($this->elements[$i] ?? null)) {
-                    continue;
-                }
-
-                $this->elements[$i]->renderFrame();
-            }
-        } catch (\Throwable $error) {
-            echo get_class($this)."\n".$error->getMessage()."\n".$error->getTraceAsString()."\n";
+            $this->elements[$i]->renderFrame();
         }
     }
 
