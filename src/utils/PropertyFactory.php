@@ -13,6 +13,23 @@ use LottiePHP\Utils\Properties\ValueProperty;
 
 class PropertyFactory
 {
+    private static function isMultiDimensionalArray(mixed $k): bool
+    {
+        if (!is_array($k) || !array_key_exists(0, $k) || is_array($k[0])) {
+            return false;
+        }
+
+        return count($k) >= 2 && is_numeric($k[0] ?? null);
+    }
+
+    private static function isUniDimensionalArray(mixed $k): bool
+    {
+        return is_array($k)
+            && 1 === count($k)
+            && is_numeric($k[0] ?? null)
+            && !is_array($k[0]);
+    }
+
     public static function getProp(
         BaseElement|BaseProperty $elem,
         mixed $dataFromProps,
@@ -51,7 +68,16 @@ class PropertyFactory
                 $mult,
                 $container
             );
-        } elseif (is_array($k) && array_key_exists(0, $k) && (is_int($k[0]) || is_float($k[0]))) {
+        } elseif (self::isUniDimensionalArray($k)) {
+            // Some exports wrap scalar props as single-element arrays (e.g. `"k": [0]`).
+            $data['k'] = $k[0];
+            $p = new ValueProperty(
+                $elem,
+                $data,
+                $mult,
+                $container
+            );
+        } elseif (self::isMultiDimensionalArray($k)) {
             $p = new MultiDimensionalProperty(
                 $elem,
                 $data,

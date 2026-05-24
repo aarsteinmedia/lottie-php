@@ -9,6 +9,7 @@ use LottiePHP\Utils\Properties\BaseProperty;
 
 use function LottiePHP\Utils\charCodeAt;
 use function LottiePHP\Utils\getFontProperties;
+use function LottiePHP\Utils\utf8CharAtByte;
 
 class TextProperty extends BaseProperty
 {
@@ -96,7 +97,7 @@ class TextProperty extends BaseProperty
             $shouldCombine = $shouldCombineNext;
             $shouldCombineNext = false;
             $charCode = charCodeAt($text, $i);
-            $currentChars = $text[$i];
+            $currentChars = utf8CharAtByte($text, $i);
             if (FontManager::isCombinedCharacter($charCode)) {
                 $shouldCombine = true;
             // It's a potential surrogate pair ($this is the High surrogate)
@@ -332,12 +333,10 @@ class TextProperty extends BaseProperty
                         $currentSize -= $cLength;
                     }
                     while ($currentPos <= $i) {
-                        $letter = $letters[$currentPos];
-
-                        if ($letter) {
-                            $letter['an'] = $currentSize;
-                            $letter['ind'] = $index;
-                            $letter['extra'] = $cLength;
+                        if ($letters[$currentPos] ?? null) {
+                            $letters[$currentPos]['an'] = $currentSize;
+                            $letters[$currentPos]['ind'] = $index;
+                            $letters[$currentPos]['extra'] = $cLength;
                         }
                         ++$currentPos;
                     }
@@ -350,13 +349,11 @@ class TextProperty extends BaseProperty
                     if ('' === $val) {
                         $currentSize -= $cLength;
                     }
-                    $letter = $letters[$currentPos];
-
                     while ($currentPos <= $i) {
-                        if ($letter) {
-                            $letter['an'] = $currentSize;
-                            $letter['ind'] = $index;
-                            $letter['extra'] = $cLength;
+                        if ($letters[$currentPos] ?? null) {
+                            $letters[$currentPos]['an'] = $currentSize;
+                            $letters[$currentPos]['ind'] = $index;
+                            $letters[$currentPos]['extra'] = $cLength;
                         }
                         ++$currentPos;
                     }
@@ -364,11 +361,9 @@ class TextProperty extends BaseProperty
                     ++$index;
                 }
             } else {
-                $letter = $letters[$index];
-
-                if ($letter) {
-                    $letter['ind'] = $index;
-                    $letter['extra'] = 0;
+                if ($letters[$index] ?? null) {
+                    $letters[$index]['ind'] = $index;
+                    $letters[$index]['extra'] = 0;
                 }
                 ++$index;
             }

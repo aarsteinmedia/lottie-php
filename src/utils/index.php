@@ -103,9 +103,52 @@ function buildStyle(array $styles): string
     return implode('; ', $parts);
 }
 
+/**
+ * Read one UTF-8 character starting at a byte offset (for Lottie text parsing).
+ */
+function utf8CharAtByte(string $str, int $byteIndex): string
+{
+    if ($byteIndex < 0 || $byteIndex >= strlen($str)) {
+        return '';
+    }
+
+    $byte = ord($str[$byteIndex]);
+
+    if ($byte < 0x80) {
+        return $str[$byteIndex];
+    }
+    if (($byte & 0xE0) === 0xC0 && $byteIndex + 1 < strlen($str)) {
+        return substr($str, $byteIndex, 2);
+    }
+    if (($byte & 0xF0) === 0xE0 && $byteIndex + 2 < strlen($str)) {
+        return substr($str, $byteIndex, 3);
+    }
+    if (($byte & 0xF8) === 0xF0 && $byteIndex + 3 < strlen($str)) {
+        return substr($str, $byteIndex, 4);
+    }
+
+    return $str[$byteIndex];
+}
+
 function charCodeAt(string $str, int $index): int
 {
-    return ord(substr($str, $index, 1));
+    $char = utf8CharAtByte($str, $index);
+
+    if ('' === $char) {
+        return 0;
+    }
+
+    if (function_exists('mb_ord')) {
+        return mb_ord($char, 'UTF-8') ?? 0;
+    }
+
+    $first = ord($char[0]);
+
+    if ($first < 0x80) {
+        return $first;
+    }
+
+    return ord($char[0]);
 }
 
 function addClasses(\DOMElement $el, array $classes)

@@ -21,7 +21,10 @@ class ValueProperty extends BaseProperty
         $this->mult = $mult ?: 1.0;
         $this->data = $data;
         $k = $data['k'] ?? 0;
-        $this->v = ($k * ($this->mult ?? 1));
+        if (is_array($k)) {
+            $k = is_numeric($k[0] ?? null) ? ($k[0] ?? 0) : 0;
+        }
+        $this->v = $k * ($this->mult ?? 1);
         $this->pv = $k;
         $this->_mdf = false;
         $this->elem = $elem;

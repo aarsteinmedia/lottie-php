@@ -114,18 +114,25 @@ class FontManager
 
     private static function getCodePoint(string $string): int
     {
-        $codePoint = 0;
+        if ('' === $string) {
+            return 0;
+        }
+
+        if (function_exists('mb_ord')) {
+            return mb_ord($string, 'UTF-8') ?? 0;
+        }
+
         $first = charCodeAt($string, 0);
 
         if ($first >= 0xD800 && $first <= 0xDBFF) {
             $second = charCodeAt($string, 1);
 
             if ($second >= 0xDC00 && $second <= 0xDFFF) {
-                $codePoint = ($first - 0xD800) * 0x400 + $second - 0xDC00 + 0x10000;
+                return ($first - 0xD800) * 0x400 + $second - 0xDC00 + 0x10000;
             }
         }
 
-        return $codePoint;
+        return $first;
     }
 
     /**

@@ -320,6 +320,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             $paths = $paths->toReversed();
                         }
                         $pathInfo = [
+                            'closed' => (bool) ($paths->c ?? false),
                             'segments' => [],
                             'tLength' => 0,
                         ];
@@ -328,16 +329,17 @@ class TextAnimatorProperty extends DynamicPropertyContainer
 
                         $totalLength = 0;
                         for ($i = 0; $i < $len; ++$i) {
+                            // ShapePath stores relative Lottie tangents; buildBezierData adds them to vertices.
                             $bezierData = Bezier::buildBezierData(
                                 $paths->v[$i],
                                 $paths->v[$i + 1],
                                 [
-                                    ($paths->o[$i][0] ?? 0) - ($paths->v[$i][0] ?? 0),
-                                    ($paths->o[$i][1] ?? 0) - ($paths->v[$i][1] ?? 0),
+                                    $paths->o[$i][0] ?? 0,
+                                    $paths->o[$i][1] ?? 0,
                                 ],
                                 [
-                                    ($paths->i[$i + 1][0] ?? 0) - ($paths->v[$i + 1][0] ?? 0),
-                                    ($paths->i[$i + 1][1] ?? 0) - ($paths->v[$i + 1][1] ?? 0),
+                                    $paths->i[$i + 1][0] ?? 0,
+                                    $paths->i[$i + 1][1] ?? 0,
                                 ]
                             );
                             $pathInfo['tLength'] += $bezierData->segmentLength;
@@ -350,12 +352,12 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 $paths->v[$i],
                                 $paths->v[0],
                                 [
-                                    ($paths->o[$i][0] ?? 0) - ($paths->v[$i][0] ?? 0),
-                                    ($paths->o[$i][1] ?? 0) - ($paths->v[$i][1] ?? 0),
+                                    $paths->o[$i][0] ?? 0,
+                                    $paths->o[$i][1] ?? 0,
                                 ],
                                 [
-                                    ($paths->i[0][0] ?? 0) - ($paths->v[0][0] ?? 0),
-                                    ($paths->i[0][1] ?? 0) - ($paths->v[0][1] ?? 0),
+                                    $paths->i[0][0] ?? 0,
+                                    $paths->i[0][1] ?? 0,
                                 ]
                             );
                             $pathInfo['tLength'] += $bezierData->segmentLength;
@@ -373,22 +375,27 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                 $segmentLength = 0;
                 // $shouldMeasure = true
                 $segments = $pathInfo['segments'] ?? [];
+                $pathClosed = (bool) ($pathInfo['closed'] ?? false);
 
-                if ($currentLength > 0 && (($paths instanceof ShapePath) ? ($paths->c ?? false) : false)) {
-                    if ($pathInfo['tLength'] ?? 0 < abs($currentLength)) {
-                        $currentLength = -abs($currentLength) % ($pathInfo['tLength'] ?? 0);
+                if ($currentLength < 0 && $pathClosed) {
+                    $pathLength = (float) ($pathInfo['tLength'] ?? 0);
+                    if ($pathLength > 0 && $pathLength < abs($currentLength)) {
+                        $currentLength = -fmod(abs($currentLength), $pathLength);
                     }
                     $segmentInd = count($segments) - 1;
                     $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                    $pointInd = count($points) - 1;
+                    $pointInd = max(0, count($points) - 1);
 
-                    while ($currentLength < 0) {
+                    while ($currentLength < 0 && $points) {
                         $currentLength += $this->getPartialLength($points[$pointInd] ?? null);
                         --$pointInd;
                         if ($pointInd < 0) {
                             --$segmentInd;
+                            if ($segmentInd < 0) {
+                                break;
+                            }
                             $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                            $pointInd = count($points) - 1;
+                            $pointInd = max(0, count($points) - 1);
                         }
                     }
                 }
@@ -545,7 +552,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             $currentLine = $letters[$i]['line'] ?? 0;
                         }
                         if ($ind !== ($letters[$i]['ind'] ?? null)) {
-                            if ($letters[$ind] ?? null) {
+                            if ($ind >= 0 && ($letters[$ind] ?? null)) {
                                 $currentLength += (float) ($letters[$ind]['extra'] ?? 0);
                             }
                             $currentLength += ($letters[$i]['an'] ?? 0) / 2;
@@ -605,27 +612,37 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                               - ($letters[0]['an'] ?? 0) * 0.5
                               - ($letters[count($letters) - 1]['an'] ?? 0) * 0.5)
                               * $ind
-                              / ($len - 1);
+                              / max(1, $len - 1);
                             $currentLength += (float) ($this->_pathData['f']->v ?? 0);
+                            // Each letter gets an absolute path offset; restart the walk from the start.
+                            $segmentInd = 0;
+                            $pointInd = 1;
+                            $segmentLength = 0.0;
+                            $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
+                            $prevPoint = $points[$pointInd - 1] ?? null;
+                            $currentPoint = $points[$pointInd] ?? null;
+                            $partialLength = $this->getPartialLength($currentPoint);
                         }
                         while ($shouldMeasure) {
                             if (
                                 $segmentLength + $partialLength >= $currentLength + $animatorOffset
                                 || !$points
                             ) {
-                                $perc
-                                = ($currentLength + $animatorOffset - $segmentLength)
-                                / $this->getPartialLength($currentPoint);
+                                $pointPartialLength = $this->getPartialLength($currentPoint);
+                                $perc = $pointPartialLength > 0
+                                    ? ($currentLength + $animatorOffset - $segmentLength)
+                                    / $pointPartialLength
+                                    : 0.0;
 
                                 $prevPt = $this->getPoint($prevPoint);
                                 $curPt = $this->getPoint($currentPoint);
                                 $xPathPos
-                                = (int) ($prevPt[0] ?? 0)
-                                + ((int) ($curPt[0] ?? 0) - (int) ($prevPt[0] ?? 0))
+                                = ($prevPt[0] ?? 0)
+                                + (($curPt[0] ?? 0) - ($prevPt[0] ?? 0))
                                 * $perc;
                                 $yPathPos
-                                = (int) ($prevPt[1] ?? 0)
-                                + ((int) ($curPt[1] ?? 0) - (int) ($prevPt[1] ?? 0))
+                                = ($prevPt[1] ?? 0)
+                                + (($curPt[1] ?? 0) - ($prevPt[1] ?? 0))
                                 * $perc;
                                 $matrixHelper->translate(
                                     -$alignment[0] * ($letters[$i]['an'] ?? 0) * 0.005,
@@ -633,19 +650,19 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 );
                                 $shouldMeasure = false;
                             } elseif (count($points) > 0) {
-                                $segmentLength += (int) $this->getPartialLength($currentPoint);
+                                $segmentLength += $this->getPartialLength($currentPoint);
                                 ++$pointInd;
                                 if ($pointInd >= count($points)) {
                                     $pointInd = 0;
                                     ++$segmentInd;
                                     if ($segments[$segmentInd] ?? null) {
                                         $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                                    } elseif (($paths instanceof ShapePath) ? ($paths->c ?? false) : false) {
+                                    } elseif ($pathClosed) {
                                         $pointInd = 0;
                                         $segmentInd = 0;
                                         $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
                                     } else {
-                                        $segmentLength -= (int) $this->getPartialLength($currentPoint);
+                                        $segmentLength -= $this->getPartialLength($currentPoint);
                                         $points = null;
                                     }
                                 }
@@ -967,14 +984,10 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         if ($this->_pathData['p']->v ?? null) {
                             $prevPt = $this->getPoint($prevPoint);
                             $curPt = $this->getPoint($currentPoint);
-                            $tanAngle
-                            = ((int) ($curPt[1] ?? 0) - (int) ($prevPt[1] ?? 0))
-                            / ((int) ($curPt[0] ?? 0) - (int) ($prevPt[0] ?? 0));
-                            $rot = atan($tanAngle) * 180 / M_PI;
-
-                            if ((int) ($curPt[0] ?? 0) < (int) ($prevPt[0] ?? 0)) {
-                                $rot += 180;
-                            }
+                            $dx = ($curPt[0] ?? 0) - ($prevPt[0] ?? 0);
+                            $dy = ($curPt[1] ?? 0) - ($prevPt[1] ?? 0);
+                            // Use atan2 so rotation follows path direction on all arcs (incl. vertical tangents).
+                            $rot = atan2($dy, $dx) * 180 / M_PI;
                             $matrixHelper->rotate(-$rot * M_PI / 180);
                         }
                         $matrixHelper->translate(
