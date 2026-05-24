@@ -168,7 +168,7 @@ class TextAnimatorDataProperty
               : $defaultData,
         ];
 
-        $this->s = new TextSelectorProperty($elem, $animatorProps['s'] ?? null);
-        $this->s['t'] = $animatorProps['s']['t'] ?? null;
+        $this->s = new TextSelectorProperty($elem, $animatorProps['s'] ?? []);
+        $this->s->t = $animatorProps['s']['t'] ?? null;
     }
 }

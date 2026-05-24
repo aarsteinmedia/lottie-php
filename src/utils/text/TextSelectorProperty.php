@@ -22,6 +22,7 @@ class TextSelectorProperty extends BaseProperty
     public ValueProperty $o;
     public ?int $rn;
     public ValueProperty $sm;
+    public ?int $t = null;
     public ?int $totalChars;
     public ValueProperty $xe;
 
@@ -106,7 +107,7 @@ class TextSelectorProperty extends BaseProperty
         }
     }
 
-    public function getMult(int $indFromProps, ?int $_val = null): array|int
+    public function getMult(int $indFromProps, ?int $_val = null): array|int|float
     {
         $ind = $indFromProps;
 

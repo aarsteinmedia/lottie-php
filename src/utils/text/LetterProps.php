@@ -8,14 +8,14 @@ class LetterProps
     public array $_mdf;
     public array|string|null $fc;
     public int|string|null $m;
-    public ?int $o;
+    public float|int|null $o;
     public array|int|null $p;
     public array|string|null $sc;
     public ?int $sw;
     public ?string $t;
 
     public function __construct(
-        ?int $o = null,
+        float|int|null $o = null,
         ?int $sw = null,
         ?string $sc = null,
         ?string $fc = null,
@@ -39,7 +39,7 @@ class LetterProps
     }
 
     public function update(
-        int $o,
+        float|int $o,
         int $sw,
         ?string $sc,
         ?string $fc,

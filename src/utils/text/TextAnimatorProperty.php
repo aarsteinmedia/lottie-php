@@ -458,11 +458,12 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         continue;
                     }
                     for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = $animators[$j]['a'] ?? [];
-                        if (!$animatorProps['t']['propType'] ?? null) {
+                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+                        $trackingProp = $animatorProps['t'] ?? null;
+                        if (!$trackingProp || !($trackingProp['propType'] ?? (is_object($trackingProp) ? ($trackingProp->propType ?? false) : false))) {
                             continue;
                         }
-                        ['v' => $animVal] = $animatorProps['t'];
+                        $animVal = is_array($trackingProp) ? ($trackingProp['v'] ?? null) : $trackingProp->v;
 
                         if (!is_numeric($animVal)) {
                             continue;
@@ -471,7 +472,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         if ($isNewLine && 2 === $documentData['j']) {
                             $animatorFirstCharOffset += $animVal * $justifyOffsetMult;
                         }
-                        $animatorSelector = $animators[$j]['s'] ?? null;
+                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
                         $mult = $animatorSelector?->getMult(
                             $letters[$i]['anIndexes'][$j] ?? 0,
                             $textData['a'][$j]['s']['totalChars'] ?? 0
@@ -554,9 +555,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         $animatorOffset = 0;
 
                         for ($j = 0; $j < $jLen; ++$j) {
-                            $animatorProps = $animators[$j]['a'] ?? null;
+                            $animatorProps = ($animators[$j] ?? null)?->a ?? [];
                             if ($animatorProps['p']['propType'] ?? null) {
-                                $animatorSelector = $animators[$j]['s'] ?? null;
+                                $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
                                 $mult = $animatorSelector?->getMult(
                                     $letters[$i]['anIndexes'][$j] ?? 0,
                                     $textData['a'][$j]['s']['totalChars'] ?? 0
@@ -575,7 +576,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             if (!$animatorProps['a']['propType'] ?? null) {
                                 continue;
                             }
-                            $animatorSelector = $animators[$j]['s'] ?? null;
+                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
                             $mult = $animatorSelector?->getMult(
                                 (int) ($letters[$i]['anIndexes'][$j] ?? 0),
                                 $textData['a'][$j]['s']['totalChars'] ?? 0
@@ -678,11 +679,11 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                     }
 
                     for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = $animators[$j]['a'] ?? [];
+                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
                         if (!$animatorProps['t']['propType'] ?? null) {
                             continue;
                         }
-                        $animatorSelector = $animators[$j]['s'] ?? null;
+                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
                         $mult = $animatorSelector?->getMult(
                             (int) ($letters[$i]['anIndexes'][$j] ?? 0),
                             $textData['a'][$j]['s']['totalChars'] ?? 0
@@ -733,9 +734,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         ];
                     }
                     for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = $animators[$j]['a'] ?? [];
+                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
                         if ($animatorProps['a']['propType'] ?? null) {
-                            $animatorSelector = $animators[$j]['s'] ?? null;
+                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
                             $mult = $animatorSelector?->getMult(
                                 $letters[$i]['anIndexes'][$j] ?? 0,
                                 $textData['a'][$j]['s']['totalChars'] ?? 0
@@ -761,9 +762,9 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         }
                     }
                     for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = $animators[$j]['a'] ?? [];
+                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
                         if ($animatorProps['s']['propType'] ?? null) {
-                            $animatorSelector = $animators[$j]['s'] ?? null;
+                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
                             $mult = $animatorSelector?->getMult(
                                 $letters[$i]['anIndexes'][$j] ?? 0,
                                 $textData['a'][$j]['s']['totalChars'] ?? 0
@@ -789,8 +790,8 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                     }
 
                     for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = $animators[$j]['a'] ?? [];
-                        $animatorSelector = $animators[$j]['s'] ?? null;
+                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
+                        $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
                         $mult = $animatorSelector?->getMult(
                             $letters[$i]['anIndexes'][$j] ?? 0,
                             $textData['a'][$j]['s']['totalChars'] ?? null
@@ -905,10 +906,10 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                     }
 
                     for ($j = 0; $j < $jLen; ++$j) {
-                        $animatorProps = $animators[$j]['a'] ?? [];
+                        $animatorProps = ($animators[$j] ?? null)?->a ?? [];
 
                         if ($animatorProps['p']['propType'] ?? null) {
-                            $animatorSelector = $animators[$j]['s'] ?? null;
+                            $animatorSelector = ($animators[$j] ?? null)?->s ?? null;
                             $mult = $animatorSelector?->getMult(
                                 $letters[$i]['anIndexes'][$j] ?? 0,
                                 $textData['a'][$j]['s']['totalChars'] ?? 0
