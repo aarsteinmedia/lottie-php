@@ -8,6 +8,8 @@ use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 use LottiePHP\Utils\Pooling\ShapePool;
 
+use function LottiePHP\Utils\normalizePathDataTangents;
+
 class ShapeProperty extends ShapeBaseProperty
 {
     public ?int $ix;
@@ -38,6 +40,7 @@ class ShapeProperty extends ShapeBaseProperty
         // Lottie JSON uses plain arrays for path data.
         // Normalize to a `ShapePath` instance so downstream code can rely on methods/fields.
         if (is_array($pathData) && isset($pathData['i'], $pathData['o'], $pathData['v'])) {
+            $pathData = normalizePathDataTangents($pathData);
             $len = count($pathData['v'] ?? []);
             $shapePath = ShapePool::newElement();
             $shapePath->setPathData((bool) ($pathData['c'] ?? false), $len);

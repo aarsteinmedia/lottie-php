@@ -8,6 +8,7 @@ use function LottiePHP\Utils\addClasses;
 use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\createSizedArray;
 use function LottiePHP\Utils\createTag;
+use function LottiePHP\Utils\normalizePathDataTangents;
 
 class SVGTextLottieElement extends TextElement
 {
@@ -38,10 +39,18 @@ class SVGTextLottieElement extends TextElement
                 break;
             }
         }
-        // `searchShapes` walks `it` from last index to first. Append the fill so reverse order
-        // processes the fill before the path; unshifting would leave the path with no style.
+        // `searchShapes` walks `it` from last index to first. Insert the fill immediately
+        // before the group transform so the path is styled inside the transformed subtree.
         if (!$hasPaint) {
-            $items[] = $this->syntheticGlyphFill($fc);
+            $insertAt = count($items);
+            foreach ($items as $idx => $item) {
+                if (($item['ty'] ?? '') === 'tr') {
+                    $insertAt = $idx;
+
+                    break;
+                }
+            }
+            array_splice($items, $insertAt, 0, [$this->syntheticGlyphFill($fc)]);
         }
 
         return $items;
@@ -66,6 +75,68 @@ class SVGTextLottieElement extends TextElement
         }
 
         return $shapes;
+    }
+
+    /**
+     * Clone glyph shape data for rendering without mutating the font cache.
+     * Some JSON exports bake font size into a `tr` scale and use absolute bezier points.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private function prepareGlyphData(array $data): array
+    {
+        if (!isset($data['shapes']) || !is_array($data['shapes'])) {
+            return $data;
+        }
+
+        $data = json_decode(json_encode($data), true);
+        if (!is_array($data)) {
+            return ['shapes' => []];
+        }
+
+        foreach ($data['shapes'] as $shapeIndex => $shape) {
+            if (($shape['ty'] ?? '') !== 'gr' || !isset($shape['it']) || !is_array($shape['it'])) {
+                continue;
+            }
+
+            foreach ($data['shapes'][$shapeIndex]['it'] as $itemIndex => $item) {
+                // Scale is applied on childSpan (finalSize / 100). Neutralize baked-in glyph
+                // `tr` scales from JSON exports so we do not multiply with childSpan.
+                if (($item['ty'] ?? '') === 'tr' && isset($item['s']['k']) && is_array($item['s']['k'])) {
+                    $data['shapes'][$shapeIndex]['it'][$itemIndex]['s']['k'] = [100, 100];
+                }
+                if (
+                    ($item['ty'] ?? '') === 'sh'
+                    && isset($item['ks']['k'])
+                    && is_array($item['ks']['k'])
+                ) {
+                    $data['shapes'][$shapeIndex]['it'][$itemIndex]['ks']['k']
+                        = normalizePathDataTangents($item['ks']['k']);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * JSON glyph exports can leave a duplicate unstylized path sibling next to the
+     * filled path inside the shape group. Drop paths with no paint attributes.
+     */
+    private function removeUnstyledGlyphPaths(\DOMElement $glyphRoot): void
+    {
+        $paths = $glyphRoot->getElementsByTagName('path');
+        for ($i = $paths->length - 1; $i >= 0; --$i) {
+            $path = $paths->item($i);
+            if (!$path instanceof \DOMElement) {
+                continue;
+            }
+            if (!$path->hasAttribute('fill') && !$path->hasAttribute('stroke')) {
+                $path->parentNode?->removeChild($path);
+            }
+        }
     }
 
     private function syntheticGlyphFill(array $fc): array
@@ -340,17 +411,13 @@ class SVGTextLottieElement extends TextElement
                         $data = $this->emptyShapeData;
 
                         if ($charData['data']['shapes'] ?? null) {
-                            $raw = $charData['data'];
+                            $data = $this->prepareGlyphData($charData['data']);
                             if (!empty($documentData['fc'])) {
-                                $raw['shapes'] = $this->injectGlyphFillsIfMissing(
-                                    $raw['shapes'],
+                                $data['shapes'] = $this->injectGlyphFillsIfMissing(
+                                    $data['shapes'],
                                     $documentData['fc']
                                 );
                             }
-                            // Scale is applied on childSpan (finalSize/100), not via shape `tr.s.k`,
-                            // so we avoid mutating shared font cache data and wrong `it` items after
-                            // synthetic fill injection.
-                            $data = $raw;
                         }
                         $glyphElement = new SVGShapeElement(
                             $data,
@@ -375,6 +442,7 @@ class SVGTextLottieElement extends TextElement
                     $glyphElement->prepareFrame(0);
                     $glyphElement->renderFrame();
                     if ($glyphElement->layerElement) {
+                        $this->removeUnstyledGlyphPaths($glyphElement->layerElement);
                         $this->textSpans[$i]['childSpan']?->appendChild($glyphElement->layerElement);
                     }
 

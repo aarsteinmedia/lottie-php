@@ -128,6 +128,55 @@ class FontManager
         return $codePoint;
     }
 
+    /**
+     * @param array<string, mixed> $char
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeCharData(array $char): array
+    {
+        if (!isset($char['data']['shapes']) || !is_array($char['data']['shapes'])) {
+            return $char;
+        }
+
+        $char['data']['shapes'] = $this->normalizeShapeTree($char['data']['shapes']);
+
+        return $char;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $shapes
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeShapeTree(array $shapes): array
+    {
+        foreach ($shapes as $shapeIndex => $shape) {
+            if (($shape['ty'] ?? '') === 'gr' && isset($shape['it']) && is_array($shape['it'])) {
+                foreach ($shape['it'] as $itemIndex => $item) {
+                    if (
+                        ($item['ty'] ?? '') === 'sh'
+                        && isset($item['ks']['k'])
+                        && is_array($item['ks']['k'])
+                    ) {
+                        $shapes[$shapeIndex]['it'][$itemIndex]['ks']['k']
+                            = normalizePathDataTangents($item['ks']['k']);
+                    }
+                }
+            }
+
+            if (
+                ($shape['ty'] ?? '') === 'sh'
+                && isset($shape['ks']['k'])
+                && is_array($shape['ks']['k'])
+            ) {
+                $shapes[$shapeIndex]['ks']['k'] = normalizePathDataTangents($shape['ks']['k']);
+            }
+        }
+
+        return $shapes;
+    }
+
     private function setIsLoaded(): void
     {
         $this->isLoaded = true;
@@ -228,7 +277,7 @@ class FontManager
                 ++$j;
             }
             if (!$found) {
-                array_push($this->chars, $chars[$i]);
+                array_push($this->chars, $this->normalizeCharData($chars[$i]));
                 ++$jLen;
             }
         }
