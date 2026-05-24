@@ -209,7 +209,7 @@ function createTag(string $type)
     return domDocumentPool()->createElement($type);
 }
 
-function floatEqual(int $a, int $b)
+function floatEqual(float $a, float $b)
 {
     return abs($a - $b) * 100000 <= min(abs($a), abs($b));
 }

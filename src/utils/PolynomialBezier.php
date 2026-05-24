@@ -142,9 +142,9 @@ class PolynomialBezier
     }
 
     private function lerp(
-        int $p0,
-        int $p1,
-        int $amount
+        float $p0,
+        float $p1,
+        float $amount
     ) {
         return $p0 * (1 - $amount) + $p1 * $amount;
     }
@@ -152,7 +152,7 @@ class PolynomialBezier
     private function lerpPoint(
         array $p0,
         array $p1,
-        int $amount
+        float $amount
     ) {
         return [
             $this->lerp(
@@ -168,10 +168,10 @@ class PolynomialBezier
     }
 
     private function polynomialCoefficients(
-        int $p0,
-        int $p1,
-        int $p2,
-        int $p3
+        float $p0,
+        float $p1,
+        float $p2,
+        float $p3
     ) {
         return [
             -$p0 + 3 * $p1 - 3 * $p2 + $p3,
@@ -311,7 +311,7 @@ class PolynomialBezier
         ];
     }
 
-    public function derivative(int $t)
+    public function derivative(float $t)
     {
         return [
             (3 * $t * $this->a[0] + 2 * $this->b[0]) * $t + $this->c[0], (3 * $t * $this->a[1] + 2 * $this->b[1]) * $t + $this->c[1],
@@ -379,14 +379,14 @@ class PolynomialBezier
         return $intersections;
     }
 
-    public function normalAngle(int $t)
+    public function normalAngle(float $t)
     {
         $p = $this->derivative($t);
 
         return atan2($p[0] ?? 0, $p[1] ?? 0);
     }
 
-    public function point(int $t)
+    public function point(float $t)
     {
         return [
             (($this->a[0] * $t + $this->b[0]) * $t + $this->c[0]) * $t + $this->d[0], (($this->a[1] * $t + $this->b[1]) * $t + $this->c[1]) * $t + $this->d[1],
@@ -396,30 +396,42 @@ class PolynomialBezier
     public static function shapeSegment(ShapePath $shapePath, int $index)
     {
         $nextIndex = ($index + 1) % $shapePath->length();
+        $p0 = $shapePath->v[$index];
+        $p3 = $shapePath->v[$nextIndex];
 
-        return new PolynomialBezier(
-            $shapePath->v[$index],
-            $shapePath->o[$index],
-            $shapePath->i[$nextIndex],
-            $shapePath->v[$nextIndex],
-            true
-        );
+        // Shape paths store tangents relative to their vertex; bezier evaluation needs
+        // absolute control points (see buildShapeString).
+        $p1 = [
+            ($p0[0] ?? 0) + ($shapePath->o[$index][0] ?? 0),
+            ($p0[1] ?? 0) + ($shapePath->o[$index][1] ?? 0),
+        ];
+        $p2 = [
+            ($p3[0] ?? 0) + ($shapePath->i[$nextIndex][0] ?? 0),
+            ($p3[1] ?? 0) + ($shapePath->i[$nextIndex][1] ?? 0),
+        ];
+
+        return new PolynomialBezier($p0, $p1, $p2, $p3, true);
     }
 
     public static function shapeSegmentInverted(ShapePath $shapePath, int $index)
     {
         $nextIndex = ($index + 1) % $shapePath->length();
+        $p0 = $shapePath->v[$nextIndex];
+        $p3 = $shapePath->v[$index];
 
-        return new PolynomialBezier(
-            $shapePath->v[$nextIndex],
-            $shapePath->i[$nextIndex],
-            $shapePath->o[$index],
-            $shapePath->v[$index],
-            true
-        );
+        $p1 = [
+            ($p0[0] ?? 0) + ($shapePath->i[$nextIndex][0] ?? 0),
+            ($p0[1] ?? 0) + ($shapePath->i[$nextIndex][1] ?? 0),
+        ];
+        $p2 = [
+            ($p3[0] ?? 0) + ($shapePath->o[$index][0] ?? 0),
+            ($p3[1] ?? 0) + ($shapePath->o[$index][1] ?? 0),
+        ];
+
+        return new PolynomialBezier($p0, $p1, $p2, $p3, true);
     }
 
-    public function split(int $t)
+    public function split(float $t)
     {
         if ($t <= 0) {
             return [$this->singlePoint($this->points[0]), $this];
@@ -475,7 +487,7 @@ class PolynomialBezier
         ];
     }
 
-    public function tangentAngle(int $t)
+    public function tangentAngle(float $t)
     {
         $p = $this->derivative($t);
 

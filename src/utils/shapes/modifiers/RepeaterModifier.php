@@ -3,6 +3,7 @@
 namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Elements\SVGShapeElement;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Matrix;
@@ -27,6 +28,35 @@ class RepeaterModifier extends ShapeModifier
     public ?ValueProperty $so;
     public ?Matrix $tMatrix;
     public ?TransformProperty $tr;
+
+    private function appendVisibleGroupsToDom(): void
+    {
+        if (!$this->elem instanceof SVGShapeElement) {
+            return;
+        }
+        $parentGroup = $this->elem->itemsData[0] ?? null;
+        $container = is_array($parentGroup) ? ($parentGroup['gr'] ?? null) : null;
+        if (!$container instanceof \DOMElement) {
+            $container = $this->elem->layerElement;
+        }
+        if (!$container) {
+            return;
+        }
+        $length = count($this->_groups);
+        for ($i = 0; $i < $length; ++$i) {
+            if (!($this->_groups[$i]['_shouldRender'] ?? false)) {
+                continue;
+            }
+            $groupData = $this->elemsData[$i] ?? null;
+            if (!is_array($groupData)) {
+                continue;
+            }
+            $gr = $groupData['gr'] ?? null;
+            if ($gr instanceof \DOMElement && $gr->parentNode !== $container) {
+                $container->appendChild($gr);
+            }
+        }
+    }
 
     private function getGroupItems(int $index): array
     {
@@ -79,7 +109,7 @@ class RepeaterModifier extends ShapeModifier
             -$transform->a->v[1],
             $transform->a->v[2] ?? 0
         );
-        $rMatrix->rotate(-$transform['r']->v * $dir * $perc);
+        $rMatrix->rotate(-$transform->r->v * $dir * $perc);
         $rMatrix->translate(
             $transform->a->v[0] ?? 0,
             $transform->a->v[1] ?? 0,
@@ -129,61 +159,6 @@ class RepeaterModifier extends ShapeModifier
     public function getValue(?bool $flag = null)
     {
         return $this->processKeys($flag);
-    }
-
-    public function init(
-        BaseElement|DynamicPropertyContainer $elem,
-        array $arr,
-        ?int $posFromProps = 0,
-        $elemsData = []
-    ) {
-        if (!is_array($arr)) {
-            throw new \TypeError(get_class($this).': Method init, param arr must be array');
-        }
-        $pos = (int) $posFromProps;
-
-        $this->elem = $elem;
-        // Keep a reference to the live shape array. Repeaters expand the shape tree,
-        // and the expansion must persist across `reloadShapes()` calls to avoid
-        // infinite expansion loops / OOM.
-        $this->arr = &$arr;
-        $this->pos = $pos;
-        $this->elemsData = $elemsData;
-        $this->_currentCopies = 0;
-        $this->_elements = [];
-        $this->_groups = [];
-        $this->frameId = -1;
-        $this->initDynamicPropertyContainer($elem);
-        $this->initModifierProperties($elem, $arr[$pos]);
-        // Detect already-inserted groups for this repeater (prevents re-expanding on every reload).
-        if (!isset($arr[$this->pos]['_rpIdSelf']) || !is_string($arr[$this->pos]['_rpIdSelf'])) {
-            $seed = [
-                'ix' => $arr[$this->pos]['ix'] ?? null,
-                'nm' => $arr[$this->pos]['nm'] ?? null,
-                'c' => $arr[$this->pos]['c']['k'] ?? null,
-                'o' => $arr[$this->pos]['o']['k'] ?? null,
-            ];
-            $arr[$this->pos]['_rpIdSelf'] = md5(json_encode($seed));
-        }
-        $rpId = (string) $arr[$this->pos]['_rpIdSelf'];
-        $inserted = 0;
-        while (isset($arr[$inserted]) && is_array($arr[$inserted]) && (($arr[$inserted]['_rpId'] ?? null) === $rpId)) {
-            $this->_groups[] = $arr[$inserted];
-            ++$inserted;
-        }
-        $this->_currentCopies = count($this->_groups);
-        $this->syncGroupsFromArray();
-
-        // Original elements are those between the already-inserted groups and the repeater itself.
-        for ($k = $this->pos - 1; $k >= $inserted; --$k) {
-            array_unshift($this->_elements, $arr[$k]);
-        }
-        if (count($this->dynamicProperties) > 0) {
-            $this->k = true;
-
-            return;
-        }
-        $this->getValue(true);
     }
 
     public function initModifierProperties(
@@ -236,6 +211,61 @@ class RepeaterModifier extends ShapeModifier
         $this->sMatrix = new Matrix();
         $this->tMatrix = new Matrix();
         $this->matrix = new Matrix();
+    }
+
+    public function initRepeater(
+        BaseElement|DynamicPropertyContainer $elem,
+        array &$arr,
+        ?int $posFromProps = 0,
+        array &$elemsData = []
+    ) {
+        if (!is_array($arr)) {
+            throw new \TypeError(get_class($this).': Method init, param arr must be array');
+        }
+        $pos = (int) $posFromProps;
+
+        $this->elem = $elem;
+        // Keep a reference to the live shape array. Repeaters expand the shape tree,
+        // and the expansion must persist across `reloadShapes()` calls to avoid
+        // infinite expansion loops / OOM.
+        $this->arr = &$arr;
+        $this->pos = $pos;
+        $this->elemsData = &$elemsData;
+        $this->_currentCopies = 0;
+        $this->_elements = [];
+        $this->_groups = [];
+        $this->frameId = -1;
+        $this->initDynamicPropertyContainer($elem);
+        $this->initModifierProperties($elem, $arr[$pos]);
+        // Detect already-inserted groups for this repeater (prevents re-expanding on every reload).
+        if (!isset($arr[$this->pos]['_rpIdSelf']) || !is_string($arr[$this->pos]['_rpIdSelf'])) {
+            $seed = [
+                'ix' => $arr[$this->pos]['ix'] ?? null,
+                'nm' => $arr[$this->pos]['nm'] ?? null,
+                'c' => $arr[$this->pos]['c']['k'] ?? null,
+                'o' => $arr[$this->pos]['o']['k'] ?? null,
+            ];
+            $arr[$this->pos]['_rpIdSelf'] = md5(json_encode($seed));
+        }
+        $rpId = (string) $arr[$this->pos]['_rpIdSelf'];
+        $inserted = 0;
+        while (isset($arr[$inserted]) && is_array($arr[$inserted]) && (($arr[$inserted]['_rpId'] ?? null) === $rpId)) {
+            $this->_groups[] = $arr[$inserted];
+            ++$inserted;
+        }
+        $this->_currentCopies = count($this->_groups);
+        $this->syncGroupsFromArray();
+
+        // Original elements are those between the already-inserted groups and the repeater itself.
+        for ($k = $this->pos - 1; $k >= $inserted; --$k) {
+            array_unshift($this->_elements, $arr[$k]);
+        }
+        if (count($this->dynamicProperties) > 0) {
+            $this->k = true;
+
+            return;
+        }
+        $this->getValue(true);
     }
 
     public function processShapes(bool $_isFirstFrame)
@@ -308,6 +338,7 @@ class RepeaterModifier extends ShapeModifier
                     'it' => $this->cloneElements($this->_elements),
                     'ty' => 'gr',
                     '_rpId' => $rpId,
+                    '_shouldRender' => true,
                 ];
 
                 $group['it'][] = [
@@ -385,12 +416,13 @@ class RepeaterModifier extends ShapeModifier
                 $elems = $this->getGroupItems($i);
                 $transformData = $elems[count($elems) - 1];
 
-                if ($transformData) {
-                    if (0 === $transformData->transform->op->v) {
-                        $transformData->transform->op->_mdf = false;
+                if (is_object($transformData) && isset($transformData->transform['op'])) {
+                    $op = $transformData->transform['op'];
+                    if (0 === $op->v) {
+                        $op->_mdf = false;
                     } else {
-                        $transformData->transform->op->_mdf = true;
-                        $transformData->transform->op->v = 0;
+                        $op->_mdf = true;
+                        $op->v = 0;
                     }
                 }
             }
@@ -416,9 +448,6 @@ class RepeaterModifier extends ShapeModifier
         $offset = (float) $this->o?->v;
         $offsetModulo = $offset % 1;
         $roundOffset = $offset > 0 ? floor($offset) : ceil($offset);
-        $pProps = $this->pMatrix->props;
-        $rProps = $this->rMatrix->props;
-        $sProps = $this->sMatrix->props;
 
         $this->pMatrix->reset();
         $this->rMatrix->reset();
@@ -482,14 +511,13 @@ class RepeaterModifier extends ShapeModifier
         while ($cont) {
             $items = $this->getGroupItems($i);
             $lastItem = $items[count($items) - 1] ?? null;
-            $itemsTransform = is_object($lastItem)
-                ? ($lastItem->transform['mProps']->v->props ?? [])
-                : [];
-            $jLen = count($itemsTransform);
+            $targetMatrix = is_object($lastItem)
+                ? ($lastItem->transform['mProps']->v ?? null)
+                : null;
 
             if (is_object($lastItem) && isset($lastItem->transform['mProps'], $lastItem->transform['op'])) {
                 $lastItem->transform['mProps']->_mdf = true;
-                $lastItem->transform['op']['_mdf'] = true;
+                $lastItem->transform['op']->_mdf = true;
                 $lastItem->transform['op']->v
                     = 1 === $this->_currentCopies
                       ? (float) ($this->so?->v)
@@ -500,8 +528,9 @@ class RepeaterModifier extends ShapeModifier
 
             if (0 === $iteration) {
                 $this->matrix->reset();
-                for ($j = 0; $j < $jLen; ++$j) {
-                    $itemsTransform[$j] = $this->matrix->props[$j] ?? 0;
+                if ($targetMatrix) {
+                    $targetMatrix->cloneFromProps($this->matrix->props);
+                    $lastItem->transform['mProps']->pre->cloneFromProps($this->matrix->props);
                 }
             } else {
                 if (
@@ -517,6 +546,9 @@ class RepeaterModifier extends ShapeModifier
                         false
                     );
                 }
+                $rProps = $this->rMatrix->props;
+                $sProps = $this->sMatrix->props;
+                $pProps = $this->pMatrix->props;
                 $this->matrix->transform(
                     $rProps[0] ?? 0,
                     $rProps[1] ?? 0,
@@ -572,8 +604,9 @@ class RepeaterModifier extends ShapeModifier
                     $pProps[15] ?? 0
                 );
 
-                for ($j = 0; $j < $jLen; ++$j) {
-                    $itemsTransform[$j] = $this->matrix->props[$j] ?? 0;
+                if ($targetMatrix) {
+                    $targetMatrix->cloneFromProps($this->matrix->props);
+                    $lastItem->transform['mProps']->pre->cloneFromProps($this->matrix->props);
                 }
                 $this->matrix->reset();
             }
@@ -581,6 +614,8 @@ class RepeaterModifier extends ShapeModifier
             --$cont;
             $i += $dir;
         }
+
+        $this->appendVisibleGroupsToDom();
 
         return $hasReloaded;
     }

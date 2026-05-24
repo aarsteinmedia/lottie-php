@@ -488,9 +488,9 @@ class SVGShapeElement extends ShapeElement
     }
 
     public function searchShapes(
-        array $arr,
-        array $itemsData,
-        array $prevViewData,
+        array &$arr,
+        array &$itemsData,
+        array &$prevViewData,
         \DOMElement $container,
         int $level,
         array $transformers,
@@ -516,7 +516,11 @@ class SVGShapeElement extends ShapeElement
                 $itemsData[$i] = $prevViewData[$processedPos - 1];
             } else {
                 $processedPos = 0;
-                $arr[$i]['_shouldRender'] = $shouldRender;
+                // Repeater clone groups manage their own visibility; do not inherit
+                // `shouldRender = false` from the repeater item during searchShapes.
+                if (!isset($arr[$i]['_rpId'])) {
+                    $arr[$i]['_shouldRender'] = $shouldRender;
+                }
             }
 
             $shapeType = ShapeType::tryFrom($arr[$i]['ty'] ?? '');
@@ -569,10 +573,19 @@ class SVGShapeElement extends ShapeElement
                     } else {
                         $itemsData[$i] = $this->createGroupElement($arr[$i]);
                     }
+                    if (!isset($arr[$i]['it']) || !is_array($arr[$i]['it'])) {
+                        $arr[$i]['it'] = [];
+                    }
+                    if (!isset($itemsData[$i]['it']) || !is_array($itemsData[$i]['it'])) {
+                        $itemsData[$i]['it'] = [];
+                    }
+                    if (!isset($itemsData[$i]['prevViewData']) || !is_array($itemsData[$i]['prevViewData'])) {
+                        $itemsData[$i]['prevViewData'] = [];
+                    }
                     $this->searchShapes(
-                        $arr[$i]['it'] ?? [],
-                        $itemsData[$i]['it'] ?? [],
-                        $itemsData[$i]['prevViewData'] ?? [],
+                        $arr[$i]['it'],
+                        $itemsData[$i]['it'],
+                        $itemsData[$i]['prevViewData'],
                         $itemsData[$i]['gr'] ?? null,
                         $level + 1,
                         $ownTransformers,
@@ -642,6 +655,8 @@ class SVGShapeElement extends ShapeElement
                         $Modifier->closed = true;
                         $Modifier->pos = $i;
                         $Modifier->syncGroupsFromArray();
+                        // Re-bind after reloadShapes(); parent group itemsData may have been recreated.
+                        $Modifier->elemsData = &$itemsData;
                         $this->registerShapeModifier($Modifier, false);
                         array_push($ownModifiers, $Modifier);
 
@@ -649,7 +664,7 @@ class SVGShapeElement extends ShapeElement
                     }
                     $Modifier = ShapeModifiers::getModifier($shapeType ?? ShapeType::Unknown);
                     $itemsData[$i] = $Modifier;
-                    $Modifier->init(
+                    $Modifier->initRepeater(
                         $this,
                         $arr,
                         $i,

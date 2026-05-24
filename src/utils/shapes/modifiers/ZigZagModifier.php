@@ -28,8 +28,9 @@ class ZigZagModifier extends ShapeModifier
 
     private static function getProjectingAngle(ShapePath $path, int $cur)
     {
-        $prevIndex = 0 === $cur ? $path->length() - 1 : $cur - 1;
-        $nextIndex = ($cur + 1) % $path->length();
+        $len = $path->length();
+        $prevIndex = 0 === $cur ? $len - 1 : $cur - 1;
+        $nextIndex = ($cur + 1) % $len;
         $prevPoint = $path->v[$prevIndex];
         $nextPoint = $path->v[$nextIndex];
         $pVector = self::getPerpendicularVector($prevPoint, $nextPoint);
@@ -40,24 +41,29 @@ class ZigZagModifier extends ShapeModifier
     private static function setPoint(
         ShapePath $outputBezier,
         array $point,
-        int $angle,
+        float $angle,
         int $direction,
-        int $amplitude,
-        int $outAmplitude,
-        int $inAmplitude
+        float $amplitude,
+        float $outAmplitude,
+        float $inAmplitude
     ) {
         $angO = $angle - M_PI / 2;
         $angI = $angle + M_PI / 2;
         $px = $point[0] + cos($angle) * $direction * $amplitude;
         $py = $point[1] - sin($angle) * $direction * $amplitude;
+        $oX = $px + cos($angO) * $outAmplitude;
+        $oY = $py - sin($angO) * $outAmplitude;
+        $iX = $px + cos($angI) * $inAmplitude;
+        $iY = $py - sin($angI) * $inAmplitude;
 
+        // Match aarsteinmedia/lottie-web control geometry; store relative tangents for buildShapeString.
         $outputBezier->setTripleAt(
             $px,
             $py,
-            cos($angO) * $outAmplitude,
-            -sin($angO) * $outAmplitude,
-            cos($angI) * $inAmplitude,
-            -sin($angI) * $inAmplitude,
+            $oX - $px,
+            $oY - $py,
+            $iX - $px,
+            $iY - $py,
             $outputBezier->length()
         );
     }
@@ -66,7 +72,7 @@ class ZigZagModifier extends ShapeModifier
         ShapePath $outputBezier,
         ShapePath $path,
         int $cur,
-        int $amplitude,
+        float $amplitude,
         int $frequency,
         int $pointType,
         int $direction
@@ -100,7 +106,7 @@ class ZigZagModifier extends ShapeModifier
     private static function zigZagSegment(
         ShapePath $outputBezier,
         PolynomialBezier $segment,
-        int $amplitude,
+        float $amplitude,
         int $frequency,
         int $pointType,
         int $directionFromProps
@@ -171,7 +177,7 @@ class ZigZagModifier extends ShapeModifier
 
     public function processPath(
         ShapePath $path,
-        int $amplitude,
+        float $amplitude,
         int $frequency,
         int $pointType
     ) {
@@ -237,9 +243,9 @@ class ZigZagModifier extends ShapeModifier
         //   throw new Error(`${$this->constructor.name}: shapes is not initialized`)
         // }
 
-        $amplitude = (int) $this->amplitude?->v;
-        $frequency = max(0, (int) round((float) $this->frequency?->v));
-        $pointType = (int) $this->pointsType?->v;
+        $amplitude = (float) ($this->amplitude?->v ?? 0);
+        $frequency = max(0, (int) round((float) ($this->frequency?->v ?? 0)));
+        $pointType = (int) ($this->pointsType?->v ?? 1);
 
         if (0 != $amplitude) {
             $shapeData = null;

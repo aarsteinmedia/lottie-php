@@ -288,12 +288,16 @@ class Matrix
 
     public function reset(): Matrix
     {
-        $this->props = [
+        // Mutate in place so existing references to `props` (e.g. RepeaterModifier) stay valid.
+        $identity = [
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1,
         ];
+        for ($i = 0; $i < 16; ++$i) {
+            $this->props[$i] = $identity[$i];
+        }
         $this->_identityCalculated = false;
 
         return $this;
