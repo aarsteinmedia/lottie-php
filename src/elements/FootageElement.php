@@ -42,19 +42,6 @@ class FootageElement extends RenderableElement
         return $this->footageData;
     }
 
-    public function initExpressions()
-    {
-        // $expressionsInterfaces = getExpressionInterfaces();
-
-        // if (!$expressionsInterfaces) {
-        //   return;
-        // }
-
-        // $footageInterface = ($expressionsInterfaces)('footage');
-
-        // $this->layerInterface = new ($footageInterface)($this);
-    }
-
     public function prepareFrame()
     {
         // Pass Through

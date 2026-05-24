@@ -124,6 +124,6 @@ class GroupEffect extends DynamicPropertyContainer
 
     public function renderFrame(bool|int|null $_frame = null)
     {
-        throw new \Error(get_class($this).': Method renderFrame is not implemented yet');
+        // AE effect controls only; SVG filters read values via getValue().
     }
 }

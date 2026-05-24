@@ -129,11 +129,6 @@ class SVGShapeElement extends ShapeElement
         );
     }
 
-    public function buildExpressionInterface()
-    {
-        // Pass through
-    }
-
     public function createContent()
     {
         if (!$this->layerElement) {

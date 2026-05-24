@@ -5,7 +5,6 @@ namespace LottiePHP\Utils\Text;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Bezier;
 use LottiePHP\Utils\BezierData;
-use LottiePHP\Utils\Enums\RendererType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\PointData;
@@ -251,12 +250,10 @@ class TextAnimatorProperty extends DynamicPropertyContainer
 
     public function __construct(
         array $textData,
-        RendererType $renderType,
         BaseElement|BaseProperty $elem
     ) {
         $this->mHelper = new Matrix();
         $this->_textData = $textData;
-        $this->_renderType = $renderType;
         $this->_elem = $elem;
         $this->_animatorsData = createSizedArray((int) count($this->_textData['a']));
         $this->initDynamicPropertyContainer($elem);
@@ -279,8 +276,6 @@ class TextAnimatorProperty extends DynamicPropertyContainer
             $animators = $this->_animatorsData;
             $textData = $this->_textData;
             $matrixHelper = $this->mHelper;
-            $renderType = $this->_renderType;
-
             $renderedLettersCount = count($this->renderedLetters);
             $xPos = null;
             $yPos = null;
@@ -1061,30 +1056,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                         += ($letters[$i]['l'] ?? 0)
                         + $documentData['tr'] * 0.001 * (float) $documentData['finalSize'];
                     }
-                    if (RendererType::HTML === $renderType) {
-                        $letterM = $matrixHelper->toCSS();
-                    } elseif (RendererType::SVG === $renderType) {
-                        $letterM = $matrixHelper->to2dCSS();
-                    } else {
-                        $letterP = [
-                            $matrixHelper->props[0] ?? 0,
-                            $matrixHelper->props[1] ?? 0,
-                            $matrixHelper->props[2] ?? 0,
-                            $matrixHelper->props[3] ?? 0,
-                            $matrixHelper->props[4] ?? 0,
-                            $matrixHelper->props[5] ?? 0,
-                            $matrixHelper->props[6] ?? 0,
-                            $matrixHelper->props[7] ?? 0,
-                            $matrixHelper->props[8] ?? 0,
-                            $matrixHelper->props[9] ?? 0,
-                            $matrixHelper->props[10] ?? 0,
-                            $matrixHelper->props[11] ?? 0,
-                            $matrixHelper->props[12] ?? 0,
-                            $matrixHelper->props[13] ?? 0,
-                            $matrixHelper->props[14] ?? 0,
-                            $matrixHelper->props[15] ?? 0,
-                        ];
-                    }
+                    $letterM = $matrixHelper->to2dCSS();
                     $letterO = $elemOpacity;
                 }
 
@@ -1200,7 +1172,6 @@ class TextAnimatorProperty extends DynamicPropertyContainer
     private bool $_hasMaskedPath = false;
     private array $_moreOptions = ['alignment' => []];
     private array $_pathData = [];
-    private RendererType $_renderType;
     private array $_textData;
     private Matrix $mHelper;
 }

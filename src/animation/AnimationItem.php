@@ -26,7 +26,6 @@ class AnimationItem
             $animationData['totalFrames'] = $this->totalFrames;
             $this->renderer->configAnimation($animationData);
             $this->assets = $animationData['assets'];
-            $this->renderer->searchExtraCompositions($animationData['assets']);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }

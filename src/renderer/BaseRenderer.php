@@ -171,20 +171,6 @@ trait RendererTraits
         $this->buildAllItems();
     }
 
-    public function searchExtraCompositions(array $assets)
-    {
-        $length = count($assets);
-
-        for ($i = 0; $i < $length; ++$i) {
-            if ($assets[$i]['xt'] ?? null) {
-                $comp = $this->createComp($assets[$i]);
-
-                // $comp->initExpressions();
-                $this->globalData['projectInterface']['registerComposition']($comp);
-            }
-        }
-    }
-
     public function setupGlobalData(
         array $animData,
         \DOMElement $fontsContainer
@@ -273,16 +259,5 @@ abstract class BaseRenderer extends FrameElement
     public function prepareFrame(float $_num)
     {
         throw new \Error(get_class($this).': Method prepareFrame not yet implemented');
-    }
-
-    public function setProjectInterface(?array $pInterface)
-    {
-        if (!$this->globalData) {
-            throw new \Error(get_class($this).': globalData is not implemented');
-        }
-        if (!$pInterface) {
-            return;
-        }
-        $this->globalData['projectInterface'] = $pInterface;
     }
 }

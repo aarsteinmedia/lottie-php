@@ -61,12 +61,6 @@ trait SVGRendererTraits
         $element = $this->createItem($this->layers[$pos]);
 
         $this->elements[$pos] = $element;
-        // if (getExpressionsPlugin()) {
-        //     if ($this->layers[$pos]['ty'] === 0) {
-        //         $this->globalData['projectInterface']['registerComposition']($element);
-        //     }
-        //     $element->initExpressions();
-        // }
         $this->appendElementInPos($element, $pos);
         if (isset($this->layers[$pos]['tt'])) {
             $elementIndex
@@ -309,11 +303,6 @@ trait SVGRendererTraits
         }
 
         return -1;
-    }
-
-    public function updateContainerSize(?int $_width, ?int $_height)
-    {
-        throw new \Error(get_class($this).': Method updateContainerSize is not implemented');
     }
 }
 abstract class SVGRendererBase extends BaseRenderer

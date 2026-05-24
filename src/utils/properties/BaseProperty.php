@@ -25,7 +25,6 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public array|ValueProperty $e;
     public array $effectsSequence = [];
     public BaseElement|BaseProperty|null $elem;
-    public ?int $frameExpressionId;
     public ?int $frameId;
     public $g;
     public ?int $initFrame = null;
@@ -211,14 +210,6 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public function getVelocityAtTime(float $_frameNum): array|int
     {
         throw new \Error(get_class($this).': Method getVelocityAtTime is not implemented');
-    }
-
-    public function initiateExpression(
-        array $_elem,
-        $_data,
-        $_property
-    ) {
-        throw new \Error('Method not implemented');
     }
 
     public function interpolateValue(float $frameNum, array $caching = [])

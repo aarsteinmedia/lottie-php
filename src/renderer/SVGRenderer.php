@@ -39,7 +39,6 @@ class SVGRenderer extends SVGRendererBase
             '_mdf' => true,
             'projectInterface' => [
                 'currentFrame' => 0,
-                'registerComposition' => static function (): void {},
             ],
         ];
 

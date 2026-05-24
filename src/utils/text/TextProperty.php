@@ -139,11 +139,6 @@ class TextProperty extends BaseProperty
         return $charactersArray;
     }
 
-    public function calculateExpression(string $_text): int
-    {
-        throw new \Error(get_class($this).': Method calculateExpression is not implemented');
-    }
-
     public function canResizeFont(bool $_canResize)
     {
         $this->canResize = $_canResize;
@@ -482,11 +477,6 @@ class TextProperty extends BaseProperty
         return $obj;
     }
 
-    public function getExpressionValue(array $_currentValue, string $_text)
-    {
-        throw new \Error(get_class($this).': Method getExpressionValue is not implemented');
-    }
-
     public function getKeyframeValue()
     {
         // if (!$this->data) {
@@ -583,11 +573,6 @@ class TextProperty extends BaseProperty
         $this->keysIndex = 0;
         $this->_isFirstFrame = true;
         $this->getValue($dData);
-    }
-
-    public function searchExpressions(): ?bool
-    {
-        throw new \Error(get_class($this).': Method searchExpressions is not implemented');
     }
 
     public function searchKeyframes()

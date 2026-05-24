@@ -35,7 +35,6 @@ function getLottieJSON(string $zipBinary): array
             /** @var array<string, mixed> $lottie */
             $lottie = json_decode(prepareString($unzipped[$path]), true, 512, JSON_THROW_ON_ERROR);
 
-            // decodeExpressionLayers($lottie);
             if (isset($lottie['assets']) && is_array($lottie['assets'])) {
                 resolveAssets($unzipped, $lottie['assets']);
             }

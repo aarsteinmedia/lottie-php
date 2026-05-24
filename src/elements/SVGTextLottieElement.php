@@ -2,8 +2,6 @@
 
 namespace LottiePHP\Elements;
 
-use LottiePHP\Utils\Enums\RendererType;
-
 use function LottiePHP\Utils\addClasses;
 use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\createSizedArray;
@@ -167,8 +165,6 @@ class SVGTextLottieElement extends TextElement
         BaseElement $comp,
     ) {
         parent::__construct();
-
-        $this->renderType = RendererType::SVG;
 
         $this->initElement(
             $data,

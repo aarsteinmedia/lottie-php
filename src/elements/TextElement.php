@@ -3,7 +3,6 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Elements\Helpers\RenderableDOMElement;
-use LottiePHP\Utils\Enums\RendererType;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\Text\LetterProps;
@@ -16,7 +15,6 @@ abstract class TextElement extends RenderableDOMElement
 {
     public ?LetterProps $emptyProp;
     public ?bool $lettersChangedFlag;
-    public ?RendererType $renderType;
     public ?TextAnimatorProperty $textAnimator;
     public ?TextProperty $textProperty;
 
@@ -132,11 +130,7 @@ abstract class TextElement extends RenderableDOMElement
             $comp
         );
         $this->textProperty = new TextProperty($this, $data['t']);
-        $this->textAnimator = new TextAnimatorProperty(
-            $data['t'],
-            $this->renderType ?? RendererType::SVG,
-            $this
-        );
+        $this->textAnimator = new TextAnimatorProperty($data['t'], $this);
         $this->initTransform();
         $this->initHierarchy();
         $this->initRenderable();

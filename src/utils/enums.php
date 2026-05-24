@@ -13,7 +13,6 @@ enum ArrayType: string
 
 enum Modifier: string
 {
-    case MouseModifier = 'ms';
     case OffsetPathModifier = 'op';
     case PuckerAndBloatModifier = 'pb';
     case RepeaterModifier = 'rp';
@@ -32,8 +31,6 @@ enum PreserveAspectRatio: string
 
 enum RendererType: string
 {
-    case Canvas = 'canvas';
-    case HTML = 'html';
     case SVG = 'svg';
 }
 

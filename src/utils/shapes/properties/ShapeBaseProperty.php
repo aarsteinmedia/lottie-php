@@ -37,14 +37,6 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
         throw new \Error(get_class($this).': Method getShapeValueAtTime is not implemented');
     }
 
-    public function initiateExpression(
-        BaseElement $_elem,
-        array $_data,
-        BaseProperty $_property
-    ) {
-        throw new \Error(get_class($this).': Method initiateExpression is not implemented');
-    }
-
     public function interpolateShape(
         int $frameNum,
         ShapePath $previousValue,
