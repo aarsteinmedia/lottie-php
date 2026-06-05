@@ -1,7 +1,7 @@
 {
   "name": "aarsteinmedia/lottie-php",
   "description": "Create still SVGs from Lottie Animations on the backend, for previews.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "autoload": {
     "psr-4": {
       "LottiePHP\\": "src/"
