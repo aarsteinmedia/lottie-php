@@ -29,7 +29,7 @@ abstract class BaseElement implements \ArrayAccess
     public $renderedFrame = -1;
     public ?array $shapesData = [];
     public ?\DOMElement $transformedElement;
-    public $type;
+    public mixed $type;
 
     public function addRenderableComponent(ImageElement|MaskElement|SVGEffects $component)
     {
