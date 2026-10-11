@@ -15,6 +15,7 @@ use LottiePHP\Elements\Helpers\Shapes\SVGStyleData;
 use LottiePHP\Elements\Helpers\Shapes\SVGTransformData;
 use LottiePHP\Utils\Enums\ShapeType;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
+use LottiePHP\Utils\Helpers\GlobalData;
 use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\Properties\TransformPropertyFactory;
@@ -83,7 +84,7 @@ class SVGShapeElement extends ShapeElement
 
     public function __construct(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement|RenderableElement|SVGCompElement $comp
     ) {
         $this->identityMatrix = new Matrix();

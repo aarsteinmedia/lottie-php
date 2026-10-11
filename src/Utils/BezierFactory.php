@@ -6,6 +6,11 @@ use LottiePHP\Utils\Enums\ArrayType;
 
 class BezierFactory
 {
+    public static function clearCache(): void
+    {
+        self::$beziers = [];
+    }
+
     /**
      * BezierEasing - use bezier curve for transition easing function
      * by Gaëtan Renaudeau 2014 - 2015 – MIT License.
@@ -35,11 +40,17 @@ class BezierFactory
             $d,
         ]);
 
+        // Every distinct curve across every file ends up here; cap it for long-running processes.
+        if (count(self::$beziers) >= self::MAX_CACHED) {
+            self::$beziers = [];
+        }
         self::$beziers[$str] = $bezEasing;
 
         return $bezEasing;
     }
     private static array $beziers = [];
+
+    private const MAX_CACHED = 1000;
 }
 
 class BezierEasing

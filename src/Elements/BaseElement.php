@@ -3,6 +3,7 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Effects\EffectsManager;
+use LottiePHP\Utils\Helpers\GlobalData;
 
 use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\createElementID;
@@ -18,7 +19,7 @@ abstract class BaseElement implements \ArrayAccess
     public ?EffectsManager $effectsManager;
     public ?array $finalTransform;
     public $frameDuration = 1;
-    public ?array $globalData;
+    public ?GlobalData $globalData;
     public ?array $itemsData = [];
     public ?\DOMElement $layerElement = null;
     public ?string $layerId;
@@ -74,7 +75,7 @@ abstract class BaseElement implements \ArrayAccess
 
     public function initBaseData(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement $comp
     ) {
         $this->globalData = $globalData;

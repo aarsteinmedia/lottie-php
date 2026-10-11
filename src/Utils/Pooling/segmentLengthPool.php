@@ -2,8 +2,6 @@
 
 namespace LottiePHP\Utils\Pooling;
 
-use LottiePHP\Utils\Shapes\ShapePath;
-
 function segmentsLengthPool(): PoolFactory
 {
     static $instance = null;
@@ -14,14 +12,14 @@ function segmentsLengthPool(): PoolFactory
                 'lengths' => [],
                 'totalLength' => 0,
             ],
-            function (ShapePath $element) {
-                $length = $element->lengths;
-
-                for ($i = 0; $i < $length; ++$i) {
-                    bezierLengthPool()->release($element->lengths[$i]);
+            // Elements are arrays, so take them by reference for the reset to reach the pool
+            static function (array &$element) {
+                foreach ($element['lengths'] as $lengthData) {
+                    bezierLengthPool()->release($lengthData);
                 }
 
-                $element->lengths = [];
+                $element['lengths'] = [];
+                $element['totalLength'] = 0;
             }
         );
     }

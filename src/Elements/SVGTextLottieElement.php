@@ -2,6 +2,8 @@
 
 namespace LottiePHP\Elements;
 
+use LottiePHP\Utils\Helpers\GlobalData;
+
 use function LottiePHP\Utils\addClasses;
 use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\createSizedArray;
@@ -161,7 +163,7 @@ class SVGTextLottieElement extends TextElement
 
     public function __construct(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement $comp,
     ) {
         parent::__construct();

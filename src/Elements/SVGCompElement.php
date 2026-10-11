@@ -6,6 +6,7 @@ use LottiePHP\Elements\Helpers\RenderableElementTraits;
 use LottiePHP\Renderer\BaseRenderer;
 use LottiePHP\Renderer\RendererTraits;
 use LottiePHP\Renderer\SVGRendererTraits;
+use LottiePHP\Utils\Helpers\GlobalData;
 use LottiePHP\Utils\Properties\KeyframeValueProperty;
 use LottiePHP\Utils\PropertyFactory;
 
@@ -24,7 +25,7 @@ class SVGCompElement extends SVGBaseElement
 
     public function __construct(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseRenderer|SVGCompElement|SVGTextLottieElement $comp
     ) {
         $this->layers = $data['layers'] ?? [];

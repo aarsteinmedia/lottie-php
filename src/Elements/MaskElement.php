@@ -2,6 +2,7 @@
 
 namespace LottiePHP\Elements;
 
+use LottiePHP\Utils\Helpers\GlobalData;
 use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\PropertyFactory;
@@ -17,7 +18,7 @@ class MaskElement
 {
     public ?array $data;
     public ?BaseElement $element;
-    public ?array $globalData;
+    public ?GlobalData $globalData;
     public ?\DOMElement $maskElement = null;
     public ?array $masksProperties = [];
     public string $solidPath = '';
@@ -27,7 +28,7 @@ class MaskElement
     public function __construct(
         array $data,
         BaseElement $element,
-        array $globalData,
+        GlobalData $globalData,
     ) {
         $this->data = $data;
         $this->element = $element;

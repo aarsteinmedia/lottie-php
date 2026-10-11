@@ -77,7 +77,7 @@ class ShapeModifier extends DynamicPropertyContainer
 
     public function processKeys(?bool $flag = null)
     {
-        if ($this->elem?->globalData['frameId'] ?? null === $this->frameId) {
+        if (($this->elem?->globalData['frameId'] ?? null) === $this->frameId) {
             return 0;
         }
         $this->frameId = $this->elem?->globalData['frameId'] ?? null;

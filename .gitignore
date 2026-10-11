@@ -1,2 +1,3 @@
 vendor
 *.cache
+tests/__output__/

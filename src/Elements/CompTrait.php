@@ -2,6 +2,8 @@
 
 namespace LottiePHP\Elements;
 
+use LottiePHP\Utils\Helpers\GlobalData;
+
 trait CompTrait
 {
     abstract public function buildAllItems();
@@ -13,7 +15,7 @@ trait CompTrait
 
     public function initElement(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement $comp
     ) {
         $this->initFrame();

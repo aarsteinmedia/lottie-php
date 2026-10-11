@@ -3,6 +3,7 @@
 namespace LottiePHP\Elements\Helpers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\Helpers\GlobalData;
 
 use function LottiePHP\Utils\addStyles;
 
@@ -84,7 +85,7 @@ abstract class RenderableDOMElement extends RenderableElement
 
     public function initElement(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement $comp
     ) {
         $this->initFrame();

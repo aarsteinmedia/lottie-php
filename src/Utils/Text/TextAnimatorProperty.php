@@ -1090,7 +1090,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
 
     public function getValue(?bool $flag = null)
     {
-        if ($this->_elem['globalData']['frameId'] ?? null === $this->_frameId) {
+        if (($this->_elem['globalData']['frameId'] ?? null) === $this->_frameId) {
             return 0;
         }
         $this->_frameId = $this->_elem['globalData']['frameId'] ?? 0;

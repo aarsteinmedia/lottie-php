@@ -73,15 +73,14 @@ function unzipToMap(string $zipBinary): array
             if (
                 false === $name
                 || str_ends_with($name, '/')
-                || !in_array(
-                    $name,
-                    [
-                        'manifest.json',
-                        'a',
-                        'animations',
-                        'i',
-                        'images',
-                    ]
+                || (
+                    'manifest.json' !== $name
+                    // Only extract animation, image and audio folders (dotLottie v1 and v2 layouts)
+                    && !in_array(
+                        strstr($name, '/', true),
+                        ['a', 'animations', 'i', 'images', 'u', 'audio'],
+                        true
+                    )
                 )
             ) {
                 continue;

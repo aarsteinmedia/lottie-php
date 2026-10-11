@@ -5,3 +5,5 @@
 /Dockerfile export-ignore
 /assets export-ignore
 /.vscode export-ignore
+/tests export-ignore
+/phpunit.xml.dist export-ignore

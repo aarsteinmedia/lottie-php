@@ -265,17 +265,13 @@ function isLottie(?array $json)
         'h',
     ];
 
-    $_isLottie = true;
-
     foreach ($mandatory as $field) {
-        if (array_key_exists($field, $json)) {
-            $_isLottie = false;
-
-            break;
+        if (!array_key_exists($field, $json)) {
+            return false;
         }
     }
 
-    return $_isLottie;
+    return true;
 }
 
 function isSafeZip(\ZipArchive $zip): bool

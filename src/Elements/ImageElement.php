@@ -3,6 +3,7 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Utils\Helpers\Constants;
+use LottiePHP\Utils\Helpers\GlobalData;
 
 use function LottiePHP\Utils\createTag;
 
@@ -14,7 +15,7 @@ class ImageElement extends SVGBaseElement
 
     public function __construct(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement $comp
     ) {
         parent::__construct();

@@ -3,12 +3,13 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Elements\Helpers\FrameElement;
+use LottiePHP\Utils\Helpers\GlobalData;
 
 class NullElement extends FrameElement
 {
     public function __construct(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement $comp
     ) {
         $this->initFrame();
@@ -39,6 +40,12 @@ class NullElement extends FrameElement
 
     public function renderFrame(?int $_frame = null)
     {
+        return null;
+    }
+
+    public function setMatte(?string $id)
+    {
+        // Null layers don't render DOM output; track mattes have no effect.
         return null;
     }
 }

@@ -4,6 +4,7 @@ namespace LottiePHP\Elements;
 
 use LottiePHP\Elements\Helpers\RenderableDOMElement;
 use LottiePHP\Utils\Enums\ShapeType;
+use LottiePHP\Utils\Helpers\GlobalData;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\Text\LetterProps;
 use LottiePHP\Utils\Text\TextAnimatorProperty;
@@ -115,7 +116,7 @@ abstract class TextElement extends RenderableDOMElement
 
     public function initElement(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement $comp
     ) {
         if (!$data['t']) {

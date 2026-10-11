@@ -4,6 +4,7 @@ namespace LottiePHP\Renderer;
 
 use LottiePHP\Animation\AnimationItem;
 use LottiePHP\Elements\SVGCompElement;
+use LottiePHP\Utils\Helpers\GlobalData;
 
 use function LottiePHP\Utils\createNS;
 use function LottiePHP\Utils\createTag;
@@ -32,7 +33,7 @@ class SVGRenderer extends SVGRendererBase
 
         // Lottie-web expects a globalData bag available everywhere.
         // For still rendering we keep this minimal but non-null.
-        $this->globalData = [
+        $this->globalData = new GlobalData([
             'defs' => $defs,
             'frameNum' => 0,
             'frameId' => 0,
@@ -41,7 +42,7 @@ class SVGRenderer extends SVGRendererBase
             'projectInterface' => [
                 'currentFrame' => 0,
             ],
-        ];
+        ]);
 
         $this->renderConfig = [
             'contentVisibility' => $config['contentVisibility'] ?? 'visible',
@@ -108,6 +109,19 @@ class SVGRenderer extends SVGRendererBase
             $this->globalData,
             $this
         );
+    }
+
+    public function getBaseElement(): ?\DOMElement
+    {
+        return $this->svgElement;
+    }
+
+    /**
+     * The root renderer has no frame of its own; `renderFrame()` prepares each layer.
+     */
+    public function prepareFrame(float $num)
+    {
+        throw new \LogicException(get_class($this).': Use renderFrame() on the root renderer');
     }
 
     public function toSVGString(): string

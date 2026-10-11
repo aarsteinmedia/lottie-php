@@ -20,6 +20,11 @@
       "src/Utils/Pooling/segmentLengthPool.php"
     ]
   },
+  "autoload-dev": {
+    "psr-4": {
+      "LottiePHP\\Tests\\": "tests/"
+    }
+  },
   "require": {
     "ext-dom": "*",
     "ext-fileinfo": "*",
@@ -30,11 +35,16 @@
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.95",
-    "phpunit/phpunit": "^13.4"
+    "phpunit/phpunit": "^10.5 || ^11 || ^12 || ^13.4"
   },
   "scripts": {
-    "lint": "php-cs-fixer fix --dry-run --diff src",
-    "lint:fix": "php-cs-fixer fix src",
+    "lint": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff src tests",
+    "lint:fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php src tests",
+    "test": "phpunit",
+    "test:update-snapshots": [
+      "@putenv UPDATE_SNAPSHOTS=1",
+      "phpunit --filter SnapshotTest"
+    ],
     "visual:up": "composer dump-autoload && docker compose up --build -d && docker compose ps && open -a Firefox 'http://localhost:8000'",
     "visual:down": "docker compose down",
     "visual:logs": "docker compose logs -f --tail=200",

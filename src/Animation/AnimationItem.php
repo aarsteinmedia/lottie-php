@@ -89,8 +89,9 @@ class AnimationItem
      */
     public function setParams(array $params): void
     {
+        // Keep the wrapper detached: nodes appended to the shared document live as long as the
+        // process, while a detached tree is freed together with this AnimationItem.
         $this->wrapper = domDocumentPool()->createElement('div');
-        domDocumentPool()->appendChild($this->wrapper);
 
         $this->renderer = new SVGRenderer(
             $this,

@@ -4,6 +4,7 @@ namespace LottiePHP;
 
 use LottiePHP\Animation\AnimationItem;
 use LottiePHP\Animation\AnimationManager;
+use LottiePHP\Utils\BezierFactory;
 
 use function LottiePHP\Utils\DotLottie\getAnimationData;
 use function LottiePHP\Utils\isLottie;
@@ -11,9 +12,18 @@ use function LottiePHP\Utils\isSafeZip;
 
 class LottieToSVG
 {
+    private static function trimCache(int $size): void
+    {
+        while (count(self::$loadCache) > max(0, $size)) {
+            unset(self::$loadCache[array_key_first(self::$loadCache)]);
+        }
+    }
+
     public static function clearCache(): void
     {
         self::$loadCache = [];
+        BezierFactory::clearCache();
+        gc_collect_cycles();
     }
 
     public static function isLottie(array $json): bool
@@ -34,6 +44,11 @@ class LottieToSVG
         array $rendererSettings = []
     ): ?AnimationItem {
         RenderBootstrap::ensureInitialized();
+
+        // A released animation is a web of reference cycles (renderer <-> elements), which only the
+        // cycle collector frees. It runs by root count, not memory pressure, so a few large
+        // animations can hit memory_limit first. Collect before allocating the next one.
+        gc_collect_cycles();
 
         [
             'animations' => $animations,
@@ -61,40 +76,52 @@ class LottieToSVG
             throw new \InvalidArgumentException('Broken or corrupted Lottie file: '.$path);
         }
 
-        $anim = AnimationManager::loadAnimation([
+        return AnimationManager::loadAnimation([
             'animationData' => $animations[0],
-        ]);
-
-        $anim->setParams([
-            'animationData' => $anim->animationData ?? null,
             'path' => null,
             'assetsPath' => null,
             'rendererSettings' => $rendererSettings,
         ]);
-
-        $anim->renderer->itemsInitialized = false;
-
-        return $anim;
     }
 
     /**
-     * Load an animation, reusing a cached instance when the file path and mtime are unchanged.
+     * Load an animation, reusing a cached instance while the file and renderer settings are unchanged.
+     *
+     * The cache keeps at most `setCacheSize()` animations and evicts the least recently used one.
      */
-    public static function loadCached(string $path): ?AnimationItem
-    {
-        $resolved = realpath($path) ?: $path;
-        $mtime = @filemtime($path) ?: 0;
-        $cached = self::$loadCache[$resolved] ?? null;
+    public static function loadCached(
+        string $path,
+        array $rendererSettings = []
+    ): ?AnimationItem {
+        if (0 === self::$cacheSize) {
+            return self::load($path, $rendererSettings);
+        }
 
-        if ($cached && $cached['mtime'] === $mtime) {
+        $resolved = realpath($path) ?: $path;
+        // Long-running workers would otherwise keep seeing PHP's cached stat result.
+        clearstatcache(true, $resolved);
+        $stat = @stat($resolved);
+        $version = $stat ? $stat['mtime'].':'.$stat['size'] : '';
+        $key = $resolved.'|'.serialize($rendererSettings);
+        $cached = self::$loadCache[$key] ?? null;
+        unset(self::$loadCache[$key]);
+
+        if ($cached && $cached['version'] === $version) {
+            // Re-insert at the end, marking it as most recently used.
+            self::$loadCache[$key] = $cached;
+
             return $cached['anim'];
         }
 
-        $anim = self::load($path);
+        // Free room (and any stale entry) before parsing, so the old and new animations never coexist.
+        $cached = null;
+        self::trimCache(self::$cacheSize - 1);
+
+        $anim = self::load($path, $rendererSettings);
         if ($anim) {
-            self::$loadCache[$resolved] = [
-                'mtime' => $mtime,
+            self::$loadCache[$key] = [
                 'anim' => $anim,
+                'version' => $version,
             ];
         }
 
@@ -107,11 +134,7 @@ class LottieToSVG
         ?int $frame = null,
         bool $force = false
     ): ?string {
-        $useCache = [] === ($rendererSettings ?? []);
-
-        $anim = $useCache
-            ? self::loadCached($path)
-            : self::load($path, $rendererSettings);
+        $anim = self::loadCached($path, $rendererSettings);
 
         if (!$anim?->renderer) {
             return null;
@@ -140,6 +163,21 @@ class LottieToSVG
             : null;
     }
 
-    /** @var array<string, array{mtime: int, anim: AnimationItem}> */
+    /**
+     * Set how many parsed animations `loadCached()` and `renderFrame()` keep in memory. 0 disables caching.
+     */
+    public static function setCacheSize(int $size): void
+    {
+        if ($size < 0) {
+            throw new \InvalidArgumentException('Cache size must be 0 or greater');
+        }
+
+        self::$cacheSize = $size;
+        self::trimCache($size);
+    }
+
+    private static int $cacheSize = 1;
+
+    /** @var array<string, array{anim: AnimationItem, version: string}> */
     private static array $loadCache = [];
 }

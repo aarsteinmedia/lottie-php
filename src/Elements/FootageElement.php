@@ -3,6 +3,7 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Elements\Helpers\RenderableElement;
+use LottiePHP\Utils\Helpers\GlobalData;
 
 class FootageElement extends RenderableElement
 {
@@ -11,7 +12,7 @@ class FootageElement extends RenderableElement
 
     public function __construct(
         array $data,
-        array $globalData,
+        GlobalData $globalData,
         BaseElement $comp
     ) {
         parent::__construct();

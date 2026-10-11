@@ -53,7 +53,15 @@ foreach ([0, 15, 30] as $frame) {
 }
 ```
 
-`loadCached()` skips re-parsing when the file path and modification time are unchanged. `renderFrame()` uses this automatically when no custom renderer settings are passed.
+`loadCached()` skips re-parsing while the file (path, modification time and size) and renderer settings are unchanged. `renderFrame()` uses it automatically.
+
+The cache keeps the **most recently used** animation only, since a parsed animation can take tens of MB. Adjust it for your workload:
+
+```php
+LottieToSVG::setCacheSize(4); // keep up to 4 animations (least recently used is evicted)
+LottieToSVG::setCacheSize(0); // disable caching, e.g. for one-off thumbnail jobs
+LottieToSVG::clearCache();    // free everything now
+```
 
 ## Development
 

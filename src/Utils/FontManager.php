@@ -227,8 +227,8 @@ class FontManager
             ]
         );
 
+        // Left detached from the shared document so it is freed once unreferenced.
         $parentNode->appendChild($node);
-        domDocumentPool()->appendChild($parentNode);
 
         $width = (float) $node->getAttribute('width');
 
@@ -385,7 +385,8 @@ class FontManager
                     $link->setAttribute('type', 'text/css');
                     $link->setAttribute('rel', 'stylesheet');
                     $link->setAttribute('href', $fontList['fPath']);
-                    domDocumentPool()->appendChild($link);
+                    // Not attached to the shared document: it would never be freed, and
+                    // a <link> outside the SVG output has no effect server-side.
                 }
             } elseif (
                 't' === $fontList['fOrigin'] || 2 === $fontList['origin']
