@@ -32,7 +32,7 @@ class LottieToSVG
     }
 
     /**
-     * Expose this utility function.
+     * Parse ZIP file for safety.
      */
     public static function isSafeZip(\ZipArchive $zip): bool
     {
