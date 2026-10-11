@@ -31,15 +31,7 @@ abstract class BaseElement implements \ArrayAccess
     public ?\DOMElement $transformedElement;
     public mixed $type;
 
-    public function addRenderableComponent(ImageElement|MaskElement|SVGEffects $component)
-    {
-        throw new \Error(get_class($this).': Method addRenderableComponent is not implemented');
-    }
-
-    public function buildAllItems()
-    {
-        throw new \Error(get_class($this).': Method buildAllItems is not implemented');
-    }
+    // public abstract function addRenderableComponent(ImageElement|MaskElement|SVGEffects $component);
 
     public function checkMasks()
     {
@@ -73,15 +65,7 @@ abstract class BaseElement implements \ArrayAccess
          */
     }
 
-    public function destroyBaseElement()
-    {
-        throw new \Error(get_class($this).': Method destroyBaseElement is not implemented');
-    }
-
-    public function getBaseElement(): ?\DOMElement
-    {
-        throw new \Error(get_class($this).': Method getBaseElement is not implemented');
-    }
+    abstract public function getBaseElement(): ?\DOMElement;
 
     public function getType()
     {
@@ -156,18 +140,8 @@ abstract class BaseElement implements \ArrayAccess
         );
     }
 
-    public function setMatte(string $id)
+    public function sourceRectAtTime(): ?array
     {
-        throw new \Error(get_class($this).': Method setMatte is not implemented');
-    }
-
-    public function show()
-    {
-        throw new \Error(get_class($this).': Method show is not implemented');
-    }
-
-    public function sourceRectAtTime()
-    {
-        throw new \Error(get_class($this).': Method sourceRectAtTime is not implemented');
+        return null;
     }
 }

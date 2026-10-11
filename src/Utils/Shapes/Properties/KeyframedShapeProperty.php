@@ -9,7 +9,7 @@ use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 use LottiePHP\Utils\Pooling\ShapePool;
 
-class KeyframedShapeProperty extends ShapeBaseProperty
+class KeyframeShapeProperty extends ShapeBaseProperty
 {
     public int $lastFrame;
 

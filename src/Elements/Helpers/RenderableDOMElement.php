@@ -71,20 +71,16 @@ abstract class RenderableDOMElement extends RenderableElement
 
     public ?\DOMElement $innerElem = null;
 
-    public function createContainerElements()
-    {
-        throw new \Error(get_class($this).': Method createContainerElements is not implemented');
-    }
+    abstract public function createContainerElements();
 
     public function createContent()
     {
-        throw new \Error(get_class($this).': Method createContent is not implemented');
+        throw new \Error(get_class(${$this}).': Method createContent is not implemented');
     }
 
-    public function createRenderableComponents()
-    {
-        throw new \Error(get_class($this).': Method createRenderableComponents is not implemented');
-    }
+    abstract public function createRenderableComponents();
+
+    abstract public function destroyBaseElement();
 
     public function initElement(
         array $data,
@@ -107,10 +103,7 @@ abstract class RenderableDOMElement extends RenderableElement
         $this->hide();
     }
 
-    public function initRendererElement()
-    {
-        throw new \Error(get_class($this).': Method initRendererElement is not implemented');
-    }
+    abstract public function initRendererElement();
 
     public function prepareFrame(float $num)
     {
@@ -120,14 +113,7 @@ abstract class RenderableDOMElement extends RenderableElement
         $this->checkTransparency();
     }
 
-    public function renderElement()
-    {
-        throw new \Error(get_class($this).': Method renderElement is not implemented');
-    }
+    abstract public function renderElement();
 
-    public function renderInnerContent()
-    {
-        // TODO: Pass through?
-        throw new \Error(get_class($this).': Method renderInnerContent is not implemented');
-    }
+    abstract public function renderInnerContent();
 }

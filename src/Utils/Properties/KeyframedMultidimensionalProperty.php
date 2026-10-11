@@ -11,7 +11,7 @@ use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
 use function LottiePHP\Utils\createTypedArray;
 
-class KeyframedMultidimensionalProperty extends BaseProperty
+class KeyframeMultidimensionalProperty extends BaseProperty
 {
     public function __construct(
         BaseElement|BaseProperty $elem,
@@ -127,7 +127,7 @@ class KeyframedMultidimensionalProperty extends BaseProperty
             'value' => createTypedArray(ArrayType::Float32, $arrLen),
         ];
 
-        // Keyframed properties are animated; register with container so it ticks each frame.
+        // Keyframe properties are animated; register with container so it ticks each frame.
         $containerRef = $container ?? $elem;
         if (is_object($containerRef) && method_exists($containerRef, 'addDynamicProperty')) {
             $containerRef->addDynamicProperty($this);

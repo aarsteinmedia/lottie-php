@@ -134,9 +134,7 @@ class SVGShapeElement extends ShapeElement
         if (!$this->layerElement) {
             throw new \Error(get_class($this).': Could not access Layer');
         }
-        // if (!$this->shapesData) {
-        //   throw new \Error(get_class($this) . ": Could not access ShapesData")
-        // }
+
         $this->searchShapes(
             $this->shapesData,
             $this->itemsData,
@@ -398,9 +396,6 @@ class SVGShapeElement extends ShapeElement
             throw new \Error(get_class($this).': Could not access layerElement');
         }
         $this->_reloadingShapes = true;
-        // if (!$this->shapesData) {
-        //   throw new \Error(get_class($this) . ": Could not access shapesData")
-        // }
         $this->shapeModifiers = [];
         $this->_isFirstFrame = true;
         $length = count($this->itemsData);

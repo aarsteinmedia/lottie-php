@@ -55,11 +55,12 @@ class AnimationItem
         } elseif ($this->assetsPath) {
             $imagePath = $assetData['p'] ?? null;
 
-            if (
-                array_any(['i/', 'images/'], fn ($_path) => str_contains($imagePath, $_path))
-            ) {
-                $imagePath = explode('/', $imagePath)[1];
+            foreach (['i/', 'images/'] as $_path) {
+                if (str_contains($imagePath, $_path)) {
+                    $imagePath = explode('/', $imagePath)[1];
+                }
             }
+
             $path = $this->assetsPath.($imagePath ?: '');
         } else {
             $path = $this->path;

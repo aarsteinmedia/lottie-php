@@ -8,7 +8,7 @@ use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\Properties\BaseProperty;
-use LottiePHP\Utils\Properties\KeyframedValueProperty;
+use LottiePHP\Utils\Properties\KeyframeValueProperty;
 use LottiePHP\Utils\Properties\MultiDimensionalProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
@@ -27,7 +27,7 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
     public ?GradientProperty $g;
     public ?\DOMElement $gf;
     public ?\DOMElement $gr;
-    public KeyframedValueProperty|ValueProperty|null $h;
+    public KeyframeValueProperty|ValueProperty|null $h;
     public $it = [];
     public ?string $maskId = null;
     public ?\DOMElement $ms;
@@ -148,9 +148,6 @@ class SVGGradientFillStyleData extends DynamicPropertyContainer
         $mask = createTag('mask');
         $maskElement = createTag('path');
 
-        // if (!maskElement || !mask) {
-        //   throw new Error("${$this->constructor.name}: Could not create svg element")
-        // }
         $mask->appendChild($maskElement);
         $opacityId = createElementID();
         $maskId = createElementID();

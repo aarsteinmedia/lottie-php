@@ -5,8 +5,8 @@ namespace LottiePHP\Utils;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Properties\BaseProperty;
-use LottiePHP\Utils\Properties\KeyframedMultidimensionalProperty;
-use LottiePHP\Utils\Properties\KeyframedValueProperty;
+use LottiePHP\Utils\Properties\KeyframeMultidimensionalProperty;
+use LottiePHP\Utils\Properties\KeyframeValueProperty;
 use LottiePHP\Utils\Properties\MultiDimensionalProperty;
 use LottiePHP\Utils\Properties\NoProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
@@ -79,7 +79,7 @@ class PropertyFactory
         } else {
             switch ($type) {
                 case 0:
-                    $p = new KeyframedValueProperty(
+                    $p = new KeyframeValueProperty(
                         $elem,
                         $data,
                         $mult,
@@ -89,7 +89,7 @@ class PropertyFactory
                     break;
 
                 case 1:
-                    $p = new KeyframedMultidimensionalProperty(
+                    $p = new KeyframeMultidimensionalProperty(
                         $elem,
                         $data,
                         $mult,
@@ -106,7 +106,7 @@ class PropertyFactory
         $p ??= new NoProperty();
 
         // Register animated properties so they get ticked every frame.
-        // Keyframed properties (kf=true) must be added even if they have no effectsSequence.
+        // Keyframe properties (kf=true) must be added even if they have no effectsSequence.
         //
         // Important: `$container` can be an object (e.g. TransformProperty) that composes child
         // properties into a derived value. Prefer registering the dynamic property on the

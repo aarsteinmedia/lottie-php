@@ -651,7 +651,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                                 ++$segmentInd;
                                 if ($segments[$segmentInd] ?? null) {
                                     $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);
-                                } elseif ($pathClosed) {
+                                } elseif ($pathClosed ?? false) {
                                     $pointInd = 0;
                                     $segmentInd = 0;
                                     $points = $this->getSegmentPoints($segments[$segmentInd] ?? null);

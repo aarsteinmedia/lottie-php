@@ -249,8 +249,12 @@ function getBlendMode(int $mode = 16)
     return $blendModeEnums[$mode] ?? 'normal';
 }
 
-function isLottie(array $json)
+function isLottie(?array $json)
 {
+    if (!$json) {
+        return false;
+    }
+
     $mandatory = [
         'v',
         'ip',
@@ -261,7 +265,63 @@ function isLottie(array $json)
         'h',
     ];
 
-    return array_all($mandatory, fn (string $field) => array_key_exists($field, $json));
+    $_isLottie = true;
+
+    foreach ($mandatory as $field) {
+        if (array_key_exists($field, $json)) {
+            $_isLottie = false;
+
+            break;
+        }
+    }
+
+    return $_isLottie;
+}
+
+function isSafeZip(\ZipArchive $zip): bool
+{
+    // Baseline Security Thresholds
+    $max_file_count = 1000;
+    $max_total_uncompressed = 100 * 1024 * 1024; // 100 MB
+    $max_single_file_size = 50 * 1024 * 1024;  // 50 MB
+    $max_ratio = 100;               // 100:1 ratio
+
+    // 1. Check total entry count
+    if ($zip->numFiles > $max_file_count) {
+        return false;
+    }
+
+    $total_uncompressed = 0;
+
+    // 2. Iterate through headers without extracting
+    for ($i = 0; $i < $zip->numFiles; ++$i) {
+        $stat = $zip->statIndex($i);
+        if (!$stat) {
+            continue;
+        }
+
+        $uncompressed = $stat['size'];
+        $compressed = $stat['comp_size'];
+
+        // Single file size limit
+        if ($uncompressed > $max_single_file_size) {
+            return false;
+        }
+
+        // Compression ratio check (ignore 0-byte or uncompressed entries)
+        if ($compressed > 0 && ($uncompressed / $compressed) > $max_ratio) {
+            return false;
+        }
+
+        $total_uncompressed += $uncompressed;
+
+        // Total expanded size limit
+        if ($total_uncompressed > $max_total_uncompressed) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function rgbToHex(

@@ -2,6 +2,8 @@
 
 namespace LottiePHP\Utils\DotLottie;
 
+use function LottiePHP\Utils\isSafeZip;
+
 /**
  * @return array{data: list<array<string, mixed>>, manifest: array<string, mixed>}
  */
@@ -58,10 +60,30 @@ function unzipToMap(string $zipBinary): array
         if (true !== $zip->open($tmp)) {
             throw new \RuntimeException('Invalid or unreadable ZIP');
         }
+
+        if (!isSafeZip($zip)) {
+            $zip->close();
+
+            throw new \RuntimeException('Invalid ZIP');
+        }
+
         $map = [];
         for ($i = 0; $i < $zip->numFiles; ++$i) {
             $name = $zip->getNameIndex($i);
-            if (false === $name || str_ends_with($name, '/')) {
+            if (
+                false === $name
+                || str_ends_with($name, '/')
+                || !in_array(
+                    $name,
+                    [
+                        'manifest.json',
+                        'a',
+                        'animations',
+                        'i',
+                        'images',
+                    ]
+                )
+            ) {
                 continue;
             }
             $contents = $zip->getFromIndex($i);

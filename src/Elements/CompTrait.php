@@ -4,6 +4,8 @@ namespace LottiePHP\Elements;
 
 trait CompTrait
 {
+    abstract public function buildAllItems();
+
     public function getElements()
     {
         return $this->elements;

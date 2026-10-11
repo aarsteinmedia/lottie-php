@@ -68,7 +68,7 @@ class ImageElement extends SVGBaseElement
         // Pass through
     }
 
-    public function sourceRectAtTime()
+    public function sourceRectAtTime(): ?array
     {
         return $this->sourceRect;
     }

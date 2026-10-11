@@ -4,5 +4,8 @@
 	"[php]": {
 		"editor.defaultFormatter": "junstyle.php-cs-fixer",
 		"editor.formatOnSave": true
-	}
+	},
+	"cSpell.words": [
+		"Renderable"
+	]
 }

@@ -77,7 +77,7 @@ class SVGRenderer extends SVGRendererBase
             throw new \Error(get_class($this).': Can\'t access globalData');
         }
 
-        // Precomp layers (`ty: 0`) reference their actual layer stack via `refId`.
+        // Pre-comp layers (`ty: 0`) reference their actual layer stack via `refId`.
         // In Lottie JSON, the referenced composition lives under `assets[]`.
         // If we don't resolve it here, the comp element will be instantiated with
         // an empty `layers` array and render as an empty `<g>` (often masked).

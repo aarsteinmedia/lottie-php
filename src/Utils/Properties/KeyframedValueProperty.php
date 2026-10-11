@@ -7,7 +7,7 @@ use LottiePHP\Utils\Enums\PropType;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 
-class KeyframedValueProperty extends BaseProperty
+class KeyframeValueProperty extends BaseProperty
 {
     public ?string $selectorValue;
     // BaseProperty defines `$v` already. Avoid redeclaring with a narrower type.
@@ -49,7 +49,7 @@ class KeyframedValueProperty extends BaseProperty
         $this->effectsSequence = [fn ($_) => $this->getValueAtCurrentTime()];
         $this->_isFirstFrame = true;
 
-        // Keyframed properties are animated; register with container so it ticks each frame.
+        // Keyframe properties are animated; register with container so it ticks each frame.
         $containerRef = $container ?? $elem;
         if (is_object($containerRef) && method_exists($containerRef, 'addDynamicProperty')) {
             $containerRef->addDynamicProperty($this);

@@ -29,10 +29,6 @@ class SVGProLevelsFilter
         $this->filterManager = $filterManager;
         $effectElements = $this->filterManager->effectElements;
 
-        // if (!$effectElements) {
-        //   throw new Error("{$this->constructor.name}: Missing Effect Elements")
-        // }
-
         $feComponentTransfer = createTag('feComponentTransfer');
 
         // Red

@@ -7,6 +7,7 @@ use LottiePHP\Animation\AnimationManager;
 
 use function LottiePHP\Utils\DotLottie\getAnimationData;
 use function LottiePHP\Utils\isLottie;
+use function LottiePHP\Utils\isSafeZip;
 
 class LottieToSVG
 {
@@ -15,8 +16,23 @@ class LottieToSVG
         self::$loadCache = [];
     }
 
-    public static function load(string $path): ?AnimationItem
+    public static function isLottie(array $json): bool
     {
+        return isLottie($json);
+    }
+
+    /**
+     * Expose this utility function.
+     */
+    public static function isSafeZip(\ZipArchive $zip): bool
+    {
+        return isSafeZip($zip);
+    }
+
+    public static function load(
+        string $path,
+        array $rendererSettings = []
+    ): ?AnimationItem {
         RenderBootstrap::ensureInitialized();
 
         [
@@ -32,16 +48,33 @@ class LottieToSVG
             $animations[$i] = json_decode($animation, true);
         }
 
-        if (
-            !$animations
-            || array_any($animations, fn ($animation) => !isLottie($animation))
-        ) {
+        $hasInvalid = false;
+        foreach ($animations ?? [] as $animation) {
+            if (!isLottie($animation)) {
+                $hasInvalid = true;
+
+                break;
+            }
+        }
+
+        if (!$animations || $hasInvalid) {
             throw new \InvalidArgumentException('Broken or corrupted Lottie file: '.$path);
         }
 
-        return AnimationManager::loadAnimation([
+        $anim = AnimationManager::loadAnimation([
             'animationData' => $animations[0],
         ]);
+
+        $anim->setParams([
+            'animationData' => $anim->animationData ?? null,
+            'path' => null,
+            'assetsPath' => null,
+            'rendererSettings' => $rendererSettings,
+        ]);
+
+        $anim->renderer->itemsInitialized = false;
+
+        return $anim;
     }
 
     /**
@@ -70,7 +103,7 @@ class LottieToSVG
 
     public static function renderFrame(
         string $path,
-        ?array $rendererSettings = [],
+        array $rendererSettings = [],
         ?int $frame = null,
         bool $force = false
     ): ?string {
@@ -78,20 +111,10 @@ class LottieToSVG
 
         $anim = $useCache
             ? self::loadCached($path)
-            : self::load($path);
+            : self::load($path, $rendererSettings);
 
         if (!$anim?->renderer) {
             return null;
-        }
-
-        if (!$useCache && $rendererSettings) {
-            $anim->setParams([
-                'animationData' => $anim->animationData ?? null,
-                'path' => null,
-                'assetsPath' => null,
-                'rendererSettings' => $rendererSettings,
-            ]);
-            $anim->renderer->itemsInitialized = false;
         }
 
         return self::renderFrameFromAnimation($anim, $frame, $force);

@@ -6,7 +6,7 @@ use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Bezier;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Pooling\ShapePool;
-use LottiePHP\Utils\Properties\KeyframedValueProperty;
+use LottiePHP\Utils\Properties\KeyframeValueProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\ShapeCollection;
@@ -16,14 +16,14 @@ use function LottiePHP\Utils\Pooling\segmentsLengthPool;
 
 class TrimModifier extends ShapeModifier
 {
-    public KeyframedValueProperty|ValueProperty|null $e;
+    public KeyframeValueProperty|ValueProperty|null $e;
 
     public ?float $eValue;
 
     public $m;
-    public KeyframedValueProperty|ValueProperty|null $o;
+    public KeyframeValueProperty|ValueProperty|null $o;
 
-    public KeyframedValueProperty|ValueProperty|null $s;
+    public KeyframeValueProperty|ValueProperty|null $s;
 
     public ?float $sValue;
 

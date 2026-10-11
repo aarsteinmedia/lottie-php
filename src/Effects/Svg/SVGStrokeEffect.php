@@ -31,9 +31,6 @@ class SVGStrokeEffect
 
     public function initialize()
     {
-        // if (!$this->filterManager->effectElements) {
-        //   throw new Error("${$this->constructor.name}: Missing Effects Elements")
-        // }
         $elemChildren = [...$this->elem->layerElement?->children
           ?? $this->elem->layerElement?->childNodes
           ?? []];
@@ -101,9 +98,6 @@ class SVGStrokeEffect
 
     public function renderFrame(?bool $forceRender = null)
     {
-        // if (!$this->filterManager->effectElements) {
-        //   throw new Error("${$this->constructor.name}: Missing Effect element")
-        // }
         if (!$this->initialized) {
             $this->initialize();
         }

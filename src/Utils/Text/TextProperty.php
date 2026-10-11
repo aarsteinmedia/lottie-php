@@ -476,10 +476,6 @@ class TextProperty extends BaseProperty
 
     public function getKeyframeValue()
     {
-        // if (!$this->data) {
-        //   throw new \Error(get_class($this) . ": data (Shape) is not implemented")
-        // }
-
         $textKeys = $this->data['d']['k'] ?? [];
         $frameNum = (int) ($this->elem->comp['renderedFrame'] ?? null);
         $i = 0;
@@ -500,10 +496,6 @@ class TextProperty extends BaseProperty
 
     public function getValue(?bool $_finalValue = null)
     {
-        // if (!$this->data) {
-        //   throw new \Error(get_class($this) . ": data (TextData) is not implemented")
-        // }
-
         if (
             (($this->elem->globalData['frameId'] ?? null) === $this->frameId
               || 0 === count($this->effectsSequence))

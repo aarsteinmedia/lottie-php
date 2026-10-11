@@ -215,52 +215,26 @@ abstract class BaseRenderer extends FrameElement
         array_push($this->pendingElements, $element);
     }
 
-    public function buildItem(int $_val)
-    {
-        throw new \Error(get_class($this).': Method buildItem not yet implemented');
-    }
+    abstract public function buildItem(int $val);
 
-    public function checkPendingElements()
-    {
-        throw new \Error(get_class($this).': Method checkPendingElements not yet implemented');
-    }
+    abstract public function checkPendingElements();
 
-    public function createComp(
-        array $_data,
-        ?\DOMElement $_container = null,
-        ?array $_comp = null,
+    abstract public function createComp(
+        array $data,
+        ?\DOMElement $container = null,
+        ?array $comp = null,
         $_ = null
-    ): SVGCompElement {
-        throw new \Error(get_class($this).': Method createComp not yet implemented');
-    }
+    ): SVGCompElement;
 
-    public function createImage(array $_layer): ImageElement
-    {
-        throw new \Error(get_class($this).': Method createImage is not implemented');
-    }
+    abstract public function createImage(array $layer): ImageElement;
 
-    public function createNull(array $_layer): NullElement
-    {
-        throw new \Error(get_class($this).': Method createNull not implemented');
-    }
+    abstract public function createNull(array $layer): NullElement;
 
-    public function createShape(array $_layer): SVGShapeElement
-    {
-        throw new \Error(get_class($this).': Method createShape not implemented');
-    }
+    abstract public function createShape(array $layer): SVGShapeElement;
 
-    public function createSolid(array $_layer): SolidElement
-    {
-        throw new \Error(get_class($this).': Method createSolid not implemented');
-    }
+    abstract public function createSolid(array $layer): SolidElement;
 
-    public function createText(array $_layer): SVGTextLottieElement
-    {
-        throw new \Error(get_class($this).': Method createText not implemented');
-    }
+    abstract public function createText(array $layer): SVGTextLottieElement;
 
-    public function prepareFrame(float $_num)
-    {
-        throw new \Error(get_class($this).': Method prepareFrame not yet implemented');
-    }
+    abstract public function prepareFrame(float $num);
 }

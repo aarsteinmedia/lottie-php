@@ -7,7 +7,7 @@ use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 use LottiePHP\Utils\Pooling\ShapePool;
 use LottiePHP\Utils\Properties\BaseProperty;
-use LottiePHP\Utils\Properties\KeyframedMultidimensionalProperty;
+use LottiePHP\Utils\Properties\KeyframeMultidimensionalProperty;
 use LottiePHP\Utils\Properties\MultiDimensionalProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
@@ -21,7 +21,7 @@ class RectShapeProperty extends ShapeBaseProperty
     public ?ValueProperty $os;
     public ?ValueProperty $pt;
     public ValueProperty $r;
-    public KeyframedMultidimensionalProperty|MultiDimensionalProperty $s;
+    public KeyframeMultidimensionalProperty|MultiDimensionalProperty $s;
 
     // ShapePath stores in/out tangents as relative vectors (Lottie JSON semantics),
     // not absolute positions. buildShapeString() will add them to vertices.
@@ -323,6 +323,6 @@ class RectShapeProperty extends ShapeBaseProperty
             $this->convertRectToPath();
         }
 
-        return 0; // For type compability
+        return 0; // For type compatibility
     }
 }

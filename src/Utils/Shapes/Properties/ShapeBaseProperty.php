@@ -34,7 +34,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
 
     public function getValueAtTime(float $_frameNumFromProps, ?float $_num): ?ShapePath
     {
-        throw new \Error(get_class($this).': Method getShapeValueAtTime is not implemented');
+        throw new \Error(get_class($this).': Method getValueAtTime is not implemented');
     }
 
     public function interpolateShape(

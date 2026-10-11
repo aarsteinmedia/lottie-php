@@ -254,7 +254,7 @@ class TextSelectorProperty extends BaseProperty
         array $_data,
         array $_arr
     ) {
-        throw new \Error('Method not implemented');
+        return null;
     }
 
     public function getValue(?bool $newCharsFlag = false)

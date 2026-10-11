@@ -239,10 +239,6 @@ class ZigZagModifier extends ShapeModifier
 
     public function processShapes(bool $_isFirstFrame)
     {
-        // if (!$this->shapes) {
-        //   throw new Error(`${$this->constructor.name}: shapes is not initialized`)
-        // }
-
         $amplitude = (float) ($this->amplitude?->v ?? 0);
         $frequency = max(0, (int) round((float) ($this->frequency?->v ?? 0)));
         $pointType = (int) ($this->pointsType?->v ?? 1);

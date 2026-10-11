@@ -618,7 +618,7 @@ class SVGTextLottieElement extends TextElement
         }
     }
 
-    public function sourceRectAtTime()
+    public function sourceRectAtTime(): ?array
     {
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');

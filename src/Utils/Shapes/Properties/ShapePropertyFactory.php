@@ -12,9 +12,9 @@ class ShapePropertyFactory
         return ShapeProperty::class;
     }
 
-    public static function getKeyframedConstructorFunction()
+    public static function getKeyframeConstructorFunction()
     {
-        return KeyframedShapeProperty::class;
+        return KeyframeShapeProperty::class;
     }
 
     public static function getShapeProp(
@@ -43,7 +43,7 @@ class ShapePropertyFactory
                         || array_key_exists('s', $keys[0])
                     )
                 ) {
-                    $prop = new KeyframedShapeProperty($elem, $data, $type);
+                    $prop = new KeyframeShapeProperty($elem, $data, $type);
 
                     break;
                 }

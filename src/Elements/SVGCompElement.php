@@ -6,7 +6,7 @@ use LottiePHP\Elements\Helpers\RenderableElementTraits;
 use LottiePHP\Renderer\BaseRenderer;
 use LottiePHP\Renderer\RendererTraits;
 use LottiePHP\Renderer\SVGRendererTraits;
-use LottiePHP\Utils\Properties\KeyframedValueProperty;
+use LottiePHP\Utils\Properties\KeyframeValueProperty;
 use LottiePHP\Utils\PropertyFactory;
 
 use function LottiePHP\Utils\createSizedArray;
@@ -20,7 +20,7 @@ class SVGCompElement extends SVGBaseElement
 
     public ?bool $_debug;
     public bool $supports3d = true;
-    public ?KeyframedValueProperty $tm;
+    public ?KeyframeValueProperty $tm;
 
     public function __construct(
         array $data,
@@ -51,9 +51,9 @@ class SVGCompElement extends SVGBaseElement
             throw new \Error(get_class($this).': Cannot access global data');
         }
 
-        // Precomp layers (`ty: 0`) reference their actual layer stack via `refId`.
+        // Pre-comp layers (`ty: 0`) reference their actual layer stack via `refId`.
         // Those compositions live under `assets[]`. If we don't resolve them here,
-        // nested precomps will render as empty groups (and any mattes inside them
+        // nested pre-comps will render as empty groups (and any mattes inside them
         // will never be built).
         if (
             isset($data['refId'])
@@ -67,7 +67,7 @@ class SVGCompElement extends SVGBaseElement
                 if (!isset($data['layers']) && isset($asset['layers']) && is_array($asset['layers'])) {
                     $data['layers'] = $asset['layers'];
                 }
-                // Precomp dimensions are defined on the asset, not always on the layer.
+                // Pre-comp dimensions are defined on the asset, not always on the layer.
                 if (!isset($data['w']) && isset($asset['w'])) {
                     $data['w'] = $asset['w'];
                 }

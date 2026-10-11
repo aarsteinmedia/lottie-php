@@ -23,7 +23,7 @@ class ShapeCollection
             $this->shapes = [...$this->shapes, ...createSizedArray($this->_maxLength)];
             $this->_maxLength *= 2;
         }
-        $this->shapes[$this->_length] = $shapeData;
+        $this->shapes[(int) $this->_length] = $shapeData;
         ++$this->_length;
     }
 

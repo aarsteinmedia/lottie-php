@@ -34,14 +34,14 @@ class TransformProperty extends BaseProperty
      */
     public Matrix $pre;
     public ?ValueProperty $px;
-    public KeyframedValueProperty|ValueProperty|null $py;
+    public KeyframeValueProperty|ValueProperty|null $py;
     public ?ValueProperty $pz;
-    public KeyframedValueProperty|MultiDimensionalProperty|ValueProperty|null $r;
+    public KeyframeValueProperty|MultiDimensionalProperty|ValueProperty|null $r;
     public ?ValueProperty $rx;
     public ?ValueProperty $ry;
     public ?ValueProperty $rz;
     public ?ValueProperty $sa = null;
-    public KeyframedValueProperty|ValueProperty|null $sk = null;
+    public KeyframeValueProperty|ValueProperty|null $sk = null;
 
     public function __construct(
         BaseElement|BaseProperty $elem,
@@ -217,7 +217,7 @@ class TransformProperty extends BaseProperty
 
     public function applyToMatrix(Matrix $mat)
     {
-        // This check is useful for develpment
+        // This check is useful for development
         if (!$this->data) {
             throw new \Error(get_class($this).': (Shape) is not implemented');
         }

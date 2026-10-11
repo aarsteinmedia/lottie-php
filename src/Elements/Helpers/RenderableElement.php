@@ -157,7 +157,7 @@ abstract class RenderableElement extends FrameElement
         throw new \Error(get_class($this).': Method show is not implemented');
     }
 
-    public function sourceRectAtTime()
+    public function sourceRectAtTime(): ?array
     {
         return [
             'height' => 100,
