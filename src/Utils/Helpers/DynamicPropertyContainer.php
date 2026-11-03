@@ -60,7 +60,7 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
             }
         }
 
-        return 0; // For type compability
+        return 0; // For type compatibility
     }
 
     public function offsetExists(mixed $offset): bool
@@ -93,7 +93,7 @@ abstract class DynamicPropertyContainer implements \ArrayAccess
         $this->{$offset} = null;
     }
 
-    public function setGroupProperty($_propertyInterface)
+    public function setGroupProperty(mixed $_propertyInterface)
     {
         // Pass through
         // throw new Error('Method is not implemented')

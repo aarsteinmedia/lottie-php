@@ -6,6 +6,8 @@
 		"editor.formatOnSave": true
 	},
 	"cSpell.words": [
+		"beziers",
+		"fnct",
 		"Renderable"
 	]
 }

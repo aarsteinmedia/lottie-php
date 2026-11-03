@@ -17,150 +17,150 @@ class TextAnimatorDataProperty
         ?TextAnimatorProperty $container
     ) {
         $defaultData = ['propType' => false];
-        $textAnimatorAnimatables = $animatorProps['a'] ?? null;
+        $textAnimatorItems = $animatorProps['a'] ?? null;
 
         $degToRads = M_PI / 180;
 
         $this->a = [
-            'a' => ($textAnimatorAnimatables['a'] ?? null)
+            'a' => ($textAnimatorItems['a'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['a'],
+                  $textAnimatorItems['a'],
                   1,
                   0,
                   $container
               ))
               : $defaultData,
-            'fb' => ($textAnimatorAnimatables['fb'] ?? null)
+            'fb' => ($textAnimatorItems['fb'] ?? null)
               ? PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['fb'],
+                  $textAnimatorItems['fb'],
                   0,
                   0.01,
                   $container
               )
               : $defaultData,
-            'fc' => ($textAnimatorAnimatables['fc'] ?? null)
+            'fc' => ($textAnimatorItems['fc'] ?? null)
               ? PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['fc'],
+                  $textAnimatorItems['fc'],
                   1,
                   0,
                   $container
               )
               : $defaultData,
-            'fh' => ($textAnimatorAnimatables['fh'] ?? null)
+            'fh' => ($textAnimatorItems['fh'] ?? null)
               ? PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['fh'],
+                  $textAnimatorItems['fh'],
                   0,
                   0,
                   $container
               )
               : $defaultData,
-            'fs' => ($textAnimatorAnimatables['fs'] ?? null)
+            'fs' => ($textAnimatorItems['fs'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['fs'],
+                  $textAnimatorItems['fs'],
                   0,
                   0.01,
                   $container
               ))
               : $defaultData,
-            'o' => ($textAnimatorAnimatables['o'] ?? null)
+            'o' => ($textAnimatorItems['o'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['o'],
+                  $textAnimatorItems['o'],
                   0,
                   0.01,
                   $container
               ))
               : $defaultData,
-            'p' => ($textAnimatorAnimatables['p'] ?? null)
+            'p' => ($textAnimatorItems['p'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['p'],
+                  $textAnimatorItems['p'],
                   1,
                   0,
                   $container
               ))
               : $defaultData,
-            'r' => ($textAnimatorAnimatables['r'] ?? null)
+            'r' => ($textAnimatorItems['r'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['r'],
+                  $textAnimatorItems['r'],
                   0,
                   $degToRads,
                   $container
               ))
               : $defaultData,
-            'rx' => ($textAnimatorAnimatables['rx'] ?? null)
+            'rx' => ($textAnimatorItems['rx'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['rx'],
+                  $textAnimatorItems['rx'],
                   0,
                   $degToRads,
                   $container
               ))
               : $defaultData,
-            'ry' => ($textAnimatorAnimatables['ry'] ?? null)
+            'ry' => ($textAnimatorItems['ry'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['ry'],
+                  $textAnimatorItems['ry'],
                   0,
                   $degToRads,
                   $container
               ))
               : $defaultData,
-            's' => ($textAnimatorAnimatables['s'] ?? null)
+            's' => ($textAnimatorItems['s'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['s'],
+                  $textAnimatorItems['s'],
                   1,
                   0.01,
                   $container
               ))
               : $defaultData,
-            'sa' => ($textAnimatorAnimatables['sa'] ?? null)
+            'sa' => ($textAnimatorItems['sa'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['sa'],
+                  $textAnimatorItems['sa'],
                   0,
                   $degToRads,
                   $container
               ))
               : $defaultData,
-            'sc' => ($textAnimatorAnimatables['sc'] ?? null)
+            'sc' => ($textAnimatorItems['sc'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['sc'],
+                  $textAnimatorItems['sc'],
                   1,
                   0,
                   $container
               ))
               : $defaultData,
-            'sk' => ($textAnimatorAnimatables['sk'] ?? null)
+            'sk' => ($textAnimatorItems['sk'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['sk'],
+                  $textAnimatorItems['sk'],
                   0,
                   $degToRads,
                   $container
               ))
               : $defaultData,
-            'sw' => ($textAnimatorAnimatables['sw'] ?? null)
+            'sw' => ($textAnimatorItems['sw'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['sw'],
+                  $textAnimatorItems['sw'],
                   0,
                   0,
                   $container
               ))
               : $defaultData,
-            't' => ($textAnimatorAnimatables['t'] ?? null)
+            't' => ($textAnimatorItems['t'] ?? null)
               ? (PropertyFactory::getProp(
                   $elem,
-                  $textAnimatorAnimatables['t'],
+                  $textAnimatorItems['t'],
                   0,
                   0,
                   $container

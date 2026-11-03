@@ -11,7 +11,7 @@ class ShapePool
         return new ShapePath();
     }
 
-    private static function _release($shapePath)
+    private static function _release(mixed $shapePath)
     {
         if (!$shapePath instanceof ShapePath) {
             return;

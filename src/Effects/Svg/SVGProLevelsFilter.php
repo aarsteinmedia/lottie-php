@@ -140,7 +140,7 @@ class SVGProLevelsFilter
     ) {
         $cnt = 0;
         $segments = 256;
-        $perc = null;
+        $percent = null;
         $min = min($inputBlack, $inputWhite);
         $max = max($inputBlack, $inputWhite);
         $table = createSizedArray($segments);
@@ -150,15 +150,15 @@ class SVGProLevelsFilter
         $inputDelta = $inputWhite - $inputBlack;
 
         while ($cnt <= 256) {
-            $perc = $cnt / 256;
-            if ($perc <= $min) {
+            $percent = $cnt / 256;
+            if ($percent <= $min) {
                 $colorValue = $inputDelta < 0 ? $outputWhite : $outputBlack;
-            } elseif ($perc >= $max) {
+            } elseif ($percent >= $max) {
                 $colorValue = $inputDelta < 0 ? $outputBlack : $outputWhite;
             } else {
                 $colorValue
                   = $outputBlack
-                  + $outputDelta * pow(($perc - $inputBlack) / $inputDelta, 1 / $gamma);
+                  + $outputDelta * pow(($percent - $inputBlack) / $inputDelta, 1 / $gamma);
             }
             $table[$pos] = $colorValue;
             ++$pos;

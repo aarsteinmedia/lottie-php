@@ -2,8 +2,6 @@
 
 namespace LottiePHP\Utils;
 
-use LottiePHP\Utils\Enums\RendererType;
-
 use function LottiePHP\Utils\Pooling\domDocumentPool;
 
 class FontManager
@@ -66,15 +64,15 @@ class FontManager
 
         if (0 !== $loadedCount && time() - $this->initTime < self::$maxWaitingTime) {
             sleep(0.02);
-            $this->checkLoadedFontsBinded();
+            $this->checkLoadedFontsBound();
 
             return;
         }
         sleep(0.01);
-        $this->setIsLoadedBinded();
+        $this->setIsLoadedBound();
     }
 
-    private function checkLoadedFontsBinded(...$args)
+    private function checkLoadedFontsBound(...$args)
     {
         return $this->checkLoadedFonts(...$args);
     }
@@ -189,7 +187,7 @@ class FontManager
         $this->isLoaded = true;
     }
 
-    private function setIsLoadedBinded(...$args)
+    private function setIsLoadedBound(...$args)
     {
         return $this->setIsLoaded(...$args);
     }
@@ -320,104 +318,6 @@ class FontManager
             $fontList['cache'] = [];
         }
         $this->fonts = $fontData['list'];
-
-        return;
-        $_pendingFonts = $length;
-
-        for ($i = 0; $i < $_pendingFonts; ++$i) {
-            $shouldLoadFont = true;
-            $loadedSelector = false;
-
-            $fontList = $fontData['list'][$i];
-
-            if (!$fontList) {
-                continue;
-            }
-
-            $fontList['loaded'] = false;
-            $fontList['monoCase'] = self::setUpNode(
-                $fontList['fFamily'],
-                'monospace'
-            );
-            $fontList['sansCase'] = self::setUpNode(
-                $fontList['fFamily'],
-                'sans-serif'
-            );
-            if (!$fontList['fPath']) {
-                $fontList['loaded'] = true;
-                --$_pendingFonts;
-            } elseif (
-                'p' === $fontList['fOrigin'] || 3 === $fontList['origin']
-            ) {
-                // $loadedSelector = document.querySelectorAll("style[f-forigin="p"][f-family="${$fontList.fFamily}"], style[f-origin="3"][f-family="${$fontList.fFamily}"]");
-
-                // if (loadedSelector.length > 0) {
-                //   shouldLoadFont = false;
-                // }
-
-                if ($shouldLoadFont) {
-                    $s = domDocumentPool()->createElement('style');
-
-                    $s->setAttribute('f-forigin', $fontList['fOrigin']);
-                    $s->setAttribute('f-origin', $fontList['origin']);
-                    $s->setAttribute('f-family', $fontList['fFamily']);
-                    $s->textContent = "@font-face {font-family: {$fontList['fFamily']}; font-style: normal; src: url('{$fontList['fPath']}');}";
-                    $defs?->appendChild($s);
-                }
-            } elseif (
-                'g' === $fontList['fOrigin'] || 1 === $fontList['origin']
-            ) {
-                // $loadedSelector = domDocumentPool()->querySelectorAll('link[f-forigin="g"], link[f-origin="1"]');
-
-                // $len = count($loadedSelector);
-
-                // for ($i = 0; $i < $len; ++$i) {
-                //     if (str_contains($loadedSelector[$i]?->getAttribute('href'), $fontList['fPath'])) {
-                //         $shouldLoadFont = false;
-                //     }
-                // }
-
-                if ($shouldLoadFont) {
-                    $link = domDocumentPool()->createElement('link');
-
-                    $link->setAttribute('f-forigin', $fontList['fOrigin']);
-                    $link->setAttribute('f-origin', $fontList['origin']);
-                    $link->setAttribute('type', 'text/css');
-                    $link->setAttribute('rel', 'stylesheet');
-                    $link->setAttribute('href', $fontList['fPath']);
-                    // Not attached to the shared document: it would never be freed, and
-                    // a <link> outside the SVG output has no effect server-side.
-                }
-            } elseif (
-                't' === $fontList['fOrigin'] || 2 === $fontList['origin']
-            ) {
-                // $loadedSelector = domDocumentPool()->querySelectorAll('script[f-forigin="t"], script[f-origin="2"]');
-
-                // $len = count($loadedSelector);
-
-                // for ($i = 0; $i < $len; ++$i) {
-                //     if ($fontList['fPath'] === $loadedSelector[$i]?->getAttribute('src')) {
-                //         $shouldLoadFont = false;
-                //     }
-                // }
-
-                if ($shouldLoadFont) {
-                    $sc = domDocumentPool()->createElement('link');
-
-                    $sc->setAttribute('f-forigin', $fontList['fOrigin']);
-                    $sc->setAttribute('f-origin', $fontList['origin']);
-                    $sc->setAttribute('rel', 'stylesheet');
-                    $sc->setAttribute('href', $fontList['fPath']);
-                    $defs?->appendChild($sc);
-                }
-            }
-            $fontList['helper'] = $this->createHelper($fontList, $defs);
-            $fontList['cache'] = [];
-            array_push($this->fonts, $fontList);
-        }
-        if (0 === $_pendingFonts) {
-            $this->isLoaded = true;
-        }
     }
 
     public function getCharData(
@@ -598,7 +498,6 @@ class FontManager
         'size' => 0,
         'w' => 0,
     ];
-    private static ?RendererType $engine;
 
     private static ?\DOMElement $helper = null;
     private int $initTime;

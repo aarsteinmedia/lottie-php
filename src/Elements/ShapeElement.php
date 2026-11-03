@@ -89,7 +89,7 @@ abstract class ShapeElement extends RenderableDOMElement
         }
     }
 
-    public function searchProcessedElement($elem)
+    public function searchProcessedElement(mixed $elem)
     {
         if (!is_array($elem)) {
             return 0;

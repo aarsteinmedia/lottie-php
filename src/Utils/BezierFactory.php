@@ -68,12 +68,12 @@ class BezierEasing
     private function binarySubdivide(
         float $aX,
         float $aAFromProps,
-        float $aBFropProps,
+        float $aBFromProps,
         float $mX1,
         float $mX2
     ) {
         $aA = $aAFromProps;
-        $aB = $aBFropProps;
+        $aB = $aBFromProps;
         $currentX = null;
         $currentT = null;
         $i = 0;

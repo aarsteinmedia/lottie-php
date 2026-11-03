@@ -12,7 +12,7 @@ abstract class TransformElement extends BaseElement
 {
     public false|int $_isFirstFrame = false;
     public $hierarchy = [];
-    public $localTransforms;
+    public ?array $localTransforms = null;
     public Matrix $mHelper;
     public ?SVGEffects $renderableEffectsManager;
 
@@ -126,10 +126,10 @@ abstract class TransformElement extends BaseElement
 
             $this->localTransforms[0]['matrix']['clone']($localMat);
             for ($i = 1; $i < $length; ++$i) {
-                $lmat = $this->localTransforms[$i]['matrix'];
+                $lMat = $this->localTransforms[$i]['matrix'];
 
-                if ($lmat) {
-                    $localMat->multiply($lmat);
+                if ($lMat) {
+                    $localMat->multiply($lMat);
                 }
             }
             $localMat->multiply($mat);

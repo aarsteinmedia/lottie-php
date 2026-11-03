@@ -319,13 +319,13 @@ class OffsetPathModifier extends ShapeModifier
 
     private function pruneSegmentIntersection(array $a, array $b)
     {
-        $outa = [...$a];
-        $outb = [...$b];
+        $outA = [...$a];
+        $outB = [...$b];
         $intersect = $this->getIntersection($a[count($a) - 1], $b[0]);
 
         if ($intersect) {
-            $outa[count($a) - 1] = explode($intersect[0] ?? 0, $a[count($a) - 1])[0];
-            $outb[0] = explode($intersect[1] ?? 0, $b[0])[1];
+            $outA[count($a) - 1] = explode($intersect[0] ?? 0, $a[count($a) - 1])[0];
+            $outB[0] = explode($intersect[1] ?? 0, $b[0])[1];
         }
         if (count($a) > 1 && count($b) > 1) {
             $intersect = $this->getIntersection($a[0], $b[count($b) - 1]);
@@ -336,7 +336,7 @@ class OffsetPathModifier extends ShapeModifier
             }
         }
 
-        return [$outa, $outb];
+        return [$outA, $outB];
     }
 
     public function getValue(?bool $flag = null)

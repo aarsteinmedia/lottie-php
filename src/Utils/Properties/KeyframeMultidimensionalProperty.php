@@ -16,7 +16,7 @@ class KeyframeMultidimensionalProperty extends BaseProperty
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
-        ?float $mult = null,
+        ?float $factor = null,
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->initDynamicPropertyContainer($container ?? $elem);
@@ -106,7 +106,7 @@ class KeyframeMultidimensionalProperty extends BaseProperty
         $this->kf = true;
         $this->_isFirstFrame = true;
         // See `ValueProperty`: treat 0 as “default multiplier”.
-        $this->mult = $mult ?: 1.0;
+        $this->factor = $factor ?: 1.0;
         $this->elem = $elem;
         $this->container = $container;
         $this->comp = is_object($elem) ? ($elem->comp ?? null) : ($elem['comp'] ?? null);

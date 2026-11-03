@@ -46,7 +46,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
         $keyPropS = null;
         $keyPropE = null;
         $isHold = null;
-        $perc = 0;
+        $percent = 0;
         $vertexValue = 0;
         $kf = $this->keyframes ?? [];
 
@@ -92,9 +92,9 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
             $iterationIndex = $i;
             if (!$isHold) {
                 if ($frameNum >= $nextKeyData['t'] - $this->offsetTime) {
-                    $perc = 1;
+                    $percent = 1;
                 } elseif ($frameNum < $keyData['t'] - $this->offsetTime) {
-                    $perc = 0;
+                    $percent = 0;
                 } else {
                     $fnc = null;
 
@@ -114,7 +114,7 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
                         )->get(...);
                         $keyframeMetadata['__fnct'] = $fnc;
                     }
-                    $perc
+                    $percent
                       = ($fnc(($frameNum - ($keyData['t'] - $this->offsetTime))
                         / ($nextKeyData['t']
                           - $this->offsetTime
@@ -143,15 +143,15 @@ abstract class ShapeBaseProperty extends DynamicPropertyContainer
             for ($k = 0; $k < $kLen; ++$k) {
                 $vertexValue = ($isHold
                   ? ($keyPropS['i'][$j][$k] ?? 0)
-                  : ($keyPropS['i'][$j][$k] ?? 0) + (($keyPropE['i'][$j][$k] ?? 0) - ($keyPropS['i'][$j][$k] ?? 0)) * $perc) ?? 0;
+                  : ($keyPropS['i'][$j][$k] ?? 0) + (($keyPropE['i'][$j][$k] ?? 0) - ($keyPropS['i'][$j][$k] ?? 0)) * $percent) ?? 0;
                 $previousValue->i[$j][$k] = $vertexValue;
                 $vertexValue = ($isHold
                   ? ($keyPropS['o'][$j][$k] ?? 0)
-                  : ($keyPropS['o'][$j][$k] ?? 0) + (($keyPropE['o'][$j][$k] ?? 0) - ($keyPropS['o'][$j][$k] ?? 0)) * $perc) ?? 0;
+                  : ($keyPropS['o'][$j][$k] ?? 0) + (($keyPropE['o'][$j][$k] ?? 0) - ($keyPropS['o'][$j][$k] ?? 0)) * $percent) ?? 0;
                 $previousValue->o[$j][$k] = $vertexValue;
                 $vertexValue = ($isHold
                   ? ($keyPropS['v'][$j][$k] ?? 0)
-                  : ($keyPropS['v'][$j][$k] ?? 0) + (($keyPropE['v'][$j][$k] ?? 0) - ($keyPropS['v'][$j][$k] ?? 0)) * $perc) ?? 0;
+                  : ($keyPropS['v'][$j][$k] ?? 0) + (($keyPropE['v'][$j][$k] ?? 0) - ($keyPropS['v'][$j][$k] ?? 0)) * $percent) ?? 0;
                 $previousValue->v[$j][$k] = $vertexValue;
             }
         }

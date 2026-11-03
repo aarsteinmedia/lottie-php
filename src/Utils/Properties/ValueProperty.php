@@ -11,20 +11,20 @@ class ValueProperty extends BaseProperty
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
-        ?float $mult = null,
+        ?float $factor = null,
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::UniDimensional;
-        // In the upstream JS implementation, many call sites pass `0` for `mult`,
-        // relying on `mult || 1` semantics. In PHP, `0 ?? 1` stays `0`, which
+        // In the upstream JS implementation, many call sites pass `0` for `factor`,
+        // relying on `factor || 1` semantics. In PHP, `0 ?? 1` stays `0`, which
         // would zero out all values. Treat `0` as “no multiplier provided”.
-        $this->mult = $mult ?: 1.0;
+        $this->factor = $factor ?: 1.0;
         $this->data = $data;
         $k = $data['k'] ?? 0;
         if (is_array($k)) {
             $k = is_numeric($k[0] ?? null) ? ($k[0] ?? 0) : 0;
         }
-        $this->v = $k * ($this->mult ?? 1);
+        $this->v = $k * ($this->factor ?? 1);
         $this->pv = $k;
         $this->_mdf = false;
         $this->elem = $elem;

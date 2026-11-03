@@ -20,7 +20,7 @@ class TrimModifier extends ShapeModifier
 
     public ?float $eValue;
 
-    public $m;
+    public ?int $m;
     public KeyframeValueProperty|ValueProperty|null $o;
 
     public KeyframeValueProperty|ValueProperty|null $s;

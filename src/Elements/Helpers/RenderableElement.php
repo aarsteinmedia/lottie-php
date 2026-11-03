@@ -119,7 +119,7 @@ abstract class RenderableElement extends FrameElement
 
     public function initRenderable()
     {
-        // layer's visibility related to inpoint and outpoint. Rename isVisible to isInRange
+        // layer's visibility related to in-point and outpoint. Rename isVisible to isInRange
         $this->isInRange = false;
         // layer's display state
         $this->hidden = false;

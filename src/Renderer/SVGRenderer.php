@@ -94,7 +94,7 @@ class SVGRenderer extends SVGRendererBase
                 if (!isset($data['layers']) && isset($asset['layers']) && is_array($asset['layers'])) {
                     $data['layers'] = $asset['layers'];
                 }
-                // Precomp dimensions are defined on the asset, not always on the layer.
+                // Pre-comp dimensions are defined on the asset, not always on the layer.
                 if (!isset($data['w']) && isset($asset['w'])) {
                     $data['w'] = $asset['w'];
                 }

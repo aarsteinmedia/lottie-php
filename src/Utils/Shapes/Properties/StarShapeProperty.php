@@ -108,7 +108,7 @@ class StarShapeProperty extends ShapeBaseProperty
         $angle = M_PI * 2 / $numPts;
         $rad = $this->or->v;
         $roundness = $this->os->v;
-        $perimSegment = 2 * M_PI * $rad / ($numPts * 4);
+        $perimeterSegment = 2 * M_PI * $rad / ($numPts * 4);
         $currentAng = -M_PI * 0.5;
         $dir = 3 === $this->data['d'] ? -1 : 1;
 
@@ -127,8 +127,8 @@ class StarShapeProperty extends ShapeBaseProperty
             $y += $this->p->v[1];
             // ShapePath stores in/out tangents as relative vectors (Lottie JSON semantics),
             // not absolute positions. buildShapeString() will add them to vertices.
-            $tX = $ox * $perimSegment * $roundness * $dir;
-            $tY = $oy * $perimSegment * $roundness * $dir;
+            $tX = $ox * $perimeterSegment * $roundness * $dir;
+            $tY = $oy * $perimeterSegment * $roundness * $dir;
             $this->v?->setTripleAt(
                 $x,
                 $y,
@@ -163,11 +163,11 @@ class StarShapeProperty extends ShapeBaseProperty
         $shortRad = (float) $this->ir?->v;
         $longRound = $this->os->v;
         $shortRound = (float) $this->is?->v;
-        $longPerimSegment = 2 * M_PI * $longRad / ($numPts * 2);
-        $shortPerimSegment = 2 * M_PI * $shortRad / ($numPts * 2);
+        $longPerimeterSegment = 2 * M_PI * $longRad / ($numPts * 2);
+        $shortPerimeterSegment = 2 * M_PI * $shortRad / ($numPts * 2);
         $rad = 0;
         $roundness = 0;
-        $perimSegment = 0;
+        $perimeterSegment = 0;
         $currentAng = -M_PI / 2;
 
         $currentAng += $this->r->v;
@@ -177,7 +177,7 @@ class StarShapeProperty extends ShapeBaseProperty
         for ($i = 0; $i < $numPts; ++$i) {
             $rad = $isLong ? $longRad : $shortRad;
             $roundness = $isLong ? $longRound : $shortRound;
-            $perimSegment = $isLong ? $longPerimSegment : $shortPerimSegment;
+            $perimeterSegment = $isLong ? $longPerimeterSegment : $shortPerimeterSegment;
             $x = $rad * cos($currentAng);
             $y = $rad * sin($currentAng);
             $ox = 0 === $x && 0 === $y ? 0 : $y / sqrt($x * $x + $y * $y);
@@ -186,8 +186,8 @@ class StarShapeProperty extends ShapeBaseProperty
             $x += (float) $this->p?->v[0];
             $y += (float) $this->p?->v[1];
             // Store tangents as relative vectors (Lottie semantics).
-            $tX = $ox * $perimSegment * $roundness * $dir;
-            $tY = $oy * $perimSegment * $roundness * $dir;
+            $tX = $ox * $perimeterSegment * $roundness * $dir;
+            $tY = $oy * $perimeterSegment * $roundness * $dir;
             $this->v->setTripleAt(
                 $x,
                 $y,
@@ -200,8 +200,8 @@ class StarShapeProperty extends ShapeBaseProperty
             );
 
             /* $this->v->v[$i] = [x,y];
-                        $this->v->i[$i] = [x+ox*$perimSegment*$roundness*dir,y+oy*$perimSegment*$roundness*dir];
-                        $this->v->o[$i] = [x-ox*$perimSegment*$roundness*dir,y-oy*$perimSegment*$roundness*dir];
+                        $this->v->i[$i] = [x+ox*$perimeterSegment*$roundness*dir,y+oy*$perimeterSegment*$roundness*dir];
+                        $this->v->o[$i] = [x-ox*$perimeterSegment*$roundness*dir,y-oy*$perimeterSegment*$roundness*dir];
                         $this->v->_length = numPts; */
             $isLong = !$isLong;
             $currentAng += $angle * $dir;

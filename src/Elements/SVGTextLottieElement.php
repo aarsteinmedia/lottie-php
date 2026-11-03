@@ -122,7 +122,7 @@ class SVGTextLottieElement extends TextElement
     }
 
     /**
-     * JSON glyph exports can leave a duplicate unstylized path sibling next to the
+     * JSON glyph exports can leave a duplicate un-stylized path sibling next to the
      * filled path inside the shape group. Drop paths with no paint attributes.
      */
     private function removeUnstyledGlyphPaths(\DOMElement $glyphRoot): void

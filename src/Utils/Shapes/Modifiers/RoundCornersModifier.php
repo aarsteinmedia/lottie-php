@@ -76,7 +76,7 @@ class RoundCornersModifier extends ShapeModifier
         $currentO = null;
         $closerV = null;
         $distance = null;
-        $newPosPerc = null;
+        $newPosPercent = null;
         $index = 0;
         $vX = null;
         $vY = null;
@@ -112,10 +112,10 @@ class RoundCornersModifier extends ShapeModifier
                     }
                     $distance = sqrt(pow($currentV[0] - $closerV[0], 2)
                       + pow($currentV[1] - $closerV[1], 2));
-                    $newPosPerc = $distance ? min($distance / 2, $round) / $distance : 0;
-                    $iX = $currentV[0] + ($closerV[0] - $currentV[0]) * $newPosPerc;
+                    $newPosPercent = $distance ? min($distance / 2, $round) / $distance : 0;
+                    $iX = $currentV[0] + ($closerV[0] - $currentV[0]) * $newPosPercent;
                     $vX = $iX;
-                    $iY = $currentV[1] - ($currentV[1] - $closerV[1]) * $newPosPerc;
+                    $iY = $currentV[1] - ($currentV[1] - $closerV[1]) * $newPosPercent;
                     $vY = $iY;
                     $oX = $vX - ($vX - $currentV[0]) * Constants::$roundCorner;
                     $oY = $vY - ($vY - $currentV[1]) * Constants::$roundCorner;
@@ -138,10 +138,10 @@ class RoundCornersModifier extends ShapeModifier
                     }
                     $distance = sqrt(pow($currentV[0] - $closerV[0], 2)
                       + pow($currentV[1] - $closerV[1], 2));
-                    $newPosPerc = $distance ? min($distance / 2, $round) / $distance : 0;
-                    $oX = $currentV[0] + ($closerV[0] - $currentV[0]) * $newPosPerc;
+                    $newPosPercent = $distance ? min($distance / 2, $round) / $distance : 0;
+                    $oX = $currentV[0] + ($closerV[0] - $currentV[0]) * $newPosPercent;
                     $vX = $oX;
-                    $oY = $currentV[1] + ($closerV[1] - $currentV[1]) * $newPosPerc;
+                    $oY = $currentV[1] + ($closerV[1] - $currentV[1]) * $newPosPercent;
                     $vY = $oY;
                     $iX = $vX - ($vX - $currentV[0]) * Constants::$roundCorner;
                     $iY = $vY - ($vY - $currentV[1]) * Constants::$roundCorner;

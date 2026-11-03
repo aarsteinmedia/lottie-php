@@ -107,7 +107,7 @@ class TextSelectorProperty extends BaseProperty
         }
     }
 
-    public function getMult(int $indFromProps, ?int $_val = null): array|float|int
+    public function getProduct(int $indFromProps, ?int $_val = null): array|float|int
     {
         $ind = $indFromProps;
 
@@ -138,7 +138,7 @@ class TextSelectorProperty extends BaseProperty
             $y2
         )->get(...);
 
-        $mult = 0;
+        $factor = 0;
         $s = $this->finalS;
         $e = $this->finalE;
         $type = $this->data['sh'];
@@ -146,44 +146,44 @@ class TextSelectorProperty extends BaseProperty
         switch ($type) {
             case 2:
                 if ($e === $s) {
-                    $mult = $ind >= $e ? 1 : 0;
+                    $factor = $ind >= $e ? 1 : 0;
                 } else {
-                    $mult = max(0, min(0.5 / ($e - $s) + ($ind - $s) / ($e - $s), 1));
+                    $factor = max(0, min(0.5 / ($e - $s) + ($ind - $s) / ($e - $s), 1));
                 }
-                $mult = ($easer)($mult);
+                $factor = ($easer)($factor);
 
                 break;
 
             case 3:
                 if ($e === $s) {
-                    $mult = $ind >= $e ? 0 : 1;
+                    $factor = $ind >= $e ? 0 : 1;
                 } else {
-                    $mult
+                    $factor
                       = 1 - max(0, min(0.5 / ($e - $s) + ($ind - $s) / ($e - $s), 1));
                 }
 
-                $mult = ($easer)($mult);
+                $factor = ($easer)($factor);
 
                 break;
 
             case 4:
                 if ($e === $s) {
-                    $mult = 0;
+                    $factor = 0;
                 } else {
-                    $mult = max(0, min(0.5 / ($e - $s) + ($ind - $s) / ($e - $s), 1));
-                    if ($mult < 0.5) {
-                        $mult *= 2;
+                    $factor = max(0, min(0.5 / ($e - $s) + ($ind - $s) / ($e - $s), 1));
+                    if ($factor < 0.5) {
+                        $factor *= 2;
                     } else {
-                        $mult = 1 - 2 * ($mult - 0.5);
+                        $factor = 1 - 2 * ($factor - 0.5);
                     }
                 }
-                $mult = ($easer)($mult);
+                $factor = ($easer)($factor);
 
                 break;
 
             case 5:
                 if ($e === $s) {
-                    $mult = 0;
+                    $factor = 0;
                 } else {
                     $tot = $e - $s;
 
@@ -191,32 +191,32 @@ class TextSelectorProperty extends BaseProperty
                     $x = -$tot / 2 + $ind;
                     $a = $tot / 2;
 
-                    $mult = sqrt(1 - $x * $x / ($a * $a));
+                    $factor = sqrt(1 - $x * $x / ($a * $a));
                 }
-                $mult = ($easer)($mult);
+                $factor = ($easer)($factor);
 
                 break;
 
             case 6:
                 if ($e === $s) {
-                    $mult = 0;
+                    $factor = 0;
                 } else {
                     $ind = min(max(0, $ind + 0.5 - $s), $e - $s);
-                    $mult = (1 + cos(M_PI + M_PI * 2 * $ind / ($e - $s))) / 2;
+                    $factor = (1 + cos(M_PI + M_PI * 2 * $ind / ($e - $s))) / 2;
                 }
-                $mult = ($easer)($mult);
+                $factor = ($easer)($factor);
 
                 break;
 
             default:
                 if ($ind >= floor($s)) {
                     if ($ind - $s < 0) {
-                        $mult = max(0, min(min($e, 1) - ($s - $ind), 1));
+                        $factor = max(0, min(min($e, 1) - ($s - $ind), 1));
                     } else {
-                        $mult = max(0, min($e - $ind, 1));
+                        $factor = max(0, min($e - $ind, 1));
                     }
                 }
-                $mult = ($easer)($mult);
+                $factor = ($easer)($factor);
         }
         // Smoothness implementation.
         // The $smoothness represents a reduced range of the original [0; 1] range.
@@ -236,17 +236,17 @@ class TextSelectorProperty extends BaseProperty
             }
             $threshold = 0.5 - $smoothness * 0.5;
 
-            if ($mult < $threshold) {
-                $mult = 0;
+            if ($factor < $threshold) {
+                $factor = 0;
             } else {
-                $mult = ($mult - $threshold) / $smoothness;
-                if ($mult > 1) {
-                    $mult = 1;
+                $factor = ($factor - $threshold) / $smoothness;
+                if ($factor > 1) {
+                    $factor = 1;
                 }
             }
         }
 
-        return $mult * $this->a->v;
+        return $factor * $this->a->v;
     }
 
     public function getTextSelectorProp(

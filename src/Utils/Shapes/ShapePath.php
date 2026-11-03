@@ -2,6 +2,8 @@
 
 namespace LottiePHP\Utils\Shapes;
 
+use LottiePHP\Utils\Pooling\PoolFactory;
+
 use function LottiePHP\Utils\createSizedArray;
 use function LottiePHP\Utils\Pooling\pointPool;
 
@@ -187,5 +189,5 @@ class ShapePath
         return $newPath;
     }
 
-    private $_pointPool;
+    private PoolFactory $_pointPool;
 }

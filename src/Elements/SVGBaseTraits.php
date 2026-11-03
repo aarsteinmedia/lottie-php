@@ -110,7 +110,7 @@ trait SVGBaseTraits
          * Clipping compositions to hide content that exceeds boundaries.
          * If collapsed transformations is on, component should not be clipped.
          *
-         * Only real precomposition layers (ty === 0) carry `ty`. Embedded shape payloads such as
+         * Only real pre-composition layers (ty === 0) carry `ty`. Embedded shape payloads such as
          * font glyph outlines omit `ty`; treating them as ty 0 would apply this clip with w/h = 0
          * and hide all paths (degenerate clip rect).
          */

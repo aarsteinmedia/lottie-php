@@ -169,11 +169,11 @@ class Matrix
             + $this->props[14];
     }
 
-    public function clone(Matrix $matr): Matrix
+    public function clone(Matrix $matrix): Matrix
     {
-        $matr->props = $this->props;
+        $matrix->props = $this->props;
 
-        return $matr;
+        return $matrix;
     }
 
     public function cloneFromProps(array $props): Matrix
@@ -184,14 +184,14 @@ class Matrix
         return $this;
     }
 
-    public function equals(?Matrix $matr): bool
+    public function equals(?Matrix $matrix): bool
     {
         $length = count($this->props);
 
         for ($i = 0; $i < $length; ++$i) {
             $val = $this->props[$i];
 
-            if ($val !== $matr?->props[$i]) {
+            if ($val !== $matrix?->props[$i]) {
                 return false;
             }
         }

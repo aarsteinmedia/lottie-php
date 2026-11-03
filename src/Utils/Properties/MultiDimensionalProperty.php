@@ -14,12 +14,12 @@ class MultiDimensionalProperty extends BaseProperty
     public function __construct(
         BaseElement|BaseProperty $elem,
         array $data,
-        ?float $mult = null,
+        ?float $factor = null,
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::MultiDimensional;
         // See `ValueProperty`: treat 0 as “default multiplier”.
-        $this->mult = $mult ?: 1.0;
+        $this->factor = $factor ?: 1.0;
         $this->data = $data;
         $this->_mdf = false;
         $this->elem = $elem;
@@ -35,7 +35,7 @@ class MultiDimensionalProperty extends BaseProperty
         $this->pv = createTypedArray(ArrayType::Float32, $length);
         $this->vel = createTypedArray(ArrayType::Float32, $length);
         for ($i = 0; $i < $length; ++$i) {
-            $this->v[$i] = ($data['k'][$i] ?? 0) * $this->mult;
+            $this->v[$i] = ($data['k'][$i] ?? 0) * $this->factor;
             $this->pv[$i] = $data['k'][$i] ?? 0;
         }
         $this->_isFirstFrame = true;

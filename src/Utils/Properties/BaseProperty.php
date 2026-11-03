@@ -25,6 +25,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public array|ValueProperty $e;
     public array $effectsSequence = [];
     public BaseElement|BaseProperty|null $elem;
+    public ?float $factor;
     public ?int $frameId;
     public $g;
     public ?int $initFrame = null;
@@ -34,7 +35,6 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?bool $lock = false;
     public ?\Closure $loopIn;
     public ?\Closure $loopOut;
-    public ?float $mult;
     public ?int $numKeys;
     public $offsetTime = 0;
     public ?array $propertyGroup;
@@ -264,7 +264,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $keyframeMetadata = $keyframesMetadata[$i] ?? [];
 
         $kLen = 0;
-        $perc = 0;
+        $percent = 0;
         $jLen = 0;
         $j = 0;
         $fnc = null;
@@ -312,10 +312,10 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     )->get(...);
                     $keyframeMetadata['__fnct'] = $fnc;
                 }
-                $perc = $fnc(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
-                $distanceInLine = $bezierData->segmentLength * $perc;
+                $percent = $fnc(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
+                $distanceInLine = $bezierData->segmentLength * $percent;
 
-                $segmentPerc = null;
+                $segmentPercent = null;
                 $addedLength
                     = $caching['lastFrame'] < $frameNum
                     && $caching['_lastKeyframeIndex'] === $i
@@ -333,7 +333,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     $addedLength += $bezierData->points[$j]['partialLength'] ?? 0;
                     if (
                         0 === $distanceInLine
-                        || 0 === $perc
+                        || 0 === $percent
                         || $j === count($bezierData->points) - 1
                     ) {
                         $kLen = count($bezierData->points[$j]['point'] ?? []);
@@ -349,7 +349,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                         && $distanceInLine
                           < $addedLength + ($bezierData->points[$j + 1]['partialLength'] ?? 0)
                     ) {
-                        $segmentPerc
+                        $segmentPercent
                           = ($distanceInLine - $addedLength)
                           / ($bezierData->points[$j + 1]['partialLength'] ?? 0);
                         $kLen = count($bezierData->points[$j]['point'] ?? []);
@@ -358,7 +358,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                               = ($bezierData->points[$j]['point'][$k] ?? 0)
                               + (($bezierData->points[$j + 1]['point'][$k] ?? 0)
                                 - ($bezierData->points[$j]['point'][$k] ?? 0))
-                                * $segmentPerc;
+                                * $segmentPercent;
                         }
 
                         break;
@@ -407,9 +407,9 @@ abstract class BaseProperty extends DynamicPropertyContainer
                 for ($i = 0; $i < $len; ++$i) {
                     if (1 !== ($keyData['h'] ?? null)) {
                         if ($frameNum >= $nextKeyTime) {
-                            $perc = 1;
+                            $percent = 1;
                         } elseif ($frameNum < $keyTime) {
-                            $perc = 0;
+                            $percent = 0;
                         } else {
                             if ('array' === gettype($keyData['o']['x'])) {
                                 $keyframeMetadata['__fnct'] ??= [];
@@ -451,7 +451,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                                 )->get(...);
                                 $keyData['keyframeMetadata'] = $fnc;
                             }
-                            $perc = ($fnc)(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
+                            $percent = ($fnc)(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
                         }
                     }
 
@@ -459,7 +459,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     $keyValue
                       = 1 === ($keyData['h'] ?? null)
                         ? ($keyData['s'] ?? [])[$i]
-                        : (float) (($keyData['s'] ?? [])[$i]) + (($endValue[$i] ?? 0) - (float) ($keyData['s'] ?? [])[$i]) * (float) $perc;
+                        : (float) (($keyData['s'] ?? [])[$i]) + (($endValue[$i] ?? 0) - (float) ($keyData['s'] ?? [])[$i]) * (float) $percent;
 
                     if (null !== $keyValue) {
                         if (PropType::MultiDimensional === $propType) {
@@ -522,14 +522,14 @@ abstract class BaseProperty extends DynamicPropertyContainer
         }
         $multipliedValue = 0;
 
-        // Some Lottie exports encode unidimensional keyframes as single-item arrays (`s: [x]`).
+        // Some Lottie exports encode uni-dimensional keyframes as single-item arrays (`s: [x]`).
         // Normalize that here so uni-dimensional properties update correctly.
         if (PropType::UniDimensional === $this->propType && is_array($val) && 1 === count($val) && is_numeric($val[0] ?? null)) {
             $val = $val[0];
         }
 
         if (is_numeric($val) && PropType::UniDimensional === $this->propType) {
-            $multipliedValue = $val * (float) $this->mult;
+            $multipliedValue = $val * (float) $this->factor;
             if (abs($this->v - $multipliedValue) > 0.00001) {
                 $this->v = $multipliedValue;
                 $this->_mdf = true;
@@ -541,7 +541,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $length = is_array($this->v) ? count($this->v) : 0;
 
         while ($i < $length) {
-            $multipliedValue = ($val[$i] ?? 0) * (float) $this->mult;
+            $multipliedValue = ($val[$i] ?? 0) * (float) $this->factor;
             if (abs(($this->v[$i] ?? 0) - $multipliedValue) > 0.00001) {
                 $this->v[$i] = $multipliedValue;
                 $this->_mdf = true;

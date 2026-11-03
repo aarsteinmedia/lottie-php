@@ -312,7 +312,7 @@ class RectShapeProperty extends ShapeBaseProperty
     public function getValue(?bool $flag = null)
     {
         if (($this->elem?->globalData['frameId'] ?? null) === $this->frameId) {
-            return 0; // For type compability
+            return 0; // For type compatibility
         }
         if ($this->elem?->globalData['frameId'] ?? null) {
             $this->frameId = $this->elem->globalData['frameId'];

@@ -27,7 +27,7 @@ abstract class FrameElement extends HierarchyElement
 
     public function initFrame()
     {
-        // set to true when inpoint is rendered
+        // set to true when in-point is rendered
         $this->_isFirstFrame = false;
         // list of animated properties
         $this->dynamicProperties = [];

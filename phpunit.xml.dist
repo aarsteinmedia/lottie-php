@@ -10,6 +10,7 @@
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnTestsThatTriggerWarnings="true">
+    <ini name="memory_limit" value="256M" />
     <testsuites>
         <testsuite name="lottie-php">
             <directory>tests</directory>

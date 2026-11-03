@@ -99,12 +99,12 @@ class GradientProperty extends DynamicPropertyContainer
             return 0;
         }
         $len = $this->data['p'] * 4;
-        $mult = 0;
+        $factor = 0;
         $val = null;
 
         for ($i = 0; $i < $len; ++$i) {
-            $mult = 0 === $i % 4 ? 100 : 255;
-            $val = round(($this->prop->v[$i] ?? 0) * $mult);
+            $factor = 0 === $i % 4 ? 100 : 255;
+            $val = round(($this->prop->v[$i] ?? 0) * $factor);
             if ($this->c[$i] !== $val) {
                 $this->c[$i] = $val;
                 $this->_cmdf = !$forceRender;
@@ -114,7 +114,6 @@ class GradientProperty extends DynamicPropertyContainer
             $length = count($this->prop->v);
 
             for ($i = $this->data['p'] * 4; $i < $length; ++$i) {
-                // mult = i % 2 === 0 ? 100 : 1
                 $val = (0 === $i % 2 ? round(($this->prop->v[$i] ?? 0) * 100) : $this->prop->v[$i]) ?? 0;
                 if ($this->o[$i - $this->data['p'] * 4] !== $val) {
                     $this->o[$i - $this->data['p'] * 4] = $val;

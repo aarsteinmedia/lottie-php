@@ -276,7 +276,7 @@ class MaskElement
         }
     }
 
-    public function getMaskelement()
+    public function getMaskElement()
     {
         return $this->maskElement;
     }

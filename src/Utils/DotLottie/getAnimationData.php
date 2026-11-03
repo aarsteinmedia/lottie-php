@@ -23,13 +23,7 @@ function getAnimationData(mixed $input)
         throw new \InvalidArgumentException('Could not read file: '.$input);
     }
 
-    $isJSON = true;
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $input);
-
-    if (str_starts_with($mimeType, 'application/zip')) {
-        $isJSON = false;
-    }
+    $isJSON = !str_starts_with($file, 'PK\x03\x04');
 
     if ($isJSON) {
         $ext = pathinfo($input, PATHINFO_EXTENSION);
@@ -53,6 +47,8 @@ function getAnimationData(mixed $input)
     }
 
     ['data' => $data, 'manifest' => $manifest] = getLottieJSON($file);
+
+    unset($file);
 
     return [
         'animations' => $data ?? [],

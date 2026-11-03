@@ -32,7 +32,7 @@ class ShapePropertyFactory
                 $dataProp = 3 === $type ? $data['pt'] : $data['ks'];
                 $keys = $dataProp['k'] ?? null;
 
-                // Only treat as keyframed when entries look like keyframes (`t`/`s`).
+                // Only treat as keyframe when entries look like keyframes (`t`/`s`).
                 // Static path data is also array-shaped and must stay on ShapeProperty.
                 if (
                     is_array($keys)

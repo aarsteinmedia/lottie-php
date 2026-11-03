@@ -45,9 +45,6 @@
       "@putenv UPDATE_SNAPSHOTS=1",
       "phpunit --filter SnapshotTest"
     ],
-    "visual:up": "composer dump-autoload && docker compose up --build -d && docker compose ps && open -a Firefox 'http://localhost:8000'",
-    "visual:down": "docker compose down",
-    "visual:logs": "docker compose logs -f --tail=200",
-    "visual:sh": "docker compose exec visual sh"
+    "visual:up": "composer install && composer dump-autoload && php -S localhost:8000 -t visual/public && open -a Firefox 'http://localhost:8000'"
   }
 }

@@ -41,7 +41,7 @@ class KeyframeShapeProperty extends ShapeBaseProperty
         $this->localShapeCollection = ShapeCollectionPool::newShapeCollection();
         $this->paths = $this->localShapeCollection;
         $this->paths->addShape($this->v);
-        // Ensure keyframed shapes compute their geometry every frame.
+        // Ensure keyframe shapes compute their geometry every frame.
         // The base `processEffectsSequence()` only runs when `effectsSequence` is non-empty.
         $this->effectsSequence = [
             $this->interpolateShapeCurrentTime(...),

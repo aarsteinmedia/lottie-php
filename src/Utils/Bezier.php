@@ -19,7 +19,7 @@ class Bezier
     ): array {
         $curveSegments = Resolution::getDefaultCurveSegments();
         $ptCoord = null;
-        $perc = 0;
+        $percent = 0;
         $addedLength = 0;
         $ptDistance = null;
         $point = [];
@@ -28,14 +28,14 @@ class Bezier
         $len = count($pt3);
 
         for ($k = 0; $k < $curveSegments; ++$k) {
-            $perc = $k / ($curveSegments - 1);
+            $percent = $k / ($curveSegments - 1);
             $ptDistance = 0;
             for ($i = 0; $i < $len; ++$i) {
                 $ptCoord
-                  = pow(1 - $perc, 3) * ($pt1[$i] ?? 0)
-                  + 3 * pow(1 - $perc, 2) * $perc * ($pt3[$i] ?? 0)
-                  + 3 * (1 - $perc) * pow($perc, 2) * ($pt4[$i] ?? 0)
-                  + pow($perc, 3) * ($pt2[$i] ?? 0);
+                  = pow(1 - $percent, 3) * ($pt1[$i] ?? 0)
+                  + 3 * pow(1 - $percent, 2) * $percent * ($pt3[$i] ?? 0)
+                  + 3 * (1 - $percent) * pow($percent, 2) * ($pt4[$i] ?? 0)
+                  + pow($percent, 3) * ($pt2[$i] ?? 0);
                 $point[$i] = $ptCoord;
                 if (is_numeric($lastPoint[$i] ?? null)) {
                     $ptDistance += pow(($point[$i] ?? 0) - ($lastPoint[$i] ?? 0), 2);
@@ -46,7 +46,7 @@ class Bezier
                 $ptDistance = sqrt($ptDistance);
                 $addedLength += $ptDistance;
             }
-            $lengthData['percents'][$k] = $perc;
+            $lengthData['percents'][$k] = $percent;
             $lengthData['lengths'][$k] = $addedLength;
         }
         $lengthData['addedLength'] = $addedLength;
@@ -54,7 +54,7 @@ class Bezier
         return $lengthData;
     }
 
-    private static function getDistancePerc(int $perc, $bezierLength)
+    private static function getDistancePercent(int $percent, BezierData $bezierLength)
     {
         [
             'addedLength' => $addedLength,
@@ -63,9 +63,9 @@ class Bezier
         ] = $bezierLength;
 
         $length = count($percents);
-        $initPos = (int) floor(($length - 1) * $perc);
-        $lengthPos = $perc * $addedLength;
-        $lPerc = 0;
+        $initPos = (int) floor(($length - 1) * $percent);
+        $lengthPos = $percent * $addedLength;
+        $lPercent = 0;
 
         if (
             $initPos === $length - 1
@@ -79,7 +79,7 @@ class Bezier
 
         while ($shouldIterate) {
             if (($lengths[$initPos] ?? 0) <= $lengthPos && ($lengths[$initPos + 1] ?? 0) > $lengthPos) {
-                $lPerc
+                $lPercent
                   = ($lengthPos - ($lengths[$initPos] ?? 0))
                   / (($lengths[$initPos + 1] ?? 0) - ($lengths[$initPos] ?? 0));
                 $shouldIterate = false;
@@ -95,7 +95,7 @@ class Bezier
             }
         }
 
-        return ($percents[$initPos] ?? 0) + (($percents[$initPos + 1] ?? 0) - ($percents[$initPos] ?? 0)) * $lPerc;
+        return ($percents[$initPos] ?? 0) + (($percents[$initPos + 1] ?? 0) - ($percents[$initPos] ?? 0)) * $lPercent;
     }
 
     public static function buildBezierData(
@@ -110,7 +110,7 @@ class Bezier
         if (!($storedData[$bezierName] ?? null)) {
             $curveSegments = Resolution::getDefaultCurveSegments();
             $ptCoord = [];
-            $perc = 0;
+            $percent = 0;
             $addedLength = 0;
             $ptDistance = 0;
             $point = [];
@@ -143,14 +143,14 @@ class Bezier
 
             for ($k = 0; $k < $curveSegments; ++$k) {
                 $point = createSizedArray($length);
-                $perc = $k / ($curveSegments - 1);
+                $percent = $k / ($curveSegments - 1);
                 $ptDistance = 0;
                 for ($i = 0; $i < $length; ++$i) {
                     $ptCoord
-                      = pow(1 - $perc, 3) * ($pt1[$i] ?? 0)
-                      + 3 * pow(1 - $perc, 2) * $perc * (($pt1[$i] ?? 0) + ($pt3[$i] ?? 0))
-                      + 3 * (1 - $perc) * pow($perc, 2) * (($pt2[$i] ?? 0) + ($pt4[$i] ?? 0))
-                      + pow($perc, 3) * ($pt2[$i] ?? 0);
+                      = pow(1 - $percent, 3) * ($pt1[$i] ?? 0)
+                      + 3 * pow(1 - $percent, 2) * $percent * (($pt1[$i] ?? 0) + ($pt3[$i] ?? 0))
+                      + 3 * (1 - $percent) * pow($percent, 2) * (($pt2[$i] ?? 0) + ($pt4[$i] ?? 0))
+                      + pow($percent, 3) * ($pt2[$i] ?? 0);
                     $point[$i] = $ptCoord;
                     if (null !== $lastPoint) {
                         $ptDistance += pow((float) $point[$i] - (float) $lastPoint[$i], 2);
@@ -173,26 +173,26 @@ class Bezier
         array $pt2,
         array $pt3,
         array $pt4,
-        int $startPercFromProps,
-        int $endPercFromProps,
+        int $startPercentFromProps,
+        int $endPercentFromProps,
         BezierData $bezierData
     ) {
         if (null === self::$_bezierSegmentPoints) {
             self::$_bezierSegmentPoints = createTypedArray(ArrayType::Float32, 8);
         }
 
-        $startPerc = $startPercFromProps;
-        $endPerc = $endPercFromProps;
+        $startPercent = $startPercentFromProps;
+        $endPercent = $endPercentFromProps;
 
-        if ($startPerc < 0) {
-            $startPerc = 0;
-        } elseif ($startPerc > 1) {
-            $startPerc = 1;
+        if ($startPercent < 0) {
+            $startPercent = 0;
+        } elseif ($startPercent > 1) {
+            $startPercent = 1;
         }
-        $t0 = self::getDistancePerc($startPerc, $bezierData) ?? 0;
+        $t0 = self::getDistancePercent($startPercent, $bezierData) ?? 0;
 
-        $endPerc = $endPerc > 1 ? 1 : $endPerc;
-        $t1 = self::getDistancePerc($endPerc, $bezierData) ?? 0;
+        $endPercent = $endPercent > 1 ? 1 : $endPercent;
+        $t1 = self::getDistancePercent($endPercent, $bezierData) ?? 0;
         $u0 = 1 - $t0;
         $u1 = 1 - $t1;
         $u0u0u0 = $u0 * $u0 * $u0;
@@ -251,7 +251,7 @@ class Bezier
         int $percent,
         BezierData $bezierData
     ) {
-        $t1 = self::getDistancePerc($percent, $bezierData) ?? 0;
+        $t1 = self::getDistancePercent($percent, $bezierData) ?? 0;
         $u1 = 1 - $t1;
         $ptX
           = round(($u1 * $u1 * $u1 * $pt1[0]
@@ -357,7 +357,7 @@ class Bezier
 
         return $diffDist > -0.0001 && $diffDist < 0.0001;
     }
-    private static $_bezierSegmentPoints;
+    private static array $_bezierSegmentPoints;
 }
 
 class BezierData
