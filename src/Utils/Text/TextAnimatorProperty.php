@@ -208,7 +208,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
         );
         $d = $max - $min;
         $h = 0;
-        $s = 0 === $max ? 0 : $d / $max;
+        $s = 0.0 === $max ? 0 : $d / ($max ?: 1);
         $v = $max / 255;
 
         switch ($max) {
@@ -623,7 +623,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             $pointPartialLength = $this->getPartialLength($currentPoint);
                             $percent = $pointPartialLength > 0
                                 ? ($currentLength + $animatorOffset - $segmentLength)
-                                / $pointPartialLength
+                                / ($pointPartialLength ?: 1)
                                 : 0.0;
 
                             $prevPt = $this->getPoint($prevPoint);

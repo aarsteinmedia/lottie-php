@@ -22,9 +22,9 @@ class OffsetPathModifier extends ShapeModifier
     private function crossProduct(array $a, array $b)
     {
         return [
-            $a[1] ?? 0 * ($b[2] ?? 0) - ($a[2] ?? 0) * ($b[1] ?? 0),
-            $a[2] ?? 0 * ($b[0] ?? 0) - ($a[0] ?? 0) * ($b[2] ?? 0),
-            $a[0] ?? 0 * ($b[1] ?? 0) - ($a[1] ?? 0) * ($b[0] ?? 0),
+            ($a[1] ?? 0) * ($b[2] ?? 0) - ($a[2] ?? 0) * ($b[1] ?? 0),
+            ($a[2] ?? 0) * ($b[0] ?? 0) - ($a[0] ?? 0) * ($b[2] ?? 0),
+            ($a[0] ?? 0) * ($b[1] ?? 0) - ($a[1] ?? 0) * ($b[0] ?? 0),
         ];
     }
 
@@ -48,7 +48,7 @@ class OffsetPathModifier extends ShapeModifier
         PolynomialBezier $seg1,
         PolynomialBezier $seg2,
         int $lineJoin,
-        int $miterLimit
+        float $miterLimit
     ) {
         $p0 = $seg1->points[3];
         $p1 = $seg2->points[0];
@@ -89,9 +89,10 @@ class OffsetPathModifier extends ShapeModifier
                 2 * $radius * Constants::$roundCorner
             );
 
+            // Tangents are stored relative to their vertex
             $outputBezier->setXYAt(
-                $tan[0],
-                $tan[1],
+                $tan[0] - $p0[0],
+                $tan[1] - $p0[1],
                 'o',
                 $outputBezier->length() - 1
             );
@@ -104,10 +105,10 @@ class OffsetPathModifier extends ShapeModifier
             $outputBezier->setTripleAt(
                 $p1[0],
                 $p1[1],
-                $p1[0],
-                $p1[1],
-                $tan[0],
-                $tan[1],
+                0,
+                0,
+                $tan[0] - $p1[0],
+                $tan[1] - $p1[1],
                 $outputBezier->length()
             );
 
@@ -128,10 +129,10 @@ class OffsetPathModifier extends ShapeModifier
             $outputBezier->setTripleAt(
                 $intersection[0],
                 $intersection[1],
-                $intersection[0],
-                $intersection[1],
-                $intersection[0],
-                $intersection[1],
+                0,
+                0,
+                0,
+                0,
                 $outputBezier->length()
             );
 
@@ -144,7 +145,7 @@ class OffsetPathModifier extends ShapeModifier
     private function linearOffset(
         array $p1,
         array $p2,
-        int $amount
+        float $amount
     ) {
         $angle = atan2($p2[0] - $p1[0], $p2[1] - $p1[1]);
 
@@ -186,7 +187,7 @@ class OffsetPathModifier extends ShapeModifier
         return [($r[0] ?? 1) / ($r[2] ?? 1), ($r[1] ?? 0) / ($r[2] ?? 1)];
     }
 
-    private function offsetSegment(PolynomialBezier $segment, int $amount)
+    private function offsetSegment(PolynomialBezier $segment, float $amount)
     {
         $e = null;
 
@@ -238,7 +239,7 @@ class OffsetPathModifier extends ShapeModifier
         );
     }
 
-    private function offsetSegmentSplit(PolynomialBezier $segment, int $amount)
+    private function offsetSegmentSplit(PolynomialBezier $segment, float $amount)
     {
         /*
           We split each bezier segment into smaller pieces based
@@ -267,7 +268,7 @@ class OffsetPathModifier extends ShapeModifier
 
         $split = $segment->split($flex[0] ?? 0);
         $left = $split[0];
-        $t = ($flex[1] ?? 0 - ($flex[0] ?? 0)) / (1 - ($flex[0] ?? 2));
+        $t = (($flex[1] ?? 0) - ($flex[0] ?? 0)) / (1 - ($flex[0] ?? 0));
 
         $split = $split[1]?->split($t);
         $mid = $split[0];
@@ -322,14 +323,14 @@ class OffsetPathModifier extends ShapeModifier
         $intersect = $this->getIntersection($a[count($a) - 1], $b[0]);
 
         if ($intersect) {
-            $outA[count($a) - 1] = explode($intersect[0] ?? 0, $a[count($a) - 1])[0];
-            $outB[0] = explode($intersect[1] ?? 0, $b[0])[1];
+            $outA[count($a) - 1] = $a[count($a) - 1]->split($intersect[0])[0];
+            $outB[0] = $b[0]->split($intersect[1])[1];
         }
         if (count($a) > 1 && count($b) > 1) {
             $intersect = $this->getIntersection($a[0], $b[count($b) - 1]);
             if ($intersect) {
                 return [
-                    [explode($intersect[0] ?? 0, $a[0])[0]], [explode($intersect[1] ?? 0, $b[count($b) - 1])[1]],
+                    [$a[0]->split($intersect[0])[0]], [$b[count($b) - 1]->split($intersect[1])[1]],
                 ];
             }
         }
@@ -366,9 +367,9 @@ class OffsetPathModifier extends ShapeModifier
 
     public function processPath(
         ShapePath $inputBezier,
-        int $amount,
+        float $amount,
         int $lineJoin,
-        int $miterLimit
+        float $miterLimit
     ) {
         $outputBezier = ShapePool::newElement();
 
@@ -423,8 +424,8 @@ class OffsetPathModifier extends ShapeModifier
 
                 if ($lastPoint && General::pointEqual($segment->points[0], $lastPoint)) {
                     $outputBezier->setXYAt(
-                        $segment->points[1][0],
-                        $segment->points[1][1],
+                        $segment->points[1][0] - $segment->points[0][0],
+                        $segment->points[1][1] - $segment->points[0][1],
                         'o',
                         $outputBezier->length() - 1
                     );
@@ -432,10 +433,10 @@ class OffsetPathModifier extends ShapeModifier
                     $outputBezier->setTripleAt(
                         $segment->points[0][0],
                         $segment->points[0][1],
-                        $segment->points[1][0],
-                        $segment->points[1][1],
-                        $segment->points[0][0],
-                        $segment->points[0][1],
+                        $segment->points[1][0] - $segment->points[0][0],
+                        $segment->points[1][1] - $segment->points[0][1],
+                        0,
+                        0,
                         $outputBezier->length()
                     );
                 }
@@ -443,10 +444,10 @@ class OffsetPathModifier extends ShapeModifier
                 $outputBezier->setTripleAt(
                     $segment->points[3][0],
                     $segment->points[3][1],
-                    $segment->points[3][0],
-                    $segment->points[3][1],
-                    $segment->points[2][0],
-                    $segment->points[2][1],
+                    0,
+                    0,
+                    $segment->points[2][0] - $segment->points[3][0],
+                    $segment->points[2][1] - $segment->points[3][1],
                     $outputBezier->length()
                 );
 
@@ -472,7 +473,7 @@ class OffsetPathModifier extends ShapeModifier
         $length = count($this->shapes);
         $amount = (float) $this->amount?->v;
         $miterLimit = (float) $this->miterLimit?->v;
-        $lineJoin = (float) $this->lineJoin;
+        $lineJoin = (int) $this->lineJoin;
 
         if (0 !== $amount) {
             $shapePaths = null;

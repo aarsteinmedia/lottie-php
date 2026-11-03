@@ -263,7 +263,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         $keyframeMetadata = $keyframesMetadata[$i] ?? [];
 
         $kLen = 0;
-        $percent = 0;
+        $percent = 0.0;
         $jLen = 0;
         $j = 0;
         $fnc = null;
@@ -311,7 +311,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     )->get(...);
                     $keyframeMetadata['__fnct'] = $fnc;
                 }
-                $percent = $fnc(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
+                $percent = (float) $fnc(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
                 $distanceInLine = $bezierData->segmentLength * $percent;
 
                 $segmentPercent = null;
@@ -331,8 +331,8 @@ abstract class BaseProperty extends DynamicPropertyContainer
                 while ($shouldInterpolate) {
                     $addedLength += $bezierData->points[$j]['partialLength'] ?? 0;
                     if (
-                        0 === $distanceInLine
-                        || 0 === $percent
+                        0.0 === $distanceInLine
+                        || 0.0 === $percent
                         || $j === count($bezierData->points) - 1
                     ) {
                         $kLen = count($bezierData->points[$j]['point'] ?? []);
@@ -350,7 +350,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                     ) {
                         $segmentPercent
                           = ($distanceInLine - $addedLength)
-                          / ($bezierData->points[$j + 1]['partialLength'] ?? 0);
+                          / ($bezierData->points[$j + 1]['partialLength'] ?? 1);
                         $kLen = count($bezierData->points[$j]['point'] ?? []);
                         for ($k = 0; $k < $kLen; ++$k) {
                             $newValue[$k]
@@ -406,9 +406,9 @@ abstract class BaseProperty extends DynamicPropertyContainer
                 for ($i = 0; $i < $len; ++$i) {
                     if (1 !== ($keyData['h'] ?? null)) {
                         if ($frameNum >= $nextKeyTime) {
-                            $percent = 1;
+                            $percent = 1.0;
                         } elseif ($frameNum < $keyTime) {
-                            $percent = 0;
+                            $percent = 0.0;
                         } else {
                             if ('array' === gettype($keyData['o']['x'])) {
                                 $keyframeMetadata['__fnct'] ??= [];
@@ -450,7 +450,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
                                 )->get(...);
                                 $keyData['keyframeMetadata'] = $fnc;
                             }
-                            $percent = ($fnc)(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
+                            $percent = (float) ($fnc)(($frameNum - $keyTime) / ($nextKeyTime - $keyTime));
                         }
                     }
 

@@ -231,7 +231,7 @@ class TextSelectorProperty extends BaseProperty
         if (100 !== $this->sm->v) {
             $smoothness = $this->sm->v * 0.01;
 
-            if (0 === $smoothness) {
+            if (0.0 === $smoothness) {
                 $smoothness = 0.00000001;
             }
             $threshold = 0.5 - $smoothness * 0.5;

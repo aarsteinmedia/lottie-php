@@ -83,7 +83,7 @@ class PolynomialBezier
         array $d2,
         int $depth,
         int $tolerance,
-        array $intersections,
+        array &$intersections,
         int $maxRecursion
     ) {
         if (!$this->boxIntersect($d1, $d2)) {
@@ -187,7 +187,7 @@ class PolynomialBezier
         float $c
     ) {
         // no root
-        if (0 === $a) {
+        if (0.0 == $a) {
             return [];
         }
 
@@ -200,7 +200,7 @@ class PolynomialBezier
         $singleRoot = -$b / (2 * $a);
 
         // 1 root
-        if (0 === $s) {
+        if (0.0 == $s) {
             return [$singleRoot];
         }
         $delta = sqrt($s) / (2 * $a);
@@ -345,7 +345,7 @@ class PolynomialBezier
             return [];
         }
 
-        return array_filter([$tcusp - $root, $tcusp + $root], fn ($r) => $r > 0 && $r < 1);
+        return array_values(array_filter([$tcusp - $root, $tcusp + $root], fn ($r) => $r > 0 && $r < 1));
     }
 
     public function intersections(

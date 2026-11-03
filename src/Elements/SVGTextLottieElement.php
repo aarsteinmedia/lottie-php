@@ -396,7 +396,7 @@ class SVGTextLottieElement extends TextElement
                     $glyphElement = null;
 
                     // t === 1 means the character has been replaced with an animated shaped
-                    if ($charData['t'] ?? 0 === 1) {
+                    if (($charData['t'] ?? 0) === 1) {
                         $glyphElement = new SVGCompElement(
                             $charData['data'],
                             $this->globalData,

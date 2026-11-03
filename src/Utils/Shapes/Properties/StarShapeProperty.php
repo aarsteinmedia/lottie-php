@@ -120,8 +120,8 @@ class StarShapeProperty extends ShapeBaseProperty
         for ($i = 0; $i < $numPts; ++$i) {
             $x = $rad * cos($currentAng);
             $y = $rad * sin($currentAng);
-            $ox = 0 === $x && 0 === $y ? 0 : $y / sqrt($x * $x + $y * $y);
-            $oy = 0 === $x && 0 === $y ? 0 : -$x / sqrt($x * $x + $y * $y);
+            $ox = 0.0 === $x && 0 === $y ? 0 : $y / sqrt($x * $x + $y * $y);
+            $oy = 0.0 === $x && 0 === $y ? 0 : -$x / sqrt($x * $x + $y * $y);
 
             $x += $this->p->v[0];
             $y += $this->p->v[1];

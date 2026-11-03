@@ -50,6 +50,19 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Renumber ids and round numbers to 3 decimals, so the result does not depend on
+     * float formatting quirks that differ between PHP versions (e.g. round() changes).
+     */
+    protected static function normalizeNumbers(string $svg): string
+    {
+        return preg_replace_callback(
+            '/-?\d+\.\d+(?:e-?\d+)?/i',
+            static fn (array $match): string => (string) (round((float) $match[0], 3) + 0),
+            self::normalizeIds($svg)
+        );
+    }
+
+    /**
      * Reduce an SVG to what is actually visible, for comparing renders reached by different paths:
      * drops display:none subtrees and <defs> entries nothing visible references (e.g. masks of
      * out-of-range layers, which keep whatever an earlier frame left in them), renumbers ids and

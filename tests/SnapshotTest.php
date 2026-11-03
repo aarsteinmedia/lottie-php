@@ -58,7 +58,7 @@ final class SnapshotTest extends TestCase
         self::assertIsString($svg);
         self::assertWellFormedSVG($svg);
 
-        $hash = sha1(self::normalizeIds($svg));
+        $hash = sha1(self::normalizeNumbers($svg));
         self::$snapshots ??= self::loadSnapshots();
 
         if (self::shouldUpdate()) {
