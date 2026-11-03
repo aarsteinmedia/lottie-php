@@ -9,6 +9,8 @@ use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Pooling\ShapeCollectionPool;
 use LottiePHP\Utils\Pooling\ShapePool;
 
+use function LottiePHP\Utils\normalizePathDataTangents;
+
 class KeyframeShapeProperty extends ShapeBaseProperty
 {
     public int $lastFrame;
@@ -29,6 +31,16 @@ class KeyframeShapeProperty extends ShapeBaseProperty
         $this->keyframes = (3 === $type
           ? ($data['pt']['k'] ?? null)
           : $data['ks']['k'] ?? []);
+        // Some exporters store absolute control points; convert them like static paths
+        foreach ($this->keyframes as $index => $keyframe) {
+            foreach (['s', 'e'] as $key) {
+                foreach ($keyframe[$key] ?? [] as $pathIndex => $pathData) {
+                    if (is_array($pathData) && isset($pathData['i'], $pathData['o'], $pathData['v'])) {
+                        $this->keyframes[$index][$key][$pathIndex] = normalizePathDataTangents($pathData);
+                    }
+                }
+            }
+        }
         $this->keyframesMetadata = [];
         $this->k = true;
         $this->kf = true;
