@@ -2,16 +2,15 @@
 
 namespace LottiePHP\Utils\Pooling;
 
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Shapes\ShapeCollection;
-
-use function LottiePHP\Utils\createSizedArray;
 
 class ShapeCollectionPool
 {
     public static function newShapeCollection()
     {
         if (!self::$pool) {
-            self::$pool = createSizedArray(self::$_maxLength);
+            self::$pool = General::createSizedArray(self::$_maxLength);
         }
         $shapeCollection = null;
 
@@ -28,7 +27,7 @@ class ShapeCollectionPool
     public static function releaseShape(ShapeCollection $shapeCollection)
     {
         if (!self::$pool) {
-            self::$pool = createSizedArray(self::$_maxLength);
+            self::$pool = General::createSizedArray(self::$_maxLength);
         }
 
         for ($i = 0; $i < $shapeCollection->_length; ++$i) {

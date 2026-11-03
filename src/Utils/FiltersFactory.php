@@ -6,7 +6,7 @@ class FiltersFactory
 {
     public static function createAlphaToLuminanceFilter()
     {
-        $feColorMatrix = createTag('feColorMatrix');
+        $feColorMatrix = General::createTag('feColorMatrix');
 
         $feColorMatrix->setAttribute('type', 'matrix');
         $feColorMatrix->setAttribute('color-interpolation-filters', 'sRGB');
@@ -20,7 +20,7 @@ class FiltersFactory
 
     public static function createFilter(string $filId, ?bool $skipCoordinates = false)
     {
-        $fil = createTag('filter');
+        $fil = General::createTag('filter');
 
         if ($filId) {
             $fil->setAttribute('id', $filId);

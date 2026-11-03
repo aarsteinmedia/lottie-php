@@ -4,9 +4,8 @@ namespace LottiePHP\Effects\Svg;
 
 use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Properties\BaseProperty;
-
-use function LottiePHP\Utils\createTag;
 
 class SVGFillFilter
 {
@@ -20,7 +19,7 @@ class SVGFillFilter
         string $id
     ) {
         $this->filterManager = $filterManager;
-        $feColorMatrix = createTag('feColorMatrix');
+        $feColorMatrix = General::createTag('feColorMatrix');
 
         $feColorMatrix->setAttribute('type', 'matrix');
         $feColorMatrix->setAttribute('color-interpolation-filters', 'sRGB');

@@ -4,10 +4,8 @@ namespace LottiePHP\Effects\Svg;
 
 use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Properties\BaseProperty;
-
-use function LottiePHP\Utils\createSizedArray;
-use function LottiePHP\Utils\createTag;
 
 class SVGProLevelsFilter
 {
@@ -29,7 +27,7 @@ class SVGProLevelsFilter
         $this->filterManager = $filterManager;
         $effectElements = $this->filterManager->effectElements;
 
-        $feComponentTransfer = createTag('feComponentTransfer');
+        $feComponentTransfer = General::createTag('feComponentTransfer');
 
         // Red
         if (
@@ -109,7 +107,7 @@ class SVGProLevelsFilter
             ?? $effectElements[7]['p']['k']
             ?? 1 !== $effectElements[7]['p']['v']
         ) {
-            $feComponentTransfer = createTag('feComponentTransfer');
+            $feComponentTransfer = General::createTag('feComponentTransfer');
             $feComponentTransfer->setAttribute('color-interpolation-filters', 'sRGB');
             $feComponentTransfer->setAttribute('result', $id);
             $filter->appendChild($feComponentTransfer);
@@ -123,7 +121,7 @@ class SVGProLevelsFilter
         string $type,
         \DOMElement $feComponentTransfer
     ) {
-        $feFunc = createTag($type);
+        $feFunc = General::createTag($type);
 
         $feFunc->setAttribute('type', 'table');
         $feComponentTransfer->appendChild($feFunc);
@@ -143,7 +141,7 @@ class SVGProLevelsFilter
         $percent = null;
         $min = min($inputBlack, $inputWhite);
         $max = max($inputBlack, $inputWhite);
-        $table = createSizedArray($segments);
+        $table = General::createSizedArray($segments);
         $colorValue = null;
         $pos = 0;
         $outputDelta = $outputWhite - $outputBlack;

@@ -2,12 +2,9 @@
 
 namespace LottiePHP\Elements;
 
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\GlobalData;
 
-use function LottiePHP\Utils\addClasses;
-use function LottiePHP\Utils\addStyles;
-use function LottiePHP\Utils\createSizedArray;
-use function LottiePHP\Utils\createTag;
 use function LottiePHP\Utils\normalizePathDataTangents;
 
 class SVGTextLottieElement extends TextElement
@@ -199,7 +196,7 @@ class SVGTextLottieElement extends TextElement
 
         $documentData = $this->textProperty->currentData;
 
-        $this->renderedLetters = createSizedArray(count($documentData['l'] ?? 0));
+        $this->renderedLetters = General::createSizedArray(count($documentData['l'] ?? 0));
         if ($documentData['fc']) {
             $this->layerElement->setAttribute(
                 'fill',
@@ -219,7 +216,7 @@ class SVGTextLottieElement extends TextElement
         $fontData = $this->globalData['fontManager']?->getFontByName($documentData['f']);
 
         if ($fontData['fClass'] ?? null) {
-            addClasses($this->layerElement, [$fontData['fClass']]);
+            General::addClasses($this->layerElement, [$fontData['fClass']]);
         } else {
             if ($fontData['fFamily'] ?? null) {
                 $this->layerElement->setAttribute('font-family', $fontData['fFamily']);
@@ -274,7 +271,7 @@ class SVGTextLottieElement extends TextElement
 
         // If we decided to fall back to <text>/<tspan> at runtime, make sure the container exists.
         if ($isSingleShape && !$hasGlyphs && !$documentData['sz'] && !$this->textContainer) {
-            $this->textContainer = createTag('text');
+            $this->textContainer = General::createTag('text');
         }
 
         if ($isSingleShape && !$hasGlyphs && !$documentData['sz']) {
@@ -307,11 +304,11 @@ class SVGTextLottieElement extends TextElement
               ? $documentData['ps'][1] + (int) ($documentData['ascent'])
               : 0;
             for ($i = 0; $i < $len; ++$i) {
-                $tSpan = $this->textSpans[$i]['span'] ?? createTag('tspan');
+                $tSpan = $this->textSpans[$i]['span'] ?? General::createTag('tspan');
                 $tSpan->textContent = $textContent[$i] ?? '';
                 $tSpan->setAttribute('x', '0');
                 $tSpan->setAttribute('y', $yPos);
-                addStyles($tSpan, ['display' => 'inherit']);
+                General::addStyles($tSpan, ['display' => 'inherit']);
                 $tElement?->appendChild($tSpan);
                 $this->textSpans[$i] ??= [
                     'glyph' => null,
@@ -338,7 +335,7 @@ class SVGTextLottieElement extends TextElement
                     $tSpan
                       = ($cachedSpansLength > $i
                         ? $this->textSpans[$i]['span'] ?? null
-                        : createTag($hasGlyphs ? 'g' : 'text')) ?? null;
+                        : General::createTag($hasGlyphs ? 'g' : 'text')) ?? null;
 
                     if (!$tSpan) {
                         throw new \Error('Could not create tSpan');
@@ -353,7 +350,7 @@ class SVGTextLottieElement extends TextElement
                         }
 
                         if ($hasGlyphs) {
-                            $childSpan = createTag('g');
+                            $childSpan = General::createTag('g');
 
                             $tSpan->appendChild($childSpan);
 
@@ -368,7 +365,7 @@ class SVGTextLottieElement extends TextElement
 
                         $this->layerElement->appendChild($tSpan);
                     }
-                    addStyles($tSpan, ['display' => 'inherit']);
+                    General::addStyles($tSpan, ['display' => 'inherit']);
                 }
 
                 $matrixHelper->reset();
@@ -461,13 +458,7 @@ class SVGTextLottieElement extends TextElement
                     }
 
                     $tSpan->textContent = $letters[$i]['val'] ?? '';
-                    addStyles($tSpan, ['white-space' => 'preserve']);
-
-                    // $tSpan->setAttributeNS(
-                    //   namespaceXML,
-                    //   'xml:space',
-                    //   'preserve'
-                    // )
+                    General::addStyles($tSpan, ['white-space' => 'preserve']);
                 }
             }
             if ($isSingleShape) {
@@ -478,7 +469,7 @@ class SVGTextLottieElement extends TextElement
 
         if ($span) {
             while ($i < count($this->textSpans)) {
-                addStyles($span, ['display' => 'none']);
+                General::addStyles($span, ['display' => 'none']);
 
                 ++$i;
             }
@@ -542,7 +533,7 @@ class SVGTextLottieElement extends TextElement
             throw new \Error(get_class($this).': globalData is not implemented');
         }
         if (($this->data['singleShape'] ?? false) && !$this->globalData['fontManager']?->chars) {
-            $this->textContainer = createTag('text');
+            $this->textContainer = General::createTag('text');
         }
     }
 

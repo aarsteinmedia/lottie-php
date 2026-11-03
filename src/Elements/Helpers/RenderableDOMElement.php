@@ -3,9 +3,8 @@
 namespace LottiePHP\Elements\Helpers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\GlobalData;
-
-use function LottiePHP\Utils\addStyles;
 
 trait RenderableElementTraits
 {
@@ -17,7 +16,7 @@ trait RenderableElementTraits
         $elem = $this->baseElement ?? $this->layerElement;
 
         if ($elem) {
-            addStyles($elem, ['display' => 'none']);
+            General::addStyles($elem, ['display' => 'none']);
         }
 
         $this->hidden = true;
@@ -59,7 +58,7 @@ trait RenderableElementTraits
                 throw new \Error(get_class($this).': Neither baseElement or layerElement is implemented');
             }
 
-            addStyles($elem, ['display' => 'block']);
+            General::addStyles($elem, ['display' => 'block']);
         }
         $this->hidden = false;
         $this->_isFirstFrame = true;

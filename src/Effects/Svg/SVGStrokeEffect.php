@@ -4,12 +4,9 @@ namespace LottiePHP\Effects\Svg;
 
 use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\Properties\BaseProperty;
-
-use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createTag;
-use function LottiePHP\Utils\toRGBString;
 
 class SVGStrokeEffect
 {
@@ -45,13 +42,13 @@ class SVGStrokeEffect
             $i = $this->filterManager->effectElements[0]['p']['v'] - 1;
             $len = $i + 1;
         }
-        $groupPath = createTag('g');
+        $groupPath = General::createTag('g');
 
         $groupPath->setAttribute('fill', 'none');
         $groupPath->setAttribute('stroke-linecap', 'round');
         $groupPath->setAttribute('stroke-dashoffset', '1');
         for ($i; $i < $len; ++$i) {
-            $path = createTag('path');
+            $path = General::createTag('path');
             $groupPath->appendChild($path);
             array_push($this->paths, [
                 'm' => $i,
@@ -59,14 +56,14 @@ class SVGStrokeEffect
             ]);
         }
         if (3 === $this->filterManager->effectElements[10]['p']['v']) {
-            $mask = createTag('mask');
-            $id = createElementID();
+            $mask = General::createTag('mask');
+            $id = General::createElementID();
 
             $mask->setAttribute('id', $id);
             $mask->setAttribute('mask-type', 'alpha');
             $mask->appendChild($groupPath);
             $this->elem->globalData['defs']->appendChild($mask);
-            $g = createTag('g');
+            $g = General::createTag('g');
 
             $locationHref = LocationHref::getHref();
             $g->setAttribute('mask', "url({$locationHref}#{$id})");
@@ -141,7 +138,7 @@ class SVGStrokeEffect
                           $this->filterManager->effectElements[7]['p']['v'],
                           $this->filterManager->effectElements[8]['p']['v']
                       ) * 0.01;
-                    $l = $path?->getTotalLength() ?? 0;
+                    $l = method_exists($path, 'getTotalLength') ? $path->getTotalLength() : 0;
 
                     $lsVal = $l * $s;
 
@@ -192,7 +189,7 @@ class SVGStrokeEffect
         ) {
             $this->pathMasker?->setAttribute(
                 'stroke',
-                toRGBString($this->filterManager->effectElements[3]['p']['v'])
+                General::toRGBString($this->filterManager->effectElements[3]['p']['v'])
             );
         }
     }

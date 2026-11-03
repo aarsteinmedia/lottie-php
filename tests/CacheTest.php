@@ -58,7 +58,7 @@ final class CacheTest extends TestCase
     public function testReleasedAnimationsAreFreed(): void
     {
         LottieToSVG::setCacheSize(0);
-        $path = self::ASSETS_DIR.'/1729.json'; // ~25 MB once parsed
+        $path = self::FIXTURES_DIR.'/1729.json'; // ~25 MB once parsed
 
         LottieToSVG::renderFrame($path);
         LottieToSVG::clearCache();

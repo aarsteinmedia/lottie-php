@@ -1,3 +1,5 @@
 vendor
 *.cache
 tests/__output__/
+assets
+.DS_Store

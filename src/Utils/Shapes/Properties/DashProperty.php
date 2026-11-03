@@ -5,12 +5,10 @@ namespace LottiePHP\Utils\Shapes\Properties;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\RendererType;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Properties\BaseProperty;
 use LottiePHP\Utils\PropertyFactory;
-
-use function LottiePHP\Utils\createSizedArray;
-use function LottiePHP\Utils\createTypedArray;
 
 class DashProperty extends DynamicPropertyContainer
 {
@@ -29,12 +27,12 @@ class DashProperty extends DynamicPropertyContainer
         RendererType $renderer,
         DynamicPropertyContainer $container
     ) {
-        $this->dashoffset = createTypedArray(ArrayType::Float32, 1);
+        $this->dashoffset = General::createTypedArray(ArrayType::Float32, 1);
         $this->elem = $elem;
         $dataLength = count($data);
-        $this->dataProps = createSizedArray($dataLength);
+        $this->dataProps = General::createSizedArray($dataLength);
         $this->renderer = $renderer;
-        $this->dashArray = createTypedArray(
+        $this->dashArray = General::createTypedArray(
             ArrayType::Float32,
             $dataLength > 0 ? $dataLength - 1 : 0
         );

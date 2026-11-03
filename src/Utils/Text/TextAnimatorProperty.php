@@ -5,15 +5,13 @@ namespace LottiePHP\Utils\Text;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Bezier;
 use LottiePHP\Utils\BezierData;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Matrix;
 use LottiePHP\Utils\PointData;
 use LottiePHP\Utils\Properties\BaseProperty;
 use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\ShapePath;
-
-use function LottiePHP\Utils\createSizedArray;
-use function LottiePHP\Utils\toRGBString;
 
 class TextAnimatorProperty extends DynamicPropertyContainer
 {
@@ -255,7 +253,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
         $this->mHelper = new Matrix();
         $this->_textData = $textData;
         $this->_elem = $elem;
-        $this->_animatorsData = createSizedArray((int) count($this->_textData['a']));
+        $this->_animatorsData = General::createSizedArray((int) count($this->_textData['a']));
         $this->initDynamicPropertyContainer($elem);
     }
 
@@ -952,7 +950,7 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                             $matrixHelper->translate(
                                 $animatorProps['p']->v[0] * $product,
                                 $animatorProps['p']->v[1] * $product,
-                                -$animatorProps['p']->v[2] * $product
+                                -($animatorProps['p']->v[2] ?? 1) * $product
                             );
                         }
                     }
@@ -961,10 +959,10 @@ class TextAnimatorProperty extends DynamicPropertyContainer
                     $letterSw = $sw < 0 ? 0 : $sw;
                 }
                 if ($documentData['strokeColorAnim']) {
-                    $letterSc = toRGBString($sc);
+                    $letterSc = General::toRGBString($sc);
                 }
                 if ($documentData['fillColorAnim'] && $documentData['fc']) {
-                    $letterFc = toRGBString($fc);
+                    $letterFc = General::toRGBString($fc);
                 }
 
                 if ($this->_hasMaskedPath) {

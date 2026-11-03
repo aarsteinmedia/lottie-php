@@ -15,9 +15,6 @@ class ValueProperty extends BaseProperty
         BaseElement|BaseProperty|DynamicPropertyContainer|null $container = null
     ) {
         $this->propType = PropType::UniDimensional;
-        // In the upstream JS implementation, many call sites pass `0` for `factor`,
-        // relying on `factor || 1` semantics. In PHP, `0 ?? 1` stays `0`, which
-        // would zero out all values. Treat `0` as “no multiplier provided”.
         $this->factor = $factor ?: 1.0;
         $this->data = $data;
         $k = $data['k'] ?? 0;

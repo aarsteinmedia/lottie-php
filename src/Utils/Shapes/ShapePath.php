@@ -2,9 +2,9 @@
 
 namespace LottiePHP\Utils\Shapes;
 
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Pooling\PoolFactory;
 
-use function LottiePHP\Utils\createSizedArray;
 use function LottiePHP\Utils\Pooling\pointPool;
 
 class ShapePath
@@ -21,9 +21,9 @@ class ShapePath
 
     public function __construct()
     {
-        $this->v = createSizedArray($this->_maxLength);
-        $this->o = createSizedArray($this->_maxLength);
-        $this->i = createSizedArray($this->_maxLength);
+        $this->v = General::createSizedArray($this->_maxLength);
+        $this->o = General::createSizedArray($this->_maxLength);
+        $this->i = General::createSizedArray($this->_maxLength);
 
         $this->_pointPool = pointPool();
     }
@@ -37,9 +37,9 @@ class ShapePath
 
     public function doubleArrayLength()
     {
-        $this->v = [...$this->v, ...createSizedArray($this->_maxLength)];
-        $this->i = [...$this->i, ...createSizedArray($this->_maxLength)];
-        $this->o = [...$this->o, ...createSizedArray($this->_maxLength)];
+        $this->v = [...$this->v, ...General::createSizedArray($this->_maxLength)];
+        $this->i = [...$this->i, ...General::createSizedArray($this->_maxLength)];
+        $this->o = [...$this->o, ...General::createSizedArray($this->_maxLength)];
         $this->_maxLength *= 2;
     }
 

@@ -61,8 +61,8 @@ class PolynomialBezier
 
     private function intersectData(
         PolynomialBezier $bez,
-        int $t1,
-        int $t2
+        float $t1,
+        float $t2
     ) {
         $box = $bez->boundingBox();
 
@@ -182,15 +182,16 @@ class PolynomialBezier
     }
 
     private function quadRoots(
-        int $a,
-        int $b,
-        int $c
+        float $a,
+        float $b,
+        float $c
     ) {
         // no root
         if (0 === $a) {
             return [];
         }
-        ${$s} = $b * $b - 4 * $a * $c;
+
+        $s = $b * $b - 4 * $a * $c;
 
         // Complex roots
         if ($s < 0) {
@@ -250,14 +251,14 @@ class PolynomialBezier
         $p1 = $p1FromProps;
         $p2 = $p2FromProps;
 
-        if ($linearize && pointEqual($p0, $p1)) {
+        if ($linearize && General::pointEqual($p0, $p1)) {
             $p1 = $this->lerpPoint(
                 $p0,
                 $p3,
                 1 / 3
             );
         }
-        if ($linearize && pointEqual($p2, $p3)) {
+        if ($linearize && General::pointEqual($p2, $p3)) {
             $p2 = $this->lerpPoint(
                 $p0,
                 $p3,
@@ -322,21 +323,21 @@ class PolynomialBezier
     {
         $denom = $this->a[1] * $this->b[0] - $this->a[0] * $this->b[1];
 
-        if (floatZero($denom)) {
+        if (General::floatZero($denom)) {
             return [];
         }
         $tcusp
-          = -0.5 * ($this->a[1] * $this->c[0] - $this->a[0] * $this->c[1]) / $denom;
+          = -0.5 * ($this->a[1] * $this->c[0] - $this->a[0] * $this->c[1]) / ($denom ?: 1);
         $square
             = $tcusp * $tcusp
-            - 1 / 3 * ($this->b[1] * $this->c[0] - $this->b[0] * $this->c[1]) / $denom;
+            - 1 / 3 * ($this->b[1] * $this->c[0] - $this->b[0] * $this->c[1]) / ($denom ?: 1);
 
         if ($square < 0) {
             return [];
         }
         $root = sqrt($square);
 
-        if (floatZero($root)) {
+        if (General::floatZero($root)) {
             if ($root > 0 && $root < 1) {
                 return [$tcusp];
             }

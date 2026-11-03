@@ -6,11 +6,10 @@ use LottiePHP\Elements\Helpers\RenderableElementTraits;
 use LottiePHP\Renderer\BaseRenderer;
 use LottiePHP\Renderer\RendererTraits;
 use LottiePHP\Renderer\SVGRendererTraits;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\GlobalData;
 use LottiePHP\Utils\Properties\KeyframeValueProperty;
 use LottiePHP\Utils\PropertyFactory;
-
-use function LottiePHP\Utils\createSizedArray;
 
 class SVGCompElement extends SVGBaseElement
 {
@@ -29,7 +28,7 @@ class SVGCompElement extends SVGBaseElement
         BaseRenderer|SVGCompElement|SVGTextLottieElement $comp
     ) {
         $this->layers = $data['layers'] ?? [];
-        $this->elements = createSizedArray(count($this->layers));
+        $this->elements = General::createSizedArray(count($this->layers));
 
         $this->initElement(
             $data,

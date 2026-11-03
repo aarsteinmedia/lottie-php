@@ -165,7 +165,7 @@ class BezierEasing
         $this->kSampleStepSize = 1.0 / ($this->kSplineTableSize - 1.0);
 
         $this->_p = $points;
-        $this->_mSampleValues = createTypedArray(ArrayType::Float32, $this->kSplineTableSize);
+        $this->_mSampleValues = General::createTypedArray(ArrayType::Float32, $this->kSplineTableSize);
         // $this->_mSampleValues = $this->float32ArraySupported
         //   ? new Float32Array($this->kSplineTableSize)
         //   : Array.from({ length: $this->kSplineTableSize })

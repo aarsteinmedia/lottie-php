@@ -2,6 +2,7 @@
 
 namespace LottiePHP\Elements;
 
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\GlobalData;
 use LottiePHP\Utils\LocationHref;
 use LottiePHP\Utils\Matrix;
@@ -10,9 +11,6 @@ use LottiePHP\Utils\Shapes\Properties\ShapePropertyFactory;
 use LottiePHP\Utils\Shapes\ShapePath;
 
 use function LottiePHP\Utils\buildShapeString;
-use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createSizedArray;
-use function LottiePHP\Utils\createTag;
 
 class MaskElement
 {
@@ -40,12 +38,12 @@ class MaskElement
 
         $length = count($this->masksProperties);
 
-        $this->viewData = createSizedArray($length);
+        $this->viewData = General::createSizedArray($length);
 
         $properties = $this->masksProperties;
         $count = 0;
         $currentMasks = [];
-        $layerId = createElementID();
+        $layerId = General::createElementID();
 
         /** @var ?\DOMElement $rect */
         $rect = null;
@@ -73,7 +71,7 @@ class MaskElement
                 || ($properties[$i]['mode'] ?? '') === 'i')
                 && 0 === $count
             ) {
-                $rect = createTag('rect');
+                $rect = General::createTag('rect');
                 $rect->setAttribute('fill', '#ffffff');
                 $rect->setAttribute('width', $this->element['comp']['data']['w'] ?? 0);
                 $rect->setAttribute('height', $this->element['comp']['data']['h'] ?? 0);
@@ -82,7 +80,7 @@ class MaskElement
                 $rect = null;
             }
 
-            $path = createTag('path');
+            $path = General::createTag('path');
 
             if (($properties[$i]['mode'] ?? '') === 'n') {
                 $this->viewData[$i] = [
@@ -128,16 +126,16 @@ class MaskElement
                     null,
                     $this->element
                 );
-                $filterID = createElementID();
-                $expansor = createTag('filter');
+                $filterID = General::createElementID();
+                $expandFilter = General::createTag('filter');
 
-                $expansor->setAttribute('id', $filterID);
-                $feMorph = createTag('feMorphology');
+                $expandFilter->setAttribute('id', $filterID);
+                $feMorph = General::createTag('feMorphology');
                 $feMorph->setAttribute('operator', 'erode');
                 $feMorph->setAttribute('in', 'SourceGraphic');
                 $feMorph->setAttribute('radius', '0');
-                $expansor->appendChild($feMorph);
-                $defs->appendChild($expansor);
+                $expandFilter->appendChild($feMorph);
+                $defs->appendChild($expandFilter);
                 $path->setAttribute(
                     'stroke',
                     ($properties[$i]['mode'] ?? '') === 's' ? '#000000' : '#ffffff'
@@ -156,12 +154,12 @@ class MaskElement
             ];
             if (($properties[$i]['mode'] ?? '') === 'i') {
                 $jLen = count($currentMasks);
-                $g = createTag('g');
+                $g = General::createTag('g');
 
                 for ($j = 0; $j < $jLen; ++$j) {
                     $g->appendChild($currentMasks[$j]);
                 }
-                $mask = createTag('mask');
+                $mask = General::createTag('mask');
 
                 $mask->setAttribute('mask-type', 'alpha');
                 $mask->setAttribute('id', "{$layerId}_{$count}");
@@ -207,7 +205,7 @@ class MaskElement
             }
         }
 
-        $this->maskElement = createTag($maskType);
+        $this->maskElement = General::createTag($maskType);
 
         $cLen = count($currentMasks);
 

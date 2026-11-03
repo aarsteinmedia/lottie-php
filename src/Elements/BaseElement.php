@@ -3,11 +3,8 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Effects\EffectsManager;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\GlobalData;
-
-use function LottiePHP\Utils\addStyles;
-use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\getBlendMode;
 
 abstract class BaseElement implements \ArrayAccess
 {
@@ -81,7 +78,7 @@ abstract class BaseElement implements \ArrayAccess
         $this->globalData = $globalData;
         $this->comp = $comp;
         $this->data = $data;
-        $this->layerId = createElementID();
+        $this->layerId = General::createElementID();
 
         // Stretch factor for old animations missing $this property.
         if (!($this->data['sr'] ?? null)) {
@@ -129,13 +126,13 @@ abstract class BaseElement implements \ArrayAccess
         if (!$this->data) {
             throw new \Error(get_class($this).': data (LottieLayer) is not implemented');
         }
-        $blendModeValue = getBlendMode($this->data['bm'] ?? 16);
+        $blendModeValue = General::getBlendMode($this->data['bm'] ?? 16);
         $elem = $this->baseElement ?? $this->layerElement;
 
         if (!$elem) {
             throw new \Error(get_class($this).': Both baseElement and layerElement are not implemented');
         }
-        addStyles(
+        General::addStyles(
             $elem,
             ['mix-blend-mode' => $blendModeValue]
         );

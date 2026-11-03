@@ -4,13 +4,11 @@ namespace LottiePHP\Effects\Svg;
 
 use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Properties\BaseProperty;
 use LottiePHP\Utils\Properties\MultiDimensionalProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
-
-use function LottiePHP\Utils\createTag;
-use function LottiePHP\Utils\rgbToHex;
 
 class SVGDropShadowEffect extends SVGComposableEffect
 {
@@ -81,7 +79,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         $filter->setAttribute('height', $filterSize['height']);
         $this->filterManager = $filterManager;
 
-        $feGaussianBlur = createTag('feGaussianBlur');
+        $feGaussianBlur = General::createTag('feGaussianBlur');
 
         $feGaussianBlur->setAttribute('in', 'SourceAlpha');
         $feGaussianBlur->setAttribute('result', "{$id}_drop_shadow_1");
@@ -89,7 +87,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         $this->feGaussianBlur = $feGaussianBlur;
         $filter->appendChild($feGaussianBlur);
 
-        $feOffset = createTag('feOffset');
+        $feOffset = General::createTag('feOffset');
 
         $feOffset->setAttribute('dx', 25);
         $feOffset->setAttribute('dy', 0);
@@ -97,7 +95,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         $feOffset->setAttribute('result', "{$id}_drop_shadow_2");
         $this->feOffset = $feOffset;
         $filter->appendChild($feOffset);
-        $feFlood = createTag('feFlood');
+        $feFlood = General::createTag('feFlood');
 
         $feFlood->setAttribute('flood-color', '#00ff00');
         $feFlood->setAttribute('flood-opacity', '1');
@@ -105,7 +103,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
         $this->feFlood = $feFlood;
         $filter->appendChild($feFlood);
 
-        $feComposite = createTag('feComposite');
+        $feComposite = General::createTag('feComposite');
 
         $feComposite->setAttribute('in', "{$id}_drop_shadow_3");
         $feComposite->setAttribute('in2', "{$id}_drop_shadow_2");
@@ -140,7 +138,7 @@ class SVGDropShadowEffect extends SVGComposableEffect
 
             $this->feFlood->setAttribute(
                 'flood-color',
-                rgbToHex(
+                General::rgbToHex(
                     round($col[0] * 255),
                     round($col[1] * 255),
                     round($col[2] * 255)

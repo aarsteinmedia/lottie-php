@@ -4,11 +4,10 @@ namespace LottiePHP\Utils\Shapes\Properties;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\ArrayType;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Properties\BaseProperty;
 use LottiePHP\Utils\PropertyFactory;
-
-use function LottiePHP\Utils\createTypedArray;
 
 class GradientProperty extends DynamicPropertyContainer
 {
@@ -28,12 +27,12 @@ class GradientProperty extends DynamicPropertyContainer
         BaseElement|DynamicPropertyContainer $container
     ) {
         $this->data = $data;
-        $this->c = createTypedArray(ArrayType::Uint8c, $data['p'] * 4);
+        $this->c = General::createTypedArray(ArrayType::Uint8c, $data['p'] * 4);
         $cLength = $data['k']['k'][0]['s'] ?? 0
           ? (count($data['k']['k'][0]['s'] ?? []) ?? 0) - $data['p'] * 4
           : count($data['k']['k']) - $data['p'] * 4;
 
-        $this->o = createTypedArray(ArrayType::Float32, $cLength);
+        $this->o = General::createTypedArray(ArrayType::Float32, $cLength);
         $this->_collapsable = $this->checkCollapsable();
         $this->_hasOpacity = $cLength;
         $this->initDynamicPropertyContainer($container);

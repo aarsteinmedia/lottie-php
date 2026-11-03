@@ -4,10 +4,8 @@ namespace LottiePHP\Effects\Svg;
 
 use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Properties\BaseProperty;
-
-use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createTag;
 
 class SVGMatte3Effect
 {
@@ -24,7 +22,7 @@ class SVGMatte3Effect
         $this->filterManager = $filterManager;
         $this->filterElem = $filterElem;
         $this->elem = $elem;
-        $elem->matteElement = createTag('g');
+        $elem->matteElement = General::createTag('g');
         if ($elem->layerElement) {
             $elem->matteElement->appendChild($elem->layerElement);
         }
@@ -96,7 +94,7 @@ class SVGMatte3Effect
         if ($i <= $length - 2) {
             $nextChild = $children[$i + 1];
         }
-        $useElem = createTag('use');
+        $useElem = General::createTag('use');
 
         $useElem->setAttribute('href', "#{$symbolId}");
         if ($nextChild) {
@@ -111,8 +109,8 @@ class SVGMatte3Effect
         BaseElement|BaseProperty $mask
     ) {
         if (!$this->findSymbol($mask)) {
-            $symbolId = createElementID();
-            $masker = createTag('mask');
+            $symbolId = General::createElementID();
+            $masker = General::createTag('mask');
 
             if ($mask->layerId) {
                 $masker->id = $mask->layerId;
@@ -123,7 +121,7 @@ class SVGMatte3Effect
             $defs = $elem->globalData['defs'] ?? null;
 
             $defs?->appendChild($masker);
-            $symbol = createTag('symbol');
+            $symbol = General::createTag('symbol');
 
             $symbol->setAttribute('id', $symbolId);
             $this->replaceInParent($mask, $symbolId);
@@ -132,7 +130,7 @@ class SVGMatte3Effect
             }
 
             $defs?->appendChild($symbol);
-            $useElem = createTag('use');
+            $useElem = General::createTag('use');
 
             $useElem->setAttribute('href', "#{$symbolId}");
             $masker->appendChild($useElem);

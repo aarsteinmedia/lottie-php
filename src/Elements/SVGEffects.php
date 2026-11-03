@@ -5,9 +5,8 @@ namespace LottiePHP\Elements;
 use LottiePHP\Elements\Helpers\RenderableElement;
 use LottiePHP\Utils\Enums\EffectTypes;
 use LottiePHP\Utils\FiltersFactory;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\LocationHref;
-
-use function LottiePHP\Utils\createElementID;
 
 class SVGEffects
 {
@@ -17,7 +16,7 @@ class SVGEffects
     {
         $source = 'SourceGraphic';
 
-        $filId = createElementID();
+        $filId = General::createElementID();
         $fil = FiltersFactory::createFilter($filId, true);
 
         $count = 0;

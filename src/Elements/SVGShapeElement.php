@@ -14,6 +14,7 @@ use LottiePHP\Elements\Helpers\Shapes\SVGStrokeStyleData;
 use LottiePHP\Elements\Helpers\Shapes\SVGStyleData;
 use LottiePHP\Elements\Helpers\Shapes\SVGTransformData;
 use LottiePHP\Utils\Enums\ShapeType;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\Helpers\GlobalData;
 use LottiePHP\Utils\LocationHref;
@@ -23,11 +24,8 @@ use LottiePHP\Utils\Shapes\Modifiers\ShapeModifier;
 use LottiePHP\Utils\Shapes\Modifiers\ShapeModifiers;
 use LottiePHP\Utils\Shapes\Properties\ShapePropertyFactory;
 
-use function LottiePHP\Utils\addClasses;
-use function LottiePHP\Utils\addStyles;
 use function LottiePHP\Utils\Enums\lineCapEnum;
 use function LottiePHP\Utils\Enums\lineJoinEnum;
-use function LottiePHP\Utils\getBlendMode;
 
 class SVGShapeElement extends ShapeElement
 {
@@ -167,10 +165,10 @@ class SVGShapeElement extends ShapeElement
             $elementData->gr->setAttribute('id', $data['ln']);
         }
         if (!empty($data['cl'] ?? null)) {
-            addClasses($elementData->gr, [$data['cl']]);
+            General::addClasses($elementData->gr, [$data['cl']]);
         }
         if (!empty($data['bm'] ?? null)) {
-            addStyles($elementData->gr, ['mix-blend-mode' => getBlendMode((int) $data['bm'])]);
+            General::addStyles($elementData->gr, ['mix-blend-mode' => General::getBlendMode((int) $data['bm'])]);
         }
 
         // Keep the original TS-like shape tree structure expected by `searchShapes`.
@@ -302,10 +300,10 @@ class SVGShapeElement extends ShapeElement
             $pathElement->setAttribute('id', $data['ln']);
         }
         if (!empty($data['cl'] ?? null)) {
-            addClasses($pathElement, [$data['cl']]);
+            General::addClasses($pathElement, [$data['cl']]);
         }
         if (!empty($data['bm'] ?? null)) {
-            addStyles($pathElement, ['mix-blend-mode' => getBlendMode($data['bm'])]);
+            General::addStyles($pathElement, ['mix-blend-mode' => General::getBlendMode($data['bm'])]);
         }
         array_push($this->stylesList, $styleOb);
         if ($elementData) {

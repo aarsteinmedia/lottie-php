@@ -120,7 +120,7 @@ class RepeaterModifier extends ShapeModifier
             -($transform->a->v[1] ?? 0),
             $transform->a->v[2] ?? 0
         );
-        $sMatrix->scale($inv ? 1 / $scaleX : $scaleX, $inv ? 1 / $scaleY : $scaleY);
+        $sMatrix->scale($inv ? 1 / ($scaleX ?: 1) : $scaleX, $inv ? 1 / ($scaleY ?: 1) : $scaleY);
         $sMatrix->translate(
             $transform->a->v[0] ?? 0,
             $transform->a->v[1] ?? 0,

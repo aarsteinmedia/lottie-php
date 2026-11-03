@@ -3,10 +3,10 @@
 namespace LottiePHP\Elements\Helpers\Shapes;
 
 use LottiePHP\Utils\Enums\ShapeType;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Matrix;
 
 use function LottiePHP\Utils\buildShapeString;
-use function LottiePHP\Utils\toRGBString;
 
 class SVGElementsRenderer
 {
@@ -16,7 +16,7 @@ class SVGElementsRenderer
         bool|int|null $isFirstFrame
     ) {
         if (!$itemData) {
-            throw new \Error('SVGElementsRenderer: Method renderContetTransform is missing data');
+            throw new \Error('SVGElementsRenderer: Method renderContentTransform is missing data');
         }
         if ($isFirstFrame || $itemData->transform['op']->_mdf) {
             $itemData->transform['container']->setAttribute(
@@ -45,7 +45,7 @@ class SVGElementsRenderer
         if ($itemData->c?->v && ($itemData->c->_mdf || $isFirstFrame)) {
             $styleElem->pElem->setAttribute(
                 'fill',
-                toRGBString($itemData->c->v)
+                General::toRGBString($itemData->c->v)
             );
         }
         if ($itemData->o?->_mdf || $isFirstFrame) {
@@ -61,7 +61,7 @@ class SVGElementsRenderer
         if (!$itemData) {
             throw new \Error('SVGElementsRenderer: Method renderGradient is missing data');
         }
-        $gfill = $itemData->gf;
+        $gFill = $itemData->gf;
         $hasOpacity = $itemData->g?->_hasOpacity;
         $pt1 = $itemData->s?->v ?? [0, 0];
         $pt2 = $itemData->e?->v ?? [0, 0];
@@ -76,8 +76,8 @@ class SVGElementsRenderer
             $attr1 = 1 === $styleData['t'] ? 'x1' : 'cx';
             $attr2 = 'x1' === $attr1 ? 'y1' : 'cy';
 
-            $gfill?->setAttribute($attr1, $pt1[0]);
-            $gfill?->setAttribute($attr2, $pt1[1]);
+            $gFill?->setAttribute($attr1, $pt1[0]);
+            $gFill?->setAttribute($attr2, $pt1[1]);
             if ($hasOpacity && !$itemData->g?->_collapsable) {
                 $itemData->of?->setAttribute($attr1, $pt1[0]);
                 $itemData->of?->setAttribute($attr2, $pt1[1]);
@@ -120,8 +120,8 @@ class SVGElementsRenderer
         }
         if (1 === $styleData['t']) {
             if ($itemData->e?->_mdf || $isFirstFrame) {
-                $gfill?->setAttribute('x2', $pt2[0]);
-                $gfill?->setAttribute('y2', $pt2[1]);
+                $gFill?->setAttribute('x2', $pt2[0]);
+                $gFill?->setAttribute('y2', $pt2[1]);
                 if ($hasOpacity && !$itemData->g?->_collapsable) {
                     $itemData->of?->setAttribute('x2', $pt2[0]);
                     $itemData->of?->setAttribute('y2', $pt2[1]);
@@ -132,7 +132,7 @@ class SVGElementsRenderer
 
             if ($itemData->s?->_mdf || $itemData->e?->_mdf || $isFirstFrame) {
                 $rad = sqrt(pow($pt1[0] - $pt2[0], 2) + pow($pt1[1] - $pt2[1], 2));
-                $gfill?->setAttribute('r', $rad);
+                $gFill?->setAttribute('r', $rad);
                 if ($hasOpacity && !$itemData->g?->_collapsable) {
                     $itemData->of?->setAttribute('r', $rad);
                 }
@@ -159,14 +159,13 @@ class SVGElementsRenderer
                 $x = cos($ang + (float) $itemData->a?->v) * $dist + $pt1[0];
                 $y = sin($ang + (float) $itemData->a?->v) * $dist + $pt1[1];
 
-                $gfill?->setAttribute('fx', $x);
-                $gfill?->setAttribute('fy', $y);
+                $gFill?->setAttribute('fx', $x);
+                $gFill?->setAttribute('fy', $y);
                 if ($hasOpacity && !$itemData->g?->_collapsable) {
                     $itemData->of?->setAttribute('fx', $x);
                     $itemData->of?->setAttribute('fy', $y);
                 }
             }
-            // gfill->setAttribute('fy','200');
         }
     }
 
@@ -299,7 +298,7 @@ class SVGElementsRenderer
             $pElem->setAttribute('stroke-dashoffset', $d->dashoffset[0]);
         }
         if ($c && ($c->_mdf || $isFirstFrame)) {
-            $pElem->setAttribute('stroke', toRGBString($c->v));
+            $pElem->setAttribute('stroke', General::toRGBString($c->v));
         }
         if ($o?->_mdf || $isFirstFrame) {
             $pElem->setAttribute('stroke-opacity', $o?->v ?? 1);

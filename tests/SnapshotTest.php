@@ -88,7 +88,7 @@ final class SnapshotTest extends TestCase
     /** @return iterable<string, array{string}> */
     public static function assets(): iterable
     {
-        foreach (glob(self::ASSETS_DIR.'/*.{json,lottie}', GLOB_BRACE) as $path) {
+        foreach (glob(self::FIXTURES_DIR.'/*.{json,lottie}', GLOB_BRACE) as $path) {
             yield basename($path) => [$path];
         }
     }

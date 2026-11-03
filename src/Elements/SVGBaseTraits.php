@@ -3,11 +3,8 @@
 namespace LottiePHP\Elements;
 
 use LottiePHP\Utils\FiltersFactory;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\LocationHref;
-
-use function LottiePHP\Utils\addClasses;
-use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createTag;
 
 trait SVGBaseTraits
 {
@@ -28,7 +25,7 @@ trait SVGBaseTraits
             throw new \Error(get_class($this).': layerElement is not implemented');
         }
 
-        $this->matteElement = createTag('g');
+        $this->matteElement = General::createTag('g');
         $this->transformedElement = $this->layerElement;
         $this->maskedElement = $this->layerElement;
         $this->_sizeChanged = false;
@@ -37,7 +34,7 @@ trait SVGBaseTraits
         // If this layer acts as a mask for the following layer
         if ($this->data['td'] ?? 0) {
             $this->matteMasks = [];
-            $gg = createTag('g');
+            $gg = General::createTag('g');
 
             if ($this->layerId ?? null) {
                 $gg->setAttribute('id', $this->layerId);
@@ -86,7 +83,7 @@ trait SVGBaseTraits
             $this->layerElement->setAttribute('id', $this->data['ln']);
         }
         if ($this->data['cl'] ?? null) {
-            addClasses($this->layerElement, [$this->data['cl']]);
+            General::addClasses($this->layerElement, [$this->data['cl']]);
         }
         $debugAttrs = (bool) ($this->globalData['renderConfig']['debugAttributes'] ?? false);
         // Debug aid: keep a stable mapping from SVG nodes to Lottie layers.
@@ -119,8 +116,8 @@ trait SVGBaseTraits
             && 0 === (int) ($this->data['ty'] ?? 0)
             && !($this->data['hd'] ?? false)
         ) {
-            $cp = createTag('clipPath');
-            $pt = createTag('path');
+            $cp = General::createTag('clipPath');
+            $pt = General::createTag('path');
 
             $w = $this->data['w'] ?? 0;
             $h = $this->data['h'] ?? 0;
@@ -129,7 +126,7 @@ trait SVGBaseTraits
                 'd',
                 "M0,0 L{$w},0 L{$w},{$h} L0,{$h}z"
             );
-            $clipId = createElementID();
+            $clipId = General::createElementID();
 
             $cp->setAttribute('id', $clipId);
             $cp->appendChild($pt);
@@ -138,7 +135,7 @@ trait SVGBaseTraits
             $locationHref = LocationHref::getHref();
 
             if ($this->checkMasks()) {
-                $cpGroup = createTag('g');
+                $cpGroup = General::createTag('g');
 
                 $cpGroup->setAttribute('clip-path', "url({$locationHref}#{$clipId})");
                 $cpGroup->appendChild($this->layerElement);
@@ -209,14 +206,14 @@ trait SVGBaseTraits
         switch ($matteType) {
             case 1:
             case 3:
-                $masker = createTag('mask');
+                $masker = General::createTag('mask');
 
                 $masker->setAttribute('id', $id);
                 // Track mattes should behave like alpha masks (as in Lottie-web's SVG renderer).
                 // Without this, some viewers fall back to luminance masking which can make
                 // colored mattes (e.g. the 404 globe) hide content unexpectedly.
                 $masker->setAttribute('mask-type', 3 === $matteType ? 'luminance' : 'alpha');
-                $useElement = createTag('use');
+                $useElement = General::createTag('use');
                 $useElement->setAttribute(
                     'href',
                     "#{$this->layerId}"
@@ -227,26 +224,26 @@ trait SVGBaseTraits
                 break;
 
             case 2:
-                $maskGroup = createTag('mask');
+                $maskGroup = General::createTag('mask');
 
                 $maskGroup->setAttribute('id', $id);
                 $maskGroup->setAttribute('mask-type', 'alpha');
-                $maskGrouper = createTag('g');
+                $maskGrouper = General::createTag('g');
 
                 $maskGroup->appendChild($maskGrouper);
-                $filId = createElementID();
+                $filId = General::createElementID();
                 $fil = FiltersFactory::createFilter($filId);
-                $feCTr = createTag('feComponentTransfer');
+                $feCTr = General::createTag('feComponentTransfer');
 
                 $feCTr->setAttribute('in', 'SourceGraphic');
                 $fil->appendChild($feCTr);
-                $feFunc = createTag('feFuncA');
+                $feFunc = General::createTag('feFuncA');
 
                 $feFunc->setAttribute('type', 'table');
                 $feFunc->setAttribute('tableValues', '1.0 0.0');
                 $feCTr->appendChild($feFunc);
                 $this->globalData['defs']?->appendChild($fil);
-                $alphaRect = createTag('rect');
+                $alphaRect = General::createTag('rect');
 
                 $alphaRect->setAttribute('width', $this->comp['data']['w'] ?? 0);
                 $alphaRect->setAttribute('height', $this->comp['data']['h'] ?? 0);
@@ -260,7 +257,7 @@ trait SVGBaseTraits
 
                 $maskGrouper->setAttribute('filter', "url({$locationHref}#{$filId})");
                 $maskGrouper->appendChild($alphaRect);
-                $useElement = createTag('use');
+                $useElement = General::createTag('use');
                 $useElement->setAttribute(
                     'href',
                     "#{$this->layerId}"
@@ -275,7 +272,7 @@ trait SVGBaseTraits
 
     public function initRendererElement()
     {
-        $this->layerElement = createTag('g');
+        $this->layerElement = General::createTag('g');
     }
 
     public function renderElement()

@@ -112,7 +112,7 @@ class RoundCornersModifier extends ShapeModifier
                     }
                     $distance = sqrt(pow($currentV[0] - $closerV[0], 2)
                       + pow($currentV[1] - $closerV[1], 2));
-                    $newPosPercent = $distance ? min($distance / 2, $round) / $distance : 0;
+                    $newPosPercent = $distance ? min($distance / 2, $round) / ($distance ?: 1) : 0;
                     $iX = $currentV[0] + ($closerV[0] - $currentV[0]) * $newPosPercent;
                     $vX = $iX;
                     $iY = $currentV[1] - ($currentV[1] - $closerV[1]) * $newPosPercent;
@@ -138,7 +138,7 @@ class RoundCornersModifier extends ShapeModifier
                     }
                     $distance = sqrt(pow($currentV[0] - $closerV[0], 2)
                       + pow($currentV[1] - $closerV[1], 2));
-                    $newPosPercent = $distance ? min($distance / 2, $round) / $distance : 0;
+                    $newPosPercent = $distance ? min($distance / 2, $round) / ($distance ?: 1) : 0;
                     $oX = $currentV[0] + ($closerV[0] - $currentV[0]) * $newPosPercent;
                     $vX = $oX;
                     $oY = $currentV[1] + ($closerV[1] - $currentV[1]) * $newPosPercent;

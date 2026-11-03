@@ -7,10 +7,9 @@ use LottiePHP\Utils\Bezier;
 use LottiePHP\Utils\BezierFactory;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
-
-use function LottiePHP\Utils\createTypedArray;
 
 abstract class BaseProperty extends DynamicPropertyContainer
 {
@@ -44,7 +43,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
     public ?\Closure $smooth;
     public ?int $textIndex;
     public ?int $textTotal;
-    public mixed $v;
+    public mixed $v = null;
     public array|int|null $value;
     public array|int|null $vel;
     public ?bool $x;
@@ -133,8 +132,8 @@ abstract class BaseProperty extends DynamicPropertyContainer
         if (1.0 - $cosom > 0.000001) {
             $omega = acos($cosom);
             $sinom = sin($omega);
-            $scale0 = sin((1.0 - $t) * $omega) / $sinom;
-            $scale1 = sin($t * $omega) / $sinom;
+            $scale0 = sin((1.0 - $t) * $omega) / ($sinom ?: 1);
+            $scale1 = sin($t * $omega) / ($sinom ?: 1);
         } else {
             $scale0 = 1.0 - $t;
             $scale1 = $t;
@@ -204,7 +203,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
 
     public function getValueAtTime(float $_val1, float $_val2)
     {
-        throw new \Error(get_class($this).': Method getValueAtTime is not implemented');
+        return 0;
     }
 
     public function getVelocityAtTime(float $_frameNum): array|int
@@ -222,7 +221,7 @@ abstract class BaseProperty extends DynamicPropertyContainer
         ];
 
         if (PropType::MultiDimensional === $this->propType && $pv) {
-            $newValue = createTypedArray(ArrayType::Float32, count($pv));
+            $newValue = General::createTypedArray(ArrayType::Float32, count($pv));
         }
 
         [

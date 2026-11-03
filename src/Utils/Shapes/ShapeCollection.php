@@ -2,9 +2,8 @@
 
 namespace LottiePHP\Utils\Shapes;
 
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Pooling\ShapePool;
-
-use function LottiePHP\Utils\createSizedArray;
 
 class ShapeCollection
 {
@@ -14,13 +13,13 @@ class ShapeCollection
 
     public function __construct()
     {
-        $this->shapes = createSizedArray($this->_maxLength);
+        $this->shapes = General::createSizedArray($this->_maxLength);
     }
 
     public function addShape(ShapePath $shapeData)
     {
         if ($this->_length === $this->_maxLength) {
-            $this->shapes = [...$this->shapes, ...createSizedArray($this->_maxLength)];
+            $this->shapes = [...$this->shapes, ...General::createSizedArray($this->_maxLength)];
             $this->_maxLength *= 2;
         }
         $this->shapes[(int) $this->_length] = $shapeData;

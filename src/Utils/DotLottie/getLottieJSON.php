@@ -2,7 +2,7 @@
 
 namespace LottiePHP\Utils\DotLottie;
 
-use function LottiePHP\Utils\isSafeZip;
+use LottiePHP\Utils\General;
 
 /**
  * @return array{data: list<array<string, mixed>>, manifest: array<string, mixed>}
@@ -61,7 +61,7 @@ function unzipToMap(string $zipBinary): array
             throw new \RuntimeException('Invalid or unreadable ZIP');
         }
 
-        if (!isSafeZip($zip)) {
+        if (!General::isSafeZip($zip)) {
             $zip->close();
 
             throw new \RuntimeException('Invalid ZIP');

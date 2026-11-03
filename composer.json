@@ -6,7 +6,7 @@
       "LottiePHP\\": "src/"
     },
     "files": [
-      "src/Utils/index.php",
+      "src/Utils/General.php",
       "src/Utils/Enums.php",
       "src/Utils/buildShapeString.php",
       "src/Utils/getFontProperties.php",
@@ -41,10 +41,12 @@
     "lint": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff src tests",
     "lint:fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php src tests",
     "test": "phpunit",
+    "check": "composer lint && composer test",
     "test:update-snapshots": [
       "@putenv UPDATE_SNAPSHOTS=1",
       "phpunit --filter SnapshotTest"
     ],
-    "visual:up": "composer install && composer dump-autoload && php -S localhost:8000 -t visual/public && open -a Firefox 'http://localhost:8000'"
+    "visual": "composer install && composer dump-autoload && php -S localhost:8000 -t visual/public",
+    "visual:down": "kill -9 $(lsof -t -i:8000)"
   }
 }

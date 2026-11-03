@@ -3,23 +3,21 @@
 namespace LottiePHP\Utils\Shapes\Modifiers;
 
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
 use LottiePHP\Utils\PolynomialBezier;
 use LottiePHP\Utils\Pooling\ShapePool;
+use LottiePHP\Utils\Properties\NoProperty;
 use LottiePHP\Utils\Properties\ValueProperty;
 use LottiePHP\Utils\PropertyFactory;
 use LottiePHP\Utils\Shapes\ShapePath;
-
-use function LottiePHP\Utils\floatEqual;
-use function LottiePHP\Utils\floatZero;
-use function LottiePHP\Utils\pointEqual;
 
 class OffsetPathModifier extends ShapeModifier
 {
     public ?ValueProperty $amount;
     public ?int $lineJoin;
-    public ?ValueProperty $miterLimit;
+    public NoProperty|ValueProperty|null $miterLimit;
 
     private function crossProduct(array $a, array $b)
     {
@@ -34,7 +32,7 @@ class OffsetPathModifier extends ShapeModifier
     {
         $intersect = $a->intersections($b);
 
-        if (count($intersect) > 0 && floatEqual($intersect[0][0] ?? 0, 1)) {
+        if (count($intersect) > 0 && General::floatEqual($intersect[0][0] ?? 0, 1)) {
             array_shift($intersect);
         }
 
@@ -61,7 +59,7 @@ class OffsetPathModifier extends ShapeModifier
         }
 
         // Connected, they don't need a joint
-        if (pointEqual($p0, $p1)) {
+        if (General::pointEqual($p0, $p1)) {
             return $p0;
         }
 
@@ -117,8 +115,8 @@ class OffsetPathModifier extends ShapeModifier
         }
 
         // Miter
-        $t0 = pointEqual($p0, $seg1->points[2]) ? $seg1->points[0] : $seg1->points[2];
-        $t1 = pointEqual($p1, $seg2->points[1]) ? $seg2->points[3] : $seg2->points[1];
+        $t0 = General::pointEqual($p0, $seg1->points[2]) ? $seg1->points[0] : $seg1->points[2];
+        $t1 = General::pointEqual($p1, $seg2->points[1]) ? $seg2->points[3] : $seg2->points[1];
         $intersection = $this->lineIntersection(
             $t0,
             $p0,
@@ -181,11 +179,11 @@ class OffsetPathModifier extends ShapeModifier
             1];
         $r = $this->crossProduct($this->crossProduct($v1, $v2), $this->crossProduct($v3, $v4));
 
-        if (floatZero($r[2] ?? 0)) {
+        if (General::floatZero($r[2] ?? 0)) {
             return null;
         }
 
-        return [$r[0] ?? 0 / ($r[2] ?? 0), $r[1] ?? 0 / ($r[2] ?? 0)];
+        return [($r[0] ?? 1) / ($r[2] ?? 1), ($r[1] ?? 0) / ($r[2] ?? 1)];
     }
 
     private function offsetSegment(PolynomialBezier $segment, int $amount)
@@ -258,7 +256,7 @@ class OffsetPathModifier extends ShapeModifier
             return [$this->offsetSegment($segment, $amount)];
         }
 
-        if (1 === count($flex) || floatEqual($flex[1] ?? 0, 1)) {
+        if (1 === count($flex) || General::floatEqual($flex[1] ?? 0, 1)) {
             $split = $segment->split($flex[0] ?? 0);
 
             $left = $split[0];
@@ -269,7 +267,7 @@ class OffsetPathModifier extends ShapeModifier
 
         $split = $segment->split($flex[0] ?? 0);
         $left = $split[0];
-        $t = ($flex[1] ?? 0 - ($flex[0] ?? 0)) / (1 - ($flex[0] ?? 0));
+        $t = ($flex[1] ?? 0 - ($flex[0] ?? 0)) / (1 - ($flex[0] ?? 2));
 
         $split = $split[1]?->split($t);
         $mid = $split[0];
@@ -290,8 +288,8 @@ class OffsetPathModifier extends ShapeModifier
 
     private function polarOffset(
         array $p,
-        int $angle,
-        int $length
+        float $angle,
+        float $length
     ) {
         return [
             $p[0] + cos($angle) * $length, $p[1] - sin($angle) * $length,
@@ -357,7 +355,7 @@ class OffsetPathModifier extends ShapeModifier
         );
         $this->miterLimit = PropertyFactory::getProp(
             $elem,
-            $data['ml'],
+            $data['ml'] ?? null,
             0,
             null,
             $this
@@ -423,7 +421,7 @@ class OffsetPathModifier extends ShapeModifier
             for ($j = 0; $j < $mLength; ++$j) {
                 $segment = $multiSegment[$j];
 
-                if ($lastPoint && pointEqual($segment->points[0], $lastPoint)) {
+                if ($lastPoint && General::pointEqual($segment->points[0], $lastPoint)) {
                     $outputBezier->setXYAt(
                         $segment->points[1][0],
                         $segment->points[1][1],

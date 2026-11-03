@@ -2,9 +2,8 @@
 
 namespace LottiePHP\Utils\Pooling;
 
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Shapes\ShapePath;
-
-use function LottiePHP\Utils\createSizedArray;
 
 class PoolFactory
 {
@@ -16,7 +15,7 @@ class PoolFactory
         $this->_maxLength = $initialLength;
         $this->_create = \Closure::fromCallable($_create);
         $this->_release = $_release ? \Closure::fromCallable($_release) : null;
-        $this->pool = createSizedArray($this->_maxLength);
+        $this->pool = General::createSizedArray($this->_maxLength);
     }
 
     public function newElement()

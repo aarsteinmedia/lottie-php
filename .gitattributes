@@ -1,8 +1,6 @@
 /visual export-ignore
 /.github export-ignore
 /.php-cs-fixer.* export-ignore
-/docker-compose.yml export-ignore
-/Dockerfile export-ignore
 /assets export-ignore
 /.vscode export-ignore
 /tests export-ignore

@@ -44,6 +44,8 @@ function resolveAssets(array $unzipped, array &$assets): void
         }
         $assets[$i]['e'] = 1;
         $assets[$i]['u'] = '';
+
+        unset($b64);
     }
 }
 

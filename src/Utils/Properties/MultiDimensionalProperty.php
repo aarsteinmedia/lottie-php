@@ -5,9 +5,8 @@ namespace LottiePHP\Utils\Properties;
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
-
-use function LottiePHP\Utils\createTypedArray;
 
 class MultiDimensionalProperty extends BaseProperty
 {
@@ -31,9 +30,9 @@ class MultiDimensionalProperty extends BaseProperty
 
         $length = count($data['k']);
 
-        $this->v = createTypedArray(ArrayType::Float32, $length);
-        $this->pv = createTypedArray(ArrayType::Float32, $length);
-        $this->vel = createTypedArray(ArrayType::Float32, $length);
+        $this->v = General::createTypedArray(ArrayType::Float32, $length);
+        $this->pv = General::createTypedArray(ArrayType::Float32, $length);
+        $this->vel = General::createTypedArray(ArrayType::Float32, $length);
         for ($i = 0; $i < $length; ++$i) {
             $this->v[$i] = ($data['k'][$i] ?? 0) * $this->factor;
             $this->pv[$i] = $data['k'][$i] ?? 0;

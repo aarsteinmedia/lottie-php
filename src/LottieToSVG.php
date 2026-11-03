@@ -5,10 +5,9 @@ namespace LottiePHP;
 use LottiePHP\Animation\AnimationItem;
 use LottiePHP\Animation\AnimationManager;
 use LottiePHP\Utils\BezierFactory;
+use LottiePHP\Utils\General;
 
 use function LottiePHP\Utils\DotLottie\getAnimationData;
-use function LottiePHP\Utils\isLottie;
-use function LottiePHP\Utils\isSafeZip;
 
 class LottieToSVG
 {
@@ -28,7 +27,7 @@ class LottieToSVG
 
     public static function isLottie(array $json): bool
     {
-        return isLottie($json);
+        return General::isLottie($json);
     }
 
     /**
@@ -36,7 +35,7 @@ class LottieToSVG
      */
     public static function isSafeZip(\ZipArchive $zip): bool
     {
-        return isSafeZip($zip);
+        return General::isSafeZip($zip);
     }
 
     public static function load(
@@ -65,7 +64,7 @@ class LottieToSVG
 
         $hasInvalid = false;
         foreach ($animations ?? [] as $animation) {
-            if (!isLottie($animation)) {
+            if (!General::isLottie($animation)) {
                 $hasInvalid = true;
 
                 break;

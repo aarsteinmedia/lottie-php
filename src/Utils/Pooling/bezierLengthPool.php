@@ -3,9 +3,8 @@
 namespace LottiePHP\Utils\Pooling;
 
 use LottiePHP\Utils\Enums\ArrayType;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\Resolution;
-
-use function LottiePHP\Utils\createTypedArray;
 
 function bezierLengthPool(): PoolFactory
 {
@@ -15,8 +14,8 @@ function bezierLengthPool(): PoolFactory
             8,
             fn () => [
                 'addedLength' => 0,
-                'lengths' => createTypedArray(ArrayType::Float32, Resolution::getDefaultCurveSegments()),
-                'percents' => createTypedArray(ArrayType::Float32, Resolution::getDefaultCurveSegments()),
+                'lengths' => General::createTypedArray(ArrayType::Float32, Resolution::getDefaultCurveSegments()),
+                'percents' => General::createTypedArray(ArrayType::Float32, Resolution::getDefaultCurveSegments()),
             ]
         );
     }

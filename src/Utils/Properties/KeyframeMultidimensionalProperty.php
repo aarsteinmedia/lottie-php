@@ -6,10 +6,9 @@ use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Bezier;
 use LottiePHP\Utils\Enums\ArrayType;
 use LottiePHP\Utils\Enums\PropType;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Helpers\DynamicPropertyContainer;
-
-use function LottiePHP\Utils\createTypedArray;
 
 class KeyframeMultidimensionalProperty extends BaseProperty
 {
@@ -113,8 +112,8 @@ class KeyframeMultidimensionalProperty extends BaseProperty
         $this->frameId = -1;
         $arrLen = count($data['k'][0]['s'] ?? []);
 
-        $this->v = createTypedArray(ArrayType::Float32, $arrLen);
-        $this->pv = createTypedArray(ArrayType::Float32, $arrLen);
+        $this->v = General::createTypedArray(ArrayType::Float32, $arrLen);
+        $this->pv = General::createTypedArray(ArrayType::Float32, $arrLen);
         for ($i = 0; $i < $arrLen; ++$i) {
             $this->v[$i] = $this->initFrame;
             $this->pv[$i] = $this->initFrame;
@@ -124,7 +123,7 @@ class KeyframeMultidimensionalProperty extends BaseProperty
         $this->_caching = [
             'lastFrame' => $this->initFrame,
             'lastIndex' => 0,
-            'value' => createTypedArray(ArrayType::Float32, $arrLen),
+            'value' => General::createTypedArray(ArrayType::Float32, $arrLen),
         ];
 
         // Keyframe properties are animated; register with container so it ticks each frame.

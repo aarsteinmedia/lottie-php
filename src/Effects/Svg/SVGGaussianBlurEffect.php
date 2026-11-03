@@ -4,9 +4,8 @@ namespace LottiePHP\Effects\Svg;
 
 use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Properties\BaseProperty;
-
-use function LottiePHP\Utils\createTag;
 
 class SVGGaussianBlurEffect
 {
@@ -26,7 +25,7 @@ class SVGGaussianBlurEffect
         $filter->setAttribute('height', '300%');
 
         $this->filterManager = $filterManager;
-        $feGaussianBlur = createTag('feGaussianBlur');
+        $feGaussianBlur = General::createTag('feGaussianBlur');
 
         $feGaussianBlur->setAttribute('result', $id);
         $filter->appendChild($feGaussianBlur);

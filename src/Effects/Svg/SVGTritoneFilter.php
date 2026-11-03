@@ -4,9 +4,8 @@ namespace LottiePHP\Effects\Svg;
 
 use LottiePHP\Effects\GroupEffect;
 use LottiePHP\Elements\BaseElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Properties\BaseProperty;
-
-use function LottiePHP\Utils\createTag;
 
 class SVGTritoneFilter
 {
@@ -23,7 +22,7 @@ class SVGTritoneFilter
         string $id
     ) {
         $this->filterManager = $filterManager;
-        $feColorMatrix = createTag('feColorMatrix');
+        $feColorMatrix = General::createTag('feColorMatrix');
 
         $feColorMatrix->setAttribute('type', 'matrix');
         $feColorMatrix->setAttribute('color-interpolation-filters', 'linearRGB');
@@ -32,22 +31,22 @@ class SVGTritoneFilter
             '0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0'
         );
         $filter->appendChild($feColorMatrix);
-        $feComponentTransfer = createTag('feComponentTransfer');
+        $feComponentTransfer = General::createTag('feComponentTransfer');
 
         $feComponentTransfer->setAttribute('color-interpolation-filters', 'sRGB');
         $feComponentTransfer->setAttribute('result', $id);
         $this->matrixFilter = $feComponentTransfer;
-        $feFuncR = createTag('feFuncR');
+        $feFuncR = General::createTag('feFuncR');
 
         $feFuncR->setAttribute('type', 'table');
         $feComponentTransfer->appendChild($feFuncR);
         $this->feFuncR = $feFuncR;
-        $feFuncG = createTag('feFuncG');
+        $feFuncG = General::createTag('feFuncG');
 
         $feFuncG->setAttribute('type', 'table');
         $feComponentTransfer->appendChild($feFuncG);
         $this->feFuncG = $feFuncG;
-        $feFuncB = createTag('feFuncB');
+        $feFuncB = General::createTag('feFuncB');
 
         $feFuncB->setAttribute('type', 'table');
         $feComponentTransfer->appendChild($feFuncB);

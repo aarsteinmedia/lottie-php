@@ -142,7 +142,7 @@ class Bezier
             $length = count($pt3);
 
             for ($k = 0; $k < $curveSegments; ++$k) {
-                $point = createSizedArray($length);
+                $point = General::createSizedArray($length);
                 $percent = $k / ($curveSegments - 1);
                 $ptDistance = 0;
                 for ($i = 0; $i < $length; ++$i) {
@@ -178,7 +178,7 @@ class Bezier
         BezierData $bezierData
     ) {
         if (null === self::$_bezierSegmentPoints) {
-            self::$_bezierSegmentPoints = createTypedArray(ArrayType::Float32, 8);
+            self::$_bezierSegmentPoints = General::createTypedArray(ArrayType::Float32, 8);
         }
 
         $startPercent = $startPercentFromProps;
@@ -367,7 +367,7 @@ class BezierData
 
     public function __construct(int $length)
     {
-        $this->points = createSizedArray($length);
+        $this->points = General::createSizedArray($length);
     }
 }
 
@@ -382,12 +382,3 @@ class PointData
         $this->point = $point;
     }
 }
-
-// $Bezier = {
-//   buildBezierData,
-//   getNewSegment,
-//   getPointInSegment,
-//   getSegmentsLength,
-//   pointOnLine2D,
-//   pointOnLine3D,
-// }

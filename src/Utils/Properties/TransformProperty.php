@@ -440,7 +440,7 @@ class TransformProperty extends BaseProperty
                     $v2 = $this->defaultVector;
                     $v1 = $v2;
                 }
-                $this->v->rotate(-atan2($v1[1] - $v2[1], $v1[0] - $v2[0]));
+                $this->v->rotate(-atan2(($v1[1] ?? 0) - ($v2[1] ?? 0), ($v1[0] ?? 0) - ($v2[0] ?? 0)));
             }
             $positionData = $this->data['p'] ?? null;
             if ($positionData && is_array($positionData) && array_key_exists('s', $positionData)) {

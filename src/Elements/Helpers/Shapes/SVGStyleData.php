@@ -4,8 +4,7 @@ namespace LottiePHP\Elements\Helpers\Shapes;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\Enums\ShapeType;
-
-use function LottiePHP\Utils\createTag;
+use LottiePHP\Utils\General;
 
 class SVGStyleData
 {
@@ -40,7 +39,7 @@ class SVGStyleData
         // "closed" here is used by style renderers to decide path closing behavior.
         $this->closed = ($data['closed'] ?? false) === true;
 
-        $this->pElem = createTag('path');
+        $this->pElem = General::createTag('path');
     }
 
     public function reset()

@@ -2,8 +2,6 @@
 
 namespace LottiePHP\Utils;
 
-use function LottiePHP\Utils\Pooling\domDocumentPool;
-
 class FontManager
 {
     public ?array $chars = null;
@@ -83,19 +81,19 @@ class FontManager
     ) {
         $fontProps = getFontProperties($fontData);
 
-        $tHelper = createTag('text');
+        $tHelper = General::createTag('text');
 
-        addStyles($tHelper, ['font-size' => '100px']);
+        General::addStyles($tHelper, ['font-size' => '100px']);
 
         $tHelper->setAttribute('font-family', $fontData['fFamily']);
         $tHelper->setAttribute('font-style', $fontProps['style']);
         $tHelper->setAttribute('font-weight', $fontProps['weight']);
         $tHelper->textContent = '1';
         if ($fontData['fClass'] ?? null) {
-            addStyles($tHelper, ['font-family' => 'inherit']);
-            addClasses($tHelper, [$fontData['fClass']]);
+            General::addStyles($tHelper, ['font-family' => 'inherit']);
+            General::addClasses($tHelper, [$fontData['fClass']]);
         } else {
-            addStyles($tHelper, ['font-family' => $fontData['fFamily']]);
+            General::addStyles($tHelper, ['font-family' => $fontData['fFamily']]);
         }
         $def?->appendChild($tHelper);
         self::$helper = $tHelper;
@@ -120,10 +118,10 @@ class FontManager
             return mb_ord($string, 'UTF-8') ?? 0;
         }
 
-        $first = charCodeAt($string, 0);
+        $first = General::charCodeAt($string, 0);
 
         if ($first >= 0xD800 && $first <= 0xDBFF) {
-            $second = charCodeAt($string, 1);
+            $second = General::charCodeAt($string, 1);
 
             if ($second >= 0xDC00 && $second <= 0xDFFF) {
                 return ($first - 0xD800) * 0x400 + $second - 0xDC00 + 0x10000;
@@ -190,51 +188,6 @@ class FontManager
     private function setIsLoadedBound(...$args)
     {
         return $this->setIsLoaded(...$args);
-    }
-
-    private static function setUpNode(
-        string $font,
-        string $family,
-    ) {
-        $parentNode = domDocumentPool()->createElement('span');
-        $parentNode->setAttribute('aria-hidden', 'true');
-        addStyles(
-            $parentNode,
-            [
-                'font-family' => $family,
-                'position' => 'absolute',
-                'left' => '-10000px',
-                'top' => '-10000px',
-                'font-size' => '300px',
-                'font-variant' => 'normal',
-                'font-style' => 'normal',
-                'font-weight' => 'normal',
-                'letter-spacing' => '0',
-            ]
-        );
-
-        $node = domDocumentPool()->createElement('span');
-        $node->textContent = 'giItT1WQy@!-/#';
-
-        $font = self::trimFontOptions($font);
-
-        addStyles(
-            $node,
-            [
-                'font-family' => "{$font}, {$family}",
-            ]
-        );
-
-        // Left detached from the shared document so it is freed once unreferenced.
-        $parentNode->appendChild($node);
-
-        $width = (float) $node->getAttribute('width');
-
-        return [
-            'node' => $node,
-            'parent' => $parentNode,
-            'w' => $width,
-        ];
     }
 
     private static function trimFontOptions(string $font): string
@@ -339,7 +292,7 @@ class FontManager
             ++$i;
         }
         if (
-            ('string' === gettype($char) && 13 !== charCodeAt($char, 0) || !$char)
+            ('string' === gettype($char) && 13 !== General::charCodeAt($char, 0) || !$char)
             && !$this->_warned
         ) {
             $this->_warned = true;
@@ -440,7 +393,7 @@ class FontManager
         $fontData = $this->getFontByName($fontName);
         $index = $char;
 
-        if ($fontData['cache'] && !$fontData['cache'][$index]) {
+        if ($fontData['cache'] ?? null && !$fontData['cache'][$index]) {
             $tHelper = $fontData['helper'];
 
             if (' ' === $char) {
@@ -456,7 +409,7 @@ class FontManager
         return (float) ($fontData['cache'][$index] ?? 0) * (float) $size;
     }
     private $_warned = false;
-    private static $combinedCharacters = [
+    private static array $combinedCharacters = [
         // Hindi characters
         2304,
         2305,

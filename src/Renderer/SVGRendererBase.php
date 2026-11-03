@@ -8,13 +8,8 @@ use LottiePHP\Elements\NullElement;
 use LottiePHP\Elements\SolidElement;
 use LottiePHP\Elements\SVGShapeElement;
 use LottiePHP\Elements\SVGTextLottieElement;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\Constants;
-
-use function LottiePHP\Utils\addClasses;
-use function LottiePHP\Utils\addStyles;
-use function LottiePHP\Utils\createElementID;
-use function LottiePHP\Utils\createSizedArray;
-use function LottiePHP\Utils\createTag;
 
 trait SVGRendererTraits
 {
@@ -147,7 +142,7 @@ trait SVGRendererTraits
         if (!$this->renderConfig['viewBoxOnly']) {
             $this->svgElement->setAttribute('width', $animData['w']);
             $this->svgElement->setAttribute('height', $animData['h']);
-            addStyles(
+            General::addStyles(
                 $this->svgElement,
                 [
                     'width' => '100%',
@@ -156,7 +151,7 @@ trait SVGRendererTraits
                 ]
             );
             if ($this->renderConfig['contentVisibility']) {
-                addStyles(
+                General::addStyles(
                     $this->svgElement,
                     [
                         'contentVisibility' => $this->renderConfig['contentVisibility'],
@@ -171,7 +166,7 @@ trait SVGRendererTraits
             $this->svgElement->setAttribute('height', $this->renderConfig['height']);
         }
         if ($this->renderConfig['className'] ?? null) {
-            addClasses($this->svgElement, [$this->renderConfig['className']]);
+            General::addClasses($this->svgElement, [$this->renderConfig['className']]);
         }
         if ($this->renderConfig['id']) {
             $this->svgElement->setAttribute('id', $this->renderConfig['id']);
@@ -198,15 +193,15 @@ trait SVGRendererTraits
         $this->globalData['renderConfig'] = $this->renderConfig;
         $this->data = $animData;
 
-        $maskElement = createTag('clipPath');
-        $rect = createTag('rect');
+        $maskElement = General::createTag('clipPath');
+        $rect = General::createTag('rect');
 
         $rect->setAttribute('width', $animData['w']);
         $rect->setAttribute('height', $animData['h']);
         $rect->setAttribute('x', 0);
         $rect->setAttribute('y', 0);
 
-        $maskId = createElementID();
+        $maskId = General::createElementID();
 
         $maskElement->setAttribute('id', $maskId);
         $maskElement->appendChild($rect);
@@ -220,7 +215,7 @@ trait SVGRendererTraits
 
         $defs->appendChild($maskElement);
         $this->layers = $animData['layers'];
-        $this->elements = createSizedArray(count($animData['layers']));
+        $this->elements = General::createSizedArray(count($animData['layers']));
     }
 
     public function createImage(array $data): ImageElement
@@ -310,7 +305,7 @@ abstract class SVGRendererBase extends BaseRenderer
         if (!$this->layerElement) {
             throw new \Error(get_class($this).': layerElement is not implemented');
         }
-        addStyles($this->layerElement, ['display' => 'none']);
+        General::addStyles($this->layerElement, ['display' => 'none']);
     }
 
     public function renderFrame(?int $numFromProps = null, bool $force = false)
@@ -359,6 +354,6 @@ abstract class SVGRendererBase extends BaseRenderer
         if (!$this->layerElement) {
             throw new \Error(get_class($this).': layerElement is not implemented');
         }
-        addStyles($this->layerElement, ['display' => 'block']);
+        General::addStyles($this->layerElement, ['display' => 'block']);
     }
 }

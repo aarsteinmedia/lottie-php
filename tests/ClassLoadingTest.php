@@ -5,7 +5,7 @@ namespace LottiePHP\Tests;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
- * Autoloads every class, trait and interface under src/. Missing abstract methods,
+ * Auto-loads every class, trait and interface under src/. Missing abstract methods,
  * misnamed files and unresolvable traits are fatal at compile time, so this runs in
  * its own process to report them as a failure instead of crashing the suite.
  *
@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 final class ClassLoadingTest extends TestCase
 {
     #[RunInSeparateProcess]
-    public function testEverySourceFileAutoloads(): void
+    public function testEverySourceFileAutoLoads(): void
     {
         $src = realpath(__DIR__.'/../src');
         $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true, 512, JSON_THROW_ON_ERROR);

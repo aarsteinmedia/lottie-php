@@ -4,12 +4,11 @@ namespace LottiePHP\Utils\Text;
 
 use LottiePHP\Elements\BaseElement;
 use LottiePHP\Utils\FontManager;
+use LottiePHP\Utils\General;
 use LottiePHP\Utils\Helpers\Constants;
 use LottiePHP\Utils\Properties\BaseProperty;
 
-use function LottiePHP\Utils\charCodeAt;
 use function LottiePHP\Utils\getFontProperties;
-use function LottiePHP\Utils\utf8CharAtByte;
 
 class TextProperty extends BaseProperty
 {
@@ -93,8 +92,8 @@ class TextProperty extends BaseProperty
         while ($i < $len) {
             $shouldCombine = $shouldCombineNext;
             $shouldCombineNext = false;
-            $charCode = charCodeAt($text, $i);
-            $currentChars = utf8CharAtByte($text, $i);
+            $charCode = General::charCodeAt($text, $i);
+            $currentChars = General::utf8CharAtByte($text, $i);
             if (FontManager::isCombinedCharacter($charCode)) {
                 $shouldCombine = true;
             // It's a potential surrogate pair ($this is the High surrogate)
@@ -102,7 +101,7 @@ class TextProperty extends BaseProperty
                 if (FontManager::isRegionalFlag($text, $i)) {
                     $currentChars = substr($text, $i, 14);
                 } else {
-                    $secondCharCode = charCodeAt($text, $i + 1);
+                    $secondCharCode = General::charCodeAt($text, $i + 1);
                     // It's a surrogate pair ($this is the Low surrogate)
                     if ($secondCharCode >= 0xDC00 && $secondCharCode <= 0xDFFF) {
                         if (FontManager::isModifier($charCode, $secondCharCode)) {
@@ -199,7 +198,7 @@ class TextProperty extends BaseProperty
                 $lastSpaceIndex = -1;
 
                 for ($i = 0; $i < $len; ++$i) {
-                    $charCode = charCodeAt($finalText[$i], 0) ?? 0;
+                    $charCode = General::charCodeAt($finalText[$i], 0) ?? 0;
                     $newLineFlag = false;
                     if (' ' === $finalText[$i]) {
                         $lastSpaceIndex = $i;
@@ -265,16 +264,16 @@ class TextProperty extends BaseProperty
             }
         }
         $lineWidth = -$trackingOffset;
-        $uncollapsedSpaces = 0;
+        $unCollapsedSpaces = 0;
         $currentChar = '';
 
         for ($i = 0; $i < $len; ++$i) {
             $newLineFlag = false;
             $currentChar = $documentData['finalText'][$i] ?? '';
-            $charCode = charCodeAt($currentChar, 0);
+            $charCode = General::charCodeAt($currentChar, 0);
 
             if (13 === $charCode || 3 === $charCode) {
-                $uncollapsedSpaces = 0;
+                $unCollapsedSpaces = 0;
                 array_push($lineWidths, $lineWidth);
                 $maxLineWidth = $lineWidth > $maxLineWidth ? $lineWidth : $maxLineWidth;
                 $lineWidth = -2 * $trackingOffset;
@@ -300,10 +299,10 @@ class TextProperty extends BaseProperty
             }
 
             if (' ' === $currentChar) {
-                $uncollapsedSpaces += $cLength + $trackingOffset;
+                $unCollapsedSpaces += $cLength + $trackingOffset;
             } else {
-                $lineWidth += $cLength + $trackingOffset + $uncollapsedSpaces;
-                $uncollapsedSpaces = 0;
+                $lineWidth += $cLength + $trackingOffset + $unCollapsedSpaces;
+                $unCollapsedSpaces = 0;
             }
             array_push(
                 $letters,
@@ -457,7 +456,7 @@ class TextProperty extends BaseProperty
           = $documentData['finalLineHeight'] ?? $documentData['finalSize'] * 1.2;
         $documentData['ls'] ??= 0;
         $documentData['ascent']
-          = (int) $fontData['ascent'] * $documentData['finalSize'] / 100;
+          = (int) ($fontData['ascent'] ?? 1) * $documentData['finalSize'] / 100;
     }
 
     public function copyData(array $obj, array $data): array

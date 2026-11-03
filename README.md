@@ -68,9 +68,11 @@ LottieToSVG::clearCache();    // free everything now
 Clone the repo, run `composer install`, then start the visual smoke-test UI:
 
 ```bash
-composer visual:up
+composer visual
 ```
 
 Open [http://localhost:8000](http://localhost:8000) to browse sample animations and inspect rendered SVG output.
 
-Other scripts: `composer lint`, `composer visual:down`, `composer visual:logs`.
+`composer visual` expects a local `assets/` directory of sample `.json` / `.lottie` files (this repo tracks a symlink to a sibling `lottie-fixtures` folder). Tests use fixtures under `tests/lottie-fixtures/` and do not depend on `assets/`.
+
+Other scripts: `composer lint`, `composer visual:down`.

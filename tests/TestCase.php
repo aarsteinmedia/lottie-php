@@ -6,7 +6,7 @@ use LottiePHP\LottieToSVG;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    public const ASSETS_DIR = __DIR__.'/../assets';
+    // public const ASSETS_DIR = __DIR__.'/../assets';
     public const FIXTURES_DIR = __DIR__.'/fixtures';
 
     /** @var list<string> */
