@@ -108,6 +108,26 @@ class FontManager
         ];
     }
 
+    /** Advance width in em */
+    private static function estimateCharWidth(string $char, string $family, bool $bold): float
+    {
+        $code = self::getCodePoint($char);
+
+        if (preg_match('/mono|courier|consolas|menlo|typewriter/', $family)) {
+            return 0.6;
+        }
+        if ($code >= 0x2E80 && $code <= 0xFFEF) {
+            return 1.0;
+        }
+
+        $serif = (bool) preg_match('/times|georgia|garamond|palatino|cambria|script|(^|[^s])serif/', $family)
+            && !preg_match('/sans/', $family);
+        $widths = $serif ? self::TIMES_WIDTHS : self::HELVETICA_WIDTHS;
+        $width = ($code >= 32 && $code <= 126 ? $widths[$code - 32] : ($serif ? 500 : 556)) / 1000;
+
+        return $bold ? $width * 1.06 : $width;
+    }
+
     private static function getCodePoint(string $string): int
     {
         if ('' === $string) {
@@ -385,29 +405,32 @@ class FontManager
         return self::ZERO_WIDTH_JOINER_CODE_POINT === $charCode;
     }
 
+    /**
+     * Estimate the advance width of a character at the given font size.
+     *
+     * There is no font rasteriser on the server (lottie-web asks the browser to measure), so this
+     * uses the standard Helvetica/Times metrics, or a fixed advance for monospace families.
+     */
     public function measureText(
         string $char,
         ?string $fontName,
         ?int $size
-    ): int {
-        $fontData = $this->getFontByName($fontName);
-        $index = $char;
+    ): float {
+        if ('' === $char) {
+            return 0.0;
+        }
+        $fontData = [] === $this->fonts ? [] : $this->getFontByName((string) $fontName);
+        $family = strtolower((string) ($fontData['fFamily'] ?? $fontName ?? ''));
+        $bold = (bool) preg_match('/bold|black|heavy|[6-9]00/i', ($fontData['fStyle'] ?? '').' '.($fontData['fWeight'] ?? ''));
 
-        if ($fontData['cache'] ?? null && !$fontData['cache'][$index]) {
-            $tHelper = $fontData['helper'];
-
-            if (' ' === $char) {
-                $doubleSize = (float) $tHelper->measureText("|{$char}|");
-                $singleSize = (float) $tHelper->measureText('||');
-
-                $fontData['cache'][$index] = ($doubleSize - $singleSize) / 100;
-            } else {
-                $fontData['cache'][$index] = (float) $tHelper->measureText($char) / 100;
-            }
+        $key = $family.'|'.($bold ? 'b' : 'n').'|'.$char;
+        if (!isset($this->widthCache[$key])) {
+            $this->widthCache[$key] = self::estimateCharWidth($char, $family, $bold);
         }
 
-        return (float) ($fontData['cache'][$index] ?? 0) * (float) $size;
+        return $this->widthCache[$key] * (float) $size;
     }
+
     private $_warned = false;
     private static array $combinedCharacters = [
         // Hindi characters
@@ -462,11 +485,32 @@ class FontManager
         'd83cdffe',
         'd83cdfff',
     ];
+
+    /** @var array<string, float> */
+    private array $widthCache = [];
     private const A_TAG_CODE_POINT = 917601;
     private const BLACK_FLAG_CODE_POINT = 127988;
     private const CANCEL_TAG_CODE_POINT = 917631;
+
+    // Advance widths of printable ASCII (32-126) in 1/1000 em
+    private const HELVETICA_WIDTHS = [
+        278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278,
+        556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
+        1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778,
+        667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
+        333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556,
+        556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
+    ];
     private const REGIONAL_CHARACTER_A_CODE_POINT = 127462;
     private const REGIONAL_CHARACTER_Z_CODE_POINT = 127487;
+    private const TIMES_WIDTHS = [
+        250, 333, 408, 500, 500, 833, 778, 180, 333, 333, 500, 564, 250, 333, 250, 278,
+        500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 278, 278, 564, 564, 564, 444,
+        921, 722, 667, 667, 722, 611, 556, 722, 722, 333, 389, 722, 611, 889, 722, 722,
+        556, 722, 667, 556, 611, 722, 722, 944, 722, 722, 611, 333, 278, 333, 469, 500,
+        333, 444, 500, 444, 500, 444, 333, 500, 500, 278, 278, 500, 278, 778, 500, 500,
+        500, 500, 333, 389, 278, 500, 500, 722, 500, 500, 444, 480, 200, 480, 541,
+    ];
     private const VARIATION_SELECTOR_16_CODE_POINT = 65039;
     private const Z_TAG_CODE_POINT = 917626;
     private const ZERO_WIDTH_JOINER_CODE_POINT = 8205;
