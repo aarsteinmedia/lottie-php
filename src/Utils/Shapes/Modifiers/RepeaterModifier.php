@@ -38,6 +38,10 @@ class RepeaterModifier extends ShapeModifier
         $container = is_array($parentGroup) ? ($parentGroup['gr'] ?? null) : null;
         if (!$container instanceof \DOMElement) {
             $container = $this->elem->layerElement;
+        } elseif ($container->parentNode instanceof \DOMElement) {
+            // The first group is itself one of the repeated copies: attach the others beside it,
+            // not inside it
+            $container = $container->parentNode;
         }
         if (!$container) {
             return;
@@ -52,7 +56,7 @@ class RepeaterModifier extends ShapeModifier
                 continue;
             }
             $gr = $groupData['gr'] ?? null;
-            if ($gr instanceof \DOMElement && $gr->parentNode !== $container) {
+            if ($gr instanceof \DOMElement && $gr->parentNode !== $container && !$gr->contains($container)) {
                 $container->appendChild($gr);
             }
         }
